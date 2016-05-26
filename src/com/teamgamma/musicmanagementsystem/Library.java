@@ -21,6 +21,13 @@ public class Library{
     }
 
     public boolean removeSong(Song songToRemove){
+        try {
+            FileManager fileManager = new FileManager();
+            return fileManager.removeFile(songToRemove.getM_file());
+        } catch(Exception e){
+            // if any error occurs
+            e.printStackTrace();
+        }
         return false;
     }
 
