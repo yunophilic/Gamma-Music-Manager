@@ -11,10 +11,7 @@ public class SongManager {
 
     public SongManager(String directoryPath){
         m_rootDirectory = directoryPath;
-
-        FileManager fileManager = new FileManager();
-
-        m_myLibrary = new Library(fileManager.generateSongs(directoryPath));
+        m_myLibrary = new Library(directoryPath);
     }
 
     public String getM_rootDirectory() {
