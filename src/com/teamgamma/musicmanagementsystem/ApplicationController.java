@@ -19,6 +19,6 @@ public class ApplicationController {
 
         SongManager songManager = new SongManager(pathToDir);
 
-        System.out.println("The path in song manager is " + songManager.getM_rootDirectory());
+        System.out.println("The path in song manager is " + songManager.getLibraryRootDirPath());
     }
 }
