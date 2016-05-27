@@ -9,7 +9,7 @@ public class SongManager {
 
     private Library m_myLibrary;
 
-    public SongManager(String directoryPath){
+    public SongManager(String directoryPath) {
         m_rootDirectory = directoryPath;
         m_myLibrary = new Library(directoryPath);
     }

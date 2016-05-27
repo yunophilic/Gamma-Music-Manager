@@ -37,7 +37,7 @@ public class FileManager {
         return listOfSongs;
     }
 
-    public boolean removeFile(File fileToRemove){
+    public boolean removeFile(File fileToRemove) {
         return fileToRemove.delete();
     }
 
@@ -47,7 +47,7 @@ public class FileManager {
         for (File file: files) {
             if (file.isFile()) {
                 String[] extensions = new String[] {".mp3"};
-                if (isAccept(file, extensions)){
+                if (isAccept(file, extensions)) {
                     musicFiles.add(file);
                 }
             } else {
