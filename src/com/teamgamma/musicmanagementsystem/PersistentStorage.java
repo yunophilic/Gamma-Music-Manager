@@ -48,4 +48,22 @@ public class PersistentStorage {
             e.printStackTrace();
        }
     }
+
+    public void getPersistentStorage(String directoryToRead) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(savedPaths));
+            String line;
+            while (line = br.readLine() != null) {
+                if (line.contains(directoryToRead)) {
+                    System.out.println(line);
+                }
+            }
+            fr.close();
+            br.close)();
+        } catch (FileNotFoundException e) {
+            e.printStackStrace();
+        } catch (IOException e) {
+            e.printStrackStrace();
+        }
+    }
 }
