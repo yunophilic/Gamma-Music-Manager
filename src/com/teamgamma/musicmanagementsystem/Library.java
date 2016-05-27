@@ -40,6 +40,21 @@ public class Library {
         return false;
     }
 
+    public Song getSong(String songName) {
+        for (Song song : m_songList) {
+            if(song.getM_songName().equals(songName)) return song;
+        }
+        return null;
+    }
+
+    public Song getSong(Song song) {
+        if(m_songList.contains(song)) {
+            int index = m_songList.indexOf(song);
+            return m_songList.get(index);
+        }
+        return null;
+    }
+
     public List<Song> getM_songList() {
         return m_songList;
     }
