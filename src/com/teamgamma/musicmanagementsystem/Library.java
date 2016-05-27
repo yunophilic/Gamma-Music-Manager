@@ -17,6 +17,11 @@ public class Library {
     }
 
     public boolean addSong(Song songToAdd) {
+        try {
+            return m_songList.add(songToAdd);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
