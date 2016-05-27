@@ -3,6 +3,9 @@ package com.teamgamma.musicmanagementsystem;
 import com.sun.org.apache.xpath.internal.SourceTree;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +40,7 @@ public class FileManager {
         return listOfSongs;
     }
 
-    public boolean removeFile(File fileToRemove) {
+    public boolean removeFile(File fileToRemove) throws Exception {
         return fileToRemove.delete();
     }
 
