@@ -1,15 +1,19 @@
 package com.teamgamma.musicmanagementsystem;
 
+import java.util.ArrayList;
+
 /**
  * Class to manage libraries.
  */
 public class SongManager {
     private Library m_myLibrary;
     private Library m_externLibrary;
+    private List<PlayList> m_playLists;
 
     public SongManager(String directoryPath){
         m_myLibrary = new Library(directoryPath);
         m_externLibrary = null;
+        m_playLists = new ArrayList<PlayList>();
     }
 
     public String getLibraryRootDirPath() {
