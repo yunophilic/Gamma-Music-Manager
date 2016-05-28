@@ -16,7 +16,7 @@ public class Library {
 
     public Library(String folderPath) {
         m_rootDir = folderPath;
-        m_songList = new FileManager().generateSongs(folderPath);
+        m_songList = FileManager.generateSongs(folderPath);
     }
 
     public boolean addSong(Song songToAdd) {
@@ -30,8 +30,7 @@ public class Library {
 
     public boolean removeSong(Song songToRemove) {
         try {
-            FileManager fileManager = new FileManager();
-            if (fileManager.removeFile(songToRemove.getM_file())) {
+            if (FileManager.removeFile(songToRemove.getM_file())) {
                 m_songList.remove(songToRemove);
                 return true;
             }
