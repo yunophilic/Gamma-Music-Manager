@@ -53,13 +53,16 @@ public class FileManager {
     /**
      * Copy sourceFile to destinationDir
      * @param sourceFile
-     * @param destinationDir
+     * @param destinationDir: File object with path to destination directory
      * @return true if path of new file destination equals destinationDir path, false otherwise
      * @throws IOException
      * @throws InvalidPathException
      */
     public static boolean copyFile(File sourceFile, File destinationDir) throws IOException, InvalidPathException {
-        Path resultPath = Files.copy(sourceFile.toPath(), destinationDir.toPath());
+        Path sourceFilePath = sourceFile.toPath();
+        Path destDirPath = destinationDir.toPath();
+        Path destFilePath = destDirPath.resolve(sourceFilePath.getFileName());
+        Path resultPath = Files.copy(sourceFile.toPath(), destFilePath);
         return (resultPath.equals(destinationDir.toPath()));
     }
 
