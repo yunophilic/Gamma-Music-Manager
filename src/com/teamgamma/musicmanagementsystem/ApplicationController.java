@@ -17,28 +17,13 @@ public class ApplicationController extends Application {
         UI userInterface = new UI();
 
         PersistentStorage persistentStorage = new PersistentStorage();
-        if (persistentStorage.isThereSavedState())
-        {
+        if (persistentStorage.isThereSavedState()) {
             // Load state from file. Use it to initialize stuff.
         }
         String pathToDir = userInterface.getUserInputForDirectory();
 
         SongManager songManager = new SongManager(pathToDir);
 
-        System.out.println("The path in song manager is " + songManager.getM_rootDirectory());
-
-        launch(args);
-    }
-
-    @Override
-    public void start(Stage primaryStage){
-        primaryStage.setTitle("Music Management");
-
-        StackPane root = new StackPane();
-        MusicPlayerManager musicManager = new MusicPlayerManager();
-        root.getChildren().add(new MusicPlayerUI(musicManager));
-        primaryStage.setScene(new Scene(root, 300, 250));
-
-        primaryStage.show();
+        System.out.println("The path in song manager is " + songManager.getLibraryRootDirPath());
     }
 }
