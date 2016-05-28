@@ -1,11 +1,11 @@
 package com.teamgamma.musicmanagementsystem;
 
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MusicPlayerUI;
 import com.teamgamma.musicmanagementsystem.ui.UI;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
-import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 
 /**

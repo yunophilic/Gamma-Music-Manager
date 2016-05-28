@@ -1,4 +1,6 @@
-package com.teamgamma.musicmanagementsystem;
+package com.teamgamma.musicmanagementsystem.musicplayer;
+
+import com.teamgamma.musicmanagementsystem.Song;
 
 /**
  * Interface that defines actions a music player can have. Any player wishing to work in the application will have to

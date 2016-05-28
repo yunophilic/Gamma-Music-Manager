@@ -1,4 +1,6 @@
-package com.teamgamma.musicmanagementsystem;
+package com.teamgamma.musicmanagementsystem.musicplayer;
+
+import com.teamgamma.musicmanagementsystem.Song;
 
 import javafx.scene.media.MediaPlayer;
 
@@ -84,6 +86,20 @@ public class MusicPlayerManager {
      */
     public void resume() {
         m_musicPlayer.resumeSong();
+    }
+
+    /**
+     * Function to increase the volume.
+     */
+    public void increaseVolume() {
+        m_musicPlayer.increaseVolume();
+    }
+
+    /**
+     * Function to decrease the volume.
+     */
+    public void decreaseVolume() {
+        m_musicPlayer.decreaseVolume();
     }
 
     /**

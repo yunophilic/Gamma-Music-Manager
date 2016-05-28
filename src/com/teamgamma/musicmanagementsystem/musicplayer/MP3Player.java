@@ -1,12 +1,14 @@
-package com.teamgamma.musicmanagementsystem;
+package com.teamgamma.musicmanagementsystem.musicplayer;
 
+import com.sun.org.apache.xerces.internal.util.SymbolTable;
+import com.teamgamma.musicmanagementsystem.Song;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
 /**
  * Class to play a MP3 using JavaFX MediaPlayer class.
  */
-public class MP3Player implements IMusicPlayer{
+public class MP3Player implements IMusicPlayer {
 
     // Constants for volumn control
     public static final double VOLUME_CHANGE = 0.1;
