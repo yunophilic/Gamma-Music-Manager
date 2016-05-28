@@ -25,5 +25,20 @@ public class ApplicationController extends Application {
         SongManager songManager = new SongManager(pathToDir);
 
         System.out.println("The path in song manager is " + songManager.getLibraryRootDirPath());
+        launch(args);
+    }
+
+    @Override
+
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Music Management");
+
+        StackPane root = new StackPane();
+
+        MusicPlayerManager musicManager = new MusicPlayerManager();
+        root.getChildren().add(new MusicPlayerUI(musicManager));
+
+        primaryStage.setScene(new Scene(root, 300, 250));
+        primaryStage.show();
     }
 }
