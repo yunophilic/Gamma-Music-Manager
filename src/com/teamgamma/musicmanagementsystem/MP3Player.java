@@ -4,10 +4,11 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
 /**
- * Class to play a song.
+ * Class to play a MP3 using JavaFX MediaPlayer class.
  */
-public class MusicPlayer {
+public class MP3Player implements IMusicPlayer{
 
+    // Constants for volumn control
     public static final double VOLUME_CHANGE = 0.1;
     public static final double MAX_VOLUME = 1.0;
     public static final int MIN_VOLUME = 0;
@@ -18,13 +19,13 @@ public class MusicPlayer {
 
     private MusicPlayerManager m_manager;
 
-    public MusicPlayer(MusicPlayerManager manager){
+    public MP3Player(MusicPlayerManager manager){
         m_manager = manager;
-
     }
 
-    public void playSong(Song songToPlay){
-        // Get the file from the song
+    @Override
+    public void playSong(Song songToPlay) {
+        m_currentSong = songToPlay;
         m_player = new MediaPlayer(new Media(songToPlay.getM_file().toURI().toString()));
         m_player.setOnEndOfMedia(new Runnable() {
             @Override
@@ -32,20 +33,23 @@ public class MusicPlayer {
                 m_manager.moveToNextSong();
             }
         });
-        // Determine what type of audio file.
+
         m_player.play();
 
     }
 
-    public void pauseSong(){
+    @Override
+    public void pauseSong() {
         m_player.pause();
     }
 
-    public void resumeSong(){
+    @Override
+    public void resumeSong() {
         m_player.play();
     }
 
-    public void increaseVolume(){
+    @Override
+    public void increaseVolume() {
         double currentVolume = m_player.getVolume();
         if (currentVolume < MAX_VOLUME) {
             currentVolume += VOLUME_CHANGE;
@@ -53,6 +57,7 @@ public class MusicPlayer {
         m_player.setVolume(currentVolume);
     }
 
+    @Override
     public void decreaseVolume(){
         double currentVolume = m_player.getVolume();
         if (currentVolume > MIN_VOLUME) {
@@ -61,7 +66,29 @@ public class MusicPlayer {
         m_player.setVolume(currentVolume);
     }
 
+    @Override
+    public void repeatSong(boolean repeatSong){
+        if (repeatSong) {
+            m_player.setCycleCount(MediaPlayer.INDEFINITE);
+        }
+        else {
+            m_player.setCycleCount(1);
+        }
+    }
+
+    @Override
+    public void setOnSongFinishAction(Runnable action) {
+        m_player.setOnEndOfMedia(action);
+    }
+
+    @Override
+    public void setOnErrorAction(Runnable action) {
+        m_player.setOnError(action);
+    }
+
     public MediaPlayer getMusicPlayer(){
         return m_player;
     }
+
+
 }
