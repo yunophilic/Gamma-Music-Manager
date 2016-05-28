@@ -9,9 +9,7 @@ import java.util.List;
  * Class to maintain a library in a system.
  */
 public class Library {
-
     private List<Song> m_songList;
-
     private String m_rootDir;
 
     public Library(String folderPath) {
@@ -22,7 +20,7 @@ public class Library {
     public boolean addSong(Song songToAdd) {
         try {
             return m_songList.add(songToAdd);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
@@ -41,7 +39,7 @@ public class Library {
         } catch (IOException x) {
             // File permission problems are caught here.
             System.err.println(x);
-        } catch(Exception e) {
+        } catch (Exception e) {
             // if any other error occurs
             e.printStackTrace();
         }
@@ -53,14 +51,16 @@ public class Library {
     }
 
     public Song getSong(String songName) {
-        for(Song song : m_songList) {
-            if(song.getM_songName().equals(songName)) return song;
+        for (Song song : m_songList) {
+            if (song.getM_songName().equals(songName)) {
+                return song;
+            }
         }
         return null;
     }
 
     public Song getSong(Song song) {
-        if(m_songList.contains(song)) {
+        if (m_songList.contains(song)) {
             int index = m_songList.indexOf(song);
             return m_songList.get(index);
         }

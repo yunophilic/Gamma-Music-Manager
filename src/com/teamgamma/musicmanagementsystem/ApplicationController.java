@@ -11,8 +11,7 @@ public class ApplicationController {
         UI userInterface = new UI();
 
         PersistentStorage persistentStorage = new PersistentStorage();
-        if (persistentStorage.isThereSavedState())
-        {
+        if (persistentStorage.isThereSavedState()) {
             // Load state from file. Use it to initialize stuff.
         }
         String pathToDir = userInterface.getUserInputForDirectory();

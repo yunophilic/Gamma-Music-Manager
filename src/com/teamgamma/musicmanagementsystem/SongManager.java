@@ -10,7 +10,7 @@ public class SongManager {
     private Library m_externalLibrary;
     private List<Playlist> m_playlists;
 
-    public SongManager(String directoryPath){
+    public SongManager(String directoryPath) {
         m_myLibrary = new Library(directoryPath);
         m_externalLibrary = null;
         m_playlists = new ArrayList<>();
