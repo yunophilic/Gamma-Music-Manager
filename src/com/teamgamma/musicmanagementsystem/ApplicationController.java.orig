@@ -24,21 +24,24 @@ public class ApplicationController extends Application {
 
         SongManager songManager = new SongManager(pathToDir);
 
-        System.out.println("The path in song manager is " + songManager.getLibraryRootDirPath());
+<<<<<<< HEAD
+        System.out.println("The path in song manager is " + songManager.getM_rootDirectory());
+
         launch(args);
     }
 
     @Override
-
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage){
         primaryStage.setTitle("Music Management");
 
         StackPane root = new StackPane();
-
         MusicPlayerManager musicManager = new MusicPlayerManager();
         root.getChildren().add(new MusicPlayerUI(musicManager));
-
         primaryStage.setScene(new Scene(root, 300, 250));
+
         primaryStage.show();
+=======
+        System.out.println("The path in song manager is " + songManager.getLibraryRootDirPath());
+>>>>>>> ee21650458f0ba3b21189f3e6f7acf361bcfecbb
     }
 }
