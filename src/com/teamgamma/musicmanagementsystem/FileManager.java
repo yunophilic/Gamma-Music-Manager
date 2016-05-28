@@ -4,8 +4,7 @@ import com.sun.org.apache.xpath.internal.SourceTree;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryNotEmptyException;
-import java.nio.file.NoSuchFileException;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,11 +13,12 @@ import java.util.List;
  */
 public class FileManager {
 
-    public FileManager() {
-        // Do nothing.
-    }
-
-    public List<Song> generateSongs(String pathToDirectory) {
+    /**
+     * Generate list of Song objects based on path
+     * @param pathToDirectory
+     * @return ArrayList of Song objects
+     */
+    public static List<Song> generateSongs(String pathToDirectory) {
         List<Song> listOfSongs = new ArrayList<>();
 
         // Get all music files in the path (including subdirectories)
@@ -40,11 +40,35 @@ public class FileManager {
         return listOfSongs;
     }
 
-    public boolean removeFile(File fileToRemove) throws Exception {
+    /**
+     * Remove file from file system
+     * @param fileToRemove
+     * @return true if file is removed successfully
+     * @throws Exception
+     */
+    public static boolean removeFile(File fileToRemove) throws Exception {
         return fileToRemove.delete();
     }
 
-    private List<File> getMusicFiles(File path) {
+    /**
+     * Copy sourceFile to destinationDir
+     * @param sourceFile
+     * @param destinationDir
+     * @return true if path of new file destination equals destinationDir path, false otherwise
+     * @throws IOException
+     * @throws InvalidPathException
+     */
+    public static boolean copyFile(File sourceFile, File destinationDir) throws IOException, InvalidPathException {
+        Path resultPath = Files.copy(sourceFile.toPath(), destinationDir.toPath());
+        return (resultPath.equals(destinationDir.toPath()));
+    }
+
+    /**
+     * Helper function to find music files in a directory
+     * @param path
+     * @return ArrayList of File objects
+     */
+    private static List<File> getMusicFiles(File path) {
         List<File> musicFiles = new ArrayList<>();
         File[] files = path.listFiles();
         for (File file: files) {
@@ -61,7 +85,13 @@ public class FileManager {
         return musicFiles;
     }
 
-    private boolean isAccept(File file, String[] extensions){
+    /**
+     * File filter for finding music files
+     * @param file
+     * @param extensions
+     * @return true if file is accepted, false otherwise
+     */
+    private static boolean isAccept(File file, String[] extensions){
         for (String extension: extensions) {
             if (file.getName().endsWith(extension)) {
                 return true;
