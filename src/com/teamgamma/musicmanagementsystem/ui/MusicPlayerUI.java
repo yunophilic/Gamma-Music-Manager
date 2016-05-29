@@ -12,6 +12,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaView;
+import javafx.util.Duration;
 
 /**
  * Class for Music Player UI. Acts as the controller for the media player.
@@ -100,10 +101,30 @@ public class MusicPlayerUI extends BorderPane {
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                songEndTime.setText(manager.getEndTime().toString());
+                Duration endtime = manager.getEndTime();
+                String endingTime = "";
+
+                double seconds = endtime.toSeconds();
+                int minutes = 0;
+                while ((seconds - 60) >= 0){
+                    minutes++;
+                    seconds -= 60;
+                }
+                endingTime = minutes + ":" + Math.round(seconds);
+                songEndTime.setText(endingTime);
             }
         });
         ProgressBar songPlaybar = new ProgressBar();
+        songPlaybar.setProgress(0);
+
+        manager.registerSeekObserver(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                Duration currentPlayTime = manager.getCurrentPlayTime();
+                double progress = currentPlayTime.toMillis() / manager.getEndTime().toMillis();
+                songPlaybar.setProgress(progress);
+            }
+        });
 
         musicPlayerProgress.getChildren().addAll(songStartLable, songPlaybar, songEndTime);
         return musicPlayerProgress;

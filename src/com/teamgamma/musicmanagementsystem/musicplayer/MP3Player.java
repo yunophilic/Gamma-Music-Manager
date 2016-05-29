@@ -24,6 +24,8 @@ public class MP3Player implements IMusicPlayer {
 
     private boolean m_repeatFlag = false;
 
+    private Thread m_updateWorker;
+
     public MP3Player(MusicPlayerManager manager){
         m_manager = manager;
     }
@@ -43,6 +45,7 @@ public class MP3Player implements IMusicPlayer {
             @Override
             public void run() {
                 m_manager.moveToNextSong();
+
             }
         });
 
@@ -52,6 +55,31 @@ public class MP3Player implements IMusicPlayer {
             public void run() {
                 // Need to notify observers when the player is ready so the data given will be correct.
                 m_manager.notifyNewSongObservers();
+            }
+        });
+
+        m_player.setOnPlaying(new Runnable() {
+            @Override
+            public void run() {
+                // Create a new thread for updating slider.
+                Thread updateThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("Start of the update thread the player status is " + m_player.getStatus());
+                        while(m_player.getStatus() == MediaPlayer.Status.PLAYING
+                                && m_player.getCurrentTime().toMillis() != m_player.getCycleDuration().toMillis()){
+                            System.out.println("Status of player is " + m_player.getStatus());
+                            try{
+                                // 1 ms update
+                                Thread.sleep(1);
+                            } catch (InterruptedException e){
+                                e.printStackTrace();
+                            }
+                            m_manager.notifySeekObserver();
+                        }
+                    }
+                });
+                updateThread.start();
             }
         });
         m_player.play();
@@ -114,7 +142,10 @@ public class MP3Player implements IMusicPlayer {
 
     public Duration getEndTime(){
         return m_player.getCycleDuration();
+    }
 
+    public Duration getCurrentPlayTime(){
+        return m_player.getCurrentTime();
     }
 
 }

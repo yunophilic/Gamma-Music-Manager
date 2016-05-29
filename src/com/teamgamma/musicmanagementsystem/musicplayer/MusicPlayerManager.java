@@ -30,6 +30,7 @@ public class MusicPlayerManager {
 
     private List<MusicPlayerObserver> m_newSongObservers;
 
+    private MusicPlayerObserver m_seekObserver;
     /**
      * Constructor
      */
@@ -180,4 +181,16 @@ public class MusicPlayerManager {
         }
     }
 
+    public void registerSeekObserver(MusicPlayerObserver observer){
+        m_seekObserver = observer;
+    }
+
+    public void notifySeekObserver(){
+        System.out.println("Notifying Seek observer");
+        m_seekObserver.updateUI();
+    }
+
+    public Duration getCurrentPlayTime(){
+        return ((MP3Player) m_musicPlayer).getCurrentPlayTime();
+    }
 }
