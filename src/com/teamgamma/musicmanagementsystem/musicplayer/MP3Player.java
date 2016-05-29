@@ -65,10 +65,8 @@ public class MP3Player implements IMusicPlayer {
                 Thread updateThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("Start of the update thread the player status is " + m_player.getStatus());
                         while(m_player.getStatus() == MediaPlayer.Status.PLAYING
                                 && m_player.getCurrentTime().toMillis() != m_player.getCycleDuration().toMillis()){
-                            System.out.println("Status of player is " + m_player.getStatus());
                             try{
                                 // 1 ms update
                                 Thread.sleep(1);
