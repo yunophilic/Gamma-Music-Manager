@@ -29,7 +29,6 @@ public class ApplicationController extends Application {
     }
 
     @Override
-
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Music Management");
 
