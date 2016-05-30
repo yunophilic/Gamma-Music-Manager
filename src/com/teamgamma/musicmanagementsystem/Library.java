@@ -1,7 +1,9 @@
 package com.teamgamma.musicmanagementsystem;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
 import java.util.List;
 
@@ -12,11 +14,20 @@ public class Library {
     private List<Song> m_songList;
     private String m_rootDir;
 
+    /**
+     * Constructor
+     * @param folderPath
+     */
     public Library(String folderPath) {
         m_rootDir = folderPath;
         m_songList = FileManager.generateSongs(folderPath);
     }
 
+    /**
+     * Add Song object to Library
+     * @param songToAdd
+     * @return true on successful add
+     */
     public boolean addSong(Song songToAdd) {
         try {
             return m_songList.add(songToAdd);
@@ -47,6 +58,15 @@ public class Library {
     }
 
     public boolean copySong(Song songToCopy, String pathToDest) {
+        try {
+            return FileManager.copyFile(songToCopy.getM_file(), new File(pathToDest));
+        } catch (InvalidPathException x) {
+            System.err.format("Invalid path %s", pathToDest);
+        } catch (IOException x) {
+            System.err.println(x);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
