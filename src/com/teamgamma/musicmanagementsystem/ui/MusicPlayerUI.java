@@ -4,6 +4,7 @@ package com.teamgamma.musicmanagementsystem.ui;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.Song;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -19,6 +20,8 @@ import javafx.util.Duration;
  */
 public class MusicPlayerUI extends BorderPane {
 
+
+    public static final int SECONDS_IN_MINUTE = 60;
 
     public MusicPlayerUI(MusicPlayerManager manager){
         super();
@@ -95,6 +98,8 @@ public class MusicPlayerUI extends BorderPane {
         HBox musicPlayerProgress = new HBox();
 
         Label songStartLable = new Label("0:00");
+        Label currentTimeLabel = new Label("0:00");
+        Label constantLabel = new Label("\\");
         Label songEndTime = new Label("0:00");
 
         // Set up an observer to update the songEndTime based on what song is being played.
@@ -102,32 +107,61 @@ public class MusicPlayerUI extends BorderPane {
             @Override
             public void updateUI() {
                 Duration endtime = manager.getEndTime();
-                String endingTime = "";
-
-                double seconds = endtime.toSeconds();
-                int minutes = 0;
-                while ((seconds - 60) >= 0){
-                    minutes++;
-                    seconds -= 60;
-                }
-                endingTime = minutes + ":" + Math.round(seconds);
-                songEndTime.setText(endingTime);
+                songEndTime.setText(convertDurationToTimeString(endtime));
             }
         });
         ProgressBar songPlaybar = new ProgressBar();
         songPlaybar.setProgress(0);
 
+        songPlaybar.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+            }
+        });
         manager.registerSeekObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
                 Duration currentPlayTime = manager.getCurrentPlayTime();
+
                 double progress = currentPlayTime.toMillis() / manager.getEndTime().toMillis();
                 songPlaybar.setProgress(progress);
+
+                // Have to run this one later. Odd that progress bar did not have this problem.
+                // http://stackoverflow.com/questions/29449297/java-lang-illegalstateexception-not-on-fx-application-thread-currentthread-t
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        currentTimeLabel.setText(convertDurationToTimeString(currentPlayTime));
+                    }
+                });
+
             }
         });
 
-        musicPlayerProgress.getChildren().addAll(songStartLable, songPlaybar, songEndTime);
+        musicPlayerProgress.getChildren().addAll(songStartLable, songPlaybar, currentTimeLabel, constantLabel, songEndTime);
         return musicPlayerProgress;
+    }
+
+    private String convertDurationToTimeString(Duration endtime) {
+        String endingTime = "";
+
+        double seconds = endtime.toSeconds();
+        int minutes = 0;
+        while ((seconds - SECONDS_IN_MINUTE) >= 0){
+            minutes++;
+            seconds -= SECONDS_IN_MINUTE;
+        }
+        endingTime = minutes + ":";
+
+        long leftOverSeconds = Math.round(seconds);
+        if (leftOverSeconds < 10){
+            // Add on so it looks like 0:05 rather than 0:5
+            endingTime += "0";
+        }
+
+        endingTime += leftOverSeconds;
+
+        return endingTime;
     }
 
     private HBox makeSongTitleHeader(final MusicPlayerManager manager) {

@@ -1,6 +1,5 @@
 package com.teamgamma.musicmanagementsystem.musicplayer;
 
-import com.sun.org.apache.xerces.internal.util.SymbolTable;
 import com.teamgamma.musicmanagementsystem.Song;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -15,6 +14,7 @@ public class MP3Player implements IMusicPlayer {
     public static final double VOLUME_CHANGE = 0.1;
     public static final double MAX_VOLUME = 1.0;
     public static final int MIN_VOLUME = 0;
+    public static final int UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
 
     private Song m_currentSong;
 
@@ -58,28 +58,11 @@ public class MP3Player implements IMusicPlayer {
             }
         });
 
-        m_player.setOnPlaying(new Runnable() {
-            @Override
-            public void run() {
-                // Create a new thread for updating slider.
-                Thread updateThread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        while(m_player.getStatus() == MediaPlayer.Status.PLAYING
-                                && m_player.getCurrentTime().toMillis() != m_player.getCycleDuration().toMillis()){
-                            try{
-                                // 1 ms update
-                                Thread.sleep(1);
-                            } catch (InterruptedException e){
-                                e.printStackTrace();
-                            }
-                            m_manager.notifySeekObserver();
-                        }
-                    }
-                });
-                updateThread.start();
-            }
-        });
+        m_player.setOnPlaying(createUpdateUIThread());
+
+        // Put on repeat as well as the thread terminates upon a single play through.
+        m_player.setOnRepeat(createUpdateUIThread());
+
         m_player.play();
 
     }
@@ -144,6 +127,33 @@ public class MP3Player implements IMusicPlayer {
 
     public Duration getCurrentPlayTime(){
         return m_player.getCurrentTime();
+    }
+
+    private Runnable createUpdateUIThread(){
+        return (new Runnable() {
+            @Override
+            public void run() {
+                // Create a new thread for updating slider/progress bar.
+                Thread updateThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while(m_player.getStatus() == MediaPlayer.Status.PLAYING
+                                && m_player.getCurrentTime().toMillis() != m_player.getCycleDuration().toMillis()){
+
+                            m_manager.notifySeekObserver();
+
+                            try{
+                                // 1s per update
+                                Thread.sleep(UPDATE_INTERVAL_IN_MILLISECONDS);
+                            } catch (InterruptedException e){
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+                updateThread.start();
+            }
+        });
     }
 
 }

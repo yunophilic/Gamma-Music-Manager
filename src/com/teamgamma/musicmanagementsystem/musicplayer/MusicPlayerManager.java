@@ -186,7 +186,6 @@ public class MusicPlayerManager {
     }
 
     public void notifySeekObserver(){
-        System.out.println("Notifying Seek observer");
         m_seekObserver.updateUI();
     }
 
