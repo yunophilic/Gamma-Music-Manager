@@ -39,4 +39,8 @@ public class SongManager {
     public boolean removeSong(Song songToRemove, Library library) {
         return library.removeSong(songToRemove);
     }
+
+    public List<Song> getSongs(Library library) {
+        return library.getM_songList();
+    }
 }
