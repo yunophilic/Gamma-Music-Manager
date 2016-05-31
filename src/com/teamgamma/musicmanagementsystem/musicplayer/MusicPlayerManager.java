@@ -3,14 +3,20 @@ package com.teamgamma.musicmanagementsystem.musicplayer;
 import com.teamgamma.musicmanagementsystem.Song;
 
 import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Class to manage the the MusicPlayer.
  */
 public class MusicPlayerManager {
+
+    public static final int MAX_SONG_HISTORY = 10;
 
     private IMusicPlayer m_musicPlayer;
 
@@ -18,12 +24,22 @@ public class MusicPlayerManager {
 
     private boolean m_repeatSong = false;
 
+    private Queue<Song> m_songHistory;
+
+    private Song m_currentSong = null;
+
+    private List<MusicPlayerObserver> m_newSongObservers;
+
+    private MusicPlayerObserver m_seekObserver;
     /**
      * Constructor
      */
     public MusicPlayerManager(){
         m_playingQueue = new PriorityQueue<Song>();
         m_musicPlayer = new MP3Player(this);
+        m_songHistory = new ConcurrentLinkedQueue<Song>();
+
+        m_newSongObservers = new ArrayList<MusicPlayerObserver>();
     }
 
     /**
@@ -39,6 +55,7 @@ public class MusicPlayerManager {
         }
         else {
             m_musicPlayer.playSong(nextSong);
+            updateHistory();
         }
     }
 
@@ -49,11 +66,13 @@ public class MusicPlayerManager {
     public void playSongNext(Song nextSong) {
         if(m_playingQueue.isEmpty()){
             m_musicPlayer.playSong(nextSong);
+            m_currentSong = nextSong;
         }
         else{
             // TODO: Make it move to front by changing prioirty.
             m_playingQueue.add(nextSong);
         }
+
     }
 
     /**
@@ -112,5 +131,65 @@ public class MusicPlayerManager {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Function to add a observer to the list of observers that are notified when a new song is being played.
+     * @param observer
+     */
+    public void registerNewSongObserver(MusicPlayerObserver observer) {
+        m_newSongObservers.add(observer);
+    }
+
+    /**
+     * Function to get the current song playing in the player.
+     * @return The current song loaded in the player or Null if there is none.
+     */
+    public Song getCurrentSongPlaying() {
+        return m_currentSong;
+    }
+
+    /**
+     * Function to get the end time of the song from the player.
+     * @return  The end time of the song.
+     */
+    public Duration getEndTime(){
+        return ((MP3Player) m_musicPlayer).getEndTime();
+    }
+
+    /**
+     * Function to update the history of the music player.
+     */
+    private void updateHistory() {
+        if (null == m_currentSong) {
+            return;
+        }
+
+        m_songHistory.add(m_currentSong);
+
+        if (m_songHistory.size() > MAX_SONG_HISTORY){
+            m_songHistory.poll();
+        }
+    }
+
+    /**
+     * Function to notify all observers that a new song has been loaded.
+     */
+    public void notifyNewSongObservers(){
+        for (MusicPlayerObserver observer : m_newSongObservers) {
+            observer.updateUI();
+        }
+    }
+
+    public void registerSeekObserver(MusicPlayerObserver observer){
+        m_seekObserver = observer;
+    }
+
+    public void notifySeekObserver(){
+        m_seekObserver.updateUI();
+    }
+
+    public Duration getCurrentPlayTime(){
+        return ((MP3Player) m_musicPlayer).getCurrentPlayTime();
     }
 }

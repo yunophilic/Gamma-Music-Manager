@@ -3,24 +3,34 @@ package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.Song;
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaView;
+import javafx.util.Duration;
 
 /**
  * Class for Music Player UI. Acts as the controller for the media player.
  */
-public class MusicPlayerUI extends GridPane {
+public class MusicPlayerUI extends BorderPane {
+
+
+    public static final int SECONDS_IN_MINUTE = 60;
 
     public MusicPlayerUI(MusicPlayerManager manager){
         super();
 
-        this.add(new MediaView(manager.getMediaPlayer()),0,0);
+        VBox topWrapper = new VBox();
+        topWrapper.getChildren().add(makeSongTitleHeader(manager));
+        topWrapper.getChildren().addAll(createProgressBarBox(manager), new MediaView(manager.getMediaPlayer()));
+
+        HBox musicFileBox = new HBox();
 
         Label songPathHeader = new Label("Song Path");
         TextField songPath = new TextField("Enter Path To Song");
@@ -31,10 +41,12 @@ public class MusicPlayerUI extends GridPane {
                 manager.playSongNext(new Song(songPath.getText()));
             }
         });
-        this.add(songPathHeader,0,1);
-        this.add(songPath,1,1);
-        this.add(songPathSubmit,2,1);
+        musicFileBox.getChildren().addAll(songPathHeader, songPath, songPathSubmit);
+        topWrapper.getChildren().add(musicFileBox);
+        this.setTop(topWrapper);
 
+
+        HBox playPauseButton = new HBox();
         Button pauseButton = new Button("Pause");
         pauseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -49,10 +61,11 @@ public class MusicPlayerUI extends GridPane {
                 manager.resume();
             }
         });
+        playPauseButton.getChildren().addAll(pauseButton, resumeButton);
+        this.setCenter(playPauseButton);
 
-        this.add(resumeButton, 0, 2);
-        this.add(pauseButton, 1, 2);
 
+        HBox otherControlBox = new HBox();
         Button volumnUpButton = new Button("Increase Volume");
         volumnUpButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -60,7 +73,6 @@ public class MusicPlayerUI extends GridPane {
                 manager.increaseVolume();
             }
         });
-        this.add(volumnUpButton, 0, 3);
 
         Button volumnDownButton = new Button("Decrease Volume");
         volumnDownButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -69,17 +81,104 @@ public class MusicPlayerUI extends GridPane {
                 manager.decreaseVolume();
             }
         });
-        this.add(volumnDownButton, 1, 3);
 
-        Label repeatTitle = new Label("Repeat Song");
-        CheckBox repeatBox = new CheckBox();
+        ToggleButton repeatBox = new ToggleButton("Repeat Song");
         repeatBox.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 manager.setRepeat(repeatBox.isSelected());
             }
         });
-        this.add(repeatTitle, 0, 4);
-        this.add(repeatBox, 1, 4);
+
+        otherControlBox.getChildren().addAll(volumnUpButton, volumnDownButton, repeatBox);
+        this.setBottom(otherControlBox);
     }
+
+    private HBox createProgressBarBox(final MusicPlayerManager manager) {
+        HBox musicPlayerProgress = new HBox();
+
+        Label songStartLable = new Label("0:00");
+        Label currentTimeLabel = new Label("0:00");
+        Label constantLabel = new Label("\\");
+        Label songEndTime = new Label("0:00");
+
+        // Set up an observer to update the songEndTime based on what song is being played.
+        manager.registerNewSongObserver(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                Duration endtime = manager.getEndTime();
+                songEndTime.setText(convertDurationToTimeString(endtime));
+            }
+        });
+        ProgressBar songPlaybar = new ProgressBar();
+        songPlaybar.setProgress(0);
+
+        songPlaybar.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+            }
+        });
+        manager.registerSeekObserver(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                Duration currentPlayTime = manager.getCurrentPlayTime();
+
+                double progress = currentPlayTime.toMillis() / manager.getEndTime().toMillis();
+                songPlaybar.setProgress(progress);
+
+                // Have to run this one later. Odd that progress bar did not have this problem.
+                // http://stackoverflow.com/questions/29449297/java-lang-illegalstateexception-not-on-fx-application-thread-currentthread-t
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        currentTimeLabel.setText(convertDurationToTimeString(currentPlayTime));
+                    }
+                });
+
+            }
+        });
+
+        musicPlayerProgress.getChildren().addAll(songStartLable, songPlaybar, currentTimeLabel, constantLabel, songEndTime);
+        return musicPlayerProgress;
+    }
+
+    private String convertDurationToTimeString(Duration endtime) {
+        String endingTime = "";
+
+        double seconds = endtime.toSeconds();
+        int minutes = 0;
+        while ((seconds - SECONDS_IN_MINUTE) >= 0){
+            minutes++;
+            seconds -= SECONDS_IN_MINUTE;
+        }
+        endingTime = minutes + ":";
+
+        long leftOverSeconds = Math.round(seconds);
+        if (leftOverSeconds < 10){
+            // Add on so it looks like 0:05 rather than 0:5
+            endingTime += "0";
+        }
+
+        endingTime += leftOverSeconds;
+
+        return endingTime;
+    }
+
+    private HBox makeSongTitleHeader(final MusicPlayerManager manager) {
+        HBox songTitleWrapper = new HBox();
+        Label songTitleHeader = new Label("Song Currently Playing : ");
+        Label songTitle = new Label("");
+
+        // Set up an observer that will update the name of the song when a new song is played.
+        manager.registerNewSongObserver(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                songTitle.setText(manager.getCurrentSongPlaying().getM_songName());
+            }
+        });
+        songTitleWrapper.getChildren().addAll(songTitleHeader, songTitle);
+
+        return songTitleWrapper;
+    }
+
 }
