@@ -7,15 +7,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 /**
- * MainUI Class. For now used for user input on the command line.
+ * MainUI Class.
  */
 public class MainUI extends BorderPane{
 
     public MainUI(){
-        // Do Nothing.
         super();
-
-        //BorderPane root = new BorderPane();
 
         this.setLeft(leftPane());
         this.setRight(rightPane());

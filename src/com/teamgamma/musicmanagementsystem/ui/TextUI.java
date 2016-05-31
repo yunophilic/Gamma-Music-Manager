@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Scanner;
 
 /**
- * Created by Karen on 2016-05-30.
+ * Text based UI (for now)
  */
 public class TextUI {
     public TextUI(){

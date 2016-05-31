@@ -3,6 +3,9 @@ package com.teamgamma.musicmanagementsystem.ui;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 
+/**
+ * UI class for list of songs in center of application
+ */
 public class ContentListUI extends StackPane{
     public ContentListUI(){
         super();

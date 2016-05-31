@@ -3,6 +3,9 @@ package com.teamgamma.musicmanagementsystem.ui;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 
+/**
+ * UI for the user's or external library
+ */
 public class LibraryUI extends StackPane{
 
     public LibraryUI(String text){

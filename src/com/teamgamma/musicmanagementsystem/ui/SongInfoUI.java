@@ -3,6 +3,9 @@ package com.teamgamma.musicmanagementsystem.ui;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 
+/**
+ * UI class for song information
+ */
 public class SongInfoUI extends StackPane{
     public SongInfoUI(){
         super();
