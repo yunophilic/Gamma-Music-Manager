@@ -19,7 +19,7 @@ public class Playlist {
         return m_songList.add(songToAdd);
     }
 
-    public boolean removeSong(Song songToAdd) {
-        return m_songList.remove(songToAdd);
+    public boolean removeSong(Song songToRemove) {
+        return m_songList.remove(songToRemove);
     }
 }
