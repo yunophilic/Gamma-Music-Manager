@@ -1,10 +1,14 @@
 package com.teamgamma.musicmanagementsystem;
 
+import com.sun.javaws.Main;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MusicPlayerUI;
-import com.teamgamma.musicmanagementsystem.ui.UI;
+import com.teamgamma.musicmanagementsystem.ui.MainUI;
+import com.teamgamma.musicmanagementsystem.ui.TextUI;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -14,7 +18,7 @@ import javafx.stage.Stage;
 public class ApplicationController extends Application {
     public static void main(String[] args) {
 
-        UI userInterface = new UI();
+        TextUI userInterface = new TextUI();
 
         PersistentStorage persistentStorage = new PersistentStorage();
         if (persistentStorage.isThereSavedState()) {
@@ -32,12 +36,9 @@ public class ApplicationController extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Music Management");
 
-        StackPane root = new StackPane();
+        MainUI root = new MainUI();
 
-        MusicPlayerManager musicManager = new MusicPlayerManager();
-        root.getChildren().add(new MusicPlayerUI(musicManager));
-
-        primaryStage.setScene(new Scene(root, 300, 250));
+        primaryStage.setScene(new Scene(root, 700, 500));
         primaryStage.show();
     }
 }

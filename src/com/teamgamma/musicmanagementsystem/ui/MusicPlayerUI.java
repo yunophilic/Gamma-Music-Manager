@@ -16,7 +16,7 @@ import javafx.scene.media.MediaView;
 import javafx.util.Duration;
 
 /**
- * Class for Music Player UI. Acts as the controller for the media player.
+ * Class for Music Player MainUI. Acts as the controller for the media player.
  */
 public class MusicPlayerUI extends BorderPane {
 
@@ -92,6 +92,13 @@ public class MusicPlayerUI extends BorderPane {
 
         otherControlBox.getChildren().addAll(volumnUpButton, volumnDownButton, repeatBox);
         this.setBottom(otherControlBox);
+
+        setCssStyle();
+    }
+
+    private void setCssStyle(){
+        final String cssDefault = "-fx-border-color: black;\n";
+        this.setStyle(cssDefault);
     }
 
     private HBox createProgressBarBox(final MusicPlayerManager manager) {

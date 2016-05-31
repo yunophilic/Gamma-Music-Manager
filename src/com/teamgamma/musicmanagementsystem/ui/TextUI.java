@@ -4,12 +4,11 @@ import java.io.File;
 import java.util.Scanner;
 
 /**
- * UI Class. For now used for user input on the command line.
+ * Created by Karen on 2016-05-30.
  */
-public class UI {
-
-    public UI(){
-        // Do Nothing.
+public class TextUI {
+    public TextUI(){
+        // Nothing.
     }
 
     /**
