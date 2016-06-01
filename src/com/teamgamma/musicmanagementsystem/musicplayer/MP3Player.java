@@ -44,7 +44,7 @@ public class MP3Player implements IMusicPlayer {
         m_player.setOnEndOfMedia(new Runnable() {
             @Override
             public void run() {
-                m_manager.moveToNextSong();
+                m_manager.playNextSong();
 
             }
         });

@@ -37,11 +37,31 @@ public class MusicPlayerUI extends BorderPane {
         HBox musicFileBox = new HBox();
         Label songPathHeader = new Label("Song Path");
         TextField songPath = new TextField("Enter Path To Song");
-        musicFileBox.getChildren().addAll(songPathHeader, songPath);
+        Button addSong = createIconButton("res\\ic_playlist_add_black_48dp_1x.png");
+        addSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                manager.placeSongOnPlaybackQueue(new Song(songPath.getText()));
+            }
+        });
+        musicFileBox.getChildren().addAll(songPathHeader, songPath, addSong);
         topWrapper.getChildren().add(musicFileBox);
 
         topWrapper.getChildren().addAll(createProgressBarBox(manager));
         this.setTop(topWrapper);
+
+        HBox playbackControls = new HBox();
+        playbackControls.setAlignment(Pos.CENTER);
+
+        Button previousSong = createIconButton("res\\ic_skip_previous_black_48dp_1x.png");
+        previousSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                manager.playPreviousSong();
+            }
+        });
+        previousSong.setAlignment(Pos.CENTER_LEFT);
+        playbackControls.getChildren().add(previousSong);
 
         ToggleButton playPauseButton = new ToggleButton();
         playPauseButton.setStyle("-fx-background-color: transparent");
@@ -55,7 +75,7 @@ public class MusicPlayerUI extends BorderPane {
                         if (manager.isSomethingPlaying()) {
                             manager.resume();
                         } else {
-                            manager.playSongNext(new Song(songPath.getText()));
+                            manager.placeSongOnPlaybackQueue(new Song(songPath.getText()));
                         }
                     } catch (Exception e){
                         // Failed to load the song so do not update the image.
@@ -69,7 +89,21 @@ public class MusicPlayerUI extends BorderPane {
             }
         });
 
-        this.setCenter(playPauseButton);
+        playPauseButton.setAlignment(Pos.CENTER);
+        playbackControls.getChildren().add(playPauseButton);
+
+        Button skipButton = createIconButton("res\\ic_skip_next_black_48dp_1x.png");
+        skipButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                manager.playNextSong();
+            }
+        });
+        playbackControls.getChildren().add(skipButton);
+
+
+
+        this.setCenter(playbackControls);
 
         HBox otherControlBox = createOtherOptionsBox(manager);
         this.setBottom(otherControlBox);
