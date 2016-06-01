@@ -192,4 +192,17 @@ public class MusicPlayerManager {
     public Duration getCurrentPlayTime(){
         return ((MP3Player) m_musicPlayer).getCurrentPlayTime();
     }
+
+    /**
+     * Function to seek the song to the specified time. Time is represented by the percent of the song. Where 1.0 would
+     * be the
+     * @param percent
+     */
+    public void seekSongTo(double percent){
+        if (percent > 1 || percent < 0){
+            assert(false);
+        }
+        ((MP3Player) m_musicPlayer).seekToTime(percent);
+
+    }
 }

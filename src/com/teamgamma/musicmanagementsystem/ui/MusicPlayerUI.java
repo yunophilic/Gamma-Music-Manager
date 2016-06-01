@@ -5,8 +5,11 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.Song;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
+import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -120,9 +123,12 @@ public class MusicPlayerUI extends BorderPane {
         ProgressBar songPlaybar = new ProgressBar();
         songPlaybar.setProgress(0);
 
-        songPlaybar.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        Slider playbackSlider = new Slider(0, 1.0, 0);
+        playbackSlider.setBlockIncrement(0.01);
+        playbackSlider.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                manager.seekSongTo(playbackSlider.getValue());
             }
         });
         manager.registerSeekObserver(new MusicPlayerObserver() {
@@ -132,7 +138,7 @@ public class MusicPlayerUI extends BorderPane {
 
                 double progress = currentPlayTime.toMillis() / manager.getEndTime().toMillis();
                 songPlaybar.setProgress(progress);
-
+                playbackSlider.setValue(progress);
                 // Have to run this one later. Odd that progress bar did not have this problem.
                 // http://stackoverflow.com/questions/29449297/java-lang-illegalstateexception-not-on-fx-application-thread-currentthread-t
                 Platform.runLater(new Runnable() {
@@ -145,7 +151,7 @@ public class MusicPlayerUI extends BorderPane {
             }
         });
 
-        musicPlayerProgress.getChildren().addAll(songStartLable, songPlaybar, currentTimeLabel, constantLabel, songEndTime);
+        musicPlayerProgress.getChildren().addAll(songStartLable, songPlaybar, playbackSlider, currentTimeLabel, constantLabel, songEndTime);
         return musicPlayerProgress;
     }
 

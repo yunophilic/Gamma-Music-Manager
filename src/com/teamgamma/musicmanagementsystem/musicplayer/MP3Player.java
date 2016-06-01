@@ -156,4 +156,18 @@ public class MP3Player implements IMusicPlayer {
         });
     }
 
+    /**
+     * Function to seek to the given percentage given in parameter.
+     * @param percent
+     */
+    public void seekToTime(double percent){
+        double seekTime = m_player.getCycleDuration().toMillis() * percent;
+        Duration newTime = new Duration(seekTime);
+
+        if (m_player.getCurrentTime().toMillis() ==  m_player.getTotalDuration().toMillis()){
+            // Need to start an update thread becuase the thread has already stopped.
+            new Thread(createUpdateUIThread()).start();
+        }
+        m_player.seek(newTime);
+    }
 }
