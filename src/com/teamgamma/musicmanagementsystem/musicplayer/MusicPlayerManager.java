@@ -205,4 +205,8 @@ public class MusicPlayerManager {
         ((MP3Player) m_musicPlayer).seekToTime(percent);
 
     }
+
+    public boolean isSomethingPlaying(){
+        return (null != m_currentSong);
+    }
 }
