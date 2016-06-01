@@ -14,16 +14,14 @@ import java.util.List;
  */
 public class Library {
     private List<Song> m_songList;
-    private String m_rootDir;
-    private File m_file;
+    private File m_rootDir;
 
     /**
      * Constructor
      * @param folderPath: root path to folder
      */
     public Library(String folderPath) {
-        m_rootDir = folderPath;
-        m_file = new File(folderPath);
+        m_rootDir = new File(folderPath);
         m_songList = FileManager.generateSongs(folderPath);
     }
 
@@ -123,29 +121,44 @@ public class Library {
     }
 
     /**
-     * Get root directory of Library
+     * Get root directory path of Library
      * @return String to root directory
      */
-    public String getM_rootDir() {
+    public String getM_rootDirPath() {
+        return m_rootDir.getAbsolutePath();
+    }
+
+    /**
+     * Get root directory file of Library
+     * @return File of root directory
+     */
+    public File getM_rootDir() {
         return m_rootDir;
     }
 
-    public File getM_file() {
-        return m_file;
+    /**
+     * Get all the directories and their sub directories in the root directory (including the root dir itself)
+     * @return List<File> of all all the directories and their sub directories
+     */
+    public List<File> getFolders() {
+        return getFoldersRecursively(m_rootDir);
     }
 
-    public List<File> getFolders() {
-        List<Path> folderPaths = new ArrayList<>();
-        List<File> folders = new ArrayList<>();
-        for (Song song: m_songList){
-            Path parent = song.getM_file().toPath().getParent();
-            if (!folderPaths.contains(parent)){
-                folderPaths.add(parent);
-                File newFolder = parent.toFile();
-                folders.add(newFolder);
-                //System.out.println("Folder added:" + newFolder.getAbsolutePath());
+    /**
+     * Helper function to recursively trace directories and sub directories
+     * @return List<File>
+     */
+    private static List<File> getFoldersRecursively(File file) {
+        List<File> fileList = new ArrayList<>();
+        if (file.isDirectory()) {
+            fileList.add(file);
+        }
+        File[] children = file.listFiles();
+        if (children != null) {
+            for (File child : children) {
+                fileList.addAll(getFoldersRecursively(child));
             }
         }
-        return folders;
+        return fileList;
     }
 }

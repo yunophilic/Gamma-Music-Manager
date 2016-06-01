@@ -1,16 +1,10 @@
 package com.teamgamma.musicmanagementsystem;
 
-import com.sun.javaws.Main;
-import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import com.teamgamma.musicmanagementsystem.ui.MusicPlayerUI;
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
-import com.teamgamma.musicmanagementsystem.ui.TextUI;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import java.io.File;
 
 /**
  * Class to wrap all components together.
@@ -36,8 +30,14 @@ public class ApplicationController extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Music Management");
 
-        SongManager songManager = new SongManager("G:\\SFU\\Homework\\CMPT373\\music");
-        songManager.setM_externalLibrary("G:\\SFU\\Homework\\CMPT373\\music2");
+        //for now!
+        String myLibPath = System.getProperty("user.dir") +
+                File.separator + "library-sample" + File.separator + "my library";
+        String externLibPath = System.getProperty("user.dir") +
+                File.separator + "library-sample" + File.separator + "external library";
+
+        SongManager songManager = new SongManager(myLibPath);
+        songManager.setM_externalLibrary(externLibPath);
 
         MainUI root = new MainUI(songManager);
 
