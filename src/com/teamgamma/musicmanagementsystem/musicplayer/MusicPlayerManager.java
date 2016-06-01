@@ -24,11 +24,13 @@ public class MusicPlayerManager {
 
     private boolean m_repeatSong = false;
 
-    private Queue<Song> m_songHistory;
+    private List<Song> m_songHistory;
 
     private Song m_currentSong = null;
 
     private List<MusicPlayerObserver> m_newSongObservers;
+
+    private int m_historyIndex = 0;
 
     private MusicPlayerObserver m_seekObserver;
     /**
@@ -37,7 +39,7 @@ public class MusicPlayerManager {
     public MusicPlayerManager(){
         m_playingQueue = new PriorityQueue<Song>();
         m_musicPlayer = new MP3Player(this);
-        m_songHistory = new ConcurrentLinkedQueue<Song>();
+        m_songHistory = new ArrayList<Song>();
 
         m_newSongObservers = new ArrayList<MusicPlayerObserver>();
     }
@@ -45,7 +47,7 @@ public class MusicPlayerManager {
     /**
      * Function to load the next song in the queue.
      */
-    public void moveToNextSong(){
+    public void playNextSong(){
         Song nextSong = m_playingQueue.poll();
         if (null == nextSong) {
             // No more songs to play.
@@ -60,11 +62,12 @@ public class MusicPlayerManager {
     }
 
     /**
-     * Function will place the song passed in to the front of the queue.
+     * Function will place the song passed in the playback queue. This will play the song immediately if there is not thing
+     * in the queue.
      * @param nextSong
      */
-    public void playSongNext(Song nextSong) {
-        if(m_playingQueue.isEmpty()){
+    public void placeSongOnPlaybackQueue(Song nextSong) {
+        if(m_playingQueue.isEmpty() && !isSomethingPlaying()){
             m_musicPlayer.playSong(nextSong);
             m_currentSong = nextSong;
         }
@@ -167,8 +170,10 @@ public class MusicPlayerManager {
 
         m_songHistory.add(m_currentSong);
 
+        // On insertion of new song in history set the last played index to be the latest song in history list.
+        m_historyIndex = m_songHistory.size();
         if (m_songHistory.size() > MAX_SONG_HISTORY){
-            m_songHistory.poll();
+            m_songHistory.remove(0);
         }
     }
 
@@ -191,5 +196,36 @@ public class MusicPlayerManager {
 
     public Duration getCurrentPlayTime(){
         return ((MP3Player) m_musicPlayer).getCurrentPlayTime();
+    }
+
+    /**
+     * Function to seek the song to the specified time. Time is represented by the percent of the song. Where 1.0 would
+     * be the
+     * @param percent
+     */
+    public void seekSongTo(double percent){
+        if (percent > 1 || percent < 0){
+            assert(false);
+        }
+        ((MP3Player) m_musicPlayer).seekToTime(percent);
+
+    }
+
+    public boolean isSomethingPlaying(){
+        return (null != m_currentSong);
+    }
+
+    public void playPreviousSong(){
+        assert(m_songHistory.size() < m_historyIndex);
+
+        if (m_historyIndex == 0){
+            // Nothing in history.
+            System.out.println("History index is 0");
+            return;
+        }
+        if (!m_songHistory.isEmpty()){
+            m_historyIndex--;
+            m_musicPlayer.playSong(m_songHistory.get(m_historyIndex));
+        }
     }
 }
