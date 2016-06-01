@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,6 +15,7 @@ import java.util.List;
 public class Library {
     private List<Song> m_songList;
     private String m_rootDir;
+    private File m_file;
 
     /**
      * Constructor
@@ -20,6 +23,7 @@ public class Library {
      */
     public Library(String folderPath) {
         m_rootDir = folderPath;
+        m_file = new File(folderPath);
         m_songList = FileManager.generateSongs(folderPath);
     }
 
@@ -124,5 +128,24 @@ public class Library {
      */
     public String getM_rootDir() {
         return m_rootDir;
+    }
+
+    public File getM_file() {
+        return m_file;
+    }
+
+    public List<File> getFolders() {
+        List<Path> folderPaths = new ArrayList<>();
+        List<File> folders = new ArrayList<>();
+        for (Song song: m_songList){
+            Path parent = song.getM_file().toPath().getParent();
+            if (!folderPaths.contains(parent)){
+                folderPaths.add(parent);
+                File newFolder = parent.toFile();
+                folders.add(newFolder);
+                //System.out.println("Folder added:" + newFolder.getAbsolutePath());
+            }
+        }
+        return folders;
     }
 }

@@ -1,5 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.Library;
+import com.teamgamma.musicmanagementsystem.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -10,24 +12,31 @@ import javafx.scene.layout.VBox;
  * MainUI Class.
  */
 public class MainUI extends BorderPane{
+    private static SongManager model;
 
-    public MainUI(){
+    public MainUI(SongManager model){
         super();
+
+        this.model = model;
 
         this.setLeft(leftPane());
         this.setRight(rightPane());
         this.setCenter(centerPane());
-        this.setBottom(bottomePane());
+        //this.setBottom(bottomePane());
     }
 
     private Node leftPane(){
-        return new LibraryUI("Library UI (myLibrary)");
+        return sidePane(model.getM_myLibrary());
     }
 
     private Node rightPane(){
-        VBox rightNodes = new VBox();
+        return sidePane(model.getM_externalLibrary());
+    }
 
-        LibraryUI libraryUI = new LibraryUI("Library UI (externLibrary)");
+    private Node sidePane(Library library){
+        BorderPane sidePane = new BorderPane();
+
+        LibraryUI libraryUI = new LibraryUI(library);
         libraryUI.setMaxWidth(Double.MAX_VALUE);
         libraryUI.setMaxHeight(Double.MAX_VALUE);
 
@@ -35,10 +44,9 @@ public class MainUI extends BorderPane{
         songInfoUI.setMaxWidth(Double.MAX_VALUE);
         songInfoUI.setMaxHeight(Double.MAX_VALUE);
 
-        rightNodes.getChildren().add(libraryUI);
-        rightNodes.getChildren().add(songInfoUI);
-
-        return rightNodes;
+        sidePane.setCenter(libraryUI);
+        sidePane.setBottom(songInfoUI);
+        return sidePane;
     }
 
     private Node topNodes(){
@@ -53,6 +61,13 @@ public class MainUI extends BorderPane{
     }
 
     private Node centerPane(){
-        return new ContentListUI();
+        BorderPane centerPane = new BorderPane();
+
+        MusicPlayerManager musicManager = new MusicPlayerManager();
+        MusicPlayerUI musicPlayerUI = new MusicPlayerUI(musicManager);
+
+        centerPane.setBottom(musicPlayerUI);
+        centerPane.setCenter(new ContentListUI());
+        return centerPane;
     }
 }
