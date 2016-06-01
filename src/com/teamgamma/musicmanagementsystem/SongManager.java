@@ -9,11 +9,16 @@ public class SongManager {
     private Library m_myLibrary;
     private Library m_externalLibrary;
     private List<Playlist> m_playlists;
+    private List<SongManagerObserver> m_songManagerObservers;
 
     public SongManager(String directoryPath) {
         m_myLibrary = new Library(directoryPath);
         m_externalLibrary = null;
         m_playlists = new ArrayList<>();
+    }
+
+    public void registerNewObserver(SongManagerObserver observer) {
+        m_songManagerObservers.add(observer);
     }
 
     public String getLibraryRootDirPath() {

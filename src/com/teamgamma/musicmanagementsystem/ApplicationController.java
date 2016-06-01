@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 public class ApplicationController extends Application {
     public static void main(String[] args) {
 
-        TextUI userInterface = new TextUI();
+        /*TextUI userInterface = new TextUI();
 
         PersistentStorage persistentStorage = new PersistentStorage();
         if (persistentStorage.isThereSavedState()) {
@@ -28,7 +28,7 @@ public class ApplicationController extends Application {
 
         SongManager songManager = new SongManager(pathToDir);
 
-        System.out.println("The path in song manager is " + songManager.getLibraryRootDirPath());
+        System.out.println("The path in song manager is " + songManager.getLibraryRootDirPath());*/
         launch(args);
     }
 
@@ -36,9 +36,12 @@ public class ApplicationController extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Music Management");
 
-        MainUI root = new MainUI();
+        SongManager songManager = new SongManager("G:\\SFU\\Homework\\CMPT373\\music");
+        songManager.setM_externalLibrary("G:\\SFU\\Homework\\CMPT373\\music2");
 
-        primaryStage.setScene(new Scene(root, 700, 500));
+        MainUI root = new MainUI(songManager);
+
+        primaryStage.setScene(new Scene(root, 1200, 900));
         primaryStage.show();
     }
 }
