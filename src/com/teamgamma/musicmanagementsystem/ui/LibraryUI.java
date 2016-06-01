@@ -1,23 +1,18 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.Library;
-import com.teamgamma.musicmanagementsystem.Song;
-import com.teamgamma.musicmanagementsystem.SongManager;
-import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.StackPane;
-
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
+import java.io.FileFilter;
 
 /**
  * UI for the user's or external library
  */
-public class LibraryUI extends StackPane{
+public class LibraryUI extends StackPane {
     private static Library library;
-    private TreeView<File> filesTree;
+    private TreeView<File> fileTreeView;
 
     public LibraryUI(Library library){
         super();
@@ -29,7 +24,7 @@ public class LibraryUI extends StackPane{
         TreeView<String> tree = createTree();
 
         //this.getChildren().add(tree);
-        //findFiles(library.getM_file(), null);
+        //findFiles(library.getM_rootDir(), null);
         this.getChildren().add(tree);
 
         setCssStyle();
@@ -39,26 +34,36 @@ public class LibraryUI extends StackPane{
 
     }
 
+    /**
+     * Construct the tree view
+     * @return TreeView<String>
+     */
     private TreeView<String> createTree(){
-        List<File> folders = library.getFolders();
-        TreeItem<String> rootItem = new TreeItem<> (folders.get(0).getAbsolutePath());
-        //TreeItem<String> rootItem = null;
-        List<Song> songList = library.getM_songList();
+        TreeItem<String> rootItem = generateTreeItems(library.getM_rootDir());
         rootItem.setExpanded(true);
-        for (int i = 0; i < folders.size(); i++) {
-            TreeItem<String> folderItem = new TreeItem<>(folders.get(i).getName());
-            for (Song song : songList) {
-                String filePath = song.getM_file().getParent();
-                if (filePath.equals(folders.get(i).getAbsolutePath())) {
-                    TreeItem<String> item = new TreeItem<>(song.getM_songName());
-                    folderItem.getChildren().add(item);
-                }
-            }
-            rootItem.getChildren().add(folderItem);
-        }
-        TreeView<String> tree = new TreeView<> (rootItem);
+        return new TreeView<>(rootItem);
+    }
 
-        return tree;
+    /**
+     * Helper function to recursively create the tree items and return a reference to the root item
+     * @return TreeItem<String>
+     */
+    private TreeItem<String> generateTreeItems(File file) {
+        TreeItem<String> item = new TreeItem<>(
+                ( file.equals(library.getM_rootDir()) ) ? file.getAbsolutePath() : file.getName()
+        );
+        File[] children = file.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isDirectory() || pathname.getName().endsWith(".mp3");
+            }
+        });
+        if (children != null) {
+            for (File child : children) {
+                item.getChildren().add(generateTreeItems(child));
+            }
+        }
+        return item;
     }
 
     private void setCssStyle(){
