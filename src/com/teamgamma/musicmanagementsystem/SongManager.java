@@ -22,7 +22,7 @@ public class SongManager {
     }
 
     public String getLibraryRootDirPath() {
-        return m_myLibrary.getM_rootDir();
+        return m_myLibrary.getM_rootDirPath();
     }
 
     public Library getM_myLibrary() {
