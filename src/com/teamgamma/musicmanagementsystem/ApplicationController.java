@@ -37,7 +37,18 @@ public class ApplicationController extends Application {
                 File.separator + "library-sample" + File.separator + "external library";
 
         SongManager songManager = new SongManager(myLibPath);
-        songManager.setM_externalLibrary(externLibPath);
+        //songManager.setM_externalLibrary(externLibPath);
+
+        if (songManager.addLibrary(myLibPath)){
+            System.out.println("New library added");
+        } else {
+            System.out.println("Duplicate library");
+        }
+        if (songManager.addLibrary(externLibPath)){
+            System.out.println("New library added");
+        } else {
+            System.out.println("Duplicate library");
+        }
 
         MainUI root = new MainUI(songManager);
 

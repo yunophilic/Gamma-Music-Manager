@@ -1,33 +1,36 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.Library;
+import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.StackPane;
 import java.io.File;
 import java.io.FileFilter;
+import java.util.List;
 
 /**
  * UI for the user's or external library
  */
 public class LibraryUI extends StackPane {
-    private static Library library;
+    private static List<Library> libraries;
     private TreeView<File> fileTreeView;
 
-    public LibraryUI(Library library){
+    public LibraryUI(List<Library> libraries){
         super();
 
-        this.library = library;
+        this.libraries = libraries;
 
         //this.getChildren().add(new Label(text));
 
-        TreeView<String> tree = createTree();
+        if (libraries.isEmpty()){
+            this.getChildren().add(new Label("Add a library"));
+        } else {
+            TreeView<String> tree = createTrees();
+            this.getChildren().add(tree);
+        }
 
-        //this.getChildren().add(tree);
-        //findFiles(library.getM_rootDir(), null);
-        this.getChildren().add(tree);
-
-        setCssStyle();
+        setPaneStyle();
     }
 
     private void registerAsObserver() {
@@ -38,17 +41,25 @@ public class LibraryUI extends StackPane {
      * Construct the tree view
      * @return TreeView<String>
      */
-    private TreeView<String> createTree(){
-        TreeItem<String> rootItem = generateTreeItems(library.getM_rootDir());
-        rootItem.setExpanded(true);
-        return new TreeView<>(rootItem);
+    private TreeView<String> createTrees(){
+        TreeItem<String> root = new TreeItem<>("Dummy root");
+
+        for (Library library: libraries) {
+            TreeItem<String> rootItem = generateTreeItems(library.getM_rootDir(), library);
+            rootItem.setExpanded(true);
+            System.out.println("Added new root path:" + rootItem.toString());
+            root.getChildren().add(rootItem);
+        }
+        TreeView<String> tree = new TreeView<>(root);
+        tree.setShowRoot(false);
+        return tree;
     }
 
     /**
      * Helper function to recursively create the tree items and return a reference to the root item
      * @return TreeItem<String>
      */
-    private TreeItem<String> generateTreeItems(File file) {
+    private TreeItem<String> generateTreeItems(File file, Library library) {
         TreeItem<String> item = new TreeItem<>(
                 ( file.equals(library.getM_rootDir()) ) ? file.getAbsolutePath() : file.getName()
         );
@@ -60,10 +71,17 @@ public class LibraryUI extends StackPane {
         });
         if (children != null) {
             for (File child : children) {
-                item.getChildren().add(generateTreeItems(child));
+                item.getChildren().add(generateTreeItems(child, library));
             }
         }
         return item;
+    }
+
+    private void setPaneStyle() {
+        this.setMaxWidth(Double.MAX_VALUE);
+        this.setMaxHeight(Double.MAX_VALUE);
+
+        setCssStyle();
     }
 
     private void setCssStyle(){

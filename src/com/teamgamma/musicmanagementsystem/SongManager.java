@@ -10,11 +10,41 @@ public class SongManager {
     private Library m_externalLibrary;
     private List<Playlist> m_playlists;
     private List<SongManagerObserver> m_songManagerObservers;
+    private List<Library> m_libraries;
 
     public SongManager(String directoryPath) {
         m_myLibrary = new Library(directoryPath);
         m_externalLibrary = null;
         m_playlists = new ArrayList<>();
+        m_libraries = new ArrayList<>();
+    }
+
+    /**
+     * Add new library (root folder path) to m_libraries if it is not already in the list
+     * @param directoryPath
+     * @return true if new library is added to the list, false otherwise
+     */
+    public boolean addLibrary(String directoryPath){
+        if (!isInLibrary(directoryPath)) {
+            Library newLibrary = new Library(directoryPath);
+            m_libraries.add(newLibrary);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isInLibrary(String directoryPath){
+        for (Library library: m_libraries){
+            if (library.getM_rootDirPath().equals(directoryPath)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<Library> getM_libraries(){
+        return m_libraries;
     }
 
     public void registerNewObserver(SongManagerObserver observer) {
