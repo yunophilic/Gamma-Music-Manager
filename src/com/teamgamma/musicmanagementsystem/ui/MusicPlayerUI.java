@@ -11,10 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 
 import javafx.scene.text.Font;
 import javafx.util.Duration;
@@ -47,7 +44,7 @@ public class MusicPlayerUI extends BorderPane {
         musicFileBox.getChildren().addAll(songPathHeader, songPath, addSong);
         topWrapper.getChildren().add(musicFileBox);
 
-        topWrapper.getChildren().addAll(createProgressBarBox(manager));
+        topWrapper.getChildren().addAll(createProgressBarBox(manager), createCurrentTimeBox(manager));
         this.setTop(topWrapper);
 
         HBox playbackControls = new HBox();
@@ -101,8 +98,6 @@ public class MusicPlayerUI extends BorderPane {
         });
         playbackControls.getChildren().add(skipButton);
 
-
-
         this.setCenter(playbackControls);
 
         HBox otherControlBox = createOtherOptionsBox(manager);
@@ -154,18 +149,11 @@ public class MusicPlayerUI extends BorderPane {
         this.setStyle(cssDefault);
     }
 
-    private VBox createProgressBarBox(final MusicPlayerManager manager) {
-        VBox musicPlayerProgress = new VBox();
+    private StackPane createProgressBarBox(final MusicPlayerManager manager) {
+        StackPane musicPlayerProgress = new StackPane();
 
         HBox progressWrapper = new HBox();
         Label songStartLable = new Label("0:00");
-
-        HBox songTimesWrapper = new HBox();
-        Label currentTimeLabel = createHeadingLabel("0:00");
-        Label constantLabel = createHeadingLabel("\\");
-        Label songEndTimeText = createHeadingLabel("0:00");
-        songTimesWrapper.getChildren().addAll(currentTimeLabel, constantLabel, songEndTimeText);
-        songTimesWrapper.setAlignment(Pos.CENTER_RIGHT);
 
         Label songEndTimeProgressBar = new Label("0:00");
         Label songEndTimeSeekBar = new Label("0:00");
@@ -177,7 +165,6 @@ public class MusicPlayerUI extends BorderPane {
                 String endTimeString = convertDurationToTimeString(manager.getEndTime());
                 songEndTimeProgressBar.setText(endTimeString);
                 songEndTimeSeekBar.setText(endTimeString);
-                songEndTimeText.setText(endTimeString);
             }
         });
 
@@ -188,7 +175,7 @@ public class MusicPlayerUI extends BorderPane {
         progressWrapper.getChildren().addAll(songStartLable, songPlaybar, songEndTimeProgressBar);
         HBox.setHgrow(songPlaybar, Priority.ALWAYS);
 
-
+        // Have a slider for the underlying control but do not show it.
         HBox playbackSliderWrapper = new HBox();
         Slider playbackSlider = new Slider(0, 1.0, 0);
         playbackSlider.setBlockIncrement(0.01);
@@ -196,10 +183,15 @@ public class MusicPlayerUI extends BorderPane {
         playbackSlider.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                System.out.println("Slider seek slider value is " + playbackSlider.getValue());
                 manager.seekSongTo(playbackSlider.getValue());
             }
         });
         playbackSliderWrapper.getChildren().addAll(new Label("0:00"), playbackSlider, songEndTimeSeekBar);
+        playbackSliderWrapper.setOpacity(0);
+
+        // Make the slider always bigger than the progress bar to make it so the user only can click on the slider.
+        playbackSliderWrapper.setScaleY(2.5);
 
         // Setup the observer pattern stuff for UI updates to the current play time.
         manager.registerSeekObserver(new MusicPlayerObserver() {
@@ -210,19 +202,12 @@ public class MusicPlayerUI extends BorderPane {
                 double progress = currentPlayTime.toMillis() / manager.getEndTime().toMillis();
                 songPlaybar.setProgress(progress);
                 playbackSlider.setValue(progress);
-                // Have to run this one later. Odd that progress bar did not have this problem.
-                // http://stackoverflow.com/questions/29449297/java-lang-illegalstateexception-not-on-fx-application-thread-currentthread-t
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        currentTimeLabel.setText(convertDurationToTimeString(currentPlayTime));
-                    }
-                });
+
 
             }
         });
 
-        musicPlayerProgress.getChildren().addAll(progressWrapper, playbackSliderWrapper, songTimesWrapper);
+        musicPlayerProgress.getChildren().addAll(progressWrapper, playbackSliderWrapper);
         return musicPlayerProgress;
     }
 
@@ -281,5 +266,35 @@ public class MusicPlayerUI extends BorderPane {
         Label label = new Label(textForLabel);
         label.setFont(new Font(20));
         return label;
+    }
+
+    private HBox createCurrentTimeBox(MusicPlayerManager manager){
+        HBox songTimesWrapper = new HBox();
+        Label currentTimeLabel = createHeadingLabel("0:00");
+        Label constantLabel = createHeadingLabel("/");
+        Label songEndTimeText = createHeadingLabel("0:00");
+        songTimesWrapper.getChildren().addAll(currentTimeLabel, constantLabel, songEndTimeText);
+        songTimesWrapper.setAlignment(Pos.CENTER_RIGHT);
+
+        manager.registerNewSongObserver(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                songEndTimeText.setText(convertDurationToTimeString(manager.getEndTime()));
+            }
+        });
+        manager.registerSeekObserver(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                // Have to run this one later. Odd that progress bar did not have this problem.
+                // http://stackoverflow.com/questions/29449297/java-lang-illegalstateexception-not-on-fx-application-thread-currentthread-t
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        currentTimeLabel.setText(convertDurationToTimeString(manager.getCurrentPlayTime()));
+                    }
+                });
+            }
+        });
+        return songTimesWrapper;
     }
 }

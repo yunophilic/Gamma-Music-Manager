@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Class to manage the the MusicPlayer.
@@ -32,7 +31,7 @@ public class MusicPlayerManager {
 
     private int m_historyIndex = 0;
 
-    private MusicPlayerObserver m_seekObserver;
+    private List<MusicPlayerObserver> m_playbackObservers;
     /**
      * Constructor
      */
@@ -42,6 +41,7 @@ public class MusicPlayerManager {
         m_songHistory = new ArrayList<Song>();
 
         m_newSongObservers = new ArrayList<MusicPlayerObserver>();
+        m_playbackObservers = new ArrayList<MusicPlayerObserver>();
     }
 
     /**
@@ -186,12 +186,15 @@ public class MusicPlayerManager {
         }
     }
 
-    public void registerSeekObserver(MusicPlayerObserver observer){
-        m_seekObserver = observer;
+    public void registerSeekObserver(MusicPlayerObserver observer) {
+        m_playbackObservers.add(observer);
     }
 
     public void notifySeekObserver(){
-        m_seekObserver.updateUI();
+
+        for (MusicPlayerObserver observer : m_playbackObservers){
+            observer.updateUI();
+        }
     }
 
     public Duration getCurrentPlayTime(){
