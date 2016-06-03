@@ -33,9 +33,9 @@ public class MainUI extends BorderPane{
 
     private Node leftPane(){
         BorderPane leftPane = new BorderPane();
-        List<Library> libraries = model.getM_libraries();
+        //List<Library> libraries = model.getM_libraries();
 
-        LibraryUI libraryUI = new LibraryUI(libraries);
+        LibraryUI libraryUI = new LibraryUI(model);
 
         leftPane.setCenter(libraryUI);
         leftPane.setPrefWidth(250);
@@ -45,7 +45,7 @@ public class MainUI extends BorderPane{
 
     private Node rightPane(){
         BorderPane rightPane = new BorderPane();
-        DynamicTreeViewUI dynamicTreeViewUI = new DynamicTreeViewUI();
+        DynamicTreeViewUI dynamicTreeViewUI = new DynamicTreeViewUI(model);
 
         rightPane.setCenter(dynamicTreeViewUI);
         rightPane.setPrefWidth(250);
@@ -82,7 +82,7 @@ public class MainUI extends BorderPane{
         MusicPlayerUI musicPlayerUI = new MusicPlayerUI(musicManager);
 
         centerPane.setBottom(musicPlayerUI);
-        centerPane.setCenter(new ContentListUI());
+        centerPane.setCenter(new ContentListUI(model));
         return centerPane;
     }
 
