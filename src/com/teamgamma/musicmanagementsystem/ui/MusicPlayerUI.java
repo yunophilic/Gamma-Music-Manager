@@ -16,6 +16,8 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 
+import java.io.File;
+
 /**
  * Class for Music Player MainUI. Acts as the controller for the media player.
  */
@@ -33,7 +35,7 @@ public class MusicPlayerUI extends BorderPane {
         HBox musicFileBox = new HBox();
         Label songPathHeader = new Label("Song Path");
         TextField songPath = new TextField("Enter Path To Song");
-        Button addSong = createIconButton("res\\ic_playlist_add_black_48dp_1x.png");
+        Button addSong = createIconButton("res/ic_playlist_add_black_48dp_1x.png");
         addSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -260,6 +262,9 @@ public class MusicPlayerUI extends BorderPane {
     }
 
     private ImageView createImageViewForImage(String imagePath){
+        imagePath = imagePath.replace("\\", File.separator);
+        imagePath = imagePath.replace("/", File.separator);
+
         // Idea for background image from http://stackoverflow.com/questions/29984228/javafx-button-background-image
         return new ImageView(new Image(getClass().getClassLoader().getResourceAsStream(imagePath)));
     }
