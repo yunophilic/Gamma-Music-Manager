@@ -21,7 +21,6 @@ import javafx.util.Duration;
  */
 public class MusicPlayerUI extends BorderPane {
 
-
     public static final int SECONDS_IN_MINUTE = 60;
 
     public MusicPlayerUI(MusicPlayerManager manager){
@@ -63,25 +62,29 @@ public class MusicPlayerUI extends BorderPane {
         ToggleButton playPauseButton = new ToggleButton();
         playPauseButton.setStyle("-fx-background-color: transparent");
         playPauseButton.setGraphic(createImageViewForImage("res\\ic_play_arrow_black_48dp_1x.png"));
+        playPauseButton.setSelected(false);
         playPauseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                boolean isPlaying = playPauseButton.isSelected();
-                if (isPlaying){
-                    try {
-                        if (manager.isSomethingPlaying()) {
-                            manager.resume();
-                        } else {
-                            manager.placeSongOnPlaybackQueue(new Song(songPath.getText()));
-                        }
-                    } catch (Exception e){
-                        // Failed to load the song so do not update the image.
-                        return;
-                    }
-                    playPauseButton.setGraphic(createImageViewForImage("res\\ic_pause_black_48dp_1x.png"));
-                } else {
-                    playPauseButton.setGraphic(createImageViewForImage("res\\ic_play_arrow_black_48dp_1x.png"));
+                if (playPauseButton.isSelected()){
+                    // Selected means that something is playing so we want to pause it
                     manager.pause();
+                } else{
+                    manager.resume();
+                }
+            }
+        });
+
+        manager.registerChangeStateObservers(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                System.out.println("Change state observer notified. Is something playing " + manager.isSomethingPlaying());
+                if(manager.isSomethingPlaying()) {
+                    playPauseButton.setGraphic(createImageViewForImage("res\\ic_play_arrow_black_48dp_1x.png"));
+                    playPauseButton.setSelected(true);
+                } else {
+                    playPauseButton.setGraphic(createImageViewForImage("res\\ic_pause_black_48dp_1x.png"));
+                    playPauseButton.setSelected(false);
                 }
             }
         });
@@ -183,27 +186,32 @@ public class MusicPlayerUI extends BorderPane {
         playbackSlider.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("Slider seek slider value is " + playbackSlider.getValue());
-                manager.seekSongTo(playbackSlider.getValue());
+                double sliderVal = playbackSlider.getValue();
+                System.out.println("Slider seek slider value is " + sliderVal);
+                manager.seekSongTo(sliderVal);
             }
         });
-        playbackSliderWrapper.getChildren().addAll(new Label("0:00"), playbackSlider, songEndTimeSeekBar);
+        playbackSliderWrapper.getChildren().addAll(new Label("0:0"), playbackSlider, new Label("0:0"));
+
         playbackSliderWrapper.setOpacity(0);
 
         // Make the slider always bigger than the progress bar to make it so the user only can click on the slider.
-        playbackSliderWrapper.setScaleY(2.5);
+        playbackSliderWrapper.setScaleY(1.5);
 
         // Setup the observer pattern stuff for UI updates to the current play time.
-        manager.registerSeekObserver(new MusicPlayerObserver() {
+        manager.registerPlaybackObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
                 Duration currentPlayTime = manager.getCurrentPlayTime();
 
                 double progress = currentPlayTime.toMillis() / manager.getEndTime().toMillis();
-                songPlaybar.setProgress(progress);
-                playbackSlider.setValue(progress);
-
-
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        songPlaybar.setProgress(progress);
+                        playbackSlider.setValue(progress);
+                    }
+                });
             }
         });
 
@@ -211,26 +219,27 @@ public class MusicPlayerUI extends BorderPane {
         return musicPlayerProgress;
     }
 
-    private String convertDurationToTimeString(Duration endtime) {
-        String endingTime = "";
+    private String convertDurationToTimeString(Duration duration) {
+        String timeString = "";
 
-        double seconds = endtime.toSeconds();
+        double seconds = duration.toSeconds();
         int minutes = 0;
         while ((seconds - SECONDS_IN_MINUTE) >= 0){
             minutes++;
             seconds -= SECONDS_IN_MINUTE;
         }
-        endingTime = minutes + ":";
+        timeString = minutes + ":";
 
-        long leftOverSeconds = Math.round(seconds);
+        long leftOverSeconds = (int) seconds;
         if (leftOverSeconds < 10){
             // Add on so it looks like 0:05 rather than 0:5
-            endingTime += "0";
+            timeString += "0";
         }
 
-        endingTime += leftOverSeconds;
+        timeString += leftOverSeconds;
 
-        return endingTime;
+        //System.out.println("Given duration param = " + duration.toMillis() + " Sec: " + duration.toSeconds() + " converted to " + timeString);
+        return timeString;
     }
 
     private HBox makeSongTitleHeader(final MusicPlayerManager manager) {
@@ -279,14 +288,21 @@ public class MusicPlayerUI extends BorderPane {
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                songEndTimeText.setText(convertDurationToTimeString(manager.getEndTime()));
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        songEndTimeText.setText(convertDurationToTimeString(manager.getEndTime()));
+                    }
+                });
+
             }
         });
-        manager.registerSeekObserver(new MusicPlayerObserver() {
+        manager.registerPlaybackObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
                 // Have to run this one later. Odd that progress bar did not have this problem.
                 // http://stackoverflow.com/questions/29449297/java-lang-illegalstateexception-not-on-fx-application-thread-currentthread-t
+                // https://bugs.openjdk.java.net/browse/JDK-8088376
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {

@@ -10,32 +10,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Class to manage the the MusicPlayer.
  */
 public class MusicPlayerManager {
     public static final int MAX_SONG_HISTORY = 10;
-    private MusicPlayerObserver m_seekObserver;
+
     private IMusicPlayer m_musicPlayer;
+
     private Queue<Song> m_playingQueue;
+
     private List<Song> m_songHistory;
+
     private List<MusicPlayerObserver> m_newSongObservers;
+
     private Song m_currentSong = null;
+
     private boolean m_repeatSong = false;
+
     private int m_historyIndex = 0;
 
     private List<MusicPlayerObserver> m_playbackObservers;
+
+    private List<MusicPlayerObserver> m_changeStateObserver;
     /**
      * Constructor
      */
     public MusicPlayerManager(){
-        m_playingQueue = new PriorityQueue<Song>();
+        m_playingQueue = new ConcurrentLinkedQueue<Song>();
         m_musicPlayer = new MP3Player(this);
         m_songHistory = new ArrayList<Song>();
 
         m_newSongObservers = new ArrayList<MusicPlayerObserver>();
         m_playbackObservers = new ArrayList<MusicPlayerObserver>();
+        m_changeStateObserver = new ArrayList<MusicPlayerObserver>();
     }
 
     /**
@@ -52,6 +62,7 @@ public class MusicPlayerManager {
         else {
             m_musicPlayer.playSong(nextSong);
             updateHistory();
+            notifyChangeStateObservers();
         }
     }
 
@@ -102,6 +113,7 @@ public class MusicPlayerManager {
      */
     public void pause() {
         m_musicPlayer.pauseSong();
+        notifyChangeStateObservers();
     }
 
     /**
@@ -109,6 +121,7 @@ public class MusicPlayerManager {
      */
     public void resume() {
         m_musicPlayer.resumeSong();
+        notifyChangeStateObservers();
     }
 
     /**
@@ -187,17 +200,27 @@ public class MusicPlayerManager {
         }
     }
 
-    public void registerSeekObserver(MusicPlayerObserver observer) {
+    /**
+     * Function to register a playback observer
+     * @param observer
+     */
+    public void registerPlaybackObserver(MusicPlayerObserver observer) {
         m_playbackObservers.add(observer);
     }
 
-    public void notifySeekObserver(){
-
+    /**
+     * Function to notify all observers for playback.
+     */
+    public void notifyPlaybackObservers(){
         for (MusicPlayerObserver observer : m_playbackObservers){
             observer.updateUI();
         }
     }
 
+    /**
+     * Function to get the current playback time of the song being played.
+     * @return
+     */
     public Duration getCurrentPlayTime(){
         return ((MP3Player) m_musicPlayer).getCurrentPlayTime();
     }
@@ -215,10 +238,17 @@ public class MusicPlayerManager {
 
     }
 
+    /**
+     * Function to check if the player has a song that is loaded in.
+     * @return true if there is a song, false other wise.
+     */
     public boolean isSomethingPlaying(){
-        return (null != m_currentSong);
+        return ((null != m_currentSong) && m_musicPlayer.isPlayingSong());
     }
 
+    /**
+     * Function to play the previous song in the history.
+     */
     public void playPreviousSong(){
         assert(m_songHistory.size() < m_historyIndex);
 
@@ -230,6 +260,23 @@ public class MusicPlayerManager {
         if (!m_songHistory.isEmpty()){
             m_historyIndex--;
             m_musicPlayer.playSong(m_songHistory.get(m_historyIndex));
+        }
+    }
+
+    /**
+     * Function to register observer for notifying when player changes state from play/pause and vice versa.
+     * @param observer
+     */
+    public void registerChangeStateObservers(MusicPlayerObserver observer){
+        m_changeStateObserver.add(observer);
+    }
+
+    /**
+     * Function to notify all the observers for the change state observers.
+     */
+    public void notifyChangeStateObservers(){
+        for (MusicPlayerObserver observer : m_changeStateObserver) {
+            observer.updateUI();
         }
     }
 }
