@@ -7,8 +7,6 @@ import java.util.*;
  * Class to manage libraries and playlists
  */
 public class SongManager {
-    private Library m_myLibrary;
-    private Library m_externalLibrary;
     private List<Playlist> m_playlists;
     private List<SongManagerObserver> m_songManagerObservers;
     private List<Library> m_libraries;
@@ -17,8 +15,6 @@ public class SongManager {
     private File m_selectedCenterFolder;
 
     public SongManager(String directoryPath) {
-        m_myLibrary = new Library(directoryPath);
-        m_externalLibrary = null;
         m_playlists = new ArrayList<>();
         m_libraries = new ArrayList<>();
         m_selectedCenterFolder = null;
@@ -55,22 +51,6 @@ public class SongManager {
 
     public void registerNewObserver(SongManagerObserver observer) {
         m_songManagerObservers.add(observer);
-    }
-
-    public String getLibraryRootDirPath() {
-        return m_myLibrary.getM_rootDirPath();
-    }
-
-    public Library getM_myLibrary() {
-        return m_myLibrary;
-    }
-
-    public Library getM_externalLibrary() {
-        return m_externalLibrary;
-    }
-
-    public void setM_externalLibrary(String directoryPath) {
-        m_externalLibrary = new Library(directoryPath);
     }
 
     public boolean addSong(Song songToAdd, Library library) {
