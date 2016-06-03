@@ -88,7 +88,29 @@ public class FileManager {
         Path destDirPath = destinationDir.toPath();
         Path destFilePath = destDirPath.resolve(sourceFilePath.getFileName());
         Path resultPath = Files.copy(sourceFile.toPath(), destFilePath);
-        return (resultPath.equals(destinationDir.toPath()));
+        return (resultPath.getParent().equals(destinationDir.toPath()));
+    }
+
+    /**
+     * Copy src to dest recursively
+     * @param src: File object with path to source directory
+     * @param dest: File object with path to destination directory
+     * @return true if path of new file destination equals destinationDir path, false otherwise
+     * @throws IOException
+     * @throws InvalidPathException
+     */
+    public static boolean copyFilesRecursively(File src, File dest) throws IOException, InvalidPathException {
+        if(!copyFile(src, dest)) { //one of the files failed to be copied
+            return false;
+        }
+        File[] children = src.listFiles();
+        if (children != null) {
+            for (File child : children) {
+                File nextDest = new File(dest.toPath() + File.separator + src.getName());
+                copyFilesRecursively(child, nextDest);
+            }
+        }
+        return true;
     }
 
     /**
