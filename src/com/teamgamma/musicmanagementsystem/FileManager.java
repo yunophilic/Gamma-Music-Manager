@@ -16,15 +16,16 @@ public class FileManager {
      * Recursively create tree items from the files in a directory and return a reference to the root item
      * @return TreeItem<String> to the root item
      */
-    public static TreeItem<String> generateTreeItems(File file, String dirPath) {
-        TreeItem<String> item = new TreeItem<>(
-                ( file.getAbsolutePath().equals(dirPath) ) ? file.getAbsolutePath() : file.getName()
+    public static TreeItem<TreeViewFolderItem> generateTreeItems(File file, String dirPath) {
+
+        TreeItem<TreeViewFolderItem> item = new TreeItem<>(
+                ( file.getAbsolutePath().equals(dirPath) ) ? new TreeViewFolderItem(file, true) : new TreeViewFolderItem(file, false)
         );
 
         File[] children = file.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
-                return pathname.isDirectory() || pathname.getName().endsWith(".mp3");
+                return pathname.isDirectory();
             }
         });
 
