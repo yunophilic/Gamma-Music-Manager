@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.FileManager;
 import com.teamgamma.musicmanagementsystem.Library;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
@@ -14,7 +15,6 @@ import java.util.List;
  */
 public class LibraryUI extends StackPane {
     private static List<Library> libraries;
-    private TreeView<File> fileTreeView;
 
     public LibraryUI(List<Library> libraries){
         super();
@@ -41,11 +41,13 @@ public class LibraryUI extends StackPane {
      * Construct the tree view
      * @return TreeView<String>
      */
-    private TreeView<String> createTrees(){
+    private TreeView<String> createTrees() {
         TreeItem<String> root = new TreeItem<>("Dummy root");
 
         for (Library library: libraries) {
-            TreeItem<String> rootItem = generateTreeItems(library.getM_rootDir(), library);
+            TreeItem<String> rootItem = FileManager.generateTreeItems(
+                    library.getM_rootDir(), library.getM_rootDirPath()
+            );
             rootItem.setExpanded(true);
             System.out.println("Added new root path:" + rootItem.toString());
             root.getChildren().add(rootItem);
@@ -53,28 +55,6 @@ public class LibraryUI extends StackPane {
         TreeView<String> tree = new TreeView<>(root);
         tree.setShowRoot(false);
         return tree;
-    }
-
-    /**
-     * Helper function to recursively create the tree items and return a reference to the root item
-     * @return TreeItem<String>
-     */
-    private TreeItem<String> generateTreeItems(File file, Library library) {
-        TreeItem<String> item = new TreeItem<>(
-                ( file.equals(library.getM_rootDir()) ) ? file.getAbsolutePath() : file.getName()
-        );
-        File[] children = file.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.isDirectory() || pathname.getName().endsWith(".mp3");
-            }
-        });
-        if (children != null) {
-            for (File child : children) {
-                item.getChildren().add(generateTreeItems(child, library));
-            }
-        }
-        return item;
     }
 
     private void setPaneStyle() {

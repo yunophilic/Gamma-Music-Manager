@@ -1,8 +1,8 @@
 package com.teamgamma.musicmanagementsystem;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
-
+import javafx.scene.control.TreeItem;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
@@ -12,6 +12,30 @@ import java.util.List;
  *  Class to manage files in the program.
  */
 public class FileManager {
+    /**
+     * Recursively create tree items from the files in a directory and return a reference to the root item
+     * @return TreeItem<String> to the root item
+     */
+    public static TreeItem<String> generateTreeItems(File file, String dirPath) {
+        TreeItem<String> item = new TreeItem<>(
+                ( file.getAbsolutePath().equals(dirPath) ) ? file.getAbsolutePath() : file.getName()
+        );
+
+        File[] children = file.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isDirectory() || pathname.getName().endsWith(".mp3");
+            }
+        });
+
+        if (children != null) {
+            for (File child : children) {
+                item.getChildren().add(generateTreeItems(child, dirPath)); //recursion here
+            }
+        }
+
+        return item;
+    }
 
     /**
      * Generate list of Song objects based on path
