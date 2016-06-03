@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class LibraryUI extends StackPane {
     //private static List<Library> libraries;
-    private static SongManager model;
+    private SongManager model;
     TreeView<TreeViewFolderItem> tree;
 
     public LibraryUI(SongManager model){
@@ -32,8 +32,6 @@ public class LibraryUI extends StackPane {
     private void updateTreeView(){
         List<Library> libraries = model.getM_libraries();
 
-        //this.getChildren().add(new Label(text));
-
         if (libraries.isEmpty()){
             this.getChildren().add(new Label("Add a library"));
         } else {
@@ -43,6 +41,10 @@ public class LibraryUI extends StackPane {
         }
     }
 
+    /**
+     * Notify observers on mouse event
+     * @param treeView
+     */
     private void setMouseEvent(TreeView<TreeViewFolderItem> treeView) {
         treeView.setOnMouseClicked(new EventHandler<MouseEvent>()
         {

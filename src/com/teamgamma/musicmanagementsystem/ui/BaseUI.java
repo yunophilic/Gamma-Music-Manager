@@ -4,7 +4,7 @@ import com.teamgamma.musicmanagementsystem.SongManager;
 import javafx.scene.layout.StackPane;
 
 public class BaseUI extends StackPane{
-    SongManager model;
+    private SongManager model;
 
     public BaseUI(SongManager model){
         this.model = model;

@@ -17,7 +17,7 @@ import java.util.List;
  * MainUI Class.
  */
 public class MainUI extends BorderPane{
-    private static SongManager model;
+    private SongManager model;
 
     public MainUI(SongManager model){
         super();

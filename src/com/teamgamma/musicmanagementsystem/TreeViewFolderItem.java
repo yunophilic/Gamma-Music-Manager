@@ -14,6 +14,10 @@ public class TreeViewFolderItem {
         this.isRootPath = isRootPath;
     }
 
+    /**
+     * For tree view, show absolute path if this is an root path, otherwise, show just the file name
+     * @return
+     */
     @Override
     public String toString() {
         if (isRootPath){

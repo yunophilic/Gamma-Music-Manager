@@ -5,7 +5,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 
 public class DynamicTreeViewUI extends StackPane {
-    SongManager model;
+    private SongManager model;
     public DynamicTreeViewUI(SongManager model){
         super();
 

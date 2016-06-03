@@ -14,8 +14,8 @@ import java.util.List;
  * UI class for list of songs in center of application
  */
 public class ContentListUI extends StackPane{
-    SongManager model;
-    GridPane gridPane;
+    private SongManager model;
+    private GridPane gridPane;
 
     public ContentListUI(SongManager model){
         super();
