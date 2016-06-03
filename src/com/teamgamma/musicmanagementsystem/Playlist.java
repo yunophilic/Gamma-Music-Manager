@@ -1,7 +1,6 @@
 package com.teamgamma.musicmanagementsystem;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class that represents a playlist
@@ -21,5 +20,13 @@ public class Playlist {
 
     public boolean removeSong(Song songToRemove) {
         return m_songList.remove(songToRemove);
+    }
+
+    public void randomizePlaylist() {
+        Collections.shuffle(m_songList);
+    }
+
+    public List<Song> getM_songList() {
+        return m_songList;
     }
 }

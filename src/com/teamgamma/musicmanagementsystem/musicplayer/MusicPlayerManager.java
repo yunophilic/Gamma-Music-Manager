@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.musicplayer;
 
+import com.teamgamma.musicmanagementsystem.Playlist;
 import com.teamgamma.musicmanagementsystem.Song;
 
 import javafx.scene.media.MediaPlayer;
@@ -14,21 +15,14 @@ import java.util.Queue;
  * Class to manage the the MusicPlayer.
  */
 public class MusicPlayerManager {
-
     public static final int MAX_SONG_HISTORY = 10;
-
+    private MusicPlayerObserver m_seekObserver;
     private IMusicPlayer m_musicPlayer;
-
     private Queue<Song> m_playingQueue;
-
-    private boolean m_repeatSong = false;
-
     private List<Song> m_songHistory;
-
-    private Song m_currentSong = null;
-
     private List<MusicPlayerObserver> m_newSongObservers;
-
+    private Song m_currentSong = null;
+    private boolean m_repeatSong = false;
     private int m_historyIndex = 0;
 
     private List<MusicPlayerObserver> m_playbackObservers;
@@ -84,6 +78,13 @@ public class MusicPlayerManager {
      */
     public void playPlaylist() {
         // Method should add in playlist to queue.
+        Playlist player = new Playlist("Playlist 1");
+        player.randomizePlaylist();
+        for (Song s : player.getM_songList()) {
+            // Add every song in playlist to queue (Is this what you mean?)
+            m_playingQueue.add(s);
+            // Function to play song s
+        }
     }
 
 
