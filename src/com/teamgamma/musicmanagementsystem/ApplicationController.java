@@ -4,6 +4,7 @@ import com.teamgamma.musicmanagementsystem.ui.MainUI;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
 import java.io.File;
 
 /**
@@ -39,12 +40,12 @@ public class ApplicationController extends Application {
         SongManager songManager = new SongManager();
         //songManager.setM_externalLibrary(externLibPath);
 
-        if (songManager.addLibrary(myLibPath)){
+        if (songManager.addLibrary(myLibPath)) {
             System.out.println("New library added");
         } else {
             System.out.println("Duplicate library");
         }
-        if (songManager.addLibrary(externLibPath)){
+        if (songManager.addLibrary(externLibPath)) {
             System.out.println("New library added");
         } else {
             System.out.println("Duplicate library");

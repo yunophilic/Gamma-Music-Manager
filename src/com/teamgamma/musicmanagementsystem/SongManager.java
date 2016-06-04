@@ -32,7 +32,7 @@ public class SongManager {
      * @param directoryPath path to the library
      * @return true if new library is added to the list, false otherwise
      */
-    public boolean addLibrary(String directoryPath){
+    public boolean addLibrary(String directoryPath) {
         if (!isInLibrary(directoryPath)) {
             Library newLibrary = new Library(directoryPath);
             m_libraries.add(newLibrary);
@@ -42,9 +42,9 @@ public class SongManager {
         }
     }
 
-    private boolean isInLibrary(String directoryPath){
-        for (Library library: m_libraries){
-            if (library.getM_rootDirPath().equals(directoryPath)){
+    private boolean isInLibrary(String directoryPath) {
+        for (Library library : m_libraries) {
+            if (library.getM_rootDirPath().equals(directoryPath)) {
                 return true;
             }
         }
@@ -57,15 +57,15 @@ public class SongManager {
      * @return true if found, null otherwise
      */
     private Library getLibrary(File file) {
-        for(Library l : m_libraries) {
-            if( file.exists() && file.getAbsolutePath().startsWith(l.getM_rootDirPath()) ) {
+        for (Library l : m_libraries) {
+            if (file.exists() && file.getAbsolutePath().startsWith(l.getM_rootDirPath())) {
                 return l;
             }
         }
         return null;
     }
 
-    public List<Library> getM_libraries(){
+    public List<Library> getM_libraries() {
         return m_libraries;
     }
 
@@ -96,47 +96,27 @@ public class SongManager {
         }
 
         //update song objects inside the model
-        /*Library targetLib = getLibrary(dest);
-        if (targetLib == null) {
-            return false;
-        }
-        if (m_fileBuffer.isDirectory()) {
-            List<Song> songsToBeCopied = FileManager.generateSongs(m_fileBuffer.getAbsolutePath());
-            for (Song s : songsToBeCopied) {
-                if (!targetLib.addSong(s)) {
-                    return false;
-                }
-            }
-        } else {
-            Library sourceLib = getLibrary(m_fileBuffer);
-            if (sourceLib == null) {
-                //this shouldn't happen but just in case
-                return false;
-            }
-            Song songToAdd = sourceLib.getSong(m_fileBuffer);
-            targetLib.addSong(songToAdd);
-        }
-
-        m_fileBuffer = null;*/
-
         updateLibraries();
 
         return true;
     }
 
-    private void updateLibraries(){
+    private void updateLibraries() {
         // Delete current libraries and create new libraries with same paths
         // to update songs in libraries when files are moved
         List<String> libraryPaths = new ArrayList<>();
 
-        for (Library library: m_libraries){
+        for (Library library : m_libraries) {
             libraryPaths.add(library.getM_rootDirPath());
         }
 
         m_libraries.clear();
 
-        for (String libraryPath: libraryPaths){
-            this.addLibrary(libraryPath);
+        for (String libraryPath : libraryPaths) {
+            File tempFile = new File(libraryPath);
+            if (tempFile.exists()) {
+                this.addLibrary(libraryPath);
+            }
         }
     }
 
@@ -173,28 +153,35 @@ public class SongManager {
     }
 
 
-    public void deleteFile(File fileToDelete) {
-        try {
-            FileManager.removeFile(fileToDelete);
-            updateLibraries();
-        } catch (Exception e) {
-            // TODO: show popup dialog
-            e.printStackTrace();
+    public void deleteFile(File fileToDelete) throws Exception {
+        if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+            m_rightFolderSelected = null;
         }
+        if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+            m_selectedCenterFolder = null;
+        }
+
+        FileManager.removeFile(fileToDelete);
+        updateLibraries();
+    }
+
+    public void setCenterFolder(File newFolderSelected) {
+        this.m_selectedCenterFolder = newFolderSelected;
+
+        notifyCenterFolderObservers();
+    }
+
+    public File getM_selectedCenterFolder() {
+        return m_selectedCenterFolder;
     }
 
 
     /********** Functions for observer pattern *************/
 
-    public void addObserver(SongManagerObserver observer){
+    public void addObserver(SongManagerObserver observer) {
         m_songManagerObservers.add(observer);
     }
 
-    public void setCenterFolder(File newFolderSelected){
-        this.m_selectedCenterFolder = newFolderSelected;
-
-        notifyCenterFolderObservers();
-    }
 
     public void notifyLibraryObservers() {
         for (SongManagerObserver observer : m_songManagerObservers) {

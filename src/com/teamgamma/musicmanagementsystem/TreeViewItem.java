@@ -9,25 +9,30 @@ public class TreeViewItem {
     private File path;
     private boolean isRootPath;
 
-    public TreeViewItem(File path, boolean isRootPath){
+    public TreeViewItem(File path, boolean isRootPath) {
         this.path = path;
         this.isRootPath = isRootPath;
     }
 
     /**
      * For tree view, show absolute path if this is an root path, otherwise, show just the file name
+     *
      * @return
      */
     @Override
     public String toString() {
-        if (isRootPath){
+        if (isRootPath) {
             return path.getAbsolutePath();
         } else {
             return path.getName();
         }
     }
 
-    public File getPath(){
+    public File getPath() {
         return path;
+    }
+
+    public boolean isRootPath() {
+        return isRootPath;
     }
 }

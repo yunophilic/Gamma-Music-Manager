@@ -1,1 +1,2 @@
 Icons for music player are from https://design.google.com/icons/ which is open source
+Jaudiotagger is used to read song metadata. Link: http://www.jthink.net/jaudiotagger/
