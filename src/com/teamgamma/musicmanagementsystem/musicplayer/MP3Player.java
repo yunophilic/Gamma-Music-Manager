@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem.musicplayer;
 
 import com.teamgamma.musicmanagementsystem.Song;
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
@@ -26,12 +27,14 @@ public class MP3Player implements IMusicPlayer {
 
     private Thread m_updateWorker;
 
-    public MP3Player(MusicPlayerManager manager){
-        m_manager = manager;
-    }
+    private Runnable m_onErrorAction;
 
     // For testing/experimenting.
     public double m_counter = 0;
+
+    public MP3Player(MusicPlayerManager manager){
+        m_manager = manager;
+    }
 
     @Override
     public void playSong(Song songToPlay) {
@@ -42,7 +45,13 @@ public class MP3Player implements IMusicPlayer {
             m_player.dispose();
         }
 
-        setupMusicPlayer(songToPlay);
+        try {
+            setupMusicPlayer(songToPlay);
+        } catch (Exception e) {
+            m_manager.setError(e);
+            m_manager.notifyError();
+            return;
+        }
 
         m_player.play();
         m_manager.notifyChangeStateObservers();
@@ -55,7 +64,6 @@ public class MP3Player implements IMusicPlayer {
             @Override
             public void run() {
                 m_manager.playNextSong();
-
             }
         });
 
@@ -71,6 +79,8 @@ public class MP3Player implements IMusicPlayer {
 
         // Put on repeat as well as the thread terminates upon a single play through.
         m_player.setOnRepeat(createUpdateUIThread());
+
+        m_player.setOnError(m_onErrorAction);
     }
 
     @Override
@@ -94,7 +104,7 @@ public class MP3Player implements IMusicPlayer {
     }
 
     @Override
-    public void decreaseVolume(){
+    public void decreaseVolume() {
         double currentVolume = m_player.getVolume();
         if (currentVolume > MIN_VOLUME) {
             currentVolume -= VOLUME_CHANGE;
@@ -103,7 +113,7 @@ public class MP3Player implements IMusicPlayer {
     }
 
     @Override
-    public void repeatSong(boolean repeatSong){
+    public void repeatSong(boolean repeatSong) {
         m_repeatFlag = repeatSong;
         if (repeatSong) {
             m_player.setCycleCount(MediaPlayer.INDEFINITE);
@@ -121,27 +131,31 @@ public class MP3Player implements IMusicPlayer {
 
     @Override
     public void setOnErrorAction(Runnable action) {
-        m_player.setOnError(action);
+        m_onErrorAction = action;
+        if (m_player != null){
+            m_player.setOnError(action);
+        }
+
     }
 
     @Override
-    public boolean isPlayingSong(){
+    public boolean isPlayingSong() {
         return (m_player.getStatus() == MediaPlayer.Status.PLAYING);
     }
 
-    public MediaPlayer getMusicPlayer(){
+    public MediaPlayer getMusicPlayer() {
         return m_player;
     }
 
-    public Duration getEndTime(){
+    public Duration getEndTime() {
         return m_player.getMedia().getDuration();
     }
 
-    public Duration getCurrentPlayTime(){
+    public Duration getCurrentPlayTime() {
         return m_player.getCurrentTime();
     }
 
-    private Runnable createUpdateUIThread(){
+    private Runnable createUpdateUIThread() {
         return (new Runnable() {
             @Override
             public void run() {
@@ -178,9 +192,10 @@ public class MP3Player implements IMusicPlayer {
 
     /**
      * Function to seek to the given percentage given in parameter.
+     *
      * @param percent
      */
-    public void seekToTime(double percent){
+    public void seekToTime(double percent) {
         // JavaFx seek might not be good enough
         // http://stackoverflow.com/questions/32411181/javafx-mediaplayer-highly-inaccurate-seeking
 
@@ -204,6 +219,6 @@ public class MP3Player implements IMusicPlayer {
 //        if (createNewUpdateThread){
 //            new Thread(createUpdateUIThread()).start();
 //        }
-
     }
+
 }
