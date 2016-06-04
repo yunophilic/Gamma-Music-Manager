@@ -21,7 +21,7 @@ public class LibraryUI extends StackPane {
     private SongManager model;
     private TreeView<TreeViewItem> tree;
 
-    public LibraryUI(SongManager model){
+    public LibraryUI(SongManager model) {
         super();
         this.model = model;
         updateTreeView();
@@ -30,11 +30,11 @@ public class LibraryUI extends StackPane {
         registerAsLibraryObserver();
     }
 
-    private void updateTreeView(){
+    private void updateTreeView() {
         System.out.println("updating treeview...");
         List<Library> libraries = model.getM_libraries();
 
-        if (libraries.isEmpty()){
+        if (libraries.isEmpty()) {
             this.getChildren().add(new Label("Add a library"));
         } else {
             tree = createTrees(libraries);
@@ -56,16 +56,14 @@ public class LibraryUI extends StackPane {
 
     /**
      * Notify observers on mouse event
+     *
      * @param treeView
      */
     private void setMouseEvent(TreeView<TreeViewItem> treeView) {
-        treeView.setOnMouseClicked(new EventHandler<MouseEvent>()
-        {
+        treeView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
-            public void handle(MouseEvent mouseEvent)
-            {
-                if(mouseEvent.getClickCount() == 2)
-                {
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getClickCount() == 2) {
                     TreeItem<TreeViewItem> item = treeView.getSelectionModel().getSelectedItem();
                     System.out.println("Selected Text : " + item.getValue());
 
@@ -118,13 +116,14 @@ public class LibraryUI extends StackPane {
 
     /**
      * Construct the tree view
+     *
      * @return TreeView<String>
      */
     private TreeView<TreeViewItem> createTrees(List<Library> libraries) {
         File dummyRootFile = new File(libraries.get(0).getM_rootDirPath());
         TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
 
-        for (Library library: libraries) {
+        for (Library library : libraries) {
             TreeItem<TreeViewItem> rootItem = FileManager.generateTreeItems(
                     library.getM_rootDir(), library.getM_rootDirPath()
             );
@@ -144,7 +143,7 @@ public class LibraryUI extends StackPane {
         setCssStyle();
     }
 
-    private void setCssStyle(){
+    private void setCssStyle() {
         final String cssDefault = "-fx-border-color: black;\n";
         this.setStyle(cssDefault);
     }
@@ -178,7 +177,7 @@ public class LibraryUI extends StackPane {
             MenuItem copy = new MenuItem("Copy");
             copy.setOnAction(new EventHandler<ActionEvent>() {
                 public void handle(ActionEvent e) {
-                    model.setM_fileBuffer( tree.getSelectionModel().getSelectedItem().getValue().getPath() );
+                    model.setM_fileBuffer(tree.getSelectionModel().getSelectedItem().getValue().getPath());
                 }
             });
 

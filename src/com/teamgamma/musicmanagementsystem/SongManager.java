@@ -3,7 +3,8 @@ package com.teamgamma.musicmanagementsystem;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class to manage libraries and playlists
@@ -29,10 +30,11 @@ public class SongManager {
 
     /**
      * Add new library (root folder path) to m_libraries if it is not already in the list
+     *
      * @param directoryPath path to the library
      * @return true if new library is added to the list, false otherwise
      */
-    public boolean addLibrary(String directoryPath){
+    public boolean addLibrary(String directoryPath) {
         if (!isInLibrary(directoryPath)) {
             Library newLibrary = new Library(directoryPath);
             m_libraries.add(newLibrary);
@@ -42,9 +44,9 @@ public class SongManager {
         }
     }
 
-    private boolean isInLibrary(String directoryPath){
-        for (Library library: m_libraries){
-            if (library.getM_rootDirPath().equals(directoryPath)){
+    private boolean isInLibrary(String directoryPath) {
+        for (Library library : m_libraries) {
+            if (library.getM_rootDirPath().equals(directoryPath)) {
                 return true;
             }
         }
@@ -53,19 +55,20 @@ public class SongManager {
 
     /**
      * Get the library where the specified file resides in
+     *
      * @param file specified file
      * @return true if found, null otherwise
      */
     private Library getLibrary(File file) {
-        for(Library l : m_libraries) {
-            if( file.exists() && file.getAbsolutePath().startsWith(l.getM_rootDirPath()) ) {
+        for (Library l : m_libraries) {
+            if (file.exists() && file.getAbsolutePath().startsWith(l.getM_rootDirPath())) {
                 return l;
             }
         }
         return null;
     }
 
-    public List<Library> getM_libraries(){
+    public List<Library> getM_libraries() {
         return m_libraries;
     }
 
@@ -124,18 +127,18 @@ public class SongManager {
         return true;
     }
 
-    private void updateLibraries(){
+    private void updateLibraries() {
         // Delete current libraries and create new libraries with same paths
         // to update songs in libraries when files are moved
         List<String> libraryPaths = new ArrayList<>();
 
-        for (Library library: m_libraries){
+        for (Library library : m_libraries) {
             libraryPaths.add(library.getM_rootDirPath());
         }
 
         m_libraries.clear();
 
-        for (String libraryPath: libraryPaths){
+        for (String libraryPath : libraryPaths) {
             File tempFile = new File(libraryPath);
             if (tempFile.exists()) {
                 this.addLibrary(libraryPath);
@@ -178,10 +181,10 @@ public class SongManager {
 
     public void deleteFile(File fileToDelete) {
         try {
-            if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+            if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
                 m_rightFolderSelected = null;
             }
-            if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+            if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
                 m_selectedCenterFolder = null;
             }
 
@@ -193,7 +196,7 @@ public class SongManager {
         }
     }
 
-    public void setCenterFolder(File newFolderSelected){
+    public void setCenterFolder(File newFolderSelected) {
         this.m_selectedCenterFolder = newFolderSelected;
 
         notifyCenterFolderObservers();
@@ -204,9 +207,11 @@ public class SongManager {
     }
 
 
-    /********** Functions for observer pattern *************/
+    /**********
+     * Functions for observer pattern
+     *************/
 
-    public void addObserver(SongManagerObserver observer){
+    public void addObserver(SongManagerObserver observer) {
         m_songManagerObservers.add(observer);
     }
 

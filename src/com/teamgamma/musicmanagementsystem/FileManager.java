@@ -1,25 +1,29 @@
 package com.teamgamma.musicmanagementsystem;
 
 import javafx.scene.control.TreeItem;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  Class to manage files in the program.
+ * Class to manage files in the program.
  */
 public class FileManager {
     /**
      * Recursively create tree items from the files in a directory and return a reference to the root item
+     *
      * @return TreeItem<String> to the root item
      */
     public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath) {
 
         TreeItem<TreeViewItem> item = new TreeItem<>(
-                ( file.getAbsolutePath().equals(dirPath) ) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
+                (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
         );
 
         File[] children = file.listFiles(new FileFilter() {
@@ -40,6 +44,7 @@ public class FileManager {
 
     /**
      * Generate list of Song objects based on path
+     *
      * @param pathToDirectory
      * @return ArrayList of Song objects
      */
@@ -51,7 +56,7 @@ public class FileManager {
         List<File> musicFiles = getMusicFiles(path);
 
         // Create Song object and add to array list
-        for (File musicFile: musicFiles) {
+        for (File musicFile : musicFiles) {
             listOfSongs.add(new Song(musicFile.getAbsolutePath()));
         }
 
@@ -67,6 +72,7 @@ public class FileManager {
 
     /**
      * Remove file from file system
+     *
      * @param fileToRemove
      * @return true if file is removed successfully
      * @throws Exception
@@ -76,7 +82,7 @@ public class FileManager {
     }
 
     static public boolean deleteFolderOrFile(File path) {
-        if( path.exists() ) {
+        if (path.exists()) {
             if (path.isDirectory()) {
                 File[] files = path.listFiles();
                 for (int i = 0; i < files.length; i++) {
@@ -88,13 +94,14 @@ public class FileManager {
                 }
             }
         }
-        return( path.delete() );
+        return (path.delete());
     }
 
     /**
      * Copy fileToCopy to destDir
+     *
      * @param fileToCopy
-     * @param destDir: File object with path to destination directory
+     * @param destDir:   File object with path to destination directory
      * @return true if path of new file destination equals destDir path, false otherwise
      * @throws IOException
      * @throws InvalidPathException
@@ -109,14 +116,15 @@ public class FileManager {
 
     /**
      * Copy src to dest recursively
-     * @param src: File object with path to source directory
+     *
+     * @param src:  File object with path to source directory
      * @param dest: File object with path to destination directory
      * @return true if path of new file destination equals destinationDir path, false otherwise
      * @throws IOException
      * @throws InvalidPathException
      */
     public static boolean copyFilesRecursively(File src, File dest) throws IOException, InvalidPathException {
-        if(!copyFile(src, dest)) { //one of the files failed to be copied
+        if (!copyFile(src, dest)) { //one of the files failed to be copied
             return false;
         }
         File[] children = src.listFiles();
@@ -131,6 +139,7 @@ public class FileManager {
 
     /**
      * Helper function to find music files in a directory
+     *
      * @param path
      * @return ArrayList of File objects
      */
@@ -139,7 +148,7 @@ public class FileManager {
         File[] files = path.listFiles();
         for (File file : files) {
             if (file.isFile()) {
-                String[] extensions = new String[] {".mp3"};
+                String[] extensions = new String[]{".mp3"};
                 if (isAccept(file, extensions)) {
                     musicFiles.add(file);
                 }
@@ -153,12 +162,13 @@ public class FileManager {
 
     /**
      * File filter for finding music files
+     *
      * @param file
      * @param extensions
      * @return true if file is accepted, false otherwise
      */
-    private static boolean isAccept(File file, String[] extensions){
-        for (String extension: extensions) {
+    private static boolean isAccept(File file, String[] extensions) {
+        for (String extension : extensions) {
             if (file.getName().endsWith(extension)) {
                 return true;
             }

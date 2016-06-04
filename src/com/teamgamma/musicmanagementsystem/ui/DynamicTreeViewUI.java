@@ -16,7 +16,7 @@ public class DynamicTreeViewUI extends StackPane {
     private SongManager model;
     private TreeView<TreeViewItem> tree;
 
-    public DynamicTreeViewUI(SongManager model){
+    public DynamicTreeViewUI(SongManager model) {
         super();
         this.model = model;
         setPaneStyle();
@@ -25,11 +25,11 @@ public class DynamicTreeViewUI extends StackPane {
         updateTreeView();
     }
 
-    private void updateTreeView(){
+    private void updateTreeView() {
         System.out.println("updating treeview...");
         List<Library> libraries = model.getM_libraries();
 
-        if (model.getRightFolderSelected() == null){
+        if (model.getRightFolderSelected() == null) {
             this.getChildren().add(new Label("Choose a folder to view"));
         } else {
             tree = createTrees(libraries);
@@ -91,6 +91,7 @@ public class DynamicTreeViewUI extends StackPane {
 
     /**
      * Construct the tree view
+     *
      * @return TreeView<String>
      */
     private TreeView<TreeViewItem> createTrees(List<Library> libraries) {
@@ -120,7 +121,7 @@ public class DynamicTreeViewUI extends StackPane {
         setCssStyle();
     }
 
-    private void setCssStyle(){
+    private void setCssStyle() {
         final String cssDefault = "-fx-border-color: black;\n";
         this.setStyle(cssDefault);
     }
@@ -146,7 +147,7 @@ public class DynamicTreeViewUI extends StackPane {
             MenuItem copy = new MenuItem("Copy");
             copy.setOnAction(new EventHandler<ActionEvent>() {
                 public void handle(ActionEvent e) {
-                    model.setM_fileBuffer( tree.getSelectionModel().getSelectedItem().getValue().getPath() );
+                    model.setM_fileBuffer(tree.getSelectionModel().getSelectedItem().getValue().getPath());
                 }
             });
 
