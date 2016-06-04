@@ -72,10 +72,17 @@ public class ContentListUI extends StackPane{
         gridPane = new GridPane();
         System.out.println("Updating list...");
         List<Song> songs = model.getCenterPanelSongs();
-        int i = 0;
+        int i = 1;
         for (Song song: songs){
             System.out.println("Found new song: " + song.getM_file().getAbsolutePath());
-            gridPane.add(new Label(song.getM_file().getAbsolutePath()), 0, i);
+            gridPane.add(new Label("Song Name   "), 0, 0);
+            gridPane.add(new Label("Genre   "), 1, 0);
+            gridPane.add(new Label("Artist   "), 2, 0);
+            gridPane.add(new Label("Rating   "), 3, 0);
+            gridPane.add(new Label(song.getM_title() + "   "), 0, i);
+            gridPane.add(new Label(song.getM_genre() + "   "), 1, i);
+            gridPane.add(new Label(song.getM_artist() + "   "), 2, i);
+            gridPane.add(new Label(song.getM_rating() + "   "), 3, i);
             i++;
         }
         this.getChildren().add(gridPane);
