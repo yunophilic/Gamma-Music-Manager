@@ -1,13 +1,10 @@
 package com.teamgamma.musicmanagementsystem;
 
 import javafx.scene.control.TreeItem;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,11 +14,9 @@ import java.util.List;
 public class FileManager {
     /**
      * Recursively create tree items from the files in a directory and return a reference to the root item
-     *
      * @return TreeItem<String> to the root item
      */
     public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath) {
-
         TreeItem<TreeViewItem> item = new TreeItem<>(
                 (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
         );
@@ -44,8 +39,7 @@ public class FileManager {
 
     /**
      * Generate list of Song objects based on path
-     *
-     * @param pathToDirectory
+     * @param pathToDirectory: the directory path
      * @return ArrayList of Song objects
      */
     public static List<Song> generateSongs(String pathToDirectory) {
@@ -71,9 +65,33 @@ public class FileManager {
     }
 
     /**
+     * Helper function to find music files in a directory
+     * @param path: the directory path
+     * @return ArrayList of File objects
+     */
+    private static List<File> getMusicFiles(File path) {
+        List<File> musicFiles = new ArrayList<>();
+        File[] files = path.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    String[] extensions = new String[]{".mp3"};
+                    if (isAccept(file, extensions)) {
+                        musicFiles.add(file);
+                    }
+                } else {
+                    musicFiles.addAll(getMusicFiles(file));
+                }
+            }
+        }
+
+        return musicFiles;
+    }
+
+    /**
      * Remove file from file system
-     *
-     * @param fileToRemove
+     * @param fileToRemove: file to be removed
      * @return true if file is removed successfully
      * @throws Exception
      */
@@ -81,15 +99,19 @@ public class FileManager {
         return deleteFolderOrFile(fileToRemove);
     }
 
-    static public boolean deleteFolderOrFile(File path) {
+    private static boolean deleteFolderOrFile(File path) {
         if (path.exists()) {
             if (path.isDirectory()) {
                 File[] files = path.listFiles();
-                for (int i = 0; i < files.length; i++) {
-                    if (files[i].isDirectory()) {
-                        deleteFolderOrFile(files[i]);
-                    } else {
-                        files[i].delete();
+                if (files != null) {
+                    for (File f : files) {
+                        if (f.isDirectory()) {
+                            deleteFolderOrFile(f);
+                        } else {
+                            if (!f.delete()) {
+                                return false;
+                            }
+                        }
                     }
                 }
             }
@@ -99,9 +121,8 @@ public class FileManager {
 
     /**
      * Copy fileToCopy to destDir
-     *
-     * @param fileToCopy
-     * @param destDir:   File object with path to destination directory
+     * @param fileToCopy: File to be copied (one file only)
+     * @param destDir: File object with path to destination directory
      * @return true if path of new file destination equals destDir path, false otherwise
      * @throws IOException
      * @throws InvalidPathException
@@ -116,8 +137,7 @@ public class FileManager {
 
     /**
      * Copy src to dest recursively
-     *
-     * @param src:  File object with path to source directory
+     * @param src: File object with path to source directory
      * @param dest: File object with path to destination directory
      * @return true if path of new file destination equals destinationDir path, false otherwise
      * @throws IOException
@@ -138,31 +158,7 @@ public class FileManager {
     }
 
     /**
-     * Helper function to find music files in a directory
-     *
-     * @param path
-     * @return ArrayList of File objects
-     */
-    private static List<File> getMusicFiles(File path) {
-        List<File> musicFiles = new ArrayList<>();
-        File[] files = path.listFiles();
-        for (File file : files) {
-            if (file.isFile()) {
-                String[] extensions = new String[]{".mp3"};
-                if (isAccept(file, extensions)) {
-                    musicFiles.add(file);
-                }
-            } else {
-                musicFiles.addAll(getMusicFiles(file));
-            }
-        }
-
-        return musicFiles;
-    }
-
-    /**
      * File filter for finding music files
-     *
      * @param file
      * @param extensions
      * @return true if file is accepted, false otherwise

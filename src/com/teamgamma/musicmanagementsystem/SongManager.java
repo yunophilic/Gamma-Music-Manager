@@ -3,8 +3,7 @@ package com.teamgamma.musicmanagementsystem;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class to manage libraries and playlists
@@ -30,7 +29,6 @@ public class SongManager {
 
     /**
      * Add new library (root folder path) to m_libraries if it is not already in the list
-     *
      * @param directoryPath path to the library
      * @return true if new library is added to the list, false otherwise
      */
@@ -55,7 +53,6 @@ public class SongManager {
 
     /**
      * Get the library where the specified file resides in
-     *
      * @param file specified file
      * @return true if found, null otherwise
      */
@@ -179,21 +176,16 @@ public class SongManager {
     }
 
 
-    public void deleteFile(File fileToDelete) {
-        try {
-            if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
-                m_rightFolderSelected = null;
-            }
-            if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
-                m_selectedCenterFolder = null;
-            }
-
-            FileManager.removeFile(fileToDelete);
-            updateLibraries();
-        } catch (Exception e) {
-            // TODO: show popup dialog
-            e.printStackTrace();
+    public void deleteFile(File fileToDelete) throws Exception {
+        if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+            m_rightFolderSelected = null;
         }
+        if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+            m_selectedCenterFolder = null;
+        }
+
+        FileManager.removeFile(fileToDelete);
+        updateLibraries();
     }
 
     public void setCenterFolder(File newFolderSelected) {
@@ -207,9 +199,7 @@ public class SongManager {
     }
 
 
-    /**********
-     * Functions for observer pattern
-     *************/
+    /********** Functions for observer pattern *************/
 
     public void addObserver(SongManagerObserver observer) {
         m_songManagerObservers.add(observer);
