@@ -1,13 +1,17 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.*;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -17,7 +21,7 @@ public class LibraryUI extends StackPane {
     private SongManager model;
     private TreeView<TreeViewItem> tree;
 
-    public LibraryUI(SongManager model){
+    public LibraryUI(SongManager model) {
         super();
         this.model = model;
         updateTreeView();
@@ -26,11 +30,11 @@ public class LibraryUI extends StackPane {
         registerAsLibraryObserver();
     }
 
-    private void updateTreeView(){
+    private void updateTreeView() {
         System.out.println("updating treeview...");
         List<Library> libraries = model.getM_libraries();
 
-        if (libraries.isEmpty()){
+        if (libraries.isEmpty()) {
             this.getChildren().add(new Label("Add a library"));
         } else {
             tree = createTrees(libraries);
@@ -55,13 +59,10 @@ public class LibraryUI extends StackPane {
      * @param treeView
      */
     private void setMouseEvent(TreeView<TreeViewItem> treeView) {
-        treeView.setOnMouseClicked(new EventHandler<MouseEvent>()
-        {
+        treeView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
-            public void handle(MouseEvent mouseEvent)
-            {
-                if(mouseEvent.getClickCount() == 2)
-                {
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getClickCount() == 2) {
                     TreeItem<TreeViewItem> item = treeView.getSelectionModel().getSelectedItem();
                     System.out.println("Selected Text : " + item.getValue());
 
@@ -120,7 +121,7 @@ public class LibraryUI extends StackPane {
         File dummyRootFile = new File(libraries.get(0).getM_rootDirPath());
         TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
 
-        for (Library library: libraries) {
+        for (Library library : libraries) {
             TreeItem<TreeViewItem> rootItem = FileManager.generateTreeItems(
                     library.getM_rootDir(), library.getM_rootDirPath()
             );
@@ -140,7 +141,7 @@ public class LibraryUI extends StackPane {
         setCssStyle();
     }
 
-    private void setCssStyle(){
+    private void setCssStyle() {
         final String cssDefault = "-fx-border-color: black;\n";
         this.setStyle(cssDefault);
     }

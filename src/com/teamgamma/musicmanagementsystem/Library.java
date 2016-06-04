@@ -18,6 +18,7 @@ public class Library {
 
     /**
      * Constructor
+     *
      * @param folderPath: root path to folder
      */
     public Library(String folderPath) {
@@ -27,6 +28,7 @@ public class Library {
 
     /**
      * Add Song object to Library
+     *
      * @param songToAdd: Song object to add
      * @return true on successful add
      */
@@ -41,6 +43,7 @@ public class Library {
 
     /**
      * Remove song from Library and System
+     *
      * @param songToRemove: Song object to remove
      * @return true on successful remove
      */
@@ -66,6 +69,7 @@ public class Library {
 
     /**
      * Copy source Song object to destination path
+     *
      * @param songToCopy: Song object to copy
      * @param pathToDest: Directory to copy to
      * @return true on successful copy
@@ -85,6 +89,7 @@ public class Library {
 
     /**
      * Get Song object in List
+     *
      * @param songName: String of Song object name
      * @return Song object if found in Library.
      * Returns null if not found
@@ -100,6 +105,7 @@ public class Library {
 
     /**
      * Get Song object in List
+     *
      * @param file: File object of the song to retrieve
      * @return Song object if found in Library.
      * Returns null if not found
@@ -115,6 +121,7 @@ public class Library {
 
     /**
      * Get Song object in List
+     *
      * @param song: Song object to retrieve
      * @return Song object if found in Library.
      * Returns null if not found
@@ -129,6 +136,7 @@ public class Library {
 
     /**
      * Get List of Song objects in Library
+     *
      * @return List of Song objects in Library
      */
     public List<Song> getM_songList() {
@@ -137,6 +145,7 @@ public class Library {
 
     /**
      * Get root directory path of Library
+     *
      * @return String to root directory
      */
     public String getM_rootDirPath() {
@@ -145,6 +154,7 @@ public class Library {
 
     /**
      * Get root directory file of Library
+     *
      * @return File of root directory
      */
     public File getM_rootDir() {
@@ -153,6 +163,7 @@ public class Library {
 
     /**
      * Get all the directories and their sub directories in the root directory (including the root dir itself)
+     *
      * @return List<File> of all all the directories and their sub directories
      */
     public List<File> getFolders() {
@@ -161,6 +172,7 @@ public class Library {
 
     /**
      * Helper function to recursively trace directories and sub directories
+     *
      * @return List<File>
      */
     private static List<File> getFoldersRecursively(File file) {

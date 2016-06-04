@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  Class to manage files in the program.
+ * Class to manage files in the program.
  */
 public class FileManager {
     /**
@@ -18,7 +18,7 @@ public class FileManager {
      */
     public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath) {
         TreeItem<TreeViewItem> item = new TreeItem<>(
-                ( file.getAbsolutePath().equals(dirPath) ) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
+                (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
         );
 
         File[] children = file.listFiles(new FileFilter() {
@@ -50,7 +50,7 @@ public class FileManager {
         List<File> musicFiles = getMusicFiles(path);
 
         // Create Song object and add to array list
-        for (File musicFile: musicFiles) {
+        for (File musicFile : musicFiles) {
             listOfSongs.add(new Song(musicFile.getAbsolutePath()));
         }
 
@@ -116,7 +116,7 @@ public class FileManager {
                 }
             }
         }
-        return( path.delete() );
+        return (path.delete());
     }
 
     /**
@@ -144,7 +144,7 @@ public class FileManager {
      * @throws InvalidPathException
      */
     public static boolean copyFilesRecursively(File src, File dest) throws IOException, InvalidPathException {
-        if(!copyFile(src, dest)) { //one of the files failed to be copied
+        if (!copyFile(src, dest)) { //one of the files failed to be copied
             return false;
         }
         File[] children = src.listFiles();
@@ -163,8 +163,8 @@ public class FileManager {
      * @param extensions
      * @return true if file is accepted, false otherwise
      */
-    private static boolean isAccept(File file, String[] extensions){
-        for (String extension: extensions) {
+    private static boolean isAccept(File file, String[] extensions) {
+        for (String extension : extensions) {
             if (file.getName().endsWith(extension)) {
                 return true;
             }

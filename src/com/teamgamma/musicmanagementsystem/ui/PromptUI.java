@@ -1,20 +1,94 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
+
 import javafx.stage.StageStyle;
 
 
 public class PromptUI {
+
+    // ---------------------- Custom Prompts
+
+    /**
+     * Custom information prompt for use. Note that this prompt only contains a single "OK" button
+     *
+     * @param title
+     * @param headerText  (optional)
+     * @param bodyMessage
+     */
+    public static void customPromptInformation(String title, String headerText, String bodyMessage) {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(bodyMessage);
+
+        alert.showAndWait();
+    }
+
+    /**
+     * Custom confirmation prompt for use. Contains "OK" and "Cancel" buttons
+     *
+     * @param title
+     * @param headerText  (optional)
+     * @param bodyMessage
+     * @return false if user clicks "Cancel"
+     */
+    public static boolean customPromptConfirmation(String title, String headerText, String bodyMessage) {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(bodyMessage);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Custom warning prompt for use. Note that this prompt only contains a single "OK" button
+     *
+     * @param title
+     * @param headerText  (optional)
+     * @param bodyMessage
+     */
+    public static void customPromptWarning(String title, String headerText, String bodyMessage) {
+        Alert alert = new Alert(AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(bodyMessage);
+
+        alert.showAndWait();
+    }
+
+    /**
+     * Custom error prompt for use. Note that this prompt only contains a single "OK" button
+     *
+     * @param title
+     * @param headerText  (optional)
+     * @param bodyMessage
+     */
+    public static void customPromptError(String title, String headerText, String bodyMessage) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(bodyMessage);
+
+        alert.showAndWait();
+    }
 
     // ---------------------- Initialization
 
@@ -24,7 +98,6 @@ public class PromptUI {
      * @return set directory for master panel
      */
     public static String initialWelcome() {
-
         // TEMPORARY : Text box will be replaced with "Browse" button, so user weill select directory
         TextInputDialog dialog = new TextInputDialog();
         dialog.initStyle(StageStyle.UTILITY);
@@ -34,22 +107,23 @@ public class PromptUI {
 
         Optional<String> result = dialog.showAndWait();
 
+        // User input required. If user clicks "Cancel", program will close
         return result.get();
     }
 
     // ----------------------  Error Prompts
 
     /**
-     * File not found in program
+     * File not found in program (copy)
      *
-     * @param doesNotExist
+     * @param missingFile
      * @return true if user wishes to delete file reference
      */
-    public static boolean fileNotFoundMove(File doesNotExist) {
+    public static boolean fileNotFoundCopy(File missingFile) {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("File Not Found");
-        alert.setHeaderText("An error occured while moving \"" + doesNotExist.getName() + "\":");
-        alert.setContentText("The file " + doesNotExist.getAbsolutePath() + " is not found. Delete " +
+        alert.setHeaderText("An error occured while copying \"" + missingFile.getName() + "\":");
+        alert.setContentText("The file " + missingFile.getAbsolutePath() + " is not found. Delete " +
                 "its reference?");
 
         ButtonType deleteReference = new ButtonType("Yes");
@@ -58,11 +132,53 @@ public class PromptUI {
         alert.getButtonTypes().setAll(deleteReference, cancel);
         Optional<ButtonType> result = alert.showAndWait();
 
-        if (result.get() == deleteReference){
+        if (result.get() == deleteReference) {
             return true;
         }
         return false;
     }
+
+    /**
+     * File not found in program (move)
+     *
+     * @param missingFile
+     * @return true if user wishes to delete file reference
+     */
+    public static boolean fileNotFoundMove(File missingFile) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("File Not Found");
+        alert.setHeaderText("An error occured while moving \"" + missingFile.getName() + "\":");
+        alert.setContentText("The file " + missingFile.getAbsolutePath() + " is not found. Delete " +
+                "its reference?");
+
+        ButtonType deleteReference = new ButtonType("Yes");
+        ButtonType cancel = new ButtonType("No");
+
+        alert.getButtonTypes().setAll(deleteReference, cancel);
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.get() == deleteReference) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * File copied is attempting to paste into a song file as its destination (instead of a folder)
+     *
+     * @param copiedFile
+     * @param destinationFile
+     */
+    public static void invalidPasteDestination(File copiedFile, File destinationFile) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Copy Error");
+        alert.setHeaderText("An error occured while pasting \"" + copiedFile.getName() + "\":");
+        alert.setContentText("The file cannot be pasted into the media file " +
+                destinationFile.getName() + ". Please paste into a folder instead.");
+
+        alert.showAndWait();
+    }
+
 
     /**
      * File failed to rename
@@ -96,8 +212,6 @@ public class PromptUI {
      * File exists in directory, after copy attempt
      *
      * @param duplicate
-     * @return 1 if user wishes to replace file
-     * @return 2 if user renames file
      * @return 0 if user clicks cancel
      */
     public static int fileAlreadyExists(File duplicate) {
@@ -114,13 +228,36 @@ public class PromptUI {
 
         Optional<ButtonType> result = alert.showAndWait();
 
-        if (result.get() == replace){
+        if (result.get() == replace) {
             return 1;
         } else if (result.get() == rename) {
             fileRenameDuplicate(duplicate);
             return 2;
         } else {
             return 0;
+        }
+    }
+
+    // ---------------------- Text Prompts
+
+    /**
+     * Prompt when user clicks Add New Library button
+     *
+     * @return user's library name (null if user cancels)
+     */
+    public static String addNewLibrary() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.initStyle(StageStyle.UTILITY);
+        dialog.setTitle("Add New Library");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Name of new library:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()) {
+            return result.get();
+        } else {
+            return null;
         }
     }
 
@@ -143,10 +280,32 @@ public class PromptUI {
         alert.getButtonTypes().setAll(deleteReference, cancel);
         Optional<ButtonType> result = alert.showAndWait();
 
-        if (result.get() == deleteReference){
+        if (result.get() == deleteReference) {
             folder.delete();
         }
     }
+
+    /**
+     * Delete song
+     *
+     * @param mediaFile
+     */
+    public static void deleteSong(File mediaFile) {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Delete");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want do delete " + mediaFile.getName() + "?");
+        ButtonType deleteReference = new ButtonType("Yes");
+        ButtonType cancel = new ButtonType("No");
+
+        alert.getButtonTypes().setAll(deleteReference, cancel);
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.get() == deleteReference) {
+            mediaFile.delete();
+        }
+    }
+
 
     /**
      * Renames file. Keeps track of "_n" suffix of file if more duplicates found, and increments n
@@ -160,10 +319,10 @@ public class PromptUI {
         int beforeExtension = fileNameFull.lastIndexOf('.');
         String lastChar = fileNameFull.substring(beforeExtension - 1, beforeExtension);
 
-        if (!Character.isLetter(lastChar.charAt(0))){
+        if (!Character.isLetter(lastChar.charAt(0))) {
             numIndex = Character.getNumericValue(lastChar.charAt(0)) + 1;
             fileNameFull = fileNameFull.substring(0, beforeExtension - 2) +
-                fileNameFull.substring(beforeExtension);
+                    fileNameFull.substring(beforeExtension);
             beforeExtension -= 2;
         }
 
