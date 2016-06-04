@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  Class to manage files in the program.
+ * Class to manage files in the program.
  */
 public class FileManager {
     /**
@@ -17,9 +17,8 @@ public class FileManager {
      * @return TreeItem<String> to the root item
      */
     public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath) {
-
         TreeItem<TreeViewItem> item = new TreeItem<>(
-                ( file.getAbsolutePath().equals(dirPath) ) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
+                (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
         );
 
         File[] children = file.listFiles(new FileFilter() {
@@ -40,7 +39,7 @@ public class FileManager {
 
     /**
      * Generate list of Song objects based on path
-     * @param pathToDirectory
+     * @param pathToDirectory: the directory path
      * @return ArrayList of Song objects
      */
     public static List<Song> generateSongs(String pathToDirectory) {
@@ -51,7 +50,7 @@ public class FileManager {
         List<File> musicFiles = getMusicFiles(path);
 
         // Create Song object and add to array list
-        for (File musicFile: musicFiles) {
+        for (File musicFile : musicFiles) {
             listOfSongs.add(new Song(musicFile.getAbsolutePath()));
         }
 
@@ -66,8 +65,33 @@ public class FileManager {
     }
 
     /**
+     * Helper function to find music files in a directory
+     * @param path: the directory path
+     * @return ArrayList of File objects
+     */
+    private static List<File> getMusicFiles(File path) {
+        List<File> musicFiles = new ArrayList<>();
+        File[] files = path.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    String[] extensions = new String[]{".mp3"};
+                    if (isAccept(file, extensions)) {
+                        musicFiles.add(file);
+                    }
+                } else {
+                    musicFiles.addAll(getMusicFiles(file));
+                }
+            }
+        }
+
+        return musicFiles;
+    }
+
+    /**
      * Remove file from file system
-     * @param fileToRemove
+     * @param fileToRemove: file to be removed
      * @return true if file is removed successfully
      * @throws Exception
      */
@@ -75,25 +99,29 @@ public class FileManager {
         return deleteFolderOrFile(fileToRemove);
     }
 
-    static public boolean deleteFolderOrFile(File path) {
-        if( path.exists() ) {
+    private static boolean deleteFolderOrFile(File path) {
+        if (path.exists()) {
             if (path.isDirectory()) {
                 File[] files = path.listFiles();
-                for (int i = 0; i < files.length; i++) {
-                    if (files[i].isDirectory()) {
-                        deleteFolderOrFile(files[i]);
-                    } else {
-                        files[i].delete();
+                if (files != null) {
+                    for (File f : files) {
+                        if (f.isDirectory()) {
+                            deleteFolderOrFile(f);
+                        } else {
+                            if (!f.delete()) {
+                                return false;
+                            }
+                        }
                     }
                 }
             }
         }
-        return( path.delete() );
+        return (path.delete());
     }
 
     /**
      * Copy fileToCopy to destDir
-     * @param fileToCopy
+     * @param fileToCopy: File to be copied (one file only)
      * @param destDir: File object with path to destination directory
      * @return true if path of new file destination equals destDir path, false otherwise
      * @throws IOException
@@ -116,7 +144,7 @@ public class FileManager {
      * @throws InvalidPathException
      */
     public static boolean copyFilesRecursively(File src, File dest) throws IOException, InvalidPathException {
-        if(!copyFile(src, dest)) { //one of the files failed to be copied
+        if (!copyFile(src, dest)) { //one of the files failed to be copied
             return false;
         }
         File[] children = src.listFiles();
@@ -130,35 +158,13 @@ public class FileManager {
     }
 
     /**
-     * Helper function to find music files in a directory
-     * @param path
-     * @return ArrayList of File objects
-     */
-    private static List<File> getMusicFiles(File path) {
-        List<File> musicFiles = new ArrayList<>();
-        File[] files = path.listFiles();
-        for (File file : files) {
-            if (file.isFile()) {
-                String[] extensions = new String[] {".mp3"};
-                if (isAccept(file, extensions)) {
-                    musicFiles.add(file);
-                }
-            } else {
-                musicFiles.addAll(getMusicFiles(file));
-            }
-        }
-
-        return musicFiles;
-    }
-
-    /**
      * File filter for finding music files
      * @param file
      * @param extensions
      * @return true if file is accepted, false otherwise
      */
-    private static boolean isAccept(File file, String[] extensions){
-        for (String extension: extensions) {
+    private static boolean isAccept(File file, String[] extensions) {
+        for (String extension : extensions) {
             if (file.getName().endsWith(extension)) {
                 return true;
             }

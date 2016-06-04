@@ -13,11 +13,11 @@ import java.util.List;
 /**
  * UI class for list of songs in center of application
  */
-public class ContentListUI extends StackPane{
+public class ContentListUI extends StackPane {
     private SongManager model;
     private GridPane gridPane;
 
-    public ContentListUI(SongManager model){
+    public ContentListUI(SongManager model) {
         super();
 
         this.model = model;
@@ -73,14 +73,14 @@ public class ContentListUI extends StackPane{
         this.getChildren().add(new Label("Contents in folder"));
     }
 
-    private void clearList(){
+    private void clearList() {
         System.out.println("Clearing list...");
         gridPane.getChildren().clear();
         this.getChildren().clear();
     }
 
-    private void updateList(){
-        if (model.getM_selectedCenterFolder() == null){
+    private void updateList() {
+        if (model.getM_selectedCenterFolder() == null) {
             setEmptyText();
         } else {
             gridPane = new GridPane();
@@ -103,7 +103,7 @@ public class ContentListUI extends StackPane{
         }
     }
 
-    private void setCssStyle(){
+    private void setCssStyle() {
         final String cssDefault = "-fx-border-color: black;\n";
         this.setStyle(cssDefault);
     }

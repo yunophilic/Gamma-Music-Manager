@@ -16,10 +16,10 @@ import java.util.List;
 /**
  * MainUI Class.
  */
-public class MainUI extends BorderPane{
+public class MainUI extends BorderPane {
     private SongManager model;
 
-    public MainUI(SongManager model){
+    public MainUI(SongManager model) {
         super();
 
         this.model = model;
@@ -31,7 +31,7 @@ public class MainUI extends BorderPane{
         //this.setBottom(bottomePane());
     }
 
-    private Node leftPane(){
+    private Node leftPane() {
         BorderPane leftPane = new BorderPane();
         //List<Library> libraries = model.getM_libraries();
 
@@ -43,7 +43,7 @@ public class MainUI extends BorderPane{
         return leftPane;
     }
 
-    private Node rightPane(){
+    private Node rightPane() {
         BorderPane rightPane = new BorderPane();
         DynamicTreeViewUI dynamicTreeViewUI = new DynamicTreeViewUI(model);
 
@@ -64,18 +64,18 @@ public class MainUI extends BorderPane{
         return sidePane;
     }*/
 
-    private Node topPane(){
+    private Node topPane() {
         return getMenu();
     }
 
-    private Node bottomePane(){
+    private Node bottomePane() {
         //return new Label("Music Player");
 
         MusicPlayerManager musicManager = new MusicPlayerManager();
         return new MusicPlayerUI(musicManager);
     }
 
-    private Node centerPane(){
+    private Node centerPane() {
         BorderPane centerPane = new BorderPane();
 
         MusicPlayerManager musicManager = new MusicPlayerManager();

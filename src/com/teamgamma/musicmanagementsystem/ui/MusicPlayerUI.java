@@ -23,9 +23,15 @@ import java.io.File;
  */
 public class MusicPlayerUI extends BorderPane {
 
+    // Constants for MusicPlayerUI.
     public static final int SECONDS_IN_MINUTE = 60;
 
-    public MusicPlayerUI(MusicPlayerManager manager){
+    /**
+     * Constructor
+     *
+     * @param manager  The MusicPlayerManager to setup the actions for the UI panel.
+     */
+    public MusicPlayerUI(MusicPlayerManager manager) {
         super();
 
         VBox topWrapper = new VBox();
@@ -48,6 +54,34 @@ public class MusicPlayerUI extends BorderPane {
         topWrapper.getChildren().addAll(createProgressBarBox(manager), createCurrentTimeBox(manager));
         this.setTop(topWrapper);
 
+        HBox playbackControls = createPlayBackControlBox(manager);
+        this.setCenter(playbackControls);
+
+        HBox otherControlBox = createOtherOptionsBox(manager);
+        this.setBottom(otherControlBox);
+
+        manager.registerErrorObservers(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                Exception e = manager.getError();
+                if (e == null){
+                    PromptUI.unexpectedCrash();
+                } else {
+                    PromptUI.customPromptError("Music Player Error", e.getMessage(), e.toString());
+                }
+            }
+        });
+        setCssStyle();
+    }
+
+    /**
+     * Function to create the playback control UI component. This would be Previous Song, Play/Pause, Next song.
+     *
+     * @param manager   The music manager to setup observers.
+     *
+     * @return The Playback controls for the UI.
+     */
+    private HBox createPlayBackControlBox(final MusicPlayerManager manager) {
         HBox playbackControls = new HBox();
         playbackControls.setAlignment(Pos.CENTER);
 
@@ -80,7 +114,6 @@ public class MusicPlayerUI extends BorderPane {
         manager.registerChangeStateObservers(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                System.out.println("Change state observer notified. Is something playing " + manager.isSomethingPlaying());
                 if(manager.isSomethingPlaying()) {
                     playPauseButton.setGraphic(createImageViewForImage("res\\ic_play_arrow_black_48dp_1x.png"));
                     playPauseButton.setSelected(true);
@@ -102,15 +135,16 @@ public class MusicPlayerUI extends BorderPane {
             }
         });
         playbackControls.getChildren().add(skipButton);
-
-        this.setCenter(playbackControls);
-
-        HBox otherControlBox = createOtherOptionsBox(manager);
-        this.setBottom(otherControlBox);
-
-        setCssStyle();
+        return playbackControls;
     }
 
+    /**
+     * Function to create the other playback options list. This would be volume control and repeat control.
+
+     * @param manager  The music manager to set up actions.
+     *
+     * @return
+     */
     private HBox createOtherOptionsBox(final MusicPlayerManager manager) {
         HBox otherControlBox = new HBox();
         Button volumeUpButton = createIconButton("res\\ic_volume_up_black_48dp_1x.png");
@@ -149,11 +183,21 @@ public class MusicPlayerUI extends BorderPane {
         return otherControlBox;
     }
 
+    /**
+     * Function to set the global CSS style the panel
+     */
     private void setCssStyle(){
         final String cssDefault = "-fx-border-color: black;\n";
         this.setStyle(cssDefault);
     }
 
+    /**
+     * Function to create the progress bar and the seek slider UI component.
+     *
+     * @param manager   The music player manager to set up the observers.
+     *
+     * @return  The progress bar and seek slider UI pane.
+     */
     private StackPane createProgressBarBox(final MusicPlayerManager manager) {
         StackPane musicPlayerProgress = new StackPane();
 
@@ -221,29 +265,41 @@ public class MusicPlayerUI extends BorderPane {
         return musicPlayerProgress;
     }
 
+    /**
+     * Helper function to convert the duration obejct to a human readable format. The format is like the following MM:SS
+     *
+     * @param duration  The duration to convert.
+     *
+     * @return  A human readable string of the duration.
+     */
     private String convertDurationToTimeString(Duration duration) {
         String timeString = "";
 
         double seconds = duration.toSeconds();
         int minutes = 0;
-        while ((seconds - SECONDS_IN_MINUTE) >= 0){
+        while ((seconds - SECONDS_IN_MINUTE) >= 0) {
             minutes++;
             seconds -= SECONDS_IN_MINUTE;
         }
         timeString = minutes + ":";
 
         long leftOverSeconds = (int) seconds;
-        if (leftOverSeconds < 10){
+        if (leftOverSeconds < 10) {
             // Add on so it looks like 0:05 rather than 0:5
             timeString += "0";
         }
-
         timeString += leftOverSeconds;
 
-        //System.out.println("Given duration param = " + duration.toMillis() + " Sec: " + duration.toSeconds() + " converted to " + timeString);
         return timeString;
     }
 
+    /**
+     * Function to create the current song playing UI component.
+     *
+     * @param manager   The music player manager to setup the observer patttern.
+     *
+     * @return
+     */
     private HBox makeSongTitleHeader(final MusicPlayerManager manager) {
         HBox songTitleWrapper = new HBox();
         Label songTitleHeader = new Label("Song Currently Playing : ");
@@ -261,7 +317,14 @@ public class MusicPlayerUI extends BorderPane {
         return songTitleWrapper;
     }
 
-    private ImageView createImageViewForImage(String imagePath){
+    /**
+     * Helper function to convert a path to a image to a actual image you can use.
+     *
+     * @param imagePath     The path to a image.
+     *
+     * @return  A ImageView that contains the image that is passed in.
+     */
+    private ImageView createImageViewForImage(String imagePath) {
         imagePath = imagePath.replace("\\", File.separator);
         imagePath = imagePath.replace("/", File.separator);
 
@@ -269,20 +332,41 @@ public class MusicPlayerUI extends BorderPane {
         return new ImageView(new Image(getClass().getClassLoader().getResourceAsStream(imagePath)));
     }
 
-    private Button createIconButton(String pathToIcon){
+    /**
+     * Helper function to create a button that displays the image passed in.
+     *
+     * @param pathToIcon    The path to the image to use.
+     *
+     * @return  The button with the image being used.
+     */
+    private Button createIconButton(String pathToIcon) {
         Button button = new Button();
         button.setStyle("-fx-background-color: transparent");
         button.setGraphic(createImageViewForImage(pathToIcon));
         return button;
     }
 
-    private Label createHeadingLabel(String textForLabel){
+    /**
+     * Helper function to create a Heading Label for text.
+     *
+     * @param textForLabel  The Text to use.
+     *
+     * @return  A Label styled in the MusicPlayer Heading style.
+     */
+    private Label createHeadingLabel(String textForLabel) {
         Label label = new Label(textForLabel);
         label.setFont(new Font(20));
         return label;
     }
 
-    private HBox createCurrentTimeBox(MusicPlayerManager manager){
+    /**
+     * Function to create the playback time UI component.
+     *
+     * @param manager   The manager to setup the observer pattern.
+     *
+     * @return  The current playback time UI component.
+     */
+    private HBox createCurrentTimeBox(MusicPlayerManager manager) {
         HBox songTimesWrapper = new HBox();
         Label currentTimeLabel = createHeadingLabel("0:00");
         Label constantLabel = createHeadingLabel("/");

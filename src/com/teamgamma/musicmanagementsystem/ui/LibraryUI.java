@@ -21,7 +21,7 @@ public class LibraryUI extends StackPane {
     private SongManager model;
     private TreeView<TreeViewItem> tree;
 
-    public LibraryUI(SongManager model){
+    public LibraryUI(SongManager model) {
         super();
         this.model = model;
         updateTreeView();
@@ -30,11 +30,11 @@ public class LibraryUI extends StackPane {
         registerAsLibraryObserver();
     }
 
-    private void updateTreeView(){
+    private void updateTreeView() {
         System.out.println("updating treeview...");
         List<Library> libraries = model.getM_libraries();
 
-        if (libraries.isEmpty()){
+        if (libraries.isEmpty()) {
             this.getChildren().add(new Label("Add a library"));
         } else {
             tree = createTrees(libraries);
@@ -49,7 +49,7 @@ public class LibraryUI extends StackPane {
             @Override
             public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg0) {
                 // custom tree cell that defines a context menu for the root tree item
-                return new CustomTreeCell();
+                return new CustomTreeCell(model, tree, true);
             }
         });
     }
@@ -59,13 +59,10 @@ public class LibraryUI extends StackPane {
      * @param treeView
      */
     private void setMouseEvent(TreeView<TreeViewItem> treeView) {
-        treeView.setOnMouseClicked(new EventHandler<MouseEvent>()
-        {
+        treeView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
-            public void handle(MouseEvent mouseEvent)
-            {
-                if(mouseEvent.getClickCount() == 2)
-                {
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getClickCount() == 2) {
                     TreeItem<TreeViewItem> item = treeView.getSelectionModel().getSelectedItem();
                     System.out.println("Selected Text : " + item.getValue());
 
@@ -124,7 +121,7 @@ public class LibraryUI extends StackPane {
         File dummyRootFile = new File(libraries.get(0).getM_rootDirPath());
         TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
 
-        for (Library library: libraries) {
+        for (Library library : libraries) {
             TreeItem<TreeViewItem> rootItem = FileManager.generateTreeItems(
                     library.getM_rootDir(), library.getM_rootDirPath()
             );
@@ -144,82 +141,8 @@ public class LibraryUI extends StackPane {
         setCssStyle();
     }
 
-    private void setCssStyle(){
+    private void setCssStyle() {
         final String cssDefault = "-fx-border-color: black;\n";
         this.setStyle(cssDefault);
-    }
-
-    private class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
-        private ContextMenu contextMenu;
-
-        public CustomTreeCell() {
-            contextMenu = new ContextMenu();
-
-            //remove library
-            MenuItem removeLibrary = new MenuItem("Remove this library");
-            removeLibrary.setOnAction(new EventHandler<ActionEvent>() {
-                public void handle(ActionEvent e) {
-                    System.out.println("Remove library"); //TODO: remove library from program view
-                }
-            });
-
-            //delete option
-            MenuItem delete = new MenuItem("Delete");
-            delete.setOnAction(new EventHandler<ActionEvent>() {
-                public void handle(ActionEvent e) {
-                    System.out.println("Deleting " + tree.getSelectionModel().getSelectedItem()); //for now
-                    File fileToDelete = tree.getSelectionModel().getSelectedItem().getValue().getPath();
-                    model.deleteFile(fileToDelete);
-                    model.notifyFileObservers();
-                }
-            });
-
-            //copy option
-            MenuItem copy = new MenuItem("Copy");
-            copy.setOnAction(new EventHandler<ActionEvent>() {
-                public void handle(ActionEvent e) {
-                    model.setM_fileBuffer( tree.getSelectionModel().getSelectedItem().getValue().getPath() );
-                }
-            });
-
-            //paste option
-            MenuItem paste = new MenuItem("Paste");
-            paste.setOnAction(new EventHandler<ActionEvent>() {
-                public void handle(ActionEvent e) {
-                    File dest = tree.getSelectionModel().getSelectedItem().getValue().getPath();
-                    if (!dest.isDirectory()) {
-                        System.out.println("Not a directory!"); //for now
-                    }
-                    try {
-                        model.copyToDestination(dest);
-                        model.notifyFileObservers();
-                    } catch (IOException ex) {
-                        ex.printStackTrace(); //for now
-                    }
-                }
-            });
-
-            //open in right pane option
-            MenuItem openInRightPanel = new MenuItem("Open in right pane");
-            openInRightPanel.setOnAction(new EventHandler<ActionEvent>() {
-                public void handle(ActionEvent e) {
-                    File folderSelected = tree.getSelectionModel().getSelectedItem().getValue().getPath();
-                    if (!folderSelected.isDirectory()) {
-                        System.out.println("Not a directory!"); //for now
-                    } else {
-                        model.setRightFolderSelected(folderSelected);
-                        model.notifyRightFolderObservers();
-                    }
-                }
-            });
-
-            contextMenu.getItems().addAll(removeLibrary, delete, copy, paste, openInRightPanel);
-        }
-
-        @Override
-        public void updateItem(TreeViewItem item, boolean empty) {
-            super.updateItem(item, empty);
-            setContextMenu(contextMenu);
-        }
     }
 }
