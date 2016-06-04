@@ -94,7 +94,7 @@ public class SongManager {
         }
 
         //update song objects inside the model
-        Library targetLib = getLibrary(dest);
+        /*Library targetLib = getLibrary(dest);
         if (targetLib == null) {
             return false;
         }
@@ -115,7 +115,22 @@ public class SongManager {
             targetLib.addSong(songToAdd);
         }
 
-        m_fileBuffer = null;
+        m_fileBuffer = null;*/
+
+        // Delete current libraries and create new libraries with same paths
+        // to update songs in libraries when files are moved
+        List<String> libraryPaths = new ArrayList<>();
+
+        for (Library library: m_libraries){
+            libraryPaths.add(library.getM_rootDirPath());
+        }
+
+        m_libraries.clear();
+
+        for (String libraryPath: libraryPaths){
+            this.addLibrary(libraryPath);
+        }
+
         return true;
     }
 
@@ -126,12 +141,14 @@ public class SongManager {
     public List<Song> getCenterPanelSongs() {
         List<Song> centerPanelSongs = new ArrayList<>();
 
-        for (Library library: m_libraries){
-            for (Song song: this.getSongs(library)){
-                String songFilePath = song.getM_file().getAbsolutePath();
-                //System.out.println("    Path of song file: " + songFilePath);
-                if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath())){
-                    centerPanelSongs.add(song);
+        if (m_selectedCenterFolder != null) {
+            for (Library library : m_libraries) {
+                for (Song song : this.getSongs(library)) {
+                    String songFilePath = song.getM_file().getAbsolutePath();
+                    //System.out.println("    Path of song file: " + songFilePath);
+                    if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath())) {
+                        centerPanelSongs.add(song);
+                    }
                 }
             }
         }
@@ -169,5 +186,11 @@ public class SongManager {
 
     public void notifySongObservers() {
 
+    }
+
+    public void notifyFileObservers() {
+        for (SongManagerObserver observer : m_songManagerObservers) {
+            observer.fileChanged();
+        }
     }
 }

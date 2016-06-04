@@ -28,9 +28,11 @@ public class LibraryUI extends StackPane {
         updateTreeView();
         setTreeCellFactory();
         setPaneStyle();
+        registerAsLibraryObserver();
     }
 
     private void updateTreeView(){
+        System.out.println("updating treeview...");
         List<Library> libraries = model.getM_libraries();
 
         if (libraries.isEmpty()){
@@ -43,6 +45,7 @@ public class LibraryUI extends StackPane {
     }
 
     private void setTreeCellFactory() {
+        System.out.println("setting cell factory...");
         tree.setCellFactory(new Callback<TreeView<TreeViewItem>, TreeCell<TreeViewItem>>() {
             @Override
             public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg0) {
@@ -77,8 +80,10 @@ public class LibraryUI extends StackPane {
         model.addObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
+                System.out.println("Library changed in treeview");
                 clearTreeView();
                 updateTreeView();
+                setTreeCellFactory();
             }
 
             @Override
@@ -95,11 +100,20 @@ public class LibraryUI extends StackPane {
             public void songChanged() {
 
             }
+
+            @Override
+            public void fileChanged() {
+                System.out.println("File changed in treeview");
+                clearTreeView();
+                updateTreeView();
+                setTreeCellFactory();
+            }
         });
     }
 
     private void clearTreeView() {
         //tree.setRoot(null);
+        System.out.println("clearing treeview...");
         this.getChildren().clear();
     }
 
@@ -168,6 +182,7 @@ public class LibraryUI extends StackPane {
                     }
                     try {
                         model.copyToDestination(dest);
+                        model.notifyFileObservers();
                     } catch (IOException ex) {
                         ex.printStackTrace(); //for now
                     }
