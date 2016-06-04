@@ -167,9 +167,14 @@ public class LibraryUI extends StackPane {
             MenuItem delete = new MenuItem("Delete");
             delete.setOnAction(new EventHandler<ActionEvent>() {
                 public void handle(ActionEvent e) {
-                    System.out.println("Deleting " + tree.getSelectionModel().getSelectedItem()); //for now
                     File fileToDelete = tree.getSelectionModel().getSelectedItem().getValue().getPath();
-                    model.deleteFile(fileToDelete);
+                    // TODO: show confirmation dialog before deleting
+                    try {
+                        model.deleteFile(fileToDelete);
+                    } catch (Exception ex) {
+                        // TODO: show popup dialog
+                        ex.printStackTrace();
+                    }
                     model.notifyFileObservers();
                 }
             });

@@ -17,7 +17,6 @@ public class FileManager {
      * @return TreeItem<String> to the root item
      */
     public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath) {
-
         TreeItem<TreeViewItem> item = new TreeItem<>(
                 ( file.getAbsolutePath().equals(dirPath) ) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
         );
@@ -40,7 +39,7 @@ public class FileManager {
 
     /**
      * Generate list of Song objects based on path
-     * @param pathToDirectory
+     * @param pathToDirectory: the directory path
      * @return ArrayList of Song objects
      */
     public static List<Song> generateSongs(String pathToDirectory) {
@@ -66,8 +65,33 @@ public class FileManager {
     }
 
     /**
+     * Helper function to find music files in a directory
+     * @param path: the directory path
+     * @return ArrayList of File objects
+     */
+    private static List<File> getMusicFiles(File path) {
+        List<File> musicFiles = new ArrayList<>();
+        File[] files = path.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    String[] extensions = new String[]{".mp3"};
+                    if (isAccept(file, extensions)) {
+                        musicFiles.add(file);
+                    }
+                } else {
+                    musicFiles.addAll(getMusicFiles(file));
+                }
+            }
+        }
+
+        return musicFiles;
+    }
+
+    /**
      * Remove file from file system
-     * @param fileToRemove
+     * @param fileToRemove: file to be removed
      * @return true if file is removed successfully
      * @throws Exception
      */
@@ -75,15 +99,19 @@ public class FileManager {
         return deleteFolderOrFile(fileToRemove);
     }
 
-    static public boolean deleteFolderOrFile(File path) {
-        if( path.exists() ) {
+    private static boolean deleteFolderOrFile(File path) {
+        if (path.exists()) {
             if (path.isDirectory()) {
                 File[] files = path.listFiles();
-                for (int i = 0; i < files.length; i++) {
-                    if (files[i].isDirectory()) {
-                        deleteFolderOrFile(files[i]);
-                    } else {
-                        files[i].delete();
+                if (files != null) {
+                    for (File f : files) {
+                        if (f.isDirectory()) {
+                            deleteFolderOrFile(f);
+                        } else {
+                            if (!f.delete()) {
+                                return false;
+                            }
+                        }
                     }
                 }
             }
@@ -93,7 +121,7 @@ public class FileManager {
 
     /**
      * Copy fileToCopy to destDir
-     * @param fileToCopy
+     * @param fileToCopy: File to be copied (one file only)
      * @param destDir: File object with path to destination directory
      * @return true if path of new file destination equals destDir path, false otherwise
      * @throws IOException
@@ -127,28 +155,6 @@ public class FileManager {
             }
         }
         return true;
-    }
-
-    /**
-     * Helper function to find music files in a directory
-     * @param path
-     * @return ArrayList of File objects
-     */
-    private static List<File> getMusicFiles(File path) {
-        List<File> musicFiles = new ArrayList<>();
-        File[] files = path.listFiles();
-        for (File file : files) {
-            if (file.isFile()) {
-                String[] extensions = new String[] {".mp3"};
-                if (isAccept(file, extensions)) {
-                    musicFiles.add(file);
-                }
-            } else {
-                musicFiles.addAll(getMusicFiles(file));
-            }
-        }
-
-        return musicFiles;
     }
 
     /**
