@@ -17,6 +17,83 @@ import javafx.stage.StageStyle;
 
 public class PromptUI {
 
+    // ---------------------- Custom Prompts
+
+    /**
+     * Custom information prompt for use. Note that this prompt only contains a single "OK" button
+     *
+     * @param title
+     * @param headerText (optional)
+     * @param bodyMessage
+     */
+    public static void customPromptInformation(String title, String headerText, String bodyMessage) {
+
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(bodyMessage);
+
+        alert.showAndWait();
+    }
+
+    /**
+     * Custom confirmation prompt for use. Contains "OK" and "Cancel" buttons
+     *
+     * @param title
+     * @param headerText (optional)
+     * @param bodyMessage
+     * @return true if user clicks "OK"
+     * @return  false if user clicks "Cancel"
+     */
+    public static boolean customPromptConfirmation(String title, String headerText, String bodyMessage) {
+
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(bodyMessage);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Custom warning prompt for use. Note that this prompt only contains a single "OK" button
+     *
+     * @param title
+     * @param headerText (optional)
+     * @param bodyMessage
+     */
+    public static void customPromptWarning(String title, String headerText, String bodyMessage) {
+
+        Alert alert = new Alert(AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(bodyMessage);
+
+        alert.showAndWait();
+    }
+
+    /**
+     * Custom error prompt for use. Note that this prompt only contains a single "OK" button
+     *
+     * @param title
+     * @param headerText (optional)
+     * @param bodyMessage
+     */
+    public static void customPromptError(String title, String headerText, String bodyMessage) {
+
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(bodyMessage);
+
+        alert.showAndWait();
+    }
+
     // ---------------------- Initialization
 
     /**
