@@ -136,7 +136,10 @@ public class SongManager {
         m_libraries.clear();
 
         for (String libraryPath: libraryPaths){
-            this.addLibrary(libraryPath);
+            File tempFile = new File(libraryPath);
+            if (tempFile.exists()) {
+                this.addLibrary(libraryPath);
+            }
         }
     }
 
