@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 import javafx.stage.StageStyle;
 
@@ -40,16 +41,16 @@ public class PromptUI {
     // ----------------------  Error Prompts
 
     /**
-     * File not found in program
+     * File not found in program (copy)
      *
-     * @param doesNotExist
+     * @param missingFile
      * @return true if user wishes to delete file reference
      */
-    public static boolean fileNotFoundMove(File doesNotExist) {
+    public static boolean fileNotFoundCopy(File missingFile) {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("File Not Found");
-        alert.setHeaderText("An error occured while moving \"" + doesNotExist.getName() + "\":");
-        alert.setContentText("The file " + doesNotExist.getAbsolutePath() + " is not found. Delete " +
+        alert.setHeaderText("An error occured while copying \"" + missingFile.getName() + "\":");
+        alert.setContentText("The file " + missingFile.getAbsolutePath() + " is not found. Delete " +
                 "its reference?");
 
         ButtonType deleteReference = new ButtonType("Yes");
@@ -63,6 +64,48 @@ public class PromptUI {
         }
         return false;
     }
+
+    /**
+     * File not found in program (move)
+     *
+     * @param missingFile
+     * @return true if user wishes to delete file reference
+     */
+    public static boolean fileNotFoundMove(File missingFile) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("File Not Found");
+        alert.setHeaderText("An error occured while moving \"" + missingFile.getName() + "\":");
+        alert.setContentText("The file " + missingFile.getAbsolutePath() + " is not found. Delete " +
+                "its reference?");
+
+        ButtonType deleteReference = new ButtonType("Yes");
+        ButtonType cancel = new ButtonType("No");
+
+        alert.getButtonTypes().setAll(deleteReference, cancel);
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.get() == deleteReference){
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * File copied is attempting to paste into a song file as its destination (instead of a folder)
+     *
+     * @param copiedFile
+     * @param destinationFile
+     */
+    public static void invalidPasteDestination(File copiedFile, File destinationFile) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Copy Error");
+        alert.setHeaderText("An error occured while pasting \"" + copiedFile.getName() + "\":");
+        alert.setContentText("The file cannot be pasted into the media file " +
+                destinationFile.getName() + ". Please paste into a folder instead.");
+
+        alert.showAndWait();
+    }
+
 
     /**
      * File failed to rename
@@ -147,6 +190,29 @@ public class PromptUI {
             folder.delete();
         }
     }
+
+    /**
+     * Delete song
+     *
+     * @param mediaFile
+     */
+    public static void deleteSong(File mediaFile) {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Delete");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want do delete " + mediaFile.getName() + "?");
+        ButtonType deleteReference = new ButtonType("Yes");
+        ButtonType cancel = new ButtonType("No");
+
+        alert.getButtonTypes().setAll(deleteReference, cancel);
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.get() == deleteReference){
+            mediaFile.delete();
+        }
+    }
+
+
 
     /**
      * Renames file. Keeps track of "_n" suffix of file if more duplicates found, and increments n
