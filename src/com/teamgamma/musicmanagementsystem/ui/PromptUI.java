@@ -13,6 +13,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.StageStyle;
 
 
@@ -93,22 +95,29 @@ public class PromptUI {
     // ---------------------- Initialization
 
     /**
-     * Initial welcome prompt for first time startup
+     * Initial welcome prompt for first time startup. Browse button allows user
+     * to browse directories and choose a folder.
      *
      * @return set directory for master panel
      */
     public static String initialWelcome() {
-        // TEMPORARY : Text box will be replaced with "Browse" button, so user weill select directory
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.initStyle(StageStyle.UTILITY);
-        dialog.setTitle("Welcome!");
-        dialog.setHeaderText(null);
-        dialog.setContentText("Welcome to the Music Management System. Please enter your home directory:");
+        Alert alert = new Alert(AlertType.NONE);
+        alert.setTitle("Welcome!");
+        alert.setHeaderText(null);
+        alert.setContentText("Welcome to the Music Management System. Please enter your home directory:");
 
-        Optional<String> result = dialog.showAndWait();
+        ButtonType browse = new ButtonType("Browse");
+        alert.getButtonTypes().setAll(browse);
+        alert.showAndWait();
 
-        // User input required. If user clicks "Cancel", program will close
-        return result.get();
+        DirectoryChooser directory = new DirectoryChooser();
+        File selectedFile = directory.showDialog(null);
+
+        if (selectedFile != null) {
+            return selectedFile.getAbsolutePath();
+        }
+
+        return null;
     }
 
     // ----------------------  Error Prompts
