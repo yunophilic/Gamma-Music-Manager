@@ -7,6 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import java.io.File;
@@ -19,12 +20,10 @@ import java.util.List;
 public class LibraryUI extends StackPane {
     private SongManager model;
     private TreeView<TreeViewItem> tree;
-    //private File selectedItem;
 
     public LibraryUI(SongManager model){
         super();
         this.model = model;
-        //this.selectedItem = null;
         updateTreeView();
         setTreeCellFactory();
         setPaneStyle();
@@ -161,6 +160,9 @@ public class LibraryUI extends StackPane {
             delete.setOnAction(new EventHandler<ActionEvent>() {
                 public void handle(ActionEvent e) {
                     System.out.println("Deleting " + tree.getSelectionModel().getSelectedItem()); //for now
+                    File fileToDelete = tree.getSelectionModel().getSelectedItem().getValue().getPath();
+                    model.deleteFile(fileToDelete);
+                    model.notifyFileObservers();
                 }
             });
 
@@ -189,7 +191,22 @@ public class LibraryUI extends StackPane {
                 }
             });
 
-            contextMenu.getItems().addAll(delete, copy, paste);
+            //open in right pane option
+            MenuItem openInRightPanel = new MenuItem("Open in right pane");
+            openInRightPanel.setOnAction(new EventHandler<ActionEvent>() {
+                public void handle(ActionEvent e) {
+                    File folderSelected = tree.getSelectionModel().getSelectedItem().getValue().getPath();
+                    if (!folderSelected.isDirectory()) {
+                        System.out.println("Not a directory!"); //for now
+                    } else {
+                        model.setRightFolderSelected(folderSelected);
+                        model.notifyRightFolderObservers();
+                    }
+                }
+            });
+
+
+            contextMenu.getItems().addAll(delete, copy, paste, openInRightPanel);
         }
 
         @Override

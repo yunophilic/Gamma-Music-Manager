@@ -16,6 +16,7 @@ public class SongManager {
 
     // For observer pattern
     private File m_selectedCenterFolder;
+    private File m_rightFolderSelected;
 
     public SongManager() {
         m_songManagerObservers = new ArrayList<>();
@@ -23,6 +24,7 @@ public class SongManager {
         m_fileBuffer = null;
         m_playlists = new ArrayList<>();
         m_selectedCenterFolder = null;
+        m_rightFolderSelected = null;
     }
 
     /**
@@ -117,6 +119,12 @@ public class SongManager {
 
         m_fileBuffer = null;*/
 
+        updateLibraries();
+
+        return true;
+    }
+
+    private void updateLibraries(){
         // Delete current libraries and create new libraries with same paths
         // to update songs in libraries when files are moved
         List<String> libraryPaths = new ArrayList<>();
@@ -130,8 +138,6 @@ public class SongManager {
         for (String libraryPath: libraryPaths){
             this.addLibrary(libraryPath);
         }
-
-        return true;
     }
 
     public List<Song> getSongs(Library library) {
@@ -155,6 +161,28 @@ public class SongManager {
 
         return centerPanelSongs;
     }
+
+
+    public File getRightFolderSelected() {
+        return m_rightFolderSelected;
+    }
+
+
+    public void setRightFolderSelected(File rightFolderSelected) {
+        m_rightFolderSelected = rightFolderSelected;
+    }
+
+
+    public void deleteFile(File fileToDelete) {
+        try {
+            FileManager.removeFile(fileToDelete);
+            updateLibraries();
+        } catch (Exception e) {
+            // TODO: show popup dialog
+            e.printStackTrace();
+        }
+    }
+
 
     /********** Functions for observer pattern *************/
 
@@ -181,7 +209,9 @@ public class SongManager {
     }
 
     public void notifyRightFolderObservers() {
-
+        for (SongManagerObserver observer : m_songManagerObservers) {
+            observer.rightFolderChanged();
+        }
     }
 
     public void notifySongObservers() {
@@ -193,4 +223,5 @@ public class SongManager {
             observer.fileChanged();
         }
     }
+
 }
