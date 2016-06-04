@@ -3,13 +3,13 @@ package com.teamgamma.musicmanagementsystem;
 import java.io.File;
 
 /**
- * Created by Karen on 2016-06-02.
+ * Class that represents an item in the file tree
  */
-public class TreeViewFolderItem {
+public class TreeViewItem {
     private File path;
     private boolean isRootPath;
 
-    public TreeViewFolderItem(File path, boolean isRootPath){
+    public TreeViewItem(File path, boolean isRootPath){
         this.path = path;
         this.isRootPath = isRootPath;
     }

@@ -16,16 +16,16 @@ public class FileManager {
      * Recursively create tree items from the files in a directory and return a reference to the root item
      * @return TreeItem<String> to the root item
      */
-    public static TreeItem<TreeViewFolderItem> generateTreeItems(File file, String dirPath) {
+    public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath) {
 
-        TreeItem<TreeViewFolderItem> item = new TreeItem<>(
-                ( file.getAbsolutePath().equals(dirPath) ) ? new TreeViewFolderItem(file, true) : new TreeViewFolderItem(file, false)
+        TreeItem<TreeViewItem> item = new TreeItem<>(
+                ( file.getAbsolutePath().equals(dirPath) ) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
         );
 
         File[] children = file.listFiles(new FileFilter() {
             @Override
-            public boolean accept(File pathname) {
-                return pathname.isDirectory();
+            public boolean accept(File f) {
+                return f.isDirectory() || f.getAbsolutePath().endsWith(".mp3");
             }
         });
 
@@ -76,19 +76,19 @@ public class FileManager {
     }
 
     /**
-     * Copy sourceFile to destinationDir
-     * @param sourceFile
-     * @param destinationDir: File object with path to destination directory
-     * @return true if path of new file destination equals destinationDir path, false otherwise
+     * Copy fileToCopy to destDir
+     * @param fileToCopy
+     * @param destDir: File object with path to destination directory
+     * @return true if path of new file destination equals destDir path, false otherwise
      * @throws IOException
      * @throws InvalidPathException
      */
-    public static boolean copyFile(File sourceFile, File destinationDir) throws IOException, InvalidPathException {
-        Path sourceFilePath = sourceFile.toPath();
-        Path destDirPath = destinationDir.toPath();
+    public static boolean copyFile(File fileToCopy, File destDir) throws IOException, InvalidPathException {
+        Path sourceFilePath = fileToCopy.toPath();
+        Path destDirPath = destDir.toPath();
         Path destFilePath = destDirPath.resolve(sourceFilePath.getFileName());
-        Path resultPath = Files.copy(sourceFile.toPath(), destFilePath);
-        return (resultPath.getParent().equals(destinationDir.toPath()));
+        Path resultPath = Files.copy(fileToCopy.toPath(), destFilePath);
+        return (resultPath.getParent().equals(destDir.toPath()));
     }
 
     /**
@@ -121,7 +121,7 @@ public class FileManager {
     private static List<File> getMusicFiles(File path) {
         List<File> musicFiles = new ArrayList<>();
         File[] files = path.listFiles();
-        for (File file: files) {
+        for (File file : files) {
             if (file.isFile()) {
                 String[] extensions = new String[] {".mp3"};
                 if (isAccept(file, extensions)) {

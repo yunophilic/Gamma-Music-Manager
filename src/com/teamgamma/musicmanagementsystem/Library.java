@@ -100,6 +100,21 @@ public class Library {
 
     /**
      * Get Song object in List
+     * @param file: File object of the song to retrieve
+     * @return Song object if found in Library.
+     * Returns null if not found
+     */
+    public Song getSong(File file) {
+        for (Song song : m_songList) {
+            if (song.getM_file().equals(file)) {
+                return song;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get Song object in List
      * @param song: Song object to retrieve
      * @return Song object if found in Library.
      * Returns null if not found

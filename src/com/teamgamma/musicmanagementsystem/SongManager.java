@@ -1,33 +1,33 @@
 package com.teamgamma.musicmanagementsystem;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.util.*;
 
 /**
  * Class to manage libraries and playlists
  */
 public class SongManager {
-    private Library m_myLibrary;
-    private Library m_externalLibrary;
-    private List<Playlist> m_playlists;
     private List<SongManagerObserver> m_songManagerObservers;
     private List<Library> m_libraries;
+    private File m_fileBuffer; //can be a directory
+    private List<Playlist> m_playlists;
 
     // For observer pattern
     private File m_selectedCenterFolder;
 
-    public SongManager(String directoryPath) {
-        m_myLibrary = new Library(directoryPath);
-        m_externalLibrary = null;
-        m_playlists = new ArrayList<>();
-        m_libraries = new ArrayList<>();
-        m_selectedCenterFolder = null;
+    public SongManager() {
         m_songManagerObservers = new ArrayList<>();
+        m_libraries = new ArrayList<>();
+        m_fileBuffer = null;
+        m_playlists = new ArrayList<>();
+        m_selectedCenterFolder = null;
     }
 
     /**
      * Add new library (root folder path) to m_libraries if it is not already in the list
-     * @param directoryPath
+     * @param directoryPath path to the library
      * @return true if new library is added to the list, false otherwise
      */
     public boolean addLibrary(String directoryPath){
@@ -49,6 +49,20 @@ public class SongManager {
         return false;
     }
 
+    /**
+     * Get the library where the specified file resides in
+     * @param file specified file
+     * @return true if found, null otherwise
+     */
+    private Library getLibrary(File file) {
+        for(Library l : m_libraries) {
+            if( file.exists() && file.getAbsolutePath().startsWith(l.getM_rootDirPath()) ) {
+                return l;
+            }
+        }
+        return null;
+    }
+
     public List<Library> getM_libraries(){
         return m_libraries;
     }
@@ -57,34 +71,57 @@ public class SongManager {
         m_songManagerObservers.add(observer);
     }
 
-    public String getLibraryRootDirPath() {
-        return m_myLibrary.getM_rootDirPath();
-    }
-
-    public Library getM_myLibrary() {
-        return m_myLibrary;
-    }
-
-    public Library getM_externalLibrary() {
-        return m_externalLibrary;
-    }
-
-    public void setM_externalLibrary(String directoryPath) {
-        m_externalLibrary = new Library(directoryPath);
-    }
-
-    public boolean addSong(Song songToAdd, Library library) {
+    /*public boolean addSong(Song songToAdd, Library library) {
         return library.addSong(songToAdd);
     }
 
     public boolean removeSong(Song songToRemove, Library library) {
         return library.removeSong(songToRemove);
+    }*/
+
+    public void setM_fileBuffer(File m_fileBuffer) {
+        this.m_fileBuffer = m_fileBuffer;
+    }
+
+    public boolean copyToDestination(File dest) throws IOException, InvalidPathException {
+        if (m_fileBuffer == null) {
+            return false;
+        }
+
+        //copy in file system
+        if (!FileManager.copyFilesRecursively(m_fileBuffer, dest)) {
+            return false;
+        }
+
+        //update song objects inside the model
+        Library targetLib = getLibrary(dest);
+        if (targetLib == null) {
+            return false;
+        }
+        if (m_fileBuffer.isDirectory()) {
+            List<Song> songsToBeCopied = FileManager.generateSongs(m_fileBuffer.getAbsolutePath());
+            for (Song s : songsToBeCopied) {
+                if (!targetLib.addSong(s)) {
+                    return false;
+                }
+            }
+        } else {
+            Library sourceLib = getLibrary(m_fileBuffer);
+            if (sourceLib == null) {
+                //this shouldn't happen but just in case
+                return false;
+            }
+            Song songToAdd = sourceLib.getSong(m_fileBuffer);
+            targetLib.addSong(songToAdd);
+        }
+
+        m_fileBuffer = null;
+        return true;
     }
 
     public List<Song> getSongs(Library library) {
         return library.getM_songList();
     }
-
 
     public List<Song> getCenterPanelSongs() {
         List<Song> centerPanelSongs = new ArrayList<>();
