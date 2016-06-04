@@ -3,31 +3,28 @@ package com.teamgamma.musicmanagementsystem.watchservice;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Scanner;
 
 public class Watcher {
-    private static WatchService m_watcher;
+    private WatchService m_watcher;
+    private WatchKey m_watchKey;
 
-    public static void main(String[] args) {
+    public Watcher() {
         try {
             m_watcher = FileSystems.getDefault().newWatchService();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-            Scanner reader = new Scanner(System.in);
-            System.out.println("Enter a root dir: ");
-            String rootDir = reader.next();
-
-            addWatchDir(rootDir);
-            WatchKey watchKey;
-            System.out.format("%nWatching root dir: %s%n", rootDir);
-
-            //Continuously check File System for changes
+    public void startWatcher() {
+        try {
             while(true) {
-                watchKey = m_watcher.take();
-                for (WatchEvent<?> event : watchKey.pollEvents()) {
+                m_watchKey = m_watcher.take();
+                for (WatchEvent<?> event : m_watchKey.pollEvents()) {
                     WatchEvent.Kind<?> kind = event.kind();
                     Path eventPath = (Path) event.context();
                     System.out.println(kind + ": " + eventPath);
-                    watchKey.reset();
+                    m_watchKey.reset();
                 }
             }
         } catch (Exception e) {
@@ -35,7 +32,7 @@ public class Watcher {
         }
     }
 
-    public static void addWatchDir(String rootDir) {
+    public void addWatchDir(String rootDir) {
         Path path = Paths.get(rootDir);
 
         //Register root + all sub directories in root directory to watcher
@@ -53,6 +50,14 @@ public class Watcher {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public WatchService getWatcher() {
+        return m_watcher;
+    }
+
+    public WatchKey getWatchKey() {
+        return m_watchKey;
     }
 
 }
