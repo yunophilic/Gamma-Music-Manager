@@ -72,7 +72,23 @@ public class FileManager {
      * @throws Exception
      */
     public static boolean removeFile(File fileToRemove) throws Exception {
-        return fileToRemove.delete();
+        return deleteFolderOrFile(fileToRemove);
+    }
+
+    static public boolean deleteFolderOrFile(File path) {
+        if( path.exists() ) {
+            if (path.isDirectory()) {
+                File[] files = path.listFiles();
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].isDirectory()) {
+                        deleteFolderOrFile(files[i]);
+                    } else {
+                        files[i].delete();
+                    }
+                }
+            }
+        }
+        return( path.delete() );
     }
 
     /**
