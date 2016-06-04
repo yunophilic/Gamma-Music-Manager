@@ -46,7 +46,6 @@ public class MusicPlayerManager {
     public MusicPlayerManager(){
         m_playingQueue = new ConcurrentLinkedQueue<Song>();
 
-
         m_musicPlayer = new MP3Player(this);
 
         m_songHistory = new ArrayList<Song>();
@@ -65,7 +64,7 @@ public class MusicPlayerManager {
         if (null == nextSong) {
             // No more songs to play.
             if (m_repeatSong) {
-                m_musicPlayer.resumeSong();
+                m_musicPlayer.playSong(m_currentSong);
             }
         }
         else {
@@ -126,37 +125,49 @@ public class MusicPlayerManager {
      */
     public void setRepeat(boolean repeatSong) {
         m_repeatSong = repeatSong;
-        m_musicPlayer.repeatSong(repeatSong);
+        System.out.println("Is repate " + m_repeatSong);
+        if (m_musicPlayer.isReadyToUse()){
+            m_musicPlayer.repeatSong(repeatSong);
+        }
     }
 
     /**
      * Function to pause the current song playing.
      */
     public void pause() {
-        m_musicPlayer.pauseSong();
-        notifyChangeStateObservers();
+        if(m_musicPlayer.isReadyToUse()){
+            m_musicPlayer.pauseSong();
+            notifyChangeStateObservers();
+        }
+
     }
 
     /**
      * Function to resume the current song that is paused.
      */
     public void resume() {
-        m_musicPlayer.resumeSong();
-        notifyChangeStateObservers();
+        if (m_musicPlayer.isReadyToUse()){
+            m_musicPlayer.resumeSong();
+            notifyChangeStateObservers();
+        }
     }
 
     /**
      * Function to increase the volume.
      */
     public void increaseVolume() {
-        m_musicPlayer.increaseVolume();
+        if (m_musicPlayer.isReadyToUse()) {
+            m_musicPlayer.increaseVolume();
+        }
     }
 
     /**
      * Function to decrease the volume.
      */
     public void decreaseVolume() {
-        m_musicPlayer.decreaseVolume();
+        if (m_musicPlayer.isReadyToUse()) {
+            m_musicPlayer.decreaseVolume();
+        }
     }
 
     /**
@@ -258,12 +269,13 @@ public class MusicPlayerManager {
      *
      * @param percent
      */
-    public void seekSongTo(double percent){
-        if (percent > 1 || percent < 0){
-            assert(false);
+    public void seekSongTo(double percent) {
+        if (percent > 1 || percent < 0) {
+            assert (false);
         }
-        ((MP3Player) m_musicPlayer).seekToTime(percent);
-
+        if (m_musicPlayer.isReadyToUse()) {
+            ((MP3Player) m_musicPlayer).seekToTime(percent);
+        }
     }
 
     /**
@@ -308,15 +320,6 @@ public class MusicPlayerManager {
         for (MusicPlayerObserver observer : m_changeStateObserver) {
             observer.updateUI();
         }
-    }
-
-    /**
-     * Function sets the on error action for the music player
-     *
-     * @param action    The action to preform if error occurs.
-     */
-    public void setOnErrorAction(Runnable action) {
-        m_musicPlayer.setOnErrorAction(action);
     }
 
     /**

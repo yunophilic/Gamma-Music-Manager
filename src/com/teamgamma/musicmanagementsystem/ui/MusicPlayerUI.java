@@ -180,6 +180,7 @@ public class MusicPlayerUI extends BorderPane {
         });
 
         otherControlBox.getChildren().addAll(volumeDownButton, volumeUpButton, repeatSongButton);
+        otherControlBox.setAlignment(Pos.CENTER);
         return otherControlBox;
     }
 
