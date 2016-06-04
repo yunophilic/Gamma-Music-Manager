@@ -30,4 +30,8 @@ public class TreeViewItem {
     public File getPath(){
         return path;
     }
+
+    public boolean isRootPath(){
+        return isRootPath;
+    }
 }

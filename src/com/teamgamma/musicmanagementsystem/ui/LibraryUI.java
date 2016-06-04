@@ -155,6 +155,14 @@ public class LibraryUI extends StackPane {
         public CustomTreeCell() {
             contextMenu = new ContextMenu();
 
+            //remove library
+            MenuItem removeLibrary = new MenuItem("Remove this library");
+            removeLibrary.setOnAction(new EventHandler<ActionEvent>() {
+                public void handle(ActionEvent e) {
+                    System.out.println("Remove library"); //TODO: remove library from program view
+                }
+            });
+
             //delete option
             MenuItem delete = new MenuItem("Delete");
             delete.setOnAction(new EventHandler<ActionEvent>() {
@@ -205,8 +213,7 @@ public class LibraryUI extends StackPane {
                 }
             });
 
-
-            contextMenu.getItems().addAll(delete, copy, paste, openInRightPanel);
+            contextMenu.getItems().addAll(removeLibrary, delete, copy, paste, openInRightPanel);
         }
 
         @Override

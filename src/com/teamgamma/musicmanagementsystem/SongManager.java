@@ -184,6 +184,23 @@ public class SongManager {
             // TODO: show popup dialog
             e.printStackTrace();
         }
+
+        if (m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+            m_rightFolderSelected = null;
+        }
+        if (m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+            m_selectedCenterFolder = null;
+        }
+    }
+
+    public void setCenterFolder(File newFolderSelected){
+        this.m_selectedCenterFolder = newFolderSelected;
+
+        notifyCenterFolderObservers();
+    }
+
+    public File getM_selectedCenterFolder() {
+        return m_selectedCenterFolder;
     }
 
 
@@ -193,11 +210,6 @@ public class SongManager {
         m_songManagerObservers.add(observer);
     }
 
-    public void setCenterFolder(File newFolderSelected){
-        this.m_selectedCenterFolder = newFolderSelected;
-
-        notifyCenterFolderObservers();
-    }
 
     public void notifyLibraryObservers() {
         for (SongManagerObserver observer : m_songManagerObservers) {
