@@ -96,29 +96,6 @@ public class SongManager {
         }
 
         //update song objects inside the model
-        /*Library targetLib = getLibrary(dest);
-        if (targetLib == null) {
-            return false;
-        }
-        if (m_fileBuffer.isDirectory()) {
-            List<Song> songsToBeCopied = FileManager.generateSongs(m_fileBuffer.getAbsolutePath());
-            for (Song s : songsToBeCopied) {
-                if (!targetLib.addSong(s)) {
-                    return false;
-                }
-            }
-        } else {
-            Library sourceLib = getLibrary(m_fileBuffer);
-            if (sourceLib == null) {
-                //this shouldn't happen but just in case
-                return false;
-            }
-            Song songToAdd = sourceLib.getSong(m_fileBuffer);
-            targetLib.addSong(songToAdd);
-        }
-
-        m_fileBuffer = null;*/
-
         updateLibraries();
 
         return true;
