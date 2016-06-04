@@ -30,6 +30,9 @@ public class MP3Player implements IMusicPlayer {
         m_manager = manager;
     }
 
+    // For testing/experimenting.
+    public double m_counter = 0;
+
     @Override
     public void playSong(Song songToPlay) {
         m_currentSong = songToPlay;
@@ -39,6 +42,13 @@ public class MP3Player implements IMusicPlayer {
             m_player.dispose();
         }
 
+        setupMusicPlayer(songToPlay);
+
+        m_player.play();
+        m_manager.notifyChangeStateObservers();
+    }
+
+    private void setupMusicPlayer(Song songToPlay) {
         m_player = new MediaPlayer(new Media(songToPlay.getM_file().toURI().toString()));
         repeatSong(m_repeatFlag);
         m_player.setOnEndOfMedia(new Runnable() {
@@ -48,7 +58,6 @@ public class MP3Player implements IMusicPlayer {
 
             }
         });
-
 
         m_player.setOnReady(new Runnable() {
             @Override
@@ -62,13 +71,11 @@ public class MP3Player implements IMusicPlayer {
 
         // Put on repeat as well as the thread terminates upon a single play through.
         m_player.setOnRepeat(createUpdateUIThread());
-
-        m_player.play();
-
     }
 
     @Override
     public void pauseSong() {
+        System.out.println("Song is paused at " + m_player.getCurrentTime().toMillis());
         m_player.pause();
     }
 
@@ -117,12 +124,17 @@ public class MP3Player implements IMusicPlayer {
         m_player.setOnError(action);
     }
 
+    @Override
+    public boolean isPlayingSong(){
+        return (m_player.getStatus() == MediaPlayer.Status.PLAYING);
+    }
+
     public MediaPlayer getMusicPlayer(){
         return m_player;
     }
 
     public Duration getEndTime(){
-        return m_player.getCycleDuration();
+        return m_player.getMedia().getDuration();
     }
 
     public Duration getCurrentPlayTime(){
@@ -138,20 +150,28 @@ public class MP3Player implements IMusicPlayer {
                     @Override
                     public void run() {
                         while(m_player.getStatus() == MediaPlayer.Status.PLAYING
-                                && m_player.getCurrentTime().toMillis() != m_player.getCycleDuration().toMillis()){
+                                && m_player.getCurrentTime().toMillis() != m_player.getMedia().getDuration().toMillis()){
 
-                            m_manager.notifySeekObserver();
-
+                            m_manager.notifyPlaybackObservers();
+                            /*System.out.println( "The End of the song is at " +
+                                    m_player.getMedia().getDuration().toMillis() + " Current time before player is " +
+                                    m_player.getCurrentTime().toMillis() + " Internal counter test "+ m_counter);
+                            */
                             try{
                                 // 1s per update
                                 Thread.sleep(UPDATE_INTERVAL_IN_MILLISECONDS);
                             } catch (InterruptedException e){
                                 e.printStackTrace();
                             }
+                            m_counter += 1000;
                         }
                     }
                 });
-                updateThread.start();
+
+                if (m_updateWorker == null || !m_updateWorker.isAlive()){
+                    m_updateWorker = updateThread;
+                    m_updateWorker.start();
+                }
             }
         });
     }
@@ -161,13 +181,29 @@ public class MP3Player implements IMusicPlayer {
      * @param percent
      */
     public void seekToTime(double percent){
-        double seekTime = m_player.getCycleDuration().toMillis() * percent;
+        // JavaFx seek might not be good enough
+        // http://stackoverflow.com/questions/32411181/javafx-mediaplayer-highly-inaccurate-seeking
+
+        double seekTime = m_player.getMedia().getDuration().toMillis() * percent;
+        System.out.println("Precent given is " + percent + " Seektime is " + seekTime + " The End of the song is at " +
+        m_player.getMedia().getDuration().toMillis() + " Current time before player is " + m_player.getCurrentTime().toMillis());
         Duration newTime = new Duration(seekTime);
 
-        if (m_player.getCurrentTime().toMillis() ==  m_player.getTotalDuration().toMillis()){
-            // Need to start an update thread becuase the thread has already stopped.
-            new Thread(createUpdateUIThread()).start();
-        }
-        m_player.seek(newTime);
+        //boolean createNewUpdateThread = false;
+//        if (m_player.getCurrentTime().toMillis() ==  m_player.getStopTime().toMillis()) {
+//            // Need to start an update thread becuase the thread has already stopped.
+//            createNewUpdateThread = true;
+//        }
+        m_player.stop();
+
+        m_player.dispose();
+        setupMusicPlayer(m_currentSong);
+        m_counter = seekTime;
+        m_player.setStartTime(newTime);
+        m_player.play();
+//        if (createNewUpdateThread){
+//            new Thread(createUpdateUIThread()).start();
+//        }
+
     }
 }
