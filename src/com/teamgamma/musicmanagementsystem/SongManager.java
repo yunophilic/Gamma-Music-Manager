@@ -178,18 +178,18 @@ public class SongManager {
 
     public void deleteFile(File fileToDelete) {
         try {
+            if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+                m_rightFolderSelected = null;
+            }
+            if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+                m_selectedCenterFolder = null;
+            }
+
             FileManager.removeFile(fileToDelete);
             updateLibraries();
         } catch (Exception e) {
             // TODO: show popup dialog
             e.printStackTrace();
-        }
-
-        if (m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
-            m_rightFolderSelected = null;
-        }
-        if (m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
-            m_selectedCenterFolder = null;
         }
     }
 
