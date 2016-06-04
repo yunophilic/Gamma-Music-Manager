@@ -112,6 +112,7 @@ public class PromptUI {
 
         Optional<String> result = dialog.showAndWait();
 
+        // User input required. If user clicks "Cancel", program will close
         return result.get();
     }
 
@@ -241,6 +242,30 @@ public class PromptUI {
             return 2;
         } else {
             return 0;
+        }
+    }
+
+    // ---------------------- Text Prompts
+
+    /**
+     * Prompt when user clicks Add New Library button
+     *
+     * @return user's library name (null if user cancels)
+     */
+    public static String addNewLibrary() {
+
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.initStyle(StageStyle.UTILITY);
+        dialog.setTitle("Add New Library");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Name of new library:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()){
+            return result.get();
+        } else {
+            return null;
         }
     }
 
