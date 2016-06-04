@@ -94,20 +94,23 @@ public class DynamicTreeViewUI extends StackPane {
      * @return TreeView<String>
      */
     private TreeView<TreeViewItem> createTrees(List<Library> libraries) {
-        File dummyRootFile = new File(libraries.get(0).getM_rootDirPath());
-        TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
+        if (!libraries.isEmpty()) {
+            File dummyRootFile = new File(libraries.get(0).getM_rootDirPath());
+            TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
 
-        TreeItem<TreeViewItem> rootItem = FileManager.generateTreeItems(
-                model.getRightFolderSelected(), model.getRightFolderSelected().getAbsolutePath()
-        );
+            TreeItem<TreeViewItem> rootItem = FileManager.generateTreeItems(
+                    model.getRightFolderSelected(), model.getRightFolderSelected().getAbsolutePath()
+            );
 
-        rootItem.setExpanded(true);
-        System.out.println("Added new root path:" + rootItem.toString());
-        root.getChildren().add(rootItem);
+            rootItem.setExpanded(true);
+            System.out.println("Added new root path:" + rootItem.toString());
+            root.getChildren().add(rootItem);
 
-        TreeView<TreeViewItem> tree = new TreeView<>(root);
-        tree.setShowRoot(false);
-        return tree;
+            TreeView<TreeViewItem> tree = new TreeView<>(root);
+            tree.setShowRoot(false);
+            return tree;
+        }
+        return null;
     }
 
     private void setPaneStyle() {

@@ -136,7 +136,10 @@ public class SongManager {
         m_libraries.clear();
 
         for (String libraryPath: libraryPaths){
-            this.addLibrary(libraryPath);
+            File tempFile = new File(libraryPath);
+            if (tempFile.exists()) {
+                this.addLibrary(libraryPath);
+            }
         }
     }
 
@@ -175,12 +178,29 @@ public class SongManager {
 
     public void deleteFile(File fileToDelete) {
         try {
+            if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+                m_rightFolderSelected = null;
+            }
+            if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+                m_selectedCenterFolder = null;
+            }
+
             FileManager.removeFile(fileToDelete);
             updateLibraries();
         } catch (Exception e) {
             // TODO: show popup dialog
             e.printStackTrace();
         }
+    }
+
+    public void setCenterFolder(File newFolderSelected){
+        this.m_selectedCenterFolder = newFolderSelected;
+
+        notifyCenterFolderObservers();
+    }
+
+    public File getM_selectedCenterFolder() {
+        return m_selectedCenterFolder;
     }
 
 
@@ -190,11 +210,6 @@ public class SongManager {
         m_songManagerObservers.add(observer);
     }
 
-    public void setCenterFolder(File newFolderSelected){
-        this.m_selectedCenterFolder = newFolderSelected;
-
-        notifyCenterFolderObservers();
-    }
 
     public void notifyLibraryObservers() {
         for (SongManagerObserver observer : m_songManagerObservers) {
