@@ -12,4 +12,7 @@ public interface SongManagerObserver {
 
     // Update UI if song to be played is changed
     void songChanged();
+
+    // Update UI if file location is changed (ie. copy, paste, remove)
+    void fileChanged();
 }

@@ -36,7 +36,7 @@ public class ApplicationController extends Application {
         String externLibPath = System.getProperty("user.dir") +
                 File.separator + "library-sample" + File.separator + "external library";
 
-        SongManager songManager = new SongManager(myLibPath);
+        SongManager songManager = new SongManager();
         //songManager.setM_externalLibrary(externLibPath);
 
         if (songManager.addLibrary(myLibPath)){

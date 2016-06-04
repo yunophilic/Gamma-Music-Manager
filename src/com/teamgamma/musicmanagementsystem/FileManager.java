@@ -16,16 +16,16 @@ public class FileManager {
      * Recursively create tree items from the files in a directory and return a reference to the root item
      * @return TreeItem<String> to the root item
      */
-    public static TreeItem<TreeViewFolderItem> generateTreeItems(File file, String dirPath) {
+    public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath) {
 
-        TreeItem<TreeViewFolderItem> item = new TreeItem<>(
-                ( file.getAbsolutePath().equals(dirPath) ) ? new TreeViewFolderItem(file, true) : new TreeViewFolderItem(file, false)
+        TreeItem<TreeViewItem> item = new TreeItem<>(
+                ( file.getAbsolutePath().equals(dirPath) ) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
         );
 
         File[] children = file.listFiles(new FileFilter() {
             @Override
-            public boolean accept(File pathname) {
-                return pathname.isDirectory();
+            public boolean accept(File f) {
+                return f.isDirectory() || f.getAbsolutePath().endsWith(".mp3");
             }
         });
 
@@ -72,23 +72,61 @@ public class FileManager {
      * @throws Exception
      */
     public static boolean removeFile(File fileToRemove) throws Exception {
-        return fileToRemove.delete();
+        return deleteFolderOrFile(fileToRemove);
+    }
+
+    static public boolean deleteFolderOrFile(File path) {
+        if( path.exists() ) {
+            if (path.isDirectory()) {
+                File[] files = path.listFiles();
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].isDirectory()) {
+                        deleteFolderOrFile(files[i]);
+                    } else {
+                        files[i].delete();
+                    }
+                }
+            }
+        }
+        return( path.delete() );
     }
 
     /**
-     * Copy sourceFile to destinationDir
-     * @param sourceFile
-     * @param destinationDir: File object with path to destination directory
+     * Copy fileToCopy to destDir
+     * @param fileToCopy
+     * @param destDir: File object with path to destination directory
+     * @return true if path of new file destination equals destDir path, false otherwise
+     * @throws IOException
+     * @throws InvalidPathException
+     */
+    public static boolean copyFile(File fileToCopy, File destDir) throws IOException, InvalidPathException {
+        Path sourceFilePath = fileToCopy.toPath();
+        Path destDirPath = destDir.toPath();
+        Path destFilePath = destDirPath.resolve(sourceFilePath.getFileName());
+        Path resultPath = Files.copy(fileToCopy.toPath(), destFilePath);
+        return (resultPath.getParent().equals(destDir.toPath()));
+    }
+
+    /**
+     * Copy src to dest recursively
+     * @param src: File object with path to source directory
+     * @param dest: File object with path to destination directory
      * @return true if path of new file destination equals destinationDir path, false otherwise
      * @throws IOException
      * @throws InvalidPathException
      */
-    public static boolean copyFile(File sourceFile, File destinationDir) throws IOException, InvalidPathException {
-        Path sourceFilePath = sourceFile.toPath();
-        Path destDirPath = destinationDir.toPath();
-        Path destFilePath = destDirPath.resolve(sourceFilePath.getFileName());
-        Path resultPath = Files.copy(sourceFile.toPath(), destFilePath);
-        return (resultPath.equals(destinationDir.toPath()));
+    public static boolean copyFilesRecursively(File src, File dest) throws IOException, InvalidPathException {
+        if(!copyFile(src, dest)) { //one of the files failed to be copied
+            return false;
+        }
+        File[] children = src.listFiles();
+        if (children != null) {
+            for (File child : children) {
+                File nextDest = new File(dest.toPath() + File.separator + src.getName());
+                copyFilesRecursively(child, nextDest);
+            }
+        }
+        return true;
     }
 
     /**
@@ -99,7 +137,7 @@ public class FileManager {
     private static List<File> getMusicFiles(File path) {
         List<File> musicFiles = new ArrayList<>();
         File[] files = path.listFiles();
-        for (File file: files) {
+        for (File file : files) {
             if (file.isFile()) {
                 String[] extensions = new String[] {".mp3"};
                 if (isAccept(file, extensions)) {

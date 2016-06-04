@@ -22,7 +22,7 @@ public class ContentListUI extends StackPane{
 
         this.model = model;
 
-        this.getChildren().add(new Label("Contents in folder"));
+        setEmptyText();
 
         gridPane = new GridPane();
 
@@ -59,7 +59,18 @@ public class ContentListUI extends StackPane{
             public void songChanged() {
                 /* Do nothing */
             }
+
+            @Override
+            public void fileChanged() {
+                clearList();
+                //setEmptyText();
+                updateList();
+            }
         });
+    }
+
+    private void setEmptyText() {
+        this.getChildren().add(new Label("Contents in folder"));
     }
 
     private void clearList(){
