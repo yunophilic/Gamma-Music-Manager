@@ -51,7 +51,6 @@ public interface IMusicPlayer {
      */
     void setOnErrorAction(Runnable action);
 
-
     /**
      * Function to see if something is being played in the song manager.
      * @return True if something is being played, false otherwise.
