@@ -32,7 +32,9 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         MenuItem copy = new MenuItem("Copy");
         copy.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                model.setM_fileBuffer( tree.getSelectionModel().getSelectedItem().getValue().getPath() );
+                if (tree.getSelectionModel().getSelectedItem() != null) {
+                    model.setM_fileBuffer(tree.getSelectionModel().getSelectedItem().getValue().getPath());
+                }
             }
         });
 
@@ -40,18 +42,20 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         MenuItem paste = new MenuItem("Paste");
         paste.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                File dest = tree.getSelectionModel().getSelectedItem().getValue().getPath();
-                if (!dest.isDirectory()) {
-                    PromptUI.customPromptError("Not a directory", "", "Please select a directory as the paste target.");
-                    return;
-                }
-                try {
-                    model.copyToDestination(dest);
-                    model.notifyFileObservers();
-                } catch (FileAlreadyExistsException ex) {
-                    PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
-                } catch (IOException ex) {
-                    PromptUI.customPromptError("Error", "", "IOException:" + ex.getMessage());
+                if (tree.getSelectionModel().getSelectedItem() != null) {
+                    File dest = tree.getSelectionModel().getSelectedItem().getValue().getPath();
+                    if (!dest.isDirectory()) {
+                        PromptUI.customPromptError("Not a directory", "", "Please select a directory as the paste target.");
+                        return;
+                    }
+                    try {
+                        model.copyToDestination(dest);
+                        model.notifyFileObservers();
+                    } catch (FileAlreadyExistsException ex) {
+                        PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
+                    } catch (IOException ex) {
+                        PromptUI.customPromptError("Error", "", "IOException:" + ex.getMessage());
+                    }
                 }
             }
         });
@@ -60,21 +64,23 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         MenuItem delete = new MenuItem("Delete");
         delete.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                File fileToDelete = tree.getSelectionModel().getSelectedItem().getValue().getPath();
-                //confirmation dialog
-                if( !PromptUI.customPromptConfirmation(
-                        "Deleting " + (fileToDelete.isDirectory() ? "folder" : "file"),
-                        "",
-                        "Are you sure you want to permanently delete \"" + fileToDelete.getName() + "\"?" ) ) {
-                    return;
+                if (tree.getSelectionModel().getSelectedItem() != null) {
+                    File fileToDelete = tree.getSelectionModel().getSelectedItem().getValue().getPath();
+                    //confirmation dialog
+                    if (!PromptUI.customPromptConfirmation(
+                            "Deleting " + (fileToDelete.isDirectory() ? "folder" : "file"),
+                            "",
+                            "Are you sure you want to permanently delete \"" + fileToDelete.getName() + "\"?")) {
+                        return;
+                    }
+                    //try to actually delete
+                    try {
+                        model.deleteFile(fileToDelete);
+                    } catch (Exception ex) {
+                        PromptUI.customPromptError("Error", "", "Fail to delete!\n" + ex.getMessage());
+                    }
+                    model.notifyFileObservers();
                 }
-                //try to actually delete
-                try {
-                    model.deleteFile(fileToDelete);
-                } catch (Exception ex) {
-                    PromptUI.customPromptError("Error", "", "Fail to delete!\n" + ex.getMessage());
-                }
-                model.notifyFileObservers();
             }
         });
 
@@ -82,9 +88,11 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         MenuItem removeLibrary = new MenuItem("Remove this library");
         removeLibrary.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                System.out.println("Remove library"); //TODO: remove library from program view
-                model.removeLibrary(tree.getSelectionModel().getSelectedItem().getValue().getPath());
-                model.notifyLibraryObservers();
+                if (tree.getSelectionModel().getSelectedItem() != null) {
+                    System.out.println("Remove library"); //TODO: remove library from program view
+                    model.removeLibrary(tree.getSelectionModel().getSelectedItem().getValue().getPath());
+                    model.notifyLibraryObservers();
+                }
             }
         });
 
@@ -92,12 +100,14 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         MenuItem openInRightPane = new MenuItem("Open in right pane");
         openInRightPane.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                File folderSelected = tree.getSelectionModel().getSelectedItem().getValue().getPath();
-                if (!folderSelected.isDirectory()) {
-                    System.out.println("Not a directory!"); //for now
-                } else {
-                    model.setRightFolderSelected(folderSelected);
-                    model.notifyRightFolderObservers();
+                if (tree.getSelectionModel().getSelectedItem() != null) {
+                    File folderSelected = tree.getSelectionModel().getSelectedItem().getValue().getPath();
+                    if (!folderSelected.isDirectory()) {
+                        System.out.println("Not a directory!"); //for now
+                    } else {
+                        model.setRightFolderSelected(folderSelected);
+                        model.notifyRightFolderObservers();
+                    }
                 }
             }
         });
