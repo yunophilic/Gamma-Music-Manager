@@ -25,6 +25,19 @@ public class MusicPlayerUI extends BorderPane {
 
     // Constants for MusicPlayerUI.
     public static final int SECONDS_IN_MINUTE = 60;
+    public static final double SEEK_BAR_Y_SCALE = 1.5;
+    public static final int HEADER_FONT_SIZE = 20;
+
+    public static final String PREVIOUS_ICON_PATH = "res\\ic_skip_previous_black_48dp_1x.png";
+    public static final String PLAY_ICON_PATH = "res\\ic_play_arrow_black_48dp_1x.png";
+    public static final String PAUSE_ICON_PATH = "res\\ic_pause_black_48dp_1x.png";
+    public static final String NEXT_SONG_ICON_PATH = "res\\ic_skip_next_black_48dp_1x.png";
+    public static final String VOLUME_UP_ICON_PATH = "res\\ic_volume_up_black_48dp_1x.png";
+    public static final String VOLUME_DOWN_ICON_PATH = "res\\ic_volume_down_black_48dp_1x.png";
+    public static final String SONG_REPEAT_ICON_PATH = "res\\ic_repeat_black_48dp_1x.png";
+    public static final String ADD_TO_PLAYLIST_ICON_PATH = "res/ic_playlist_add_black_48dp_1x.png";
+
+    public static final String DEFAULT_TIME_STRING = "0:00";
 
     /**
      * Constructor
@@ -38,17 +51,7 @@ public class MusicPlayerUI extends BorderPane {
 
         topWrapper.getChildren().add(makeSongTitleHeader(manager));
 
-        HBox musicFileBox = new HBox();
-        Label songPathHeader = new Label("Song Path");
-        TextField songPath = new TextField("Enter Path To Song");
-        Button addSong = createIconButton("res/ic_playlist_add_black_48dp_1x.png");
-        addSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                manager.placeSongOnPlaybackQueue(new Song(songPath.getText()));
-            }
-        });
-        musicFileBox.getChildren().addAll(songPathHeader, songPath, addSong);
+        HBox musicFileBox = createFilePathBox(manager);
         topWrapper.getChildren().add(musicFileBox);
 
         topWrapper.getChildren().addAll(createProgressBarBox(manager), createCurrentTimeBox(manager));
@@ -75,6 +78,28 @@ public class MusicPlayerUI extends BorderPane {
     }
 
     /**
+     * Function to create the file text box for control of what song you want to play. This is used for testing purposes.
+     *
+     * @param manager   The MusicPlayerManager to use for observers
+     *
+     * @return  HBox containing a the components needed to control the music player by typing in the path to the song.
+     */
+    private HBox createFilePathBox(final MusicPlayerManager manager) {
+        HBox musicFileBox = new HBox();
+        Label songPathHeader = new Label("Song Path");
+        TextField songPath = new TextField("Enter Path To Song");
+        Button addSong = createIconButton(ADD_TO_PLAYLIST_ICON_PATH);
+        addSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                manager.placeSongOnPlaybackQueue(new Song(songPath.getText()));
+            }
+        });
+        musicFileBox.getChildren().addAll(songPathHeader, songPath, addSong);
+        return musicFileBox;
+    }
+
+    /**
      * Function to create the playback control UI component. This would be Previous Song, Play/Pause, Next song.
      *
      * @param manager   The music manager to setup observers.
@@ -85,7 +110,7 @@ public class MusicPlayerUI extends BorderPane {
         HBox playbackControls = new HBox();
         playbackControls.setAlignment(Pos.CENTER);
 
-        Button previousSong = createIconButton("res\\ic_skip_previous_black_48dp_1x.png");
+        Button previousSong = createIconButton(PREVIOUS_ICON_PATH);
         previousSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -97,7 +122,7 @@ public class MusicPlayerUI extends BorderPane {
 
         ToggleButton playPauseButton = new ToggleButton();
         playPauseButton.setStyle("-fx-background-color: transparent");
-        playPauseButton.setGraphic(createImageViewForImage("res\\ic_play_arrow_black_48dp_1x.png"));
+        playPauseButton.setGraphic(createImageViewForImage(PLAY_ICON_PATH));
         playPauseButton.setSelected(false);
         playPauseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -115,10 +140,10 @@ public class MusicPlayerUI extends BorderPane {
             @Override
             public void updateUI() {
                 if(manager.isSomethingPlaying()) {
-                    playPauseButton.setGraphic(createImageViewForImage("res\\ic_play_arrow_black_48dp_1x.png"));
+                    playPauseButton.setGraphic(createImageViewForImage(PLAY_ICON_PATH));
                     playPauseButton.setSelected(true);
                 } else {
-                    playPauseButton.setGraphic(createImageViewForImage("res\\ic_pause_black_48dp_1x.png"));
+                    playPauseButton.setGraphic(createImageViewForImage(PAUSE_ICON_PATH));
                     playPauseButton.setSelected(false);
                 }
             }
@@ -127,7 +152,7 @@ public class MusicPlayerUI extends BorderPane {
         playPauseButton.setAlignment(Pos.CENTER);
         playbackControls.getChildren().add(playPauseButton);
 
-        Button skipButton = createIconButton("res\\ic_skip_next_black_48dp_1x.png");
+        Button skipButton = createIconButton(NEXT_SONG_ICON_PATH);
         skipButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -147,7 +172,7 @@ public class MusicPlayerUI extends BorderPane {
      */
     private HBox createOtherOptionsBox(final MusicPlayerManager manager) {
         HBox otherControlBox = new HBox();
-        Button volumeUpButton = createIconButton("res\\ic_volume_up_black_48dp_1x.png");
+        Button volumeUpButton = createIconButton(VOLUME_UP_ICON_PATH);
         volumeUpButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -155,7 +180,7 @@ public class MusicPlayerUI extends BorderPane {
             }
         });
 
-        Button volumeDownButton = createIconButton("res\\ic_volume_down_black_48dp_1x.png");
+        Button volumeDownButton = createIconButton(VOLUME_DOWN_ICON_PATH);
         volumeDownButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -164,7 +189,7 @@ public class MusicPlayerUI extends BorderPane {
         });
 
         ToggleButton repeatSongButton = new ToggleButton();
-        repeatSongButton.setGraphic(createImageViewForImage("res\\ic_repeat_black_48dp_1x.png"));
+        repeatSongButton.setGraphic(createImageViewForImage(SONG_REPEAT_ICON_PATH));
         repeatSongButton.setStyle("-fx-background-color: transparent");
         repeatSongButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -203,10 +228,10 @@ public class MusicPlayerUI extends BorderPane {
         StackPane musicPlayerProgress = new StackPane();
 
         HBox progressWrapper = new HBox();
-        Label songStartLable = new Label("0:00");
+        Label songStartLable = new Label(DEFAULT_TIME_STRING);
 
-        Label songEndTimeProgressBar = new Label("0:00");
-        Label songEndTimeSeekBar = new Label("0:00");
+        Label songEndTimeProgressBar = new Label(DEFAULT_TIME_STRING);
+        Label songEndTimeSeekBar = new Label(DEFAULT_TIME_STRING);
 
         // Set up an observer to update the songEndTime based on what song is being played.
         manager.registerNewSongObserver(new MusicPlayerObserver() {
@@ -233,17 +258,20 @@ public class MusicPlayerUI extends BorderPane {
         playbackSlider.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                /*  Removed due to problems with javafx.
                 double sliderVal = playbackSlider.getValue();
                 System.out.println("Slider seek slider value is " + sliderVal);
                 manager.seekSongTo(sliderVal);
+                */
             }
         });
+        // The labels here are for spacing and are there for no other purpose.
         playbackSliderWrapper.getChildren().addAll(new Label("0:0"), playbackSlider, new Label("0:0"));
 
         playbackSliderWrapper.setOpacity(0);
 
         // Make the slider always bigger than the progress bar to make it so the user only can click on the slider.
-        playbackSliderWrapper.setScaleY(1.5);
+        playbackSliderWrapper.setScaleY(SEEK_BAR_Y_SCALE);
 
         // Setup the observer pattern stuff for UI updates to the current play time.
         manager.registerPlaybackObserver(new MusicPlayerObserver() {
@@ -326,6 +354,7 @@ public class MusicPlayerUI extends BorderPane {
      * @return  A ImageView that contains the image that is passed in.
      */
     private ImageView createImageViewForImage(String imagePath) {
+        // Replace path separator to correct OS.
         imagePath = imagePath.replace("\\", File.separator);
         imagePath = imagePath.replace("/", File.separator);
 
@@ -356,7 +385,7 @@ public class MusicPlayerUI extends BorderPane {
      */
     private Label createHeadingLabel(String textForLabel) {
         Label label = new Label(textForLabel);
-        label.setFont(new Font(20));
+        label.setFont(new Font(HEADER_FONT_SIZE));
         return label;
     }
 
@@ -369,9 +398,9 @@ public class MusicPlayerUI extends BorderPane {
      */
     private HBox createCurrentTimeBox(MusicPlayerManager manager) {
         HBox songTimesWrapper = new HBox();
-        Label currentTimeLabel = createHeadingLabel("0:00");
+        Label currentTimeLabel = createHeadingLabel(DEFAULT_TIME_STRING);
         Label constantLabel = createHeadingLabel("/");
-        Label songEndTimeText = createHeadingLabel("0:00");
+        Label songEndTimeText = createHeadingLabel(DEFAULT_TIME_STRING);
         songTimesWrapper.getChildren().addAll(currentTimeLabel, constantLabel, songEndTimeText);
         songTimesWrapper.setAlignment(Pos.CENTER_RIGHT);
 

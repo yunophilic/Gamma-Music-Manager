@@ -2,7 +2,6 @@ package com.teamgamma.musicmanagementsystem.musicplayer;
 
 import com.teamgamma.musicmanagementsystem.Song;
 import javafx.scene.media.Media;
-import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
@@ -28,9 +27,6 @@ public class MP3Player implements IMusicPlayer {
     private Thread m_updateWorker;
 
     private Runnable m_onErrorAction;
-
-    // For testing/experimenting.
-    public double m_counter = 0;
 
     public MP3Player(MusicPlayerManager manager){
         m_manager = manager;
@@ -91,7 +87,6 @@ public class MP3Player implements IMusicPlayer {
 
     @Override
     public void pauseSong() {
-        System.out.println("Song is paused at " + m_player.getCurrentTime().toMillis());
         m_player.pause();
     }
 
@@ -190,7 +185,6 @@ public class MP3Player implements IMusicPlayer {
                             } catch (InterruptedException e){
                                 e.printStackTrace();
                             }
-                            m_counter += 1000;
                         }
                     }
                 });
@@ -226,12 +220,9 @@ public class MP3Player implements IMusicPlayer {
 
         m_player.dispose();
         setupMusicPlayer(m_currentSong);
-        m_counter = seekTime;
+
         m_player.setStartTime(newTime);
         m_player.play();
-//        if (createNewUpdateThread){
-//            new Thread(createUpdateUIThread()).start();
-//        }
     }
 
 }

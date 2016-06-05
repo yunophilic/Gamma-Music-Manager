@@ -249,9 +249,7 @@ public class MusicPlayerManager {
      * Function to notify all observers for playback.
      */
     public void notifyPlaybackObservers() {
-        for (MusicPlayerObserver observer : m_playbackObservers){
-            observer.updateUI();
-        }
+        notifyAll(m_playbackObservers);
     }
 
     /**
@@ -317,9 +315,7 @@ public class MusicPlayerManager {
      * Function to notify all the observers for the change state observers.
      */
     public void notifyChangeStateObservers() {
-        for (MusicPlayerObserver observer : m_changeStateObserver) {
-            observer.updateUI();
-        }
+        notifyAll(m_changeStateObserver);
     }
 
     /**
@@ -335,9 +331,7 @@ public class MusicPlayerManager {
      * Function to notify all observers watching for errors.
      */
     public void notifyError() {
-        for (MusicPlayerObserver observer : m_errorObservers) {
-            observer.updateUI();
-        }
+        notifyAll(m_errorObservers);
     }
 
     /**
@@ -356,5 +350,16 @@ public class MusicPlayerManager {
      */
     public void setError(Exception e){
         m_lastException = e;
+    }
+
+    /**
+     * Helper function to notify all the observers in a list.
+     *
+     * @param observers     List of observers to iterate through.
+     */
+    private void notifyAll(List<MusicPlayerObserver> observers){
+        for (MusicPlayerObserver observer : observers) {
+            observer.updateUI();
+        }
     }
 }
