@@ -101,26 +101,30 @@ public class ContentListUI extends StackPane {
             List<Song> songs = model.getCenterPanelSongs();
 
             TableColumn fileCol = new TableColumn("File");
-            fileCol.setMinWidth(100);
+            fileCol.setMinWidth(80);
             fileCol.setCellValueFactory(new PropertyValueFactory<Song, File>("m_file"));
 
             TableColumn songCol = new TableColumn("Song Name");
-            songCol.setMinWidth(100);
+            songCol.setMinWidth(80);
             songCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_title"));
 
             TableColumn genreCol = new TableColumn("Genre");
-            genreCol.setMinWidth(100);
+            genreCol.setMinWidth(80);
             genreCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_genre"));
 
             TableColumn artistCol = new TableColumn("Artist");
-            artistCol.setMinWidth(100);
+            artistCol.setMinWidth(80);
             artistCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_artist"));
 
+            TableColumn albumCol = new TableColumn("Album");
+            albumCol.setMinWidth(80);
+            albumCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_artist"));
+
             TableColumn ratingCol = new TableColumn("Rating");
-            ratingCol.setMinWidth(100);
+            ratingCol.setMinWidth(20);
             ratingCol.setCellValueFactory(new PropertyValueFactory<Song, Integer>("m_rating"));
 
-            table.getColumns().addAll(fileCol, songCol, genreCol, artistCol, ratingCol);
+            table.getColumns().addAll(fileCol, songCol, genreCol, artistCol, albumCol, ratingCol);
             table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
             table.setItems(FXCollections.observableArrayList(songs));
