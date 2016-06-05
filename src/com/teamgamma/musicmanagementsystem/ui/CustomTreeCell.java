@@ -11,6 +11,7 @@ import javafx.scene.control.cell.TextFieldTreeCell;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,13 +42,16 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             public void handle(ActionEvent e) {
                 File dest = tree.getSelectionModel().getSelectedItem().getValue().getPath();
                 if (!dest.isDirectory()) {
-                    System.out.println("Not a directory!"); //for now
+                    PromptUI.customPromptError("Not a directory", "", "Please select a directory as the paste target.");
+                    return;
                 }
                 try {
                     model.copyToDestination(dest);
                     model.notifyFileObservers();
+                } catch (FileAlreadyExistsException ex) {
+                    PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
                 } catch (IOException ex) {
-                    ex.printStackTrace(); //for now
+                    PromptUI.customPromptError("Error", "", "IOException:" + ex.getMessage());
                 }
             }
         });
@@ -57,12 +61,18 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         delete.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 File fileToDelete = tree.getSelectionModel().getSelectedItem().getValue().getPath();
-                // TODO: show confirmation dialog before deleting
+                //confirmation dialog
+                if( !PromptUI.customPromptConfirmation(
+                        "Deleting " + (fileToDelete.isDirectory() ? "folder" : "file"),
+                        "",
+                        "Are you sure you want to permanently delete \"" + fileToDelete.getName() + "\"?" ) ) {
+                    return;
+                }
+                //try to actually delete
                 try {
                     model.deleteFile(fileToDelete);
                 } catch (Exception ex) {
-                    // TODO: show popup dialog
-                    ex.printStackTrace();
+                    PromptUI.customPromptError("Error", "", "Fail to delete!\n" + ex.getMessage());
                 }
                 model.notifyFileObservers();
             }
