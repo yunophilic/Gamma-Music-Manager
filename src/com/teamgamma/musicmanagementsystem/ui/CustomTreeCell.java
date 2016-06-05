@@ -83,6 +83,8 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         removeLibrary.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 System.out.println("Remove library"); //TODO: remove library from program view
+                model.removeLibrary(tree.getSelectionModel().getSelectedItem().getValue().getPath());
+                model.notifyLibraryObservers();
             }
         });
 
