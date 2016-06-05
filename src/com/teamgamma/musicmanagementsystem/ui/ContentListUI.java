@@ -5,11 +5,13 @@ import com.teamgamma.musicmanagementsystem.SongManager;
 import com.teamgamma.musicmanagementsystem.SongManagerObserver;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 
 import java.io.File;
 import java.util.List;
-
+import javafx.scene.input.MouseEvent;
+import javafx.event.EventHandler;
 /**
  * UI class for list of songs in center of application
  */
@@ -86,18 +88,52 @@ public class ContentListUI extends StackPane {
             gridPane = new GridPane();
             System.out.println("Updating list...");
             List<Song> songs = model.getCenterPanelSongs();
-            int i = 1;
+            gridPane.add(new Label("Song Name   "), 0, 0);
+            gridPane.add(new Label("Genre   "), 1, 0);
+            gridPane.add(new Label("Artist   "), 2, 0);
+            gridPane.add(new Label("Rating   "), 3, 0);
+
+            int row = 1;
             for (Song song : songs) {
                 System.out.println("Found new song: " + song.getM_file().getAbsolutePath());
-                gridPane.add(new Label("Song Name   "), 0, 0);
-                gridPane.add(new Label("Genre   "), 1, 0);
-                gridPane.add(new Label("Artist   "), 2, 0);
-                gridPane.add(new Label("Rating   "), 3, 0);
-                gridPane.add(new Label(song.getM_title() + "   "), 0, i);
-                gridPane.add(new Label(song.getM_genre() + "   "), 1, i);
-                gridPane.add(new Label(song.getM_artist() + "   "), 2, i);
-                gridPane.add(new Label(song.getM_rating() + "   "), 3, i);
-                i++;
+                //HBox rowOfSongInfo = new HBox();
+                Label titleLabel = new Label(song.getM_title() + "   ");
+                Label genreLabel = new Label(song.getM_genre() + "   ");
+                Label artistLabel = new Label(song.getM_artist() + "   ");
+                Label ratingLabel = new Label(song.getM_rating() + "   ");
+                gridPane.add(titleLabel, 0, row);
+                gridPane.add(genreLabel, 1, row);
+                gridPane.add(artistLabel, 2, row);
+                gridPane.add(ratingLabel, 3, row);
+
+//                rowOfSongInfo.getChildren().addAll(titleLabel, genreLabel, artistLabel, ratingLabel);
+//                gridPane.add(rowOfSongInfo, 0, row);
+
+                row++;
+
+                titleLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+                    @Override public void handle(MouseEvent e) {
+                        // Code to play song goes here
+                    }
+                });
+
+                genreLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+                    @Override public void handle(MouseEvent e) {
+                        // Code to play song goes here
+                    }
+                });
+
+                artistLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+                    @Override public void handle(MouseEvent e) {
+                        // Code to play song goes here
+                    }
+                });
+
+                ratingLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+                    @Override public void handle(MouseEvent e) {
+                        // Code to play song goes here
+                    }
+                });
             }
             this.getChildren().add(gridPane);
         }
