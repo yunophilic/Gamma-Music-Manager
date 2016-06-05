@@ -65,27 +65,63 @@ public class Song {
         return m_rating;
     }
 
-    public void setM_songName(String m_songName) {
-        this.m_songName = m_songName;
+    public void setM_title(String title) {
+        try {
+            //update metadata
+            AudioFile file = AudioFileIO.read(m_file);
+            Tag tag = file.getTag();
+            tag.setField(FieldKey.TITLE, title);
+            file.commit();
+            //update object attr
+            m_title = title;
+        } catch (Exception e) {
+            e.printStackTrace(); //for now
+        }
     }
 
-    public void setM_title(String m_title) {
-        this.m_title = m_title;
+    public void setM_artist(String artist) {
+        try {
+            //update metadata
+            AudioFile file = AudioFileIO.read(m_file);
+            Tag tag = file.getTag();
+            tag.setField(FieldKey.ARTIST, artist);
+            file.commit();
+            //update object attr
+            m_artist = artist;
+        } catch (Exception e) {
+            e.printStackTrace(); //for now
+        }
     }
 
-    public void setM_artist(String m_artist) {
-        this.m_artist = m_artist;
+    public void setM_album(String album) {
+        try {
+            //update metadata
+            AudioFile file = AudioFileIO.read(m_file);
+            Tag tag = file.getTag();
+            tag.setField(FieldKey.ALBUM, album);
+            file.commit();
+            //update object attr
+            m_album = album;
+        } catch (Exception e) {
+            e.printStackTrace(); //for now
+        }
     }
 
-    public void setM_album(String m_album) {
-        this.m_album = m_album;
+    public void setM_genre(String genre) {
+        try {
+            //update metadata
+            AudioFile file = AudioFileIO.read(m_file);
+            Tag tag = file.getTag();
+            tag.setField(FieldKey.GENRE, genre);
+            file.commit();
+            //update object attr
+            m_genre = genre;
+        } catch (Exception e) {
+            e.printStackTrace(); //for now
+        }
     }
 
-    public void setM_genre(String m_genre) {
-        this.m_genre = m_genre;
-    }
-
-    public void setM_rating(int m_rating) {
-        this.m_rating = m_rating;
+    public void setM_rating(int rating) {
+        m_rating = rating;
     }
 }
