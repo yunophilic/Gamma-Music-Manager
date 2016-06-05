@@ -3,6 +3,7 @@ package com.teamgamma.musicmanagementsystem.musicplayer;
 import com.teamgamma.musicmanagementsystem.Playlist;
 import com.teamgamma.musicmanagementsystem.Song;
 
+import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
@@ -35,21 +36,29 @@ public class MusicPlayerManager {
     private List<MusicPlayerObserver> m_playbackObservers;
 
     private List<MusicPlayerObserver> m_changeStateObserver;
+
+    private List<MusicPlayerObserver> m_errorObservers;
+
+    private Exception m_lastException;
     /**
      * Constructor
      */
     public MusicPlayerManager(){
         m_playingQueue = new ConcurrentLinkedQueue<Song>();
+
+
         m_musicPlayer = new MP3Player(this);
+
         m_songHistory = new ArrayList<Song>();
 
         m_newSongObservers = new ArrayList<MusicPlayerObserver>();
         m_playbackObservers = new ArrayList<MusicPlayerObserver>();
         m_changeStateObserver = new ArrayList<MusicPlayerObserver>();
+        m_errorObservers = new ArrayList<MusicPlayerObserver>();
     }
 
     /**
-     * Function to load the next song in the queue.
+     * Function to load the next song in the queue and play it.
      */
     public void playNextSong(){
         Song nextSong = m_playingQueue.poll();
@@ -62,13 +71,25 @@ public class MusicPlayerManager {
         else {
             m_musicPlayer.playSong(nextSong);
             updateHistory();
-            notifyChangeStateObservers();
+            //notifyChangeStateObservers();
         }
+    }
+
+    /**
+     * Function to play song immidiatly with out going to the queue.
+     *
+     * @param songToPlay
+     */
+    public void playSongRightNow(Song songToPlay) {
+        m_currentSong = songToPlay;
+        m_musicPlayer.playSong(songToPlay);
+        updateHistory();
     }
 
     /**
      * Function will place the song passed in the playback queue. This will play the song immediately if there is not thing
      * in the queue.
+     *
      * @param nextSong
      */
     public void placeSongOnPlaybackQueue(Song nextSong) {
@@ -98,9 +119,9 @@ public class MusicPlayerManager {
         }
     }
 
-
     /**
      * Function to set if the user wanted to repeat the current song playing.
+     *
      * @param repeatSong
      */
     public void setRepeat(boolean repeatSong) {
@@ -109,7 +130,7 @@ public class MusicPlayerManager {
     }
 
     /**
-     * Fucntion to pause the current song playing.
+     * Function to pause the current song playing.
      */
     public void pause() {
         m_musicPlayer.pauseSong();
@@ -140,9 +161,10 @@ public class MusicPlayerManager {
 
     /**
      * Function to get the JavaFX Media player for the Media View.
+     *
      * @return The FX MediaPlayer if the underlying player uses it or null if it does not.
      */
-    public MediaPlayer getMediaPlayer(){
+    public MediaPlayer getMediaPlayer() {
         if (m_musicPlayer instanceof MP3Player) {
             return ((MP3Player) m_musicPlayer).getMusicPlayer();
         } else {
@@ -152,6 +174,7 @@ public class MusicPlayerManager {
 
     /**
      * Function to add a observer to the list of observers that are notified when a new song is being played.
+     *
      * @param observer
      */
     public void registerNewSongObserver(MusicPlayerObserver observer) {
@@ -160,6 +183,7 @@ public class MusicPlayerManager {
 
     /**
      * Function to get the current song playing in the player.
+     *
      * @return The current song loaded in the player or Null if there is none.
      */
     public Song getCurrentSongPlaying() {
@@ -168,9 +192,10 @@ public class MusicPlayerManager {
 
     /**
      * Function to get the end time of the song from the player.
+     *
      * @return  The end time of the song.
      */
-    public Duration getEndTime(){
+    public Duration getEndTime() {
         return ((MP3Player) m_musicPlayer).getEndTime();
     }
 
@@ -194,7 +219,7 @@ public class MusicPlayerManager {
     /**
      * Function to notify all observers that a new song has been loaded.
      */
-    public void notifyNewSongObservers(){
+    public void notifyNewSongObservers() {
         for (MusicPlayerObserver observer : m_newSongObservers) {
             observer.updateUI();
         }
@@ -202,6 +227,7 @@ public class MusicPlayerManager {
 
     /**
      * Function to register a playback observer
+     *
      * @param observer
      */
     public void registerPlaybackObserver(MusicPlayerObserver observer) {
@@ -211,7 +237,7 @@ public class MusicPlayerManager {
     /**
      * Function to notify all observers for playback.
      */
-    public void notifyPlaybackObservers(){
+    public void notifyPlaybackObservers() {
         for (MusicPlayerObserver observer : m_playbackObservers){
             observer.updateUI();
         }
@@ -219,15 +245,17 @@ public class MusicPlayerManager {
 
     /**
      * Function to get the current playback time of the song being played.
-     * @return
+     *
+     * @return  The current playback time.
      */
-    public Duration getCurrentPlayTime(){
+    public Duration getCurrentPlayTime() {
         return ((MP3Player) m_musicPlayer).getCurrentPlayTime();
     }
 
     /**
      * Function to seek the song to the specified time. Time is represented by the percent of the song. Where 1.0 would
-     * be the
+     * be the end of the song and 0 the start.
+     *
      * @param percent
      */
     public void seekSongTo(double percent){
@@ -240,16 +268,17 @@ public class MusicPlayerManager {
 
     /**
      * Function to check if the player has a song that is loaded in.
+     *
      * @return true if there is a song, false other wise.
      */
-    public boolean isSomethingPlaying(){
+    public boolean isSomethingPlaying() {
         return ((null != m_currentSong) && m_musicPlayer.isPlayingSong());
     }
 
     /**
      * Function to play the previous song in the history.
      */
-    public void playPreviousSong(){
+    public void playPreviousSong() {
         assert(m_songHistory.size() < m_historyIndex);
 
         if (m_historyIndex == 0){
@@ -265,18 +294,64 @@ public class MusicPlayerManager {
 
     /**
      * Function to register observer for notifying when player changes state from play/pause and vice versa.
+     *
      * @param observer
      */
-    public void registerChangeStateObservers(MusicPlayerObserver observer){
+    public void registerChangeStateObservers(MusicPlayerObserver observer) {
         m_changeStateObserver.add(observer);
     }
 
     /**
      * Function to notify all the observers for the change state observers.
      */
-    public void notifyChangeStateObservers(){
+    public void notifyChangeStateObservers() {
         for (MusicPlayerObserver observer : m_changeStateObserver) {
             observer.updateUI();
         }
+    }
+
+    /**
+     * Function sets the on error action for the music player
+     *
+     * @param action    The action to preform if error occurs.
+     */
+    public void setOnErrorAction(Runnable action) {
+        m_musicPlayer.setOnErrorAction(action);
+    }
+
+    /**
+     * Function to register observers that need to be notified when an error occurs.
+     *
+     * @param observer  The observer to register.
+     */
+    public void registerErrorObservers(MusicPlayerObserver observer) {
+        m_errorObservers.add(observer);
+    }
+
+    /**
+     * Function to notify all observers watching for errors.
+     */
+    public void notifyError() {
+        for (MusicPlayerObserver observer : m_errorObservers) {
+            observer.updateUI();
+        }
+    }
+
+    /**
+     * Function to get the exception that was thrown.
+     *
+     * @return  The exception that was thrown.
+     */
+    public Exception getError() {
+        return m_lastException;
+    }
+
+    /**
+     * Function to set the last exception that was thrown by either MP3Player or MusicPlayerManager.
+     *
+     * @param e     The exception to save.
+     */
+    public void setError(Exception e){
+        m_lastException = e;
     }
 }

@@ -7,15 +7,15 @@ import java.util.Scanner;
  * Text based UI (for now)
  */
 public class TextUI {
-    public TextUI(){
+    public TextUI() {
         // Nothing.
     }
 
     /**
-     * @brief Function to get the user to input a file path to a directory on the system.
      * @return A valid path to a directory
+     * @brief Function to get the user to input a file path to a directory on the system.
      */
-    public String getUserInputForDirectory(){
+    public String getUserInputForDirectory() {
         boolean isValidInput = false;
         String userInput = null;
         while (!isValidInput) {
