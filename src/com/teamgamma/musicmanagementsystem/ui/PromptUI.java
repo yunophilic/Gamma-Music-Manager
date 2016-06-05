@@ -259,7 +259,7 @@ public class PromptUI {
         dialog.initStyle(StageStyle.UTILITY);
         dialog.setTitle("Add New Library");
         dialog.setHeaderText(null);
-        dialog.setContentText("Name of new library:");
+        dialog.setContentText("File path of new library:");
 
         Optional<String> result = dialog.showAndWait();
 

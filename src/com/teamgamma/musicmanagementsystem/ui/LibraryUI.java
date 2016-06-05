@@ -47,7 +47,7 @@ public class LibraryUI extends StackPane {
         System.out.println("setting cell factory...");
         tree.setCellFactory(new Callback<TreeView<TreeViewItem>, TreeCell<TreeViewItem>>() {
             @Override
-            public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg0) {
+            public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg) {
                 // custom tree cell that defines a context menu for the root tree item
                 return new CustomTreeCell(model, tree, true);
             }
@@ -64,7 +64,9 @@ public class LibraryUI extends StackPane {
             public void handle(MouseEvent mouseEvent) {
                 if (mouseEvent.getClickCount() == 2) {
                     TreeItem<TreeViewItem> item = treeView.getSelectionModel().getSelectedItem();
-                    System.out.println("Selected Text : " + item.getValue());
+                    if (item.getValue() != null) {
+                        System.out.println("Selected Text : " + item.getValue());
+                    }
 
                     model.setCenterFolder(item.getValue().getPath());
                 }

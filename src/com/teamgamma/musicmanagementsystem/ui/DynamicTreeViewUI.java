@@ -38,7 +38,7 @@ public class DynamicTreeViewUI extends StackPane {
         System.out.println("setting cell factory...");
         tree.setCellFactory(new Callback<TreeView<TreeViewItem>, TreeCell<TreeViewItem>>() {
             @Override
-            public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg0) {
+            public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg) {
                 // custom tree cell that defines a context menu for the root tree item
                 return new CustomTreeCell(model, tree, false);
             }
@@ -99,7 +99,9 @@ public class DynamicTreeViewUI extends StackPane {
             );
 
             rootItem.setExpanded(true);
-            System.out.println("Added new root path:" + rootItem.toString());
+            if (rootItem.getValue() != null) {
+                System.out.println("Added new root path:" + rootItem.toString());
+            }
             root.getChildren().add(rootItem);
 
             TreeView<TreeViewItem> tree = new TreeView<>(root);

@@ -137,13 +137,17 @@ public class FileManager {
 
     /**
      * Copy src to dest recursively
-     * @param src: File object with path to source directory
+     * @param src: File object with path to file or directory to be copied
      * @param dest: File object with path to destination directory
      * @return true if path of new file destination equals destinationDir path, false otherwise
      * @throws IOException
      * @throws InvalidPathException
      */
     public static boolean copyFilesRecursively(File src, File dest) throws IOException, InvalidPathException {
+        assert dest.isDirectory();
+        if (src.isDirectory() && src.equals(dest)) {
+            throw new IOException("Cannot copy a directory to itself!");
+        }
         if (!copyFile(src, dest)) { //one of the files failed to be copied
             return false;
         }

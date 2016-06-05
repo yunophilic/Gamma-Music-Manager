@@ -33,13 +33,24 @@ public class SongManager {
      * @return true if new library is added to the list, false otherwise
      */
     public boolean addLibrary(String directoryPath) {
-        if (!isInLibrary(directoryPath)) {
-            Library newLibrary = new Library(directoryPath);
-            m_libraries.add(newLibrary);
-            return true;
-        } else {
+        if (isInLibrary(directoryPath)) {
             return false;
         }
+        Library newLibrary = new Library(directoryPath);
+        if (!newLibrary.getM_rootDir().exists()) {
+            return false;
+        }
+        m_libraries.add(newLibrary);
+        return true;
+    }
+
+    /**
+     * Remove a library (this doesn't actually delete the files in the filesystem)
+     * @param file any file in the library (can be the library root dir itself)
+     * @return true if new library is added to the list, false otherwise
+     */
+    public boolean removeLibrary(File file) {
+        return m_libraries.remove(getLibrary(file));
     }
 
     private boolean isInLibrary(String directoryPath) {
