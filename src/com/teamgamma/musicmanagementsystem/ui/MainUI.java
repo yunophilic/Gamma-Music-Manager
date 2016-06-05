@@ -91,11 +91,18 @@ public class MainUI extends BorderPane {
         final Menu menuOptions = new Menu("Options");
         final Menu menuHelp = new Menu("Help");
 
-        MenuItem addLibraryMenu = new MenuItem("Add library");
+        MenuItem addLibraryMenu = new MenuItem("Add Library");
         addLibraryMenu.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent t) {
-                System.out.println("Add new library");
-
+                String pathInput = PromptUI.addNewLibrary();
+                if (pathInput==null) {
+                    return;
+                }
+                if (!model.addLibrary(pathInput)) {
+                    PromptUI.customPromptError("Error", "", "Path doesn't exist or duplicate library added");
+                    return;
+                }
+                model.notifyLibraryObservers();
             }
         });
 
