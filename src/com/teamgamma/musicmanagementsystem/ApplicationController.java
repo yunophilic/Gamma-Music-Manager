@@ -3,6 +3,7 @@ package com.teamgamma.musicmanagementsystem;
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
 import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -56,6 +57,10 @@ public class ApplicationController extends Application {
         Watcher watcher = new Watcher(songManager);
         watcher.startWatcher();
 
+        primaryStage.setOnCloseRequest(e -> {
+            watcher.stopWatcher();
+            Platform.exit();
+        });
         primaryStage.setScene(new Scene(root, 1200, 900));
         primaryStage.show();
     }

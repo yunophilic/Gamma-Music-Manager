@@ -47,12 +47,17 @@ public class Watcher {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println("**** Watcher closed...");
                 }
             }
         });
 
         m_watcherThread.start();
+    }
+
+    public void stopWatcher() {
+        System.out.println("**** Interrupting...");
+        m_watcherThread.interrupt();
     }
 
     public void addWatchDir(String rootDir) {
