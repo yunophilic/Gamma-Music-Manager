@@ -2,7 +2,6 @@ package com.teamgamma.musicmanagementsystem.musicplayer;
 
 import com.teamgamma.musicmanagementsystem.Song;
 import javafx.scene.media.Media;
-import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
@@ -28,9 +27,6 @@ public class MP3Player implements IMusicPlayer {
     private Thread m_updateWorker;
 
     private Runnable m_onErrorAction;
-
-    // For testing/experimenting.
-    public double m_counter = 0;
 
     public MP3Player(MusicPlayerManager manager){
         m_manager = manager;
@@ -80,12 +76,17 @@ public class MP3Player implements IMusicPlayer {
         // Put on repeat as well as the thread terminates upon a single play through.
         m_player.setOnRepeat(createUpdateUIThread());
 
-        m_player.setOnError(m_onErrorAction);
+        m_player.setOnError(new Runnable() {
+            @Override
+            public void run() {
+                m_manager.setError(m_player.getError());
+                m_manager.notifyError();
+            }
+        });
     }
 
     @Override
     public void pauseSong() {
-        System.out.println("Song is paused at " + m_player.getCurrentTime().toMillis());
         m_player.pause();
     }
 
@@ -115,12 +116,14 @@ public class MP3Player implements IMusicPlayer {
     @Override
     public void repeatSong(boolean repeatSong) {
         m_repeatFlag = repeatSong;
-        if (repeatSong) {
-            m_player.setCycleCount(MediaPlayer.INDEFINITE);
-        }
-        else {
-            m_player.setCycleCount(1);
+        if (isReadyToUse()) {
+            if (repeatSong) {
+                m_player.setCycleCount(MediaPlayer.INDEFINITE);
+            }
+            else {
+                m_player.setCycleCount(1);
 
+            }
         }
     }
 
@@ -143,16 +146,21 @@ public class MP3Player implements IMusicPlayer {
         return (m_player.getStatus() == MediaPlayer.Status.PLAYING);
     }
 
+    @Override
+    public boolean isReadyToUse() {
+        return (null != m_player);
+    }
+
     public MediaPlayer getMusicPlayer() {
         return m_player;
     }
 
     public Duration getEndTime() {
-        return m_player.getMedia().getDuration();
+        return (isReadyToUse()) ? m_player.getMedia().getDuration() : Duration.UNKNOWN;
     }
 
     public Duration getCurrentPlayTime() {
-        return m_player.getCurrentTime();
+        return (isReadyToUse()) ? m_player.getCurrentTime() : Duration.UNKNOWN;
     }
 
     private Runnable createUpdateUIThread() {
@@ -177,7 +185,6 @@ public class MP3Player implements IMusicPlayer {
                             } catch (InterruptedException e){
                                 e.printStackTrace();
                             }
-                            m_counter += 1000;
                         }
                     }
                 });
@@ -213,12 +220,9 @@ public class MP3Player implements IMusicPlayer {
 
         m_player.dispose();
         setupMusicPlayer(m_currentSong);
-        m_counter = seekTime;
+
         m_player.setStartTime(newTime);
         m_player.play();
-//        if (createNewUpdateThread){
-//            new Thread(createUpdateUIThread()).start();
-//        }
     }
 
 }

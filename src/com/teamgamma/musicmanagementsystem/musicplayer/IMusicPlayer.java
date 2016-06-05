@@ -9,6 +9,7 @@ import com.teamgamma.musicmanagementsystem.Song;
 public interface IMusicPlayer {
     /**
      * The method used to play the song on the music player.
+     *
      * @param songToPlay
      */
     void playSong(Song songToPlay);
@@ -35,25 +36,34 @@ public interface IMusicPlayer {
 
     /**
      * This function should set the player to repeat the current song that is being played.
+     *
      * @param repeatSong    The flag that will set if the player is to repeat the song.
      */
     void repeatSong(boolean repeatSong);
 
     /**
      * This function should set the action that the player will take when the song is finished running.
+     *
      * @param action
      */
     void setOnSongFinishAction(Runnable action);
 
     /**
      * This function should set the action that the player will take when an error occurs.
+     *
      * @param action
      */
     void setOnErrorAction(Runnable action);
 
     /**
      * Function to see if something is being played in the song manager.
+     *
      * @return True if something is being played, false otherwise.
      */
     boolean isPlayingSong();
+
+    /**
+     * Function to see if the player is ready to be used
+     */
+    boolean isReadyToUse();
 }
