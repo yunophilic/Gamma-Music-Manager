@@ -3,6 +3,7 @@ package com.teamgamma.musicmanagementsystem.ui;
 import com.teamgamma.musicmanagementsystem.Song;
 import com.teamgamma.musicmanagementsystem.SongManager;
 import com.teamgamma.musicmanagementsystem.SongManagerObserver;
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -18,6 +19,7 @@ import javafx.event.EventHandler;
 public class ContentListUI extends StackPane {
     private SongManager model;
     private GridPane gridPane;
+    private MusicPlayerManager musicPlayerManager;
 
     public ContentListUI(SongManager model) {
         super();
@@ -113,25 +115,25 @@ public class ContentListUI extends StackPane {
 
                 titleLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
                     @Override public void handle(MouseEvent e) {
-                        // Code to play song goes here
+                        musicPlayerManager.playSongRightNow(song);
                     }
                 });
 
                 genreLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
                     @Override public void handle(MouseEvent e) {
-                        // Code to play song goes here
+                        musicPlayerManager.playSongRightNow(song);
                     }
                 });
 
                 artistLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
                     @Override public void handle(MouseEvent e) {
-                        // Code to play song goes here
+                        musicPlayerManager.playSongRightNow(song);
                     }
                 });
 
                 ratingLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
                     @Override public void handle(MouseEvent e) {
-                        // Code to play song goes here
+                        musicPlayerManager.playSongRightNow(song);
                     }
                 });
             }
