@@ -39,7 +39,7 @@ public class Watcher {
                         for (WatchEvent<?> event : m_watchKey.pollEvents()) {
                             WatchEvent.Kind<?> kind = event.kind();
                             Path eventPath = (Path) event.context();
-                            System.out.println(kind + ": " + eventPath);
+                            System.out.println("**** " + kind + ": " + eventPath);
                             m_watchKey.reset();
                             Platform.runLater(() -> {
                                 model.notifyFileObservers();
@@ -47,7 +47,6 @@ public class Watcher {
                         }
                     }
                 } catch (Exception e) {
-                    System.out.println("SOMTHING WENT WRONG HERE!");
                     e.printStackTrace();
                 }
             }

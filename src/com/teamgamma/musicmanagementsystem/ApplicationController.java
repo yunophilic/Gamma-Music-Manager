@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem;
 
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
+import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -52,6 +53,8 @@ public class ApplicationController extends Application {
         }
 
         MainUI root = new MainUI(songManager);
+        Watcher watcher = new Watcher(songManager);
+        watcher.startWatcher();
 
         primaryStage.setScene(new Scene(root, 1200, 900));
         primaryStage.show();
