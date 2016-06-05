@@ -99,7 +99,9 @@ public class DynamicTreeViewUI extends StackPane {
             );
 
             rootItem.setExpanded(true);
-            System.out.println("Added new root path:" + rootItem.toString());
+            if (rootItem.getValue() != null) {
+                System.out.println("Added new root path:" + rootItem.toString());
+            }
             root.getChildren().add(rootItem);
 
             TreeView<TreeViewItem> tree = new TreeView<>(root);
