@@ -13,6 +13,10 @@ import java.io.File;
  * Class to wrap all components together.
  */
 public class ApplicationController extends Application {
+
+    private static final double MIN_WINDOW_WIDTH = 800;
+    private static final double MIN_WINDOW_HEIGHT = 400;
+
     public static void main(String[] args) {
 
         /*TextUI userInterface = new TextUI();
@@ -62,6 +66,8 @@ public class ApplicationController extends Application {
             Platform.exit();
         });
         primaryStage.setScene(new Scene(root, 1200, 900));
+        primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
+        primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.show();
     }
 }

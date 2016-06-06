@@ -82,7 +82,7 @@ public class MainUI extends BorderPane {
         MusicPlayerUI musicPlayerUI = new MusicPlayerUI(musicManager);
 
         centerPane.setBottom(musicPlayerUI);
-        centerPane.setCenter(new ContentListUI(model));
+        centerPane.setCenter(new ContentListUI(model, musicManager));
         return centerPane;
     }
 

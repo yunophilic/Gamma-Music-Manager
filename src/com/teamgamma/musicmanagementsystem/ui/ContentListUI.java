@@ -190,7 +190,6 @@ public class ContentListUI extends StackPane {
         }
 
         this.getChildren().add(table);
-        
         // Scrolls through list
         ScrollPane scrollpane = new ScrollPane();
         scrollpane.setFitToWidth(true);

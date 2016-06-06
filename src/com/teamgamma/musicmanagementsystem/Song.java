@@ -1,14 +1,14 @@
 package com.teamgamma.musicmanagementsystem;
 
+import java.io.File;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 
-import java.io.File;
-
 /**
  * Underlying data structure for a Song. A File plus data additional data.
+ * Credits to http://www.jthink.net/jaudiotagger/ for reading writing the song metadata
  */
 public class Song {
     private File m_file;
@@ -23,18 +23,92 @@ public class Song {
         m_file = new File(pathToFile);
         m_songName = m_file.getName();
         try {
-            //credits to http://www.jthink.net/jaudiotagger/
             AudioFile file = AudioFileIO.read(m_file);
             Tag tag = file.getTag();
             m_title = tag.getFirst(FieldKey.TITLE);
             m_artist = tag.getFirst(FieldKey.ARTIST);
             m_album = tag.getFirst(FieldKey.ALBUM);
             m_genre = tag.getFirst(FieldKey.GENRE);
+
+            String ratingInMetadata = tag.getFirst(FieldKey.RATING);
+            m_rating = convertRatingToFiveStarScale(
+                    ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata)
+            );
         } catch (Exception e) {
             e.printStackTrace(); //for now
         }
+    }
 
-        m_rating = 0;
+    //credits to https://github.com/soc/jaudiotagger/blob/master/src/main/java/org/jaudiotagger/tag/id3/reference/MediaMonkeyPlayerRating.java
+    private static int convertRatingFromFiveStarScale(int value) {
+        if (value < 0 || value > 5)
+            throw new IllegalArgumentException("convertRatingFromFiveStarScale() accepts values from 0 to 5 not: " + value);
+
+        int newValue = 0;
+        switch (value) {
+            case 0:
+                break;
+
+            case 1:
+                newValue = 1;
+                break;
+
+            case 2:
+                newValue = 64;
+                break;
+
+            case 3:
+                newValue = 128;
+                break;
+
+            case 4:
+                newValue = 196;
+                break;
+
+            case 5:
+                newValue = 255;
+                break;
+
+        }
+
+        return newValue;
+    }
+
+    //credits to https://github.com/soc/jaudiotagger/blob/master/src/main/java/org/jaudiotagger/tag/id3/reference/MediaMonkeyPlayerRating.java
+    private static int convertRatingToFiveStarScale(int value) {
+        int newValue = 0;
+        if (value <= 0)
+            newValue = 0;
+        else if (value <= 1)
+            newValue = 1;
+        else if (value <= 8)
+            newValue = 0;
+        else if (value <= 18)
+            newValue = 1;
+        else if (value <= 28)
+            newValue = 1;
+        else if (value <= 28)
+            newValue = 1;
+        else if (value <= 28)
+            newValue = 1;
+        else if (value <= 28)
+            newValue = 1;
+        else if (value <= 29)
+            newValue = 2;
+        else if (value <= 39)
+            newValue = 1;
+        else if (value <= 49)
+            newValue = 1;
+        else if (value <= 113)
+            newValue = 2;
+        else if (value <= 167)
+            newValue = 3;
+        else if (value <= 218)
+            newValue = 4;
+        else
+            newValue = 5;
+
+        return newValue;
     }
 
     public File getM_file() {
@@ -65,4 +139,73 @@ public class Song {
         return m_rating;
     }
 
+    public void setM_title(String title) {
+        try {
+            //update metadata
+            AudioFile file = AudioFileIO.read(m_file);
+            Tag tag = file.getTag();
+            tag.setField(FieldKey.TITLE, title);
+            AudioFileIO.write(file);
+            //update object attr
+            m_title = title;
+        } catch (Exception e) {
+            e.printStackTrace(); //for now
+        }
+    }
+
+    public void setM_artist(String artist) {
+        try {
+            //update metadata
+            AudioFile file = AudioFileIO.read(m_file);
+            Tag tag = file.getTag();
+            tag.setField(FieldKey.ARTIST, artist);
+            AudioFileIO.write(file);
+            //update object attr
+            m_artist = artist;
+        } catch (Exception e) {
+            e.printStackTrace(); //for now
+        }
+    }
+
+    public void setM_album(String album) {
+        try {
+            //update metadata
+            AudioFile file = AudioFileIO.read(m_file);
+            Tag tag = file.getTag();
+            tag.setField(FieldKey.ALBUM, album);
+            AudioFileIO.write(file);
+            //update object attr
+            m_album = album;
+        } catch (Exception e) {
+            e.printStackTrace(); //for now
+        }
+    }
+
+    public void setM_genre(String genre) {
+        try {
+            //update metadata
+            AudioFile file = AudioFileIO.read(m_file);
+            Tag tag = file.getTag();
+            tag.setField(FieldKey.GENRE, genre);
+            AudioFileIO.write(file);
+            //update object attr
+            m_genre = genre;
+        } catch (Exception e) {
+            e.printStackTrace(); //for now
+        }
+    }
+
+    public void setM_rating(int rating) {
+        try {
+            //update metadata
+            AudioFile file = AudioFileIO.read(m_file);
+            Tag tag = file.getTag();
+            tag.setField( FieldKey.RATING, Integer.toString(convertRatingFromFiveStarScale(rating)) );
+            AudioFileIO.write(file);
+            //update object attr
+            m_rating = rating;
+        } catch (Exception e) {
+            e.printStackTrace(); //for now
+        }
+    }
 }
