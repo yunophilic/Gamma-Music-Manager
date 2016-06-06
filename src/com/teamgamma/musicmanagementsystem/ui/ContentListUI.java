@@ -13,6 +13,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.control.*;
 
 import java.io.File;
 import java.util.List;
@@ -137,7 +138,7 @@ public class ContentListUI extends StackPane {
 
             );
 
-            TableColumn artistCol = new TableColumn("Artist");
+            TableColumn artistCol = new TableColumn("Artist/Album");
             artistCol.setMinWidth(80);
             artistCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_artist"));
             artistCol.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -152,7 +153,7 @@ public class ContentListUI extends StackPane {
 
             );
 
-            TableColumn albumCol = new TableColumn("Album");
+            /*TableColumn albumCol = new TableColumn("Album");
             albumCol.setMinWidth(80);
             albumCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_artist"));
             albumCol.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -165,14 +166,14 @@ public class ContentListUI extends StackPane {
                         }
                     }
 
-            );
+            );*/
 
             TableColumn ratingCol = new TableColumn("Rating");
             ratingCol.setMinWidth(20);
             ratingCol.setCellValueFactory(new PropertyValueFactory<Song, Integer>("m_rating"));
             // unsure on how to do integer editting
 
-            table.getColumns().addAll(fileCol, songCol, genreCol, artistCol, albumCol, ratingCol);
+            table.getColumns().addAll(fileCol, songCol, genreCol, artistCol, ratingCol);
             table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
             table.setItems(FXCollections.observableArrayList(songs));
@@ -189,6 +190,12 @@ public class ContentListUI extends StackPane {
         }
 
         this.getChildren().add(table);
+        // Scrolls through list
+        ScrollPane scrollpane = new ScrollPane();
+        scrollpane.setFitToWidth(true);
+        scrollpane.setFitToHeight(true);
+        scrollpane.setPrefSize(500,500);
+        scrollpane.setContent(table);
     }
 
 //    private void clearList() {
