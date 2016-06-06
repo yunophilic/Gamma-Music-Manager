@@ -1,10 +1,13 @@
 package com.teamgamma.musicmanagementsystem;
 
 import javafx.scene.control.TreeItem;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +17,7 @@ import java.util.List;
 public class FileManager {
     /**
      * Recursively create tree items from the files in a directory and return a reference to the root item
+     *
      * @return TreeItem<String> to the root item
      */
     public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath) {
@@ -39,6 +43,7 @@ public class FileManager {
 
     /**
      * Generate list of Song objects based on path
+     *
      * @param pathToDirectory: the directory path
      * @return ArrayList of Song objects
      */
@@ -66,6 +71,7 @@ public class FileManager {
 
     /**
      * Helper function to find music files in a directory
+     *
      * @param path: the directory path
      * @return ArrayList of File objects
      */
@@ -91,6 +97,7 @@ public class FileManager {
 
     /**
      * Remove file from file system
+     *
      * @param fileToRemove: file to be removed
      * @return true if file is removed successfully
      * @throws Exception
@@ -121,8 +128,9 @@ public class FileManager {
 
     /**
      * Copy fileToCopy to destDir
+     *
      * @param fileToCopy: File to be copied (one file only)
-     * @param destDir: File object with path to destination directory
+     * @param destDir:    File object with path to destination directory
      * @return true if path of new file destination equals destDir path, false otherwise
      * @throws IOException
      * @throws InvalidPathException
@@ -137,7 +145,8 @@ public class FileManager {
 
     /**
      * Copy src to dest recursively
-     * @param src: File object with path to file or directory to be copied
+     *
+     * @param src:  File object with path to file or directory to be copied
      * @param dest: File object with path to destination directory
      * @return true if path of new file destination equals destinationDir path, false otherwise
      * @throws IOException
@@ -165,6 +174,7 @@ public class FileManager {
 
     /**
      * File filter for finding music files
+     *
      * @param file
      * @param extensions
      * @return true if file is accepted, false otherwise

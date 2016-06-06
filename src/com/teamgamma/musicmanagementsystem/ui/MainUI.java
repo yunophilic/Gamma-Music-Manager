@@ -3,6 +3,7 @@ package com.teamgamma.musicmanagementsystem.ui;
 import com.teamgamma.musicmanagementsystem.Library;
 import com.teamgamma.musicmanagementsystem.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -95,7 +96,7 @@ public class MainUI extends BorderPane {
         addLibraryMenu.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent t) {
                 String pathInput = PromptUI.addNewLibrary();
-                if (pathInput==null) {
+                if (pathInput == null) {
                     return;
                 }
                 if (!model.addLibrary(pathInput)) {

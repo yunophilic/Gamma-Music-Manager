@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.*;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
@@ -56,6 +57,7 @@ public class LibraryUI extends StackPane {
 
     /**
      * Notify observers on mouse event
+     *
      * @param treeView
      */
     private void setMouseEvent(TreeView<TreeViewItem> treeView) {
@@ -116,6 +118,7 @@ public class LibraryUI extends StackPane {
 
     /**
      * Construct the tree view
+     *
      * @return TreeView<String>
      */
     private TreeView<TreeViewItem> createTrees(List<Library> libraries) {

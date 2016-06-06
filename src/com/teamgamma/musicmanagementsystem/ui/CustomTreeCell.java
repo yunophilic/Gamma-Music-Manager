@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.SongManager;
 import com.teamgamma.musicmanagementsystem.TreeViewItem;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
@@ -55,19 +56,19 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         paste.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (tree.getSelectionModel().getSelectedItem() != null) {
-                        File dest = tree.getSelectionModel().getSelectedItem().getValue().getPath();
-                        if (!dest.isDirectory()) {
-                            PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
-                            return;
-                        }
-                        try {
-                            model.copyToDestination(dest);
-                            model.notifyFileObservers();
-                        } catch (FileAlreadyExistsException ex) {
-                            PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
-                        } catch (IOException ex) {
-                            PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
-                        }
+                    File dest = tree.getSelectionModel().getSelectedItem().getValue().getPath();
+                    if (!dest.isDirectory()) {
+                        PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
+                        return;
+                    }
+                    try {
+                        model.copyToDestination(dest);
+                        model.notifyFileObservers();
+                    } catch (FileAlreadyExistsException ex) {
+                        PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
+                    } catch (IOException ex) {
+                        PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
+                    }
                 }
             }
         });
@@ -104,12 +105,12 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     System.out.println("Remove library");
                     model.removeLibrary(tree.getSelectionModel().getSelectedItem().getValue().getPath());
 
-                    if (model.getRightFolderSelected() != null){
+                    if (model.getRightFolderSelected() != null) {
                         boolean isLibraryInRight = model.getRightFolderSelected().getAbsolutePath().contains(tree.getSelectionModel().getSelectedItem().getValue().getPath().getAbsolutePath());
                         if (isLibraryInRight) {
                             model.setRightFolderSelected(null);
                         }
-                    } else if (model.getM_selectedCenterFolder() != null){
+                    } else if (model.getM_selectedCenterFolder() != null) {
                         boolean isLibraryInCenter = model.getM_selectedCenterFolder().getAbsolutePath().contains(tree.getSelectionModel().getSelectedItem().getValue().getPath().getAbsolutePath());
                         if (isLibraryInCenter) {
                             System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
@@ -150,13 +151,13 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             @Override
             public void handle(WindowEvent event) {
                 // Disable paste if nothing is chosen to be copied
-                if (model.getM_fileBuffer() == null){
+                if (model.getM_fileBuffer() == null) {
                     paste.setDisable(true);
                     paste.setStyle("-fx-text-fill: gray;");
                 }
 
                 // Do not show remove library option if selected item is not a library
-                if (tree.getSelectionModel().getSelectedItem() == null || !tree.getSelectionModel().getSelectedItem().getValue().isRootPath()){
+                if (tree.getSelectionModel().getSelectedItem() == null || !tree.getSelectionModel().getSelectedItem().getValue().isRootPath()) {
                     removeLibrary.setDisable(true);
                     removeLibrary.setVisible(false);
                 }

@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem;
 
 import java.io.File;
+
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
@@ -32,7 +33,7 @@ public class Song {
 
             String ratingInMetadata = tag.getFirst(FieldKey.RATING);
             m_rating = Integer.toString(
-                    convertRatingToFiveStarScale( ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata) )
+                    convertRatingToFiveStarScale(ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata))
             );
         } catch (Exception e) {
             e.printStackTrace(); //for now
@@ -200,7 +201,7 @@ public class Song {
             //update metadata
             AudioFile file = AudioFileIO.read(m_file);
             Tag tag = file.getTag();
-            tag.setField( FieldKey.RATING, Integer.toString(convertRatingFromFiveStarScale(rating)) );
+            tag.setField(FieldKey.RATING, Integer.toString(convertRatingFromFiveStarScale(rating)));
             AudioFileIO.write(file);
             //update object attr
             m_rating = Integer.toString(rating);
