@@ -116,7 +116,7 @@ public class ContentListUI extends StackPane {
                         @Override
                         public void handle(TableColumn.CellEditEvent<Song, String> t) {
                             ((Song) t.getTableView().getItems().get(
-                                    t.getTablePosition().getRow())).setM_songName(t.getNewValue());
+                                    t.getTablePosition().getRow())).setM_title(t.getNewValue());
                         }
                     }
 
