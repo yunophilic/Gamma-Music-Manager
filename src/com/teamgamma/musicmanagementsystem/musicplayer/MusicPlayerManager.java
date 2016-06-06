@@ -60,17 +60,22 @@ public class MusicPlayerManager {
      * Function to load the next song in the queue and play it.
      */
     public void playNextSong(){
-        Song nextSong = m_playingQueue.poll();
-        if (null == nextSong) {
-            // No more songs to play.
-            if (m_repeatSong) {
-                m_musicPlayer.playSong(m_currentSong);
+        if (isPlayingSongOnFromHistoryList()) {
+            m_historyIndex++;
+            m_currentSong = m_songHistory.get(m_historyIndex);
+            m_musicPlayer.playSong(m_currentSong);
+        } else {
+            Song nextSong = m_playingQueue.poll();
+            if (null == nextSong) {
+                // No more songs to play.
+                if (m_repeatSong) {
+                    m_musicPlayer.playSong(m_currentSong);
+                }
+            } else {
+                m_musicPlayer.playSong(nextSong);
+                updateHistory();
+                //notifyChangeStateObservers();
             }
-        }
-        else {
-            m_musicPlayer.playSong(nextSong);
-            updateHistory();
-            //notifyChangeStateObservers();
         }
     }
 
@@ -125,7 +130,6 @@ public class MusicPlayerManager {
      */
     public void setRepeat(boolean repeatSong) {
         m_repeatSong = repeatSong;
-        System.out.println("Is repate " + m_repeatSong);
         if (m_musicPlayer.isReadyToUse()){
             m_musicPlayer.repeatSong(repeatSong);
         }
@@ -217,11 +221,21 @@ public class MusicPlayerManager {
         if (null == m_currentSong) {
             return;
         }
-
+        if (isPlayingSongOnFromHistoryList()) {
+            // Reset to be the last index as someone as we need to add something to the back of the list
+            m_historyIndex = m_songHistory.size() - 1;
+        }
+        if (!m_songHistory.isEmpty()) {
+            // Check to see if the current song is also the last played song in history
+            if (m_currentSong == m_songHistory.get(m_historyIndex)){
+                // Do not add the same song in the history consecutively
+                return;
+            }
+        }
         m_songHistory.add(m_currentSong);
 
         // On insertion of new song in history set the last played index to be the latest song in history list.
-        m_historyIndex = m_songHistory.size();
+        m_historyIndex = m_songHistory.size() - 1;
         if (m_songHistory.size() > MAX_SONG_HISTORY){
             m_songHistory.remove(0);
         }
@@ -231,9 +245,7 @@ public class MusicPlayerManager {
      * Function to notify all observers that a new song has been loaded.
      */
     public void notifyNewSongObservers() {
-        for (MusicPlayerObserver observer : m_newSongObservers) {
-            observer.updateUI();
-        }
+        notifyAll(m_newSongObservers);
     }
 
     /**
@@ -286,19 +298,19 @@ public class MusicPlayerManager {
     }
 
     /**
-     * Function to play the previous song in the history.
+     * Function to play the previous song in the history. Does not affect history.
      */
     public void playPreviousSong() {
         assert(m_songHistory.size() < m_historyIndex);
 
         if (m_historyIndex == 0){
             // Nothing in history.
-            System.out.println("History index is 0");
             return;
         }
         if (!m_songHistory.isEmpty()){
             m_historyIndex--;
-            m_musicPlayer.playSong(m_songHistory.get(m_historyIndex));
+            m_currentSong = m_songHistory.get(m_historyIndex);
+            m_musicPlayer.playSong(m_currentSong);
         }
     }
 
@@ -361,5 +373,14 @@ public class MusicPlayerManager {
         for (MusicPlayerObserver observer : observers) {
             observer.updateUI();
         }
+    }
+
+    /**
+     * Function to determine if the player is playing of the history list.
+     *
+     * @return  True if the player is playing off the history list, False other wise.
+     */
+    private boolean isPlayingSongOnFromHistoryList(){
+        return ((m_historyIndex != (m_songHistory.size() - 1)) && !m_songHistory.isEmpty());
     }
 }

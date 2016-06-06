@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,7 +95,7 @@ public class Library {
      */
     public Song getSong(String songName) {
         for (Song song : m_songList) {
-            if (song.getM_songName().equals(songName)) {
+            if (song.getM_fileName().equals(songName)) {
                 return song;
             }
         }

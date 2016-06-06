@@ -27,6 +27,7 @@ public class MusicPlayerUI extends BorderPane {
     public static final int SECONDS_IN_MINUTE = 60;
     public static final double SEEK_BAR_Y_SCALE = 1.5;
     public static final int HEADER_FONT_SIZE = 20;
+    public static final int SONG_TITLE_HEADER_SIZE = 15;
 
     public static final String PREVIOUS_ICON_PATH = "res\\ic_skip_previous_black_48dp_1x.png";
     public static final String PLAY_ICON_PATH = "res\\ic_play_arrow_black_48dp_1x.png";
@@ -38,6 +39,7 @@ public class MusicPlayerUI extends BorderPane {
     public static final String ADD_TO_PLAYLIST_ICON_PATH = "res/ic_playlist_add_black_48dp_1x.png";
 
     public static final String DEFAULT_TIME_STRING = "0:00";
+    public static final String CURRENT_SONG_PLAYING_HEADER = "Playing: ";
 
     /**
      * Constructor
@@ -51,8 +53,9 @@ public class MusicPlayerUI extends BorderPane {
 
         topWrapper.getChildren().add(makeSongTitleHeader(manager));
 
-        HBox musicFileBox = createFilePathBox(manager);
-        topWrapper.getChildren().add(musicFileBox);
+        // For testing purposes
+        //HBox musicFileBox = createFilePathBox(manager);
+        //topWrapper.getChildren().add(musicFileBox);
 
         topWrapper.getChildren().addAll(createProgressBarBox(manager), createCurrentTimeBox(manager));
         this.setTop(topWrapper);
@@ -258,7 +261,7 @@ public class MusicPlayerUI extends BorderPane {
         playbackSlider.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                /*  Removed due to problems with javafx.
+                /*  Removed from iteration 1 due to problems with JavaFx.
                 double sliderVal = playbackSlider.getValue();
                 System.out.println("Slider seek slider value is " + sliderVal);
                 manager.seekSongTo(sliderVal);
@@ -331,14 +334,19 @@ public class MusicPlayerUI extends BorderPane {
      */
     private HBox makeSongTitleHeader(final MusicPlayerManager manager) {
         HBox songTitleWrapper = new HBox();
-        Label songTitleHeader = new Label("Song Currently Playing : ");
+
+        Font songHeaderFont = new Font(SONG_TITLE_HEADER_SIZE);
+        Label songTitleHeader = new Label(CURRENT_SONG_PLAYING_HEADER);
+        songTitleHeader.setFont(songHeaderFont);
+
         Label songTitle = new Label("");
+        songTitle.setFont(songHeaderFont);
 
         // Set up an observer that will update the name of the song when a new song is played.
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                songTitle.setText(manager.getCurrentSongPlaying().getM_songName());
+                songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
             }
         });
         songTitleWrapper.getChildren().addAll(songTitleHeader, songTitle);

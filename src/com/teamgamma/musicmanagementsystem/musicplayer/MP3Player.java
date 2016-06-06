@@ -51,6 +51,7 @@ public class MP3Player implements IMusicPlayer {
 
         m_player.play();
         m_manager.notifyChangeStateObservers();
+        m_manager.notifyNewSongObservers();
     }
 
     private void setupMusicPlayer(Song songToPlay) {

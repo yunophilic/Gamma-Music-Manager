@@ -12,16 +12,16 @@ import org.jaudiotagger.tag.Tag;
  */
 public class Song {
     private File m_file;
-    private String m_songName;
+    private String m_fileName;
     private String m_title;
     private String m_artist;
     private String m_album;
     private String m_genre;
-    private int m_rating;
+    private String m_rating;
 
     public Song(String pathToFile) {
         m_file = new File(pathToFile);
-        m_songName = m_file.getName();
+        m_fileName = m_file.getName();
         try {
             AudioFile file = AudioFileIO.read(m_file);
             Tag tag = file.getTag();
@@ -31,8 +31,8 @@ public class Song {
             m_genre = tag.getFirst(FieldKey.GENRE);
 
             String ratingInMetadata = tag.getFirst(FieldKey.RATING);
-            m_rating = convertRatingToFiveStarScale(
-                    ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata)
+            m_rating = Integer.toString(
+                    convertRatingToFiveStarScale( ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata) )
             );
         } catch (Exception e) {
             e.printStackTrace(); //for now
@@ -115,8 +115,8 @@ public class Song {
         return m_file;
     }
 
-    public String getM_songName() {
-        return m_songName;
+    public String getM_fileName() {
+        return m_fileName;
     }
 
     public String getM_title() {
@@ -135,11 +135,11 @@ public class Song {
         return m_genre;
     }
 
-    public int getM_rating() {
+    public String getM_rating() {
         return m_rating;
     }
 
-    public void setM_title(String title) {
+    public void setTitle(String title) {
         try {
             //update metadata
             AudioFile file = AudioFileIO.read(m_file);
@@ -153,7 +153,7 @@ public class Song {
         }
     }
 
-    public void setM_artist(String artist) {
+    public void setArtist(String artist) {
         try {
             //update metadata
             AudioFile file = AudioFileIO.read(m_file);
@@ -167,7 +167,7 @@ public class Song {
         }
     }
 
-    public void setM_album(String album) {
+    public void setAlbum(String album) {
         try {
             //update metadata
             AudioFile file = AudioFileIO.read(m_file);
@@ -181,7 +181,7 @@ public class Song {
         }
     }
 
-    public void setM_genre(String genre) {
+    public void setGenre(String genre) {
         try {
             //update metadata
             AudioFile file = AudioFileIO.read(m_file);
@@ -195,7 +195,7 @@ public class Song {
         }
     }
 
-    public void setM_rating(int rating) {
+    public void setRating(int rating) {
         try {
             //update metadata
             AudioFile file = AudioFileIO.read(m_file);
@@ -203,7 +203,7 @@ public class Song {
             tag.setField( FieldKey.RATING, Integer.toString(convertRatingFromFiveStarScale(rating)) );
             AudioFileIO.write(file);
             //update object attr
-            m_rating = rating;
+            m_rating = Integer.toString(rating);
         } catch (Exception e) {
             e.printStackTrace(); //for now
         }
