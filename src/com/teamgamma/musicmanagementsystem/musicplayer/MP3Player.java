@@ -154,7 +154,9 @@ public class MP3Player implements IMusicPlayer {
 
     @Override
     public void stopSong() {
-        m_player.stop();
+        if (isReadyToUse()) {
+            m_player.stop();
+        }
     }
 
     public MediaPlayer getMusicPlayer() {
