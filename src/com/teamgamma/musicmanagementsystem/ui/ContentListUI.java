@@ -10,8 +10,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
 
@@ -104,42 +102,26 @@ public class ContentListUI extends StackPane {
 
             table.setEditable(true);
 
-            TableColumn fileCol = new TableColumn("File");
-            fileCol.setMinWidth(80);
-            fileCol.setCellValueFactory(new PropertyValueFactory<Song, File>("m_file"));
+            TableColumn fileNameCol = new TableColumn("File Name");
+            fileNameCol.setMinWidth(80);
+            fileNameCol.setCellValueFactory(new PropertyValueFactory<Song, File>("m_fileName"));
 
-            TableColumn songCol = new TableColumn("Song Name");
-            songCol.setMinWidth(80);
-            songCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_title"));
-            songCol.setCellFactory(TextFieldTableCell.forTableColumn());
-            songCol.setOnEditCommit(
+            TableColumn titleCol = new TableColumn("Title");
+            titleCol.setMinWidth(60);
+            titleCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_title"));
+            titleCol.setCellFactory(TextFieldTableCell.forTableColumn());
+            titleCol.setOnEditCommit(
                     new EventHandler<TableColumn.CellEditEvent<Song, String>>() {
                         @Override
                         public void handle(TableColumn.CellEditEvent<Song, String> t) {
                             ((Song) t.getTableView().getItems().get(
-                                    t.getTablePosition().getRow())).setM_title(t.getNewValue());
+                                    t.getTablePosition().getRow())).setTitle(t.getNewValue());
                         }
                     }
-
             );
 
-            TableColumn genreCol = new TableColumn("Genre");
-            genreCol.setMinWidth(80);
-            genreCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_genre"));
-            genreCol.setCellFactory(TextFieldTableCell.forTableColumn());
-            genreCol.setOnEditCommit(
-                    new EventHandler<TableColumn.CellEditEvent<Song, String>>() {
-                        @Override
-                        public void handle(TableColumn.CellEditEvent<Song, String> t) {
-                            ((Song) t.getTableView().getItems().get(
-                                    t.getTablePosition().getRow())).setM_genre(t.getNewValue());
-                        }
-                    }
-
-            );
-
-            TableColumn artistCol = new TableColumn("Artist/Album");
-            artistCol.setMinWidth(80);
+            TableColumn artistCol = new TableColumn("Artist");
+            artistCol.setMinWidth(60);
             artistCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_artist"));
             artistCol.setCellFactory(TextFieldTableCell.forTableColumn());
             artistCol.setOnEditCommit(
@@ -147,33 +129,55 @@ public class ContentListUI extends StackPane {
                         @Override
                         public void handle(TableColumn.CellEditEvent<Song, String> t) {
                             ((Song) t.getTableView().getItems().get(
-                                    t.getTablePosition().getRow())).setM_artist(t.getNewValue());
+                                    t.getTablePosition().getRow())).setArtist(t.getNewValue());
                         }
                     }
-
             );
 
-            /*TableColumn albumCol = new TableColumn("Album");
-            albumCol.setMinWidth(80);
-            albumCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_artist"));
+            TableColumn albumCol = new TableColumn("Album");
+            albumCol.setMinWidth(60);
+            albumCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_album"));
             albumCol.setCellFactory(TextFieldTableCell.forTableColumn());
             albumCol.setOnEditCommit(
                     new EventHandler<TableColumn.CellEditEvent<Song, String>>() {
                         @Override
                         public void handle(TableColumn.CellEditEvent<Song, String> t) {
                             ((Song) t.getTableView().getItems().get(
-                                    t.getTablePosition().getRow())).setM_album(t.getNewValue());
+                                    t.getTablePosition().getRow())).setAlbum(t.getNewValue());
                         }
                     }
+            );
 
-            );*/
+            TableColumn genreCol = new TableColumn("Genre");
+            genreCol.setMinWidth(60);
+            genreCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_genre"));
+            genreCol.setCellFactory(TextFieldTableCell.forTableColumn());
+            genreCol.setOnEditCommit(
+                    new EventHandler<TableColumn.CellEditEvent<Song, String>>() {
+                        @Override
+                        public void handle(TableColumn.CellEditEvent<Song, String> t) {
+                            ((Song) t.getTableView().getItems().get(
+                                    t.getTablePosition().getRow())).setGenre(t.getNewValue());
+                        }
+                    }
+            );
 
             TableColumn ratingCol = new TableColumn("Rating");
             ratingCol.setMinWidth(20);
-            ratingCol.setCellValueFactory(new PropertyValueFactory<Song, Integer>("m_rating"));
-            // unsure on how to do integer editting
+            ratingCol.setCellValueFactory(new PropertyValueFactory<Song, String>("m_rating"));
+            ratingCol.setCellFactory(TextFieldTableCell.forTableColumn());
+            ratingCol.setOnEditCommit(
+                    new EventHandler<TableColumn.CellEditEvent<Song, String>>() {
+                        @Override
+                        public void handle(TableColumn.CellEditEvent<Song, String> t) {
+                            ((Song) t.getTableView().getItems().get(
+                                    t.getTablePosition().getRow())).setRating( Integer.parseInt(t.getNewValue()) );
+                        }
+                    }
+            );
 
-            table.getColumns().addAll(fileCol, songCol, genreCol, artistCol, ratingCol);
+            table.getColumns().addAll(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
+
             table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
             table.setItems(FXCollections.observableArrayList(songs));
@@ -190,6 +194,7 @@ public class ContentListUI extends StackPane {
         }
 
         this.getChildren().add(table);
+
         // Scrolls through list
         ScrollPane scrollpane = new ScrollPane();
         scrollpane.setFitToWidth(true);

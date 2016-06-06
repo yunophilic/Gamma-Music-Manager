@@ -338,7 +338,7 @@ public class MusicPlayerUI extends BorderPane {
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                songTitle.setText(manager.getCurrentSongPlaying().getM_songName());
+                songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
             }
         });
         songTitleWrapper.getChildren().addAll(songTitleHeader, songTitle);
