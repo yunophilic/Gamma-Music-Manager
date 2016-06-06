@@ -170,8 +170,13 @@ public class ContentListUI extends StackPane {
                     new EventHandler<TableColumn.CellEditEvent<Song, String>>() {
                         @Override
                         public void handle(TableColumn.CellEditEvent<Song, String> t) {
-                            ((Song) t.getTableView().getItems().get(
-                                    t.getTablePosition().getRow())).setRating( Integer.parseInt(t.getNewValue()) );
+                            try {
+                                ((Song) t.getTableView().getItems().get(
+                                        t.getTablePosition().getRow())).setRating(Integer.parseInt(t.getNewValue()));
+                            } catch (IllegalArgumentException ex) {
+                                PromptUI.customPromptError("Error", "", "Rating should be in range 0 to 5");
+                                model.notifyCenterFolderObservers();
+                            }
                         }
                     }
             );
