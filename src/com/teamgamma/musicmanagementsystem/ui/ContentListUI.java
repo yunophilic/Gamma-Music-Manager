@@ -12,18 +12,18 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
-
 import java.io.File;
 import java.util.List;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
+
 /**
  * UI class for list of songs in center of application
  */
 public class ContentListUI extends StackPane {
     private SongManager model;
     private MusicPlayerManager manager;
-//    private GridPane gridPane;
+    //    private GridPane gridPane;
     private TableView table;
 
     public ContentListUI(SongManager model, MusicPlayerManager manager) {
@@ -190,7 +190,7 @@ public class ContentListUI extends StackPane {
             table.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
-                    if(event.getClickCount() == 2) {
+                    if (event.getClickCount() == 2) {
                         System.out.println(table.getSelectionModel().getSelectedItem());
                         manager.playSongRightNow((Song) table.getSelectionModel().getSelectedItem());
                     }
@@ -204,7 +204,7 @@ public class ContentListUI extends StackPane {
         ScrollPane scrollpane = new ScrollPane();
         scrollpane.setFitToWidth(true);
         scrollpane.setFitToHeight(true);
-        scrollpane.setPrefSize(500,500);
+        scrollpane.setPrefSize(500, 500);
         scrollpane.setContent(table);
     }
 

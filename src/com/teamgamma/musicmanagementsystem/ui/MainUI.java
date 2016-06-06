@@ -3,6 +3,7 @@ package com.teamgamma.musicmanagementsystem.ui;
 import com.teamgamma.musicmanagementsystem.Library;
 import com.teamgamma.musicmanagementsystem.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -19,16 +20,19 @@ import java.util.List;
 public class MainUI extends BorderPane {
     private SongManager model;
 
-    public MainUI(SongManager model) {
+    private MusicPlayerManager m_musicPlayerManager;
+
+    public MainUI(SongManager model, MusicPlayerManager musicPlayerManager) {
         super();
 
         this.model = model;
+        m_musicPlayerManager = musicPlayerManager;
 
         this.setLeft(leftPane());
         this.setRight(rightPane());
         this.setCenter(centerPane());
         this.setTop(topPane());
-        //this.setBottom(bottomePane());
+        this.setBottom(bottomePane());
     }
 
     private Node leftPane() {
@@ -71,18 +75,13 @@ public class MainUI extends BorderPane {
     private Node bottomePane() {
         //return new Label("Music Player");
 
-        MusicPlayerManager musicManager = new MusicPlayerManager();
-        return new MusicPlayerUI(musicManager);
+        return new MusicPlayerUI(m_musicPlayerManager);
     }
 
     private Node centerPane() {
         BorderPane centerPane = new BorderPane();
 
-        MusicPlayerManager musicManager = new MusicPlayerManager();
-        MusicPlayerUI musicPlayerUI = new MusicPlayerUI(musicManager);
-
-        centerPane.setBottom(musicPlayerUI);
-        centerPane.setCenter(new ContentListUI(model, musicManager));
+        centerPane.setCenter(new ContentListUI(model, m_musicPlayerManager));
         return centerPane;
     }
 
@@ -95,7 +94,7 @@ public class MainUI extends BorderPane {
         addLibraryMenu.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent t) {
                 String pathInput = PromptUI.addNewLibrary();
-                if (pathInput==null) {
+                if (pathInput == null) {
                     return;
                 }
                 if (!model.addLibrary(pathInput)) {

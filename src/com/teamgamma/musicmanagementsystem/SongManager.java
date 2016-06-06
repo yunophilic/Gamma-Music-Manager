@@ -3,7 +3,8 @@ package com.teamgamma.musicmanagementsystem;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class to manage libraries and playlists
@@ -29,6 +30,7 @@ public class SongManager {
 
     /**
      * Add new library (root folder path) to m_libraries if it is not already in the list
+     *
      * @param directoryPath path to the library
      * @return true if new library is added to the list, false otherwise
      */
@@ -46,6 +48,7 @@ public class SongManager {
 
     /**
      * Remove a library (this doesn't actually delete the files in the filesystem)
+     *
      * @param file any file in the library (can be the library root dir itself)
      * @return true if new library is added to the list, false otherwise
      */
@@ -64,6 +67,7 @@ public class SongManager {
 
     /**
      * Get the library where the specified file resides in
+     *
      * @param file specified file
      * @return true if found, null otherwise
      */
@@ -165,10 +169,10 @@ public class SongManager {
 
 
     public void deleteFile(File fileToDelete) throws Exception {
-        if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+        if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
             m_rightFolderSelected = null;
         }
-        if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())){
+        if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
             m_selectedCenterFolder = null;
         }
 
@@ -178,16 +182,20 @@ public class SongManager {
 
     public void setCenterFolder(File newFolderSelected) {
         this.m_selectedCenterFolder = newFolderSelected;
-
-        notifyCenterFolderObservers();
     }
 
     public File getM_selectedCenterFolder() {
         return m_selectedCenterFolder;
     }
 
+    public File getM_fileBuffer() {
+        return m_fileBuffer;
+    }
 
-    /********** Functions for observer pattern *************/
+
+    /**********
+     * Functions for observer pattern
+     *************/
 
     public void addObserver(SongManagerObserver observer) {
         m_songManagerObservers.add(observer);

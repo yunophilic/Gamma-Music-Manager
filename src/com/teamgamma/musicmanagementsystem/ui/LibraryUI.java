@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.*;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
@@ -25,7 +26,6 @@ public class LibraryUI extends StackPane {
         super();
         this.model = model;
         updateTreeView();
-        setTreeCellFactory();
         setPaneStyle();
         registerAsLibraryObserver();
     }
@@ -40,6 +40,7 @@ public class LibraryUI extends StackPane {
             tree = createTrees(libraries);
             this.getChildren().add(tree);
             setMouseEvent(tree);
+            setTreeCellFactory();
         }
     }
 
@@ -56,6 +57,7 @@ public class LibraryUI extends StackPane {
 
     /**
      * Notify observers on mouse event
+     *
      * @param treeView
      */
     private void setMouseEvent(TreeView<TreeViewItem> treeView) {
@@ -69,6 +71,7 @@ public class LibraryUI extends StackPane {
                     }
 
                     model.setCenterFolder(item.getValue().getPath());
+                    model.notifyCenterFolderObservers();
                 }
             }
         });
@@ -81,7 +84,6 @@ public class LibraryUI extends StackPane {
                 System.out.println("Library changed in treeview");
                 clearTreeView();
                 updateTreeView();
-                setTreeCellFactory();
             }
 
             @Override
@@ -104,7 +106,6 @@ public class LibraryUI extends StackPane {
                 System.out.println("File changed in treeview");
                 clearTreeView();
                 updateTreeView();
-                setTreeCellFactory();
             }
         });
     }
@@ -117,6 +118,7 @@ public class LibraryUI extends StackPane {
 
     /**
      * Construct the tree view
+     *
      * @return TreeView<String>
      */
     private TreeView<TreeViewItem> createTrees(List<Library> libraries) {

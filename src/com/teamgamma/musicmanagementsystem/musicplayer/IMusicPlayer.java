@@ -37,7 +37,7 @@ public interface IMusicPlayer {
     /**
      * This function should set the player to repeat the current song that is being played.
      *
-     * @param repeatSong    The flag that will set if the player is to repeat the song.
+     * @param repeatSong The flag that will set if the player is to repeat the song.
      */
     void repeatSong(boolean repeatSong);
 
@@ -66,4 +66,9 @@ public interface IMusicPlayer {
      * Function to see if the player is ready to be used
      */
     boolean isReadyToUse();
+
+    /**
+     * Function to stop the song that is playing.
+     */
+    void stopSong();
 }

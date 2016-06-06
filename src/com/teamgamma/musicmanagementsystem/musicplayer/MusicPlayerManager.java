@@ -40,10 +40,11 @@ public class MusicPlayerManager {
     private List<MusicPlayerObserver> m_errorObservers;
 
     private Exception m_lastException;
+
     /**
      * Constructor
      */
-    public MusicPlayerManager(){
+    public MusicPlayerManager() {
         m_playingQueue = new ConcurrentLinkedQueue<Song>();
 
         m_musicPlayer = new MP3Player(this);
@@ -59,18 +60,27 @@ public class MusicPlayerManager {
     /**
      * Function to load the next song in the queue and play it.
      */
-    public void playNextSong(){
-        Song nextSong = m_playingQueue.poll();
-        if (null == nextSong) {
-            // No more songs to play.
+    public void playNextSong() {
+        if (isPlayingSongOnFromHistoryList()) {
             if (m_repeatSong) {
                 m_musicPlayer.playSong(m_currentSong);
+            } else {
+                m_historyIndex++;
+                m_currentSong = m_songHistory.get(m_historyIndex);
+                m_musicPlayer.playSong(m_currentSong);
             }
-        }
-        else {
-            m_musicPlayer.playSong(nextSong);
-            updateHistory();
-            //notifyChangeStateObservers();
+        } else {
+            Song nextSong = m_playingQueue.poll();
+            if (null == nextSong) {
+                // No more songs to play.
+                if (m_repeatSong) {
+                    m_musicPlayer.playSong(m_currentSong);
+                }
+            } else {
+                m_musicPlayer.playSong(nextSong);
+                updateHistory();
+                //notifyChangeStateObservers();
+            }
         }
     }
 
@@ -92,11 +102,10 @@ public class MusicPlayerManager {
      * @param nextSong
      */
     public void placeSongOnPlaybackQueue(Song nextSong) {
-        if(m_playingQueue.isEmpty() && !isSomethingPlaying()){
+        if (m_playingQueue.isEmpty() && !isSomethingPlaying()) {
             m_musicPlayer.playSong(nextSong);
             m_currentSong = nextSong;
-        }
-        else{
+        } else {
             // TODO: Make it move to front by changing prioirty.
             m_playingQueue.add(nextSong);
         }
@@ -125,8 +134,7 @@ public class MusicPlayerManager {
      */
     public void setRepeat(boolean repeatSong) {
         m_repeatSong = repeatSong;
-        System.out.println("Is repate " + m_repeatSong);
-        if (m_musicPlayer.isReadyToUse()){
+        if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.repeatSong(repeatSong);
         }
     }
@@ -135,7 +143,7 @@ public class MusicPlayerManager {
      * Function to pause the current song playing.
      */
     public void pause() {
-        if(m_musicPlayer.isReadyToUse()){
+        if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.pauseSong();
             notifyChangeStateObservers();
         }
@@ -146,7 +154,7 @@ public class MusicPlayerManager {
      * Function to resume the current song that is paused.
      */
     public void resume() {
-        if (m_musicPlayer.isReadyToUse()){
+        if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.resumeSong();
             notifyChangeStateObservers();
         }
@@ -204,7 +212,7 @@ public class MusicPlayerManager {
     /**
      * Function to get the end time of the song from the player.
      *
-     * @return  The end time of the song.
+     * @return The end time of the song.
      */
     public Duration getEndTime() {
         return ((MP3Player) m_musicPlayer).getEndTime();
@@ -217,12 +225,22 @@ public class MusicPlayerManager {
         if (null == m_currentSong) {
             return;
         }
-
+        if (isPlayingSongOnFromHistoryList()) {
+            // Reset to be the last index as someone as we need to add something to the back of the list
+            m_historyIndex = m_songHistory.size() - 1;
+        }
+        if (!m_songHistory.isEmpty()) {
+            // Check to see if the current song is also the last played song in history
+            if (m_currentSong == m_songHistory.get(m_historyIndex)) {
+                // Do not add the same song in the history consecutively
+                return;
+            }
+        }
         m_songHistory.add(m_currentSong);
 
         // On insertion of new song in history set the last played index to be the latest song in history list.
-        m_historyIndex = m_songHistory.size();
-        if (m_songHistory.size() > MAX_SONG_HISTORY){
+        m_historyIndex = m_songHistory.size() - 1;
+        if (m_songHistory.size() > MAX_SONG_HISTORY) {
             m_songHistory.remove(0);
         }
     }
@@ -231,9 +249,7 @@ public class MusicPlayerManager {
      * Function to notify all observers that a new song has been loaded.
      */
     public void notifyNewSongObservers() {
-        for (MusicPlayerObserver observer : m_newSongObservers) {
-            observer.updateUI();
-        }
+        notifyAll(m_newSongObservers);
     }
 
     /**
@@ -255,7 +271,7 @@ public class MusicPlayerManager {
     /**
      * Function to get the current playback time of the song being played.
      *
-     * @return  The current playback time.
+     * @return The current playback time.
      */
     public Duration getCurrentPlayTime() {
         return ((MP3Player) m_musicPlayer).getCurrentPlayTime();
@@ -286,19 +302,24 @@ public class MusicPlayerManager {
     }
 
     /**
-     * Function to play the previous song in the history.
+     * Function to play the previous song in the history. Does not affect history.
      */
     public void playPreviousSong() {
-        assert(m_songHistory.size() < m_historyIndex);
-
-        if (m_historyIndex == 0){
-            // Nothing in history.
-            System.out.println("History index is 0");
+        assert (m_songHistory.size() < m_historyIndex);
+        if (m_repeatSong) {
+            // Just restart current song.
+            m_musicPlayer.playSong(m_currentSong);
             return;
         }
-        if (!m_songHistory.isEmpty()){
+
+        if (m_historyIndex == 0) {
+            // Nothing in history.
+            return;
+        }
+        if (!m_songHistory.isEmpty()) {
             m_historyIndex--;
-            m_musicPlayer.playSong(m_songHistory.get(m_historyIndex));
+            m_currentSong = m_songHistory.get(m_historyIndex);
+            m_musicPlayer.playSong(m_currentSong);
         }
     }
 
@@ -321,7 +342,7 @@ public class MusicPlayerManager {
     /**
      * Function to register observers that need to be notified when an error occurs.
      *
-     * @param observer  The observer to register.
+     * @param observer The observer to register.
      */
     public void registerErrorObservers(MusicPlayerObserver observer) {
         m_errorObservers.add(observer);
@@ -337,7 +358,7 @@ public class MusicPlayerManager {
     /**
      * Function to get the exception that was thrown.
      *
-     * @return  The exception that was thrown.
+     * @return The exception that was thrown.
      */
     public Exception getError() {
         return m_lastException;
@@ -346,20 +367,36 @@ public class MusicPlayerManager {
     /**
      * Function to set the last exception that was thrown by either MP3Player or MusicPlayerManager.
      *
-     * @param e     The exception to save.
+     * @param e The exception to save.
      */
-    public void setError(Exception e){
+    public void setError(Exception e) {
         m_lastException = e;
     }
 
     /**
      * Helper function to notify all the observers in a list.
      *
-     * @param observers     List of observers to iterate through.
+     * @param observers List of observers to iterate through.
      */
-    private void notifyAll(List<MusicPlayerObserver> observers){
+    private void notifyAll(List<MusicPlayerObserver> observers) {
         for (MusicPlayerObserver observer : observers) {
             observer.updateUI();
         }
+    }
+
+    /**
+     * Function to determine if the player is playing of the history list.
+     *
+     * @return True if the player is playing off the history list, False other wise.
+     */
+    private boolean isPlayingSongOnFromHistoryList() {
+        return ((m_historyIndex != (m_songHistory.size() - 1)) && !m_songHistory.isEmpty());
+    }
+
+    /**
+     * Function to stop song from playing.
+     */
+    public void stopSong(){
+        m_musicPlayer.stopSong();
     }
 }

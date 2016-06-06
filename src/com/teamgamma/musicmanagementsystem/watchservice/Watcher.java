@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem.watchservice;
 
 import com.teamgamma.musicmanagementsystem.Library;
 import com.teamgamma.musicmanagementsystem.SongManager;
+
 import javafx.application.Platform;
 import java.io.IOException;
 import java.nio.file.*;
@@ -33,7 +34,7 @@ public class Watcher {
                 System.out.println("**** Watching...");
 
                 try {
-                    while(true) {
+                    while (true) {
                         m_watchKey = m_watcher.take();
 
                         for (WatchEvent<?> event : m_watchKey.pollEvents()) {
