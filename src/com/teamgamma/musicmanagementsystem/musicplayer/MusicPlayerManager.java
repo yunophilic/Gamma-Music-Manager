@@ -392,4 +392,11 @@ public class MusicPlayerManager {
     private boolean isPlayingSongOnFromHistoryList() {
         return ((m_historyIndex != (m_songHistory.size() - 1)) && !m_songHistory.isEmpty());
     }
+
+    /**
+     * Function to stop song from playing.
+     */
+    public void stopSong(){
+        m_musicPlayer.stopSong();
+    }
 }

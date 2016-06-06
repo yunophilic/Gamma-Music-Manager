@@ -66,4 +66,9 @@ public interface IMusicPlayer {
      * Function to see if the player is ready to be used
      */
     boolean isReadyToUse();
+
+    /**
+     * Function to stop the song that is playing.
+     */
+    void stopSong();
 }
