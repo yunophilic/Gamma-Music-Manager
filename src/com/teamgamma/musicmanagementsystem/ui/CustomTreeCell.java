@@ -8,6 +8,8 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
+import javafx.stage.WindowEvent;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -27,6 +29,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
     private static final String REMOVE_THIS_LIBRARY = "Remove This Library";
     private static final String OPEN_IN_RIGHT_PANE = "Open in Right Pane";
 
+
     public CustomTreeCell(SongManager modelRef, TreeView<TreeViewItem> treeRef, boolean isLeftPane) {
         contextMenu = new ContextMenu();
         model = modelRef;
@@ -35,6 +38,8 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
     }
 
     private List<MenuItem> generateMenuItems(boolean isLeftPane) {
+        final boolean isLibraryPath;
+
         //copy option
         MenuItem copy = new MenuItem(COPY);
         copy.setOnAction(new EventHandler<ActionEvent>() {
@@ -50,19 +55,19 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         paste.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (tree.getSelectionModel().getSelectedItem() != null) {
-                    File dest = tree.getSelectionModel().getSelectedItem().getValue().getPath();
-                    if (!dest.isDirectory()) {
-                        PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
-                        return;
-                    }
-                    try {
-                        model.copyToDestination(dest);
-                        model.notifyFileObservers();
-                    } catch (FileAlreadyExistsException ex) {
-                        PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
-                    } catch (IOException ex) {
-                        PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
-                    }
+                        File dest = tree.getSelectionModel().getSelectedItem().getValue().getPath();
+                        if (!dest.isDirectory()) {
+                            PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
+                            return;
+                        }
+                        try {
+                            model.copyToDestination(dest);
+                            model.notifyFileObservers();
+                        } catch (FileAlreadyExistsException ex) {
+                            PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
+                        } catch (IOException ex) {
+                            PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
+                        }
                 }
             }
         });
@@ -98,6 +103,19 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 if (tree.getSelectionModel().getSelectedItem() != null) {
                     System.out.println("Remove library");
                     model.removeLibrary(tree.getSelectionModel().getSelectedItem().getValue().getPath());
+
+                    if (model.getRightFolderSelected() != null){
+                        boolean isLibraryInRight = model.getRightFolderSelected().getAbsolutePath().contains(tree.getSelectionModel().getSelectedItem().getValue().getPath().getAbsolutePath());
+                        if (isLibraryInRight) {
+                            model.setRightFolderSelected(null);
+                        }
+                    } else if (model.getM_selectedCenterFolder() != null){
+                        boolean isLibraryInCenter = model.getM_selectedCenterFolder().getAbsolutePath().contains(tree.getSelectionModel().getSelectedItem().getValue().getPath().getAbsolutePath());
+                        if (isLibraryInCenter) {
+                            System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
+                            model.setCenterFolder(null);
+                        }
+                    }
                     model.notifyLibraryObservers();
                 }
             }
@@ -127,6 +145,24 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             menuItems.add(removeLibrary);
             menuItems.add(openInRightPane);
         }
+
+        contextMenu.setOnShown(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                // Disable paste if nothing is chosen to be copied
+                if (model.getM_fileBuffer() == null){
+                    paste.setDisable(true);
+                    paste.setStyle("-fx-text-fill: gray;");
+                }
+
+                // Do not show remove library option if selected item is not a library
+                if (tree.getSelectionModel().getSelectedItem() == null || !tree.getSelectionModel().getSelectedItem().getValue().isRootPath()){
+                    removeLibrary.setDisable(true);
+                    removeLibrary.setVisible(false);
+                }
+            }
+        });
+
         return menuItems;
     }
 

@@ -25,7 +25,6 @@ public class LibraryUI extends StackPane {
         super();
         this.model = model;
         updateTreeView();
-        setTreeCellFactory();
         setPaneStyle();
         registerAsLibraryObserver();
     }
@@ -40,6 +39,7 @@ public class LibraryUI extends StackPane {
             tree = createTrees(libraries);
             this.getChildren().add(tree);
             setMouseEvent(tree);
+            setTreeCellFactory();
         }
     }
 
@@ -69,6 +69,7 @@ public class LibraryUI extends StackPane {
                     }
 
                     model.setCenterFolder(item.getValue().getPath());
+                    model.notifyCenterFolderObservers();
                 }
             }
         });
@@ -81,7 +82,6 @@ public class LibraryUI extends StackPane {
                 System.out.println("Library changed in treeview");
                 clearTreeView();
                 updateTreeView();
-                setTreeCellFactory();
             }
 
             @Override
@@ -104,7 +104,6 @@ public class LibraryUI extends StackPane {
                 System.out.println("File changed in treeview");
                 clearTreeView();
                 updateTreeView();
-                setTreeCellFactory();
             }
         });
     }

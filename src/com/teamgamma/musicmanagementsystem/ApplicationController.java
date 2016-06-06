@@ -38,15 +38,15 @@ public class ApplicationController extends Application {
         primaryStage.setTitle("Music Management");
 
         //for now!
-        String myLibPath = System.getProperty("user.dir") +
+        /*String myLibPath = System.getProperty("user.dir") +
                 File.separator + "library-sample" + File.separator + "my library";
         String externLibPath = System.getProperty("user.dir") +
-                File.separator + "library-sample" + File.separator + "external library";
+                File.separator + "library-sample" + File.separator + "external library";*/
 
         SongManager songManager = new SongManager();
         //songManager.setM_externalLibrary(externLibPath);
 
-        if (songManager.addLibrary(myLibPath)) {
+        /*if (songManager.addLibrary(myLibPath)) {
             System.out.println("New library added");
         } else {
             System.out.println("Duplicate library");
@@ -55,7 +55,7 @@ public class ApplicationController extends Application {
             System.out.println("New library added");
         } else {
             System.out.println("Duplicate library");
-        }
+        }*/
 
         MainUI root = new MainUI(songManager);
         Watcher watcher = new Watcher(songManager);

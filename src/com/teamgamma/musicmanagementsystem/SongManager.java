@@ -178,12 +178,14 @@ public class SongManager {
 
     public void setCenterFolder(File newFolderSelected) {
         this.m_selectedCenterFolder = newFolderSelected;
-
-        notifyCenterFolderObservers();
     }
 
     public File getM_selectedCenterFolder() {
         return m_selectedCenterFolder;
+    }
+
+    public File getM_fileBuffer(){
+        return m_fileBuffer;
     }
 
 

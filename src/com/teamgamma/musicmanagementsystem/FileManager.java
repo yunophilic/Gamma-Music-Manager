@@ -147,6 +147,8 @@ public class FileManager {
         assert dest.isDirectory();
         if (src.isDirectory() && src.equals(dest)) {
             throw new IOException("Cannot copy a directory to itself!");
+        } else if (src.isDirectory() && dest.getAbsolutePath().contains(src.getAbsolutePath())) {
+            throw new IOException("Cannot copy a directory into its subfolder!");
         }
         if (!copyFile(src, dest)) { //one of the files failed to be copied
             return false;
