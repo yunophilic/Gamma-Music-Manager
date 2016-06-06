@@ -103,6 +103,19 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 if (tree.getSelectionModel().getSelectedItem() != null) {
                     System.out.println("Remove library");
                     model.removeLibrary(tree.getSelectionModel().getSelectedItem().getValue().getPath());
+
+                    if (model.getRightFolderSelected() != null){
+                        boolean isLibraryInRight = model.getRightFolderSelected().getAbsolutePath().contains(tree.getSelectionModel().getSelectedItem().getValue().getPath().getAbsolutePath());
+                        if (isLibraryInRight) {
+                            model.setRightFolderSelected(null);
+                        }
+                    } else if (model.getM_selectedCenterFolder() != null){
+                        boolean isLibraryInCenter = model.getM_selectedCenterFolder().getAbsolutePath().contains(tree.getSelectionModel().getSelectedItem().getValue().getPath().getAbsolutePath());
+                        if (isLibraryInCenter) {
+                            System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
+                            model.setCenterFolder(null);
+                        }
+                    }
                     model.notifyLibraryObservers();
                 }
             }

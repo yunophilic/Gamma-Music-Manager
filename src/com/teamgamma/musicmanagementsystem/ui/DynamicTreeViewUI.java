@@ -50,7 +50,8 @@ public class DynamicTreeViewUI extends StackPane {
         model.addObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
-
+                clearTreeView();
+                updateTreeView();
             }
 
             @Override
