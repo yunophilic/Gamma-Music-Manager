@@ -143,7 +143,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 }
 
                 // Do not show remove library option if selected item is not a library
-                if (!tree.getSelectionModel().getSelectedItem().getValue().isRootPath()){
+                if (tree.getSelectionModel().getSelectedItem() == null || !tree.getSelectionModel().getSelectedItem().getValue().isRootPath()){
                     removeLibrary.setDisable(true);
                     removeLibrary.setVisible(false);
                 }

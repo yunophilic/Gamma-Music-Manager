@@ -25,7 +25,6 @@ public class LibraryUI extends StackPane {
         super();
         this.model = model;
         updateTreeView();
-        setTreeCellFactory();
         setPaneStyle();
         registerAsLibraryObserver();
     }
@@ -40,6 +39,7 @@ public class LibraryUI extends StackPane {
             tree = createTrees(libraries);
             this.getChildren().add(tree);
             setMouseEvent(tree);
+            setTreeCellFactory();
         }
     }
 
