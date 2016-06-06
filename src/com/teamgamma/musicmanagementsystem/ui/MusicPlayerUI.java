@@ -35,8 +35,9 @@ public class MusicPlayerUI extends BorderPane {
     public static final String NEXT_SONG_ICON_PATH = "res\\ic_skip_next_black_48dp_1x.png";
     public static final String VOLUME_UP_ICON_PATH = "res\\ic_volume_up_black_48dp_1x.png";
     public static final String VOLUME_DOWN_ICON_PATH = "res\\ic_volume_down_black_48dp_1x.png";
-    public static final String SONG_REPEAT_ICON_PATH = "res\\ic_repeat_black_48dp_1x.png";
+    public static final String PLAYLIST_REPEAT_ICON_PATH = "res\\ic_repeat_black_48dp_1x.png";
     public static final String ADD_TO_PLAYLIST_ICON_PATH = "res/ic_playlist_add_black_48dp_1x.png";
+    public static final String SONG_REPEAT_ICON_PATH = "res\\ic_repeat_one_black_48dp_1x.png";
 
     public static final String DEFAULT_TIME_STRING = "0:00";
     public static final String CURRENT_SONG_PLAYING_HEADER = "Playing: ";

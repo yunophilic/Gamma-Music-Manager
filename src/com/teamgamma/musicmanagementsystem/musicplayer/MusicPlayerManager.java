@@ -40,6 +40,7 @@ public class MusicPlayerManager {
     private List<MusicPlayerObserver> m_errorObservers;
 
     private Exception m_lastException;
+
     /**
      * Constructor
      */
@@ -61,9 +62,14 @@ public class MusicPlayerManager {
      */
     public void playNextSong(){
         if (isPlayingSongOnFromHistoryList()) {
-            m_historyIndex++;
-            m_currentSong = m_songHistory.get(m_historyIndex);
-            m_musicPlayer.playSong(m_currentSong);
+            if (m_repeatSong){
+                m_musicPlayer.playSong(m_currentSong);
+            }
+            else {
+                m_historyIndex++;
+                m_currentSong = m_songHistory.get(m_historyIndex);
+                m_musicPlayer.playSong(m_currentSong);
+            }
         } else {
             Song nextSong = m_playingQueue.poll();
             if (null == nextSong) {
@@ -302,6 +308,11 @@ public class MusicPlayerManager {
      */
     public void playPreviousSong() {
         assert(m_songHistory.size() < m_historyIndex);
+        if (m_repeatSong){
+            // Just restart current song.
+            m_musicPlayer.playSong(m_currentSong);
+            return;
+        }
 
         if (m_historyIndex == 0){
             // Nothing in history.
