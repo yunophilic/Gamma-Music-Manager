@@ -186,6 +186,10 @@ public class SongManager {
         return m_selectedCenterFolder;
     }
 
+    public File getM_fileBuffer(){
+        return m_fileBuffer;
+    }
+
 
     /********** Functions for observer pattern *************/
 
