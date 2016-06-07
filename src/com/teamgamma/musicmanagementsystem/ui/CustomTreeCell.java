@@ -110,7 +110,9 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                         if (isLibraryInRight) {
                             model.setRightFolderSelected(null);
                         }
-                    } else if (model.getM_selectedCenterFolder() != null) {
+                    }
+
+                    if (model.getM_selectedCenterFolder() != null) {
                         boolean isLibraryInCenter = model.getM_selectedCenterFolder().getAbsolutePath().contains(tree.getSelectionModel().getSelectedItem().getValue().getPath().getAbsolutePath());
                         if (isLibraryInCenter) {
                             System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
