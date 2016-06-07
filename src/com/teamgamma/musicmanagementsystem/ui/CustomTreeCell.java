@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.PersistentStorage;
 import com.teamgamma.musicmanagementsystem.SongManager;
 import com.teamgamma.musicmanagementsystem.TreeViewItem;
 
@@ -82,7 +83,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     //confirmation dialog
                     if (!PromptUI.customPromptConfirmation(
                             "Deleting " + (fileToDelete.isDirectory() ? "folder" : "file"),
-                            "",
+                            null,
                             "Are you sure you want to permanently delete \"" + fileToDelete.getName() + "\"?")) {
                         return;
                     }
@@ -90,7 +91,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     try {
                         model.deleteFile(fileToDelete);
                     } catch (Exception ex) {
-                        PromptUI.customPromptError("Error", "", "Exception: \n" + ex.getMessage());
+                        PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
                     }
                     model.notifyFileObservers();
                 }
@@ -106,19 +107,24 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     model.removeLibrary(tree.getSelectionModel().getSelectedItem().getValue().getPath());
 
                     if (model.getRightFolderSelected() != null) {
-                        boolean isLibraryInRight = model.getRightFolderSelected().getAbsolutePath().contains(tree.getSelectionModel().getSelectedItem().getValue().getPath().getAbsolutePath());
+                        boolean isLibraryInRight = model.getRightFolderSelected().getAbsolutePath().contains(tree.getSelectionModel()
+                                .getSelectedItem().getValue().getPath().getAbsolutePath());
                         if (isLibraryInRight) {
                             model.setRightFolderSelected(null);
                         }
                     }
 
                     if (model.getM_selectedCenterFolder() != null) {
-                        boolean isLibraryInCenter = model.getM_selectedCenterFolder().getAbsolutePath().contains(tree.getSelectionModel().getSelectedItem().getValue().getPath().getAbsolutePath());
+                        boolean isLibraryInCenter = model.getM_selectedCenterFolder().getAbsolutePath().contains(tree.getSelectionModel()
+                                .getSelectedItem().getValue().getPath().getAbsolutePath());
                         if (isLibraryInCenter) {
                             System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
                             model.setCenterFolder(null);
                         }
                     }
+                    PersistentStorage persistentStorage = new PersistentStorage();
+                    persistentStorage.removePersistentStorageLibrary((tree.getSelectionModel().getSelectedItem().getValue().getPath())
+                            .getAbsolutePath());
                     model.notifyLibraryObservers();
                 }
             }
