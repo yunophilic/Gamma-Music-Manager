@@ -7,13 +7,16 @@ import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class to save state for the application.
  */
 public class PersistentStorage {
-    private File m_savedPaths;
-    private File m_savedLibraries;
 
     /**
      * Class constructor
@@ -26,25 +29,9 @@ public class PersistentStorage {
      *
      * @return true if something, false otherwise
      */
-    public boolean isThereSavedState(String fileName) {
-        // Can change directory for saved files
-        return new File("src" + File.separator + "com" + File.separator +
-                "teamgamma" + File.separator + "musicmanagementsystem" + File.separator +
-                fileName).exists();
-    }
-
-    /**
-     * Function to create .txt file to save directories
-     *
-     * @return true if something is saved
-     */
-    public boolean createFileDirectories() {
-        // Can change directory for saved files
-        m_savedPaths = new File("src" + File.separator + "com" + File.separator +
-                "teamgamma" + File.separator + "musicmanagementsystem" + File.separator +
-                "directories.txt");
-
-        return isThereSavedState("directories.txt");
+    public boolean isThereSavedState() {
+        return new File(System.getProperty("user.dir") + File.separator + "db" +
+                File.separator + "libraries.txt").exists();
     }
 
     /**
@@ -53,29 +40,16 @@ public class PersistentStorage {
      * @return true if something is saved
      */
     public boolean createFileLibraries() {
-        // Can change directory for saved files
-        m_savedLibraries = new File("src" + File.separator + "com" + File.separator +
-                "teamgamma" + File.separator + "musicmanagementsystem" + File.separator +
-                "libraries.txt");
-
-        return isThereSavedState("libraries.txt");
-    }
-
-    /**
-     * Updates file by adding a new directory
-     *
-     * @param directoryToSave
-     */
-    public void updatePersistentStorageDirectory(String directoryToSave) {
+        Path libPath = Paths.get(System.getProperty("user.dir") + File.separator + "db" +
+                File.separator + "libraries.txt");
         try {
-            PrintWriter writer = new PrintWriter(new FileWriter(m_savedPaths, true));
-            writer.println(directoryToSave);
-            writer.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+            Files.createDirectories(libPath.getParent());
+            Files.createFile(libPath);
+        } catch(IOException e) {
             e.printStackTrace();
         }
+
+        return isThereSavedState();
     }
 
     /**
@@ -84,8 +58,10 @@ public class PersistentStorage {
      * @param libraryToSave
      */
     public void updatePersistentStorageLibrary(String libraryToSave) {
+        File findLibFile = new File(System.getProperty("user.dir") + File.separator + "db" +
+                File.separator + "libraries.txt");
         try {
-            PrintWriter writer = new PrintWriter(new FileWriter(m_savedLibraries, true));
+            PrintWriter writer = new PrintWriter(new FileWriter(findLibFile, true));
             writer.println(libraryToSave);
             writer.close();
         } catch (FileNotFoundException e) {
@@ -96,40 +72,19 @@ public class PersistentStorage {
     }
 
     /**
-     * Reads file and finds specified directory
-     *
-     * @param directoryToRead
-     */
-    public void getPersistentStorageDirectory(String directoryToRead) {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(m_savedPaths));
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.contains(directoryToRead)) {
-                    System.out.println(line);
-                }
-            }
-            br.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Reads file and finds specified library name
      *
-     * @param libraryToRead
+     * @return an ArrayList of song directories (String)
      */
-    public void getPersistentStorageLibrary(String libraryToRead) {
+    public List<String> getPersistentStorageLibrary() {
+        File findLibFile = new File(System.getProperty("user.dir") + File.separator + "db" +
+                File.separator + "libraries.txt");
+        List<String> songs = new ArrayList<>();
         try {
-            BufferedReader br = new BufferedReader(new FileReader(m_savedLibraries));
+            BufferedReader br = new BufferedReader(new FileReader(findLibFile));
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.contains(libraryToRead)) {
-                    System.out.println(line);
-                }
+                songs.add(line);
             }
             br.close();
         } catch (FileNotFoundException e) {
@@ -137,5 +92,7 @@ public class PersistentStorage {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return songs;
     }
+
 }

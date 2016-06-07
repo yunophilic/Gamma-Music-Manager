@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.Library;
+import com.teamgamma.musicmanagementsystem.PersistentStorage;
 import com.teamgamma.musicmanagementsystem.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
@@ -98,9 +99,11 @@ public class MainUI extends BorderPane {
                     return;
                 }
                 if (!model.addLibrary(pathInput)) {
-                    PromptUI.customPromptError("Error", "", "Path doesn't exist or duplicate library added");
+                    PromptUI.customPromptError("Error", null, "Path doesn't exist or duplicate library added");
                     return;
                 }
+                PersistentStorage persistentStorage = new PersistentStorage();
+                persistentStorage.updatePersistentStorageLibrary(pathInput);
                 model.notifyLibraryObservers();
             }
         });

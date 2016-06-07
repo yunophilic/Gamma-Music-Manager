@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem;
 
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
+import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -9,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Class to wrap all components together.
@@ -45,6 +47,22 @@ public class ApplicationController extends Application {
                 File.separator + "library-sample" + File.separator + "external library";*/
 
         SongManager songManager = new SongManager();
+
+        PersistentStorage persistentStorage = new PersistentStorage();
+        if(!persistentStorage.isThereSavedState()) {
+            System.out.println("No libraries are existent");
+            System.out.println("creating new library storage file...");
+            persistentStorage.createFileLibraries();
+            String firstLibrary = PromptUI.initialWelcome();
+            songManager.addLibrary(firstLibrary);
+            persistentStorage.updatePersistentStorageLibrary(firstLibrary);
+        }
+        List<String> loadSongsFromLibrary = persistentStorage.getPersistentStorageLibrary();
+        System.out.println("loading libraries...");
+        for(int i = 0; i < loadSongsFromLibrary.size(); i++) {
+            songManager.addLibrary(loadSongsFromLibrary.get(i));
+        }
+
         //songManager.setM_externalLibrary(externLibPath);
 
         /*if (songManager.addLibrary(myLibPath)) {
