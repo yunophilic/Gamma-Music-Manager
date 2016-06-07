@@ -6,6 +6,7 @@ import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.id3.ID3v24Tag;
 
 /**
  * Underlying data structure for a Song. A File plus data additional data.
@@ -26,11 +27,24 @@ public class Song {
         try {
             AudioFile file = AudioFileIO.read(m_file);
             Tag tag = file.getTag();
+
+            //add new tag to file if tag is empty
+            if (tag == null) {
+                tag = new ID3v24Tag();
+                tag.setField(FieldKey.TITLE, "");
+                tag.setField(FieldKey.ARTIST, "");
+                tag.setField(FieldKey.ALBUM, "");
+                tag.setField(FieldKey.GENRE, "");
+                tag.setField(FieldKey.RATING, "");
+                file.setTag(tag);
+                AudioFileIO.write(file);
+            }
+
+            //parse metadata tags to attributes
             m_title = tag.getFirst(FieldKey.TITLE);
             m_artist = tag.getFirst(FieldKey.ARTIST);
             m_album = tag.getFirst(FieldKey.ALBUM);
             m_genre = tag.getFirst(FieldKey.GENRE);
-
             String ratingInMetadata = tag.getFirst(FieldKey.RATING);
             m_rating = Integer.toString(
                     convertRatingToFiveStarScale(ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata))
