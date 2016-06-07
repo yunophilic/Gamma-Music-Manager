@@ -196,7 +196,7 @@ public class Song {
         }
     }
 
-    public void setRating(int rating) {
+    public void setRating(int rating) throws IllegalArgumentException {
         try {
             //update metadata
             AudioFile file = AudioFileIO.read(m_file);
@@ -205,6 +205,8 @@ public class Song {
             AudioFileIO.write(file);
             //update object attr
             m_rating = Integer.toString(rating);
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace(); //for now
         }
