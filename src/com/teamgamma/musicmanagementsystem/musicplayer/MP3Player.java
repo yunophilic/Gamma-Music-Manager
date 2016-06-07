@@ -29,6 +29,11 @@ public class MP3Player implements IMusicPlayer {
 
     private Runnable m_onErrorAction;
 
+    /**
+     * Constructor
+     *
+     * @param manager   The MusicPlayerManager to use for notifying observers.
+     */
     public MP3Player(MusicPlayerManager manager) {
         m_manager = manager;
     }
@@ -51,10 +56,17 @@ public class MP3Player implements IMusicPlayer {
         }
 
         m_player.play();
+
+        // Update the UI
         m_manager.notifyChangeStateObservers();
         m_manager.notifyNewSongObservers();
     }
 
+    /**
+     * Helper function to setup the music player based on the song that is passsed in.
+     *
+     * @param songToPlay    The song to be played by the music player.
+     */
     private void setupMusicPlayer(Song songToPlay) {
         m_player = new MediaPlayer(new Media(songToPlay.getM_file().toURI().toString()));
         repeatSong(m_repeatFlag);
@@ -154,21 +166,43 @@ public class MP3Player implements IMusicPlayer {
 
     @Override
     public void stopSong() {
-        m_player.stop();
+        if (isReadyToUse()) {
+            m_player.stop();
+        }
     }
 
+    /**
+     * Function to get the underlying music player for JavaFX MediaPlayerWindow.
+     *
+     * @return  The media player.
+     */
     public MediaPlayer getMusicPlayer() {
         return m_player;
     }
 
+    /**
+     * Function to get the end time of the song.
+     *
+     * @return  The end time of the song or Duration.UNKNOWN if there is no song ready
+     */
     public Duration getEndTime() {
         return (isReadyToUse()) ? m_player.getMedia().getDuration() : Duration.UNKNOWN;
     }
 
+    /**
+     * Function to return the current playback time of the song currently playing.
+     *
+     * @return  The current playback time or Duration.UNKNOWN if player is not ready or there is no song loaded.
+     */
     public Duration getCurrentPlayTime() {
         return (isReadyToUse()) ? m_player.getCurrentTime() : Duration.UNKNOWN;
     }
 
+    /**
+     * Function to create the thread that will notify playback observers to update their UI.
+     *
+     * @return  A runnable that will contain all the logic needed to update the UI for playback elements.
+     */
     private Runnable createUpdateUIThread() {
         return (new Runnable() {
             @Override
