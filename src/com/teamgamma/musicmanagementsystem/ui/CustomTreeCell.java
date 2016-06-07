@@ -156,6 +156,9 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 if (model.getM_fileBuffer() == null) {
                     paste.setDisable(true);
                     paste.setStyle("-fx-text-fill: gray;");
+                } else {
+                    paste.setDisable(false);
+                    paste.setStyle("-fx-text-fill: black;");
                 }
 
                 // Do not show remove library option if selected item is not a library
