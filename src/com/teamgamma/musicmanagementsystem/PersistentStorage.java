@@ -1,12 +1,6 @@
 package com.teamgamma.musicmanagementsystem;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -72,6 +66,42 @@ public class PersistentStorage {
     }
 
     /**
+     * Updates file by removing an existing library
+     *
+     * @param libraryToRemove
+     */
+    public boolean removePersistentStorageLibrary(String libraryToRemove) {
+        File findLibFile = new File(System.getProperty("user.dir") + File.separator + "db" +
+                File.separator + "libraries.txt");
+        File tempFile = new File(System.getProperty("user.dir") + File.separator + "db" +
+                File.separator + "temp.txt");
+
+        boolean success = false;
+        try {
+            BufferedReader buffer = new BufferedReader(new FileReader(findLibFile));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+
+            String line;
+            while ((line = buffer.readLine()) != null) {
+                String trimmedLine = line.trim();
+                if (trimmedLine.equals(libraryToRemove)) {
+                    continue;
+                }
+                writer.write(line + System.getProperty("line.separator"));
+            }
+            writer.close();
+            buffer.close();
+            findLibFile.delete();
+            success = tempFile.renameTo(new File(findLibFile.getAbsolutePath()));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return success;
+    }
+    /**
      * Reads file and finds specified library name
      *
      * @return an ArrayList of song directories (String)
@@ -81,12 +111,12 @@ public class PersistentStorage {
                 File.separator + "libraries.txt");
         List<String> songs = new ArrayList<>();
         try {
-            BufferedReader br = new BufferedReader(new FileReader(findLibFile));
+            BufferedReader buffer = new BufferedReader(new FileReader(findLibFile));
             String line;
-            while ((line = br.readLine()) != null) {
+            while((line = buffer.readLine()) != null) {
                 songs.add(line);
             }
-            br.close();
+            buffer.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
