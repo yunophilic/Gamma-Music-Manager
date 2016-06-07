@@ -15,9 +15,14 @@ import java.util.Optional;
 
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 
+// ---------------------- Custom Prompts
 
+/**
+ * Various prompts for UI
+ */
 public class PromptUI {
 
     // ---------------------- Custom Prompts
@@ -104,7 +109,8 @@ public class PromptUI {
         Alert alert = new Alert(AlertType.NONE);
         alert.setTitle("Welcome!");
         alert.setHeaderText(null);
-        alert.setContentText("Welcome to the Music Management System. Please enter your home directory:");
+        alert.setContentText("Welcome to the Music Management System. Before " +
+                "beginning, please select a media library.");
 
         ButtonType browse = new ButtonType("Browse");
         alert.getButtonTypes().setAll(browse);
@@ -255,19 +261,14 @@ public class PromptUI {
      * @return user's library name (null if user cancels)
      */
     public static String addNewLibrary() {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.initStyle(StageStyle.UTILITY);
-        dialog.setTitle("Add New Library");
-        dialog.setHeaderText(null);
-        dialog.setContentText("File path of new library:");
+        DirectoryChooser directory = new DirectoryChooser();
+        File selectedFile = directory.showDialog(null);
 
-        Optional<String> result = dialog.showAndWait();
-
-        if (result.isPresent()) {
-            return result.get();
-        } else {
-            return null;
+        if (selectedFile != null) {
+            return selectedFile.getAbsolutePath();
         }
+
+        return null;
     }
 
     // ---------------------- Confirmation Prompts
