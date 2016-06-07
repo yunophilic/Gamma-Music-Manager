@@ -1,5 +1,5 @@
-This Folder is for Docuementation and other resources we have. 
+This Folder is for archiving Docuementation and other resources we have.
 
+List of Features is our backlog for this project. 
 
-Known Issues:
-	JavaFX Media Player: If using a version of Windows N, make sure you have Windows Media PAck installed on your computer. JavaFX uses the codecs from there for its music player. 
+For the latest information refer to the Google doc: https://drive.google.com/folderview?id=0B6ZrjqGp_QwVS1d4UU1DdFliWjA&usp=sharing
