@@ -66,12 +66,11 @@ public class LibraryUI extends StackPane {
             public void handle(MouseEvent mouseEvent) {
                 if (mouseEvent.getClickCount() == 2) {
                     TreeItem<TreeViewItem> item = treeView.getSelectionModel().getSelectedItem();
-                    if (item.getValue() != null) {
+                    if (item != null && item.getValue() != null) {
                         System.out.println("Selected Text : " + item.getValue());
+                        model.setCenterFolder(item.getValue().getPath());
+                        model.notifyCenterFolderObservers();
                     }
-
-                    model.setCenterFolder(item.getValue().getPath());
-                    model.notifyCenterFolderObservers();
                 }
             }
         });
