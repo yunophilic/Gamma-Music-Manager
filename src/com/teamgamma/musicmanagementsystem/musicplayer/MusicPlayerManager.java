@@ -17,6 +17,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Class to manage the the MusicPlayer.
  */
 public class MusicPlayerManager {
+
+    // Music Player Constants.
     public static final int MAX_SONG_HISTORY = 10;
 
     private IMusicPlayer m_musicPlayer;
@@ -313,7 +315,8 @@ public class MusicPlayerManager {
         }
 
         if (m_historyIndex == 0) {
-            // Nothing in history.
+            // Nothing in history restart current song
+            m_musicPlayer.playSong(m_currentSong);
             return;
         }
         if (!m_songHistory.isEmpty()) {
