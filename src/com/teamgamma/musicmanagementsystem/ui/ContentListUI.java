@@ -4,6 +4,7 @@ import com.teamgamma.musicmanagementsystem.Song;
 import com.teamgamma.musicmanagementsystem.SongManager;
 import com.teamgamma.musicmanagementsystem.SongManagerObserver;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+
 import javafx.collections.FXCollections;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;

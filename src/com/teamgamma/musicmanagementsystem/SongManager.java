@@ -176,7 +176,7 @@ public class SongManager {
             m_selectedCenterFolder = null;
         }
 
-        if (!FileManager.removeFile(fileToDelete)){
+        if (!FileManager.removeFile(fileToDelete)) {
             throw new Exception("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
         }
         updateLibraries();

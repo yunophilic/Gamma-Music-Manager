@@ -39,7 +39,7 @@ public class PersistentStorage {
         try {
             Files.createDirectories(libPath.getParent());
             Files.createFile(libPath);
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -102,6 +102,7 @@ public class PersistentStorage {
 
         return success;
     }
+
     /**
      * Reads file and finds specified library name
      *
@@ -114,7 +115,7 @@ public class PersistentStorage {
         try {
             BufferedReader buffer = new BufferedReader(new FileReader(findLibFile));
             String line;
-            while((line = buffer.readLine()) != null) {
+            while ((line = buffer.readLine()) != null) {
                 songs.add(line);
             }
             buffer.close();

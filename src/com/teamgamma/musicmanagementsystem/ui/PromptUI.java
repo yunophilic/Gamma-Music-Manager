@@ -18,8 +18,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 
-// ---------------------- Custom Prompts
-
 /**
  * Various prompts for UI
  */
@@ -101,7 +99,7 @@ public class PromptUI {
 
     /**
      * Initial welcome prompt for first time startup. Browse button allows user
-     * to browse directories and choose a folder.
+     * to browse directories and choose a folder
      *
      * @return set directory for master panel
      */
