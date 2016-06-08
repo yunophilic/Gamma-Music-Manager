@@ -81,7 +81,6 @@ public class MusicPlayerManager {
             } else {
                 m_musicPlayer.playSong(nextSong);
                 updateHistory();
-                //notifyChangeStateObservers();
             }
         }
     }
@@ -355,6 +354,13 @@ public class MusicPlayerManager {
      * Function to notify all observers watching for errors.
      */
     public void notifyError() {
+        // Check first to see if we can recover.
+        if (m_lastException instanceof MediaException){
+            MediaException exception = (MediaException) m_lastException;
+            if (exception.getType() == MediaException.Type.MEDIA_UNAVAILABLE){
+                removeSongFromHistory();
+            }
+        }
         notifyAll(m_errorObservers);
     }
 
@@ -401,5 +407,37 @@ public class MusicPlayerManager {
      */
     public void stopSong(){
         m_musicPlayer.stopSong();
+    }
+
+    /**
+     * Function to remove the current song from history
+     */
+    private void removeSongFromHistory() {
+        assert (m_currentSong == null);
+
+        int songHistorySize = m_songHistory.size();
+        for (int songIndex = 0; songIndex < songHistorySize; ++songIndex) {
+            if (m_songHistory.get(songIndex).getM_file().getAbsolutePath().equals(
+                    m_currentSong.getM_file().getAbsolutePath())) {
+
+                m_songHistory.remove(songIndex);
+                if (songIndex == 0 || m_songHistory.isEmpty()){
+                    m_historyIndex = 0;
+                } else if (songIndex < m_songHistory.size() - 1) {
+                    // Move to next song oldest song if allowed
+                    m_historyIndex++;
+                } else {
+                    m_historyIndex--;
+                }
+
+                if (!m_songHistory.isEmpty()){
+                    // If possible load the previous song from the history.
+                    m_currentSong = m_songHistory.get(m_historyIndex);
+                    playPreviousSong();
+                }
+                return;
+            }
+        }
+        
     }
 }
