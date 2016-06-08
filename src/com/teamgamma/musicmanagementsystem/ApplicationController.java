@@ -38,7 +38,7 @@ public class ApplicationController extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Music Management");
+        primaryStage.setTitle("Music Management System");
 
         //for now!
         /*String myLibPath = System.getProperty("user.dir") +
