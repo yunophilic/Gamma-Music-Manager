@@ -88,8 +88,6 @@ public class MainUI extends BorderPane {
 
     private Node getMenu() {
         final Menu menuFile = new Menu("File");
-        final Menu menuOptions = new Menu("Options");
-        final Menu menuHelp = new Menu("Help");
 
         MenuItem addLibraryMenu = new MenuItem("Add Library");
         addLibraryMenu.setOnAction(new EventHandler<ActionEvent>() {
@@ -111,7 +109,7 @@ public class MainUI extends BorderPane {
         menuFile.getItems().addAll(addLibraryMenu);
 
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(menuFile, menuOptions, menuHelp);
+        menuBar.getMenus().addAll(menuFile);
         return menuBar;
     }
 }
