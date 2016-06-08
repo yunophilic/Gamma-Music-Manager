@@ -2,7 +2,6 @@ package com.teamgamma.musicmanagementsystem.watchservice;
 
 import com.teamgamma.musicmanagementsystem.Library;
 import com.teamgamma.musicmanagementsystem.SongManager;
-
 import com.teamgamma.musicmanagementsystem.SongManagerObserver;
 import javafx.application.Platform;
 
@@ -10,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -40,14 +41,15 @@ public class Watcher {
                             WatchEvent.Kind<?> kind = event.kind();
                             Path eventPath = (Path) event.context();
                             System.out.println("**** "+ eventPath.toAbsolutePath().toString() + ": " + kind + ": " + eventPath);
-                            m_watchKey.reset();
-                            Platform.runLater(() -> model.notifyFileObservers());
                         }
+                        m_watchKey.reset();
+                        Platform.runLater(() -> model.notifyFileObservers());
                     } catch (Exception e) {
                         System.out.println("**** Watcher thread interrupted...");
                         break;
                     }
                 }
+                System.out.println("**** Watcher thread terminated...");
             }
         });
 
@@ -56,7 +58,6 @@ public class Watcher {
 
     public void stopWatcher() {
         m_watcherThread.interrupt();
-
         try {
             m_watcher.close();
             System.out.println("**** Watcher closed...");
@@ -71,6 +72,26 @@ public class Watcher {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void restartWatcher() {
+        stopWatcher();
+        openWatcher();
+        updateWatcher();
+        startWatcher();
+    }
+
+    private void updateWatcher() {
+        List<File> deletedDirs = new ArrayList<>();
+        for (Library lib : model.getM_libraries()) {
+            try {
+                addWatchDir(lib.getM_rootDirPath());
+            } catch (IOException e) {
+                System.out.println("**** Directory does not exist: " + lib.getM_rootDirPath());
+                deletedDirs.add(lib.getM_rootDir());
+            }
+        }
+        deleteWatchDir(deletedDirs);
     }
 
     private void addWatchDir(String rootDir) throws IOException {
@@ -93,14 +114,9 @@ public class Watcher {
         });
     }
 
-    private void updateWatcher() {
-        for(Library lib : model.getM_libraries()) {
-            try {
-                addWatchDir(lib.getM_rootDirPath());
-            } catch (IOException e) {
-                System.out.format("%nDirectory removed: " + lib.getM_rootDirPath() + "%n");
-                model.removeLibrary(lib.getM_rootDir());
-            }
+    private void deleteWatchDir(List<File> deletedDirs) {
+        for (File file : deletedDirs) {
+            model.cleanLibraryList(file);
         }
     }
 
@@ -108,10 +124,7 @@ public class Watcher {
         model.addObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
-                stopWatcher();
-                openWatcher();
-                updateWatcher();
-                startWatcher();
+                restartWatcher();
             }
 
             @Override
@@ -131,10 +144,7 @@ public class Watcher {
 
             @Override
             public void fileChanged() {
-                stopWatcher();
-                openWatcher();
-                updateWatcher();
-                startWatcher();
+                restartWatcher();
             }
         });
     }
