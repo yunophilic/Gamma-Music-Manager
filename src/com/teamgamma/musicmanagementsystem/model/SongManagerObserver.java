@@ -1,4 +1,4 @@
-package com.teamgamma.musicmanagementsystem;
+package com.teamgamma.musicmanagementsystem.model;
 
 public interface SongManagerObserver {
     // Update UI if a library is added or deleted

@@ -1,8 +1,8 @@
-package com.teamgamma.musicmanagementsystem.ui;
+package com.teamgamma.musicmanagementsystem.misc;
 
-import com.teamgamma.musicmanagementsystem.PersistentStorage;
-import com.teamgamma.musicmanagementsystem.SongManager;
-import com.teamgamma.musicmanagementsystem.TreeViewItem;
+import com.teamgamma.musicmanagementsystem.model.PersistentStorage;
+import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

@@ -1,4 +1,4 @@
-package com.teamgamma.musicmanagementsystem;
+package com.teamgamma.musicmanagementsystem.misc;
 
 import java.io.File;
 

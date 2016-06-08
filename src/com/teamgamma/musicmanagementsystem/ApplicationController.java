@@ -1,5 +1,7 @@
 package com.teamgamma.musicmanagementsystem;
 
+import com.teamgamma.musicmanagementsystem.model.PersistentStorage;
+import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
@@ -9,7 +11,6 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.util.List;
 
 /**

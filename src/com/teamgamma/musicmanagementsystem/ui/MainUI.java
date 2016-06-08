@@ -1,8 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.Library;
-import com.teamgamma.musicmanagementsystem.PersistentStorage;
-import com.teamgamma.musicmanagementsystem.SongManager;
+import com.teamgamma.musicmanagementsystem.model.PersistentStorage;
+import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
 import javafx.event.ActionEvent;
@@ -12,8 +11,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
-
-import java.util.List;
 
 /**
  * MainUI Class.

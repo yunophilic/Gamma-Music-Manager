@@ -1,18 +1,18 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.*;
-
-import javafx.event.ActionEvent;
+import com.teamgamma.musicmanagementsystem.model.FileManager;
+import com.teamgamma.musicmanagementsystem.model.Library;
+import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
+import com.teamgamma.musicmanagementsystem.misc.CustomTreeCell;
+import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**

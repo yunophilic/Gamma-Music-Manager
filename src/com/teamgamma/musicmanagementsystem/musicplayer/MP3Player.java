@@ -1,6 +1,6 @@
 package com.teamgamma.musicmanagementsystem.musicplayer;
 
-import com.teamgamma.musicmanagementsystem.Song;
+import com.teamgamma.musicmanagementsystem.model.Song;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;

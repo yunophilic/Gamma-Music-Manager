@@ -1,8 +1,8 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.Song;
-import com.teamgamma.musicmanagementsystem.SongManager;
-import com.teamgamma.musicmanagementsystem.SongManagerObserver;
+import com.teamgamma.musicmanagementsystem.model.Song;
+import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
 import javafx.collections.FXCollections;

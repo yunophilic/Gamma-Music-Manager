@@ -1,6 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.SongManager;
+import com.teamgamma.musicmanagementsystem.model.SongManager;
 import javafx.scene.layout.StackPane;
 
 public class BaseUI extends StackPane {

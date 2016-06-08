@@ -1,7 +1,11 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.*;
-
+import com.teamgamma.musicmanagementsystem.model.FileManager;
+import com.teamgamma.musicmanagementsystem.model.Library;
+import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
+import com.teamgamma.musicmanagementsystem.misc.CustomTreeCell;
+import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;

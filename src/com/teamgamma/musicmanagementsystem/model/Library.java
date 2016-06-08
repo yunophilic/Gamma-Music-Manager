@@ -1,4 +1,4 @@
-package com.teamgamma.musicmanagementsystem;
+package com.teamgamma.musicmanagementsystem.model;
 
 import java.io.File;
 import java.io.IOException;

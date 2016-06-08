@@ -1,7 +1,7 @@
 package com.teamgamma.musicmanagementsystem.musicplayer;
 
-import com.teamgamma.musicmanagementsystem.Playlist;
-import com.teamgamma.musicmanagementsystem.Song;
+import com.teamgamma.musicmanagementsystem.model.Playlist;
+import com.teamgamma.musicmanagementsystem.model.Song;
 
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
@@ -9,7 +9,6 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 

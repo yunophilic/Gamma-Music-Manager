@@ -1,9 +1,9 @@
 package com.teamgamma.musicmanagementsystem.watchservice;
 
-import com.teamgamma.musicmanagementsystem.Library;
-import com.teamgamma.musicmanagementsystem.PersistentStorage;
-import com.teamgamma.musicmanagementsystem.SongManager;
-import com.teamgamma.musicmanagementsystem.SongManagerObserver;
+import com.teamgamma.musicmanagementsystem.model.Library;
+import com.teamgamma.musicmanagementsystem.model.PersistentStorage;
+import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
 import javafx.application.Platform;
 
 import java.io.File;

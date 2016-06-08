@@ -1,5 +1,6 @@
-package com.teamgamma.musicmanagementsystem;
+package com.teamgamma.musicmanagementsystem.model;
 
+import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
 import javafx.scene.control.TreeItem;
 
 import java.io.File;
