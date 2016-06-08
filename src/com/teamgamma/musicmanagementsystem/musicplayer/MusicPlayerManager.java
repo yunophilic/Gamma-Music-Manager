@@ -43,6 +43,9 @@ public class MusicPlayerManager {
 
     private Exception m_lastException;
 
+    // Default value is 1 in JavaFX Media Player
+    private double m_volumeLevel = 1.0;
+
     /**
      * Constructor
      */
@@ -165,6 +168,9 @@ public class MusicPlayerManager {
      * Function to increase the volume.
      */
     public void increaseVolume() {
+        if (m_volumeLevel < MP3Player.MAX_VOLUME){
+            m_volumeLevel += MP3Player.VOLUME_CHANGE;
+        }
         if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.increaseVolume();
         }
@@ -174,6 +180,9 @@ public class MusicPlayerManager {
      * Function to decrease the volume.
      */
     public void decreaseVolume() {
+        if (m_volumeLevel > MP3Player.MIN_VOLUME) {
+            m_volumeLevel -= MP3Player.VOLUME_CHANGE;
+        }
         if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.decreaseVolume();
         }
@@ -438,6 +447,9 @@ public class MusicPlayerManager {
                 return;
             }
         }
-        
+    }
+
+    public double getCurrentVolumeLevel() {
+        return m_volumeLevel;
     }
 }
