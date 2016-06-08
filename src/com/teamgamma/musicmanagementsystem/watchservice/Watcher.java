@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.watchservice;
 
 import com.teamgamma.musicmanagementsystem.Library;
+import com.teamgamma.musicmanagementsystem.PersistentStorage;
 import com.teamgamma.musicmanagementsystem.SongManager;
 import com.teamgamma.musicmanagementsystem.SongManagerObserver;
 import javafx.application.Platform;
@@ -115,8 +116,10 @@ public class Watcher {
     }
 
     private void deleteWatchDir(List<File> deletedDirs) {
+        PersistentStorage persistentStorage = new PersistentStorage();
         for (File file : deletedDirs) {
-            model.cleanLibraryList(file);
+            persistentStorage.removePersistentStorageLibrary(file.getAbsolutePath());
+            model.removeLibrary(file);
         }
     }
 
