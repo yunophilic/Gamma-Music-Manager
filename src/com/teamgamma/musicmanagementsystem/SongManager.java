@@ -56,6 +56,13 @@ public class SongManager {
         return m_libraries.remove(getLibrary(file));
     }
 
+    public boolean cleanLibraryList(File file) {
+        if (isInLibrary(file.getAbsolutePath())) {
+            return m_libraries.remove(getLibrary(file));
+        }
+        return false;
+    }
+
     private boolean isInLibrary(String directoryPath) {
         for (Library library : m_libraries) {
             if (library.getM_rootDirPath().equals(directoryPath)) {
@@ -73,7 +80,7 @@ public class SongManager {
      */
     private Library getLibrary(File file) {
         for (Library l : m_libraries) {
-            if (file.exists() && file.getAbsolutePath().startsWith(l.getM_rootDirPath())) {
+            if (file.getAbsolutePath().startsWith(l.getM_rootDirPath())) {
                 return l;
             }
         }

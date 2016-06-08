@@ -2,11 +2,17 @@ package com.teamgamma.musicmanagementsystem.watchservice;
 
 import com.teamgamma.musicmanagementsystem.Library;
 import com.teamgamma.musicmanagementsystem.SongManager;
-
+import com.teamgamma.musicmanagementsystem.SongManagerObserver;
 import javafx.application.Platform;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.nio.file.StandardWatchEventKinds.*;
 
 public class Watcher {
     private WatchService m_watcher;
@@ -15,16 +21,10 @@ public class Watcher {
     private SongManager model;
 
     public Watcher(SongManager model) {
-        try {
-            this.model = model;
-            m_watcher = FileSystems.getDefault().newWatchService();
-
-            for (Library lib : model.getM_libraries()) {
-                addWatchDir(lib.getM_rootDirPath());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.model = model;
+        registerAsObserver();
+        openWatcher();
+        updateWatcher();
     }
 
     public void startWatcher() {
@@ -33,23 +33,23 @@ public class Watcher {
             public void run() {
                 System.out.println("**** Watching...");
 
-                try {
-                    while (true) {
+                while (true) {
+                    try {
                         m_watchKey = m_watcher.take();
 
                         for (WatchEvent<?> event : m_watchKey.pollEvents()) {
                             WatchEvent.Kind<?> kind = event.kind();
                             Path eventPath = (Path) event.context();
-                            System.out.println("**** " + kind + ": " + eventPath);
-                            m_watchKey.reset();
-                            Platform.runLater(() -> {
-                                model.notifyFileObservers();
-                            });
+                            System.out.println("**** "+ eventPath.toAbsolutePath().toString() + ": " + kind + ": " + eventPath);
                         }
+                        m_watchKey.reset();
+                        Platform.runLater(() -> model.notifyFileObservers());
+                    } catch (Exception e) {
+                        System.out.println("**** Watcher thread interrupted...");
+                        break;
                     }
-                } catch (Exception e) {
-                    System.out.println("**** Watcher closed...");
                 }
+                System.out.println("**** Watcher thread terminated...");
             }
         });
 
@@ -57,28 +57,96 @@ public class Watcher {
     }
 
     public void stopWatcher() {
-        System.out.println("**** Interrupting...");
         m_watcherThread.interrupt();
+        try {
+            m_watcher.close();
+            System.out.println("**** Watcher closed...");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void addWatchDir(String rootDir) {
+    private void openWatcher() {
+        try {
+            m_watcher = FileSystems.getDefault().newWatchService();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void restartWatcher() {
+        stopWatcher();
+        openWatcher();
+        updateWatcher();
+        startWatcher();
+    }
+
+    private void updateWatcher() {
+        List<File> deletedDirs = new ArrayList<>();
+        for (Library lib : model.getM_libraries()) {
+            try {
+                addWatchDir(lib.getM_rootDirPath());
+            } catch (IOException e) {
+                System.out.println("**** Directory does not exist: " + lib.getM_rootDirPath());
+                deletedDirs.add(lib.getM_rootDir());
+            }
+        }
+        deleteWatchDir(deletedDirs);
+    }
+
+    private void addWatchDir(String rootDir) throws IOException {
         Path path = Paths.get(rootDir);
 
         //Register root + all sub directories in root directory to watcher
-        try {
-            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                try {
                     dir.register(m_watcher,
-                            StandardWatchEventKinds.ENTRY_CREATE,
-                            StandardWatchEventKinds.ENTRY_MODIFY,
-                            StandardWatchEventKinds.ENTRY_DELETE);
+                            ENTRY_CREATE,
+                            ENTRY_MODIFY,
+                            ENTRY_DELETE);
                     return FileVisitResult.CONTINUE;
+                } catch (IOException e) {
+                    return FileVisitResult.TERMINATE;
                 }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
+            }
+        });
+    }
+
+    private void deleteWatchDir(List<File> deletedDirs) {
+        for (File file : deletedDirs) {
+            model.cleanLibraryList(file);
         }
+    }
+
+    private void registerAsObserver() {
+        model.addObserver(new SongManagerObserver() {
+            @Override
+            public void librariesChanged() {
+                restartWatcher();
+            }
+
+            @Override
+            public void centerFolderChanged() {
+                //Do nothing
+            }
+
+            @Override
+            public void rightFolderChanged() {
+                //Do nothing
+            }
+
+            @Override
+            public void songChanged() {
+                //Do nothing
+            }
+
+            @Override
+            public void fileChanged() {
+                restartWatcher();
+            }
+        });
     }
 
 }
