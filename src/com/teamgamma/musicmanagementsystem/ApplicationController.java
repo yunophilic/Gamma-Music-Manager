@@ -49,7 +49,7 @@ public class ApplicationController extends Application {
         SongManager songManager = new SongManager();
 
         PersistentStorage persistentStorage = new PersistentStorage();
-        if(!persistentStorage.isThereSavedState()) {
+        if (!persistentStorage.isThereSavedState()) {
             System.out.println("No libraries are existent");
             System.out.println("creating new library storage file...");
             persistentStorage.createFileLibraries();
@@ -59,7 +59,7 @@ public class ApplicationController extends Application {
         }
         List<String> loadSongsFromLibrary = persistentStorage.getPersistentStorageLibrary();
         System.out.println("loading libraries...");
-        for(int i = 0; i < loadSongsFromLibrary.size(); i++) {
+        for (int i = 0; i < loadSongsFromLibrary.size(); i++) {
             songManager.addLibrary(loadSongsFromLibrary.get(i));
         }
 
@@ -95,7 +95,7 @@ public class ApplicationController extends Application {
     }
 
     @Override
-    public void stop(){
+    public void stop() {
 
     }
 }
