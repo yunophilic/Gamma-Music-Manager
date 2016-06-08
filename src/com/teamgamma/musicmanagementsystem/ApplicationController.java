@@ -87,7 +87,8 @@ public class ApplicationController extends Application {
             musicPlayerManager.stopSong();
         });
 
-        primaryStage.setScene(new Scene(root, 1200, 900));
+        primaryStage.setScene(new Scene(root, 1200, 650));
+
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.show();
