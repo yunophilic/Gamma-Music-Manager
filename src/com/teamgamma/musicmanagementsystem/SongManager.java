@@ -56,13 +56,6 @@ public class SongManager {
         return m_libraries.remove(getLibrary(file));
     }
 
-    public boolean cleanLibraryList(File file) {
-        if (isInLibrary(file.getAbsolutePath())) {
-            return m_libraries.remove(getLibrary(file));
-        }
-        return false;
-    }
-
     private boolean isInLibrary(String directoryPath) {
         for (Library library : m_libraries) {
             if (library.getM_rootDirPath().equals(directoryPath)) {
