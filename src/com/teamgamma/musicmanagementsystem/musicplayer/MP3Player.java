@@ -54,7 +54,6 @@ public class MP3Player implements IMusicPlayer {
             m_manager.notifyError();
             return;
         }
-
         m_player.play();
 
         // Update the UI
@@ -70,6 +69,7 @@ public class MP3Player implements IMusicPlayer {
     private void setupMusicPlayer(Song songToPlay) {
         m_player = new MediaPlayer(new Media(songToPlay.getM_file().toURI().toString()));
         repeatSong(m_repeatFlag);
+        updateVolumeToMatchManager();
         m_player.setOnEndOfMedia(new Runnable() {
             @Override
             public void run() {
@@ -111,20 +111,19 @@ public class MP3Player implements IMusicPlayer {
 
     @Override
     public void increaseVolume() {
-        double currentVolume = m_player.getVolume();
-        if (currentVolume < MAX_VOLUME) {
-            currentVolume += VOLUME_CHANGE;
-        }
-        m_player.setVolume(currentVolume);
+        updateVolumeToMatchManager();
     }
 
     @Override
     public void decreaseVolume() {
-        double currentVolume = m_player.getVolume();
-        if (currentVolume > MIN_VOLUME) {
-            currentVolume -= VOLUME_CHANGE;
-        }
-        m_player.setVolume(currentVolume);
+        updateVolumeToMatchManager();
+    }
+
+    /**
+     * Helper function to set the volume of the music player to what the manager is reporting.
+     */
+    private void updateVolumeToMatchManager() {
+        m_player.setVolume(m_manager.getCurrentVolumeLevel());
     }
 
     @Override
