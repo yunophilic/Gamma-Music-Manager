@@ -1,4 +1,4 @@
-# CMPT 373 Team Gamma Music Management Program
+# CMPT 373 Team Gamma - Music Management System
 
 This is our Music Management application written in Java 8. This program will allow you to play your MP3 files, manage where they are located and edit their metadata. 
 
