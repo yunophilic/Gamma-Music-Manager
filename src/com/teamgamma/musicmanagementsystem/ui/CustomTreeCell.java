@@ -93,6 +93,8 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     } catch (Exception ex) {
                         PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
                     }
+                    PersistentStorage persistentStorage = new PersistentStorage();
+                    persistentStorage.removePersistentStorageLibrary(fileToDelete.getAbsolutePath());
                     model.notifyFileObservers();
                 }
             }

@@ -69,6 +69,7 @@ public class PersistentStorage {
      * Updates file by removing an existing library
      *
      * @param libraryToRemove
+     * @return true if storage update successful
      */
     public boolean removePersistentStorageLibrary(String libraryToRemove) {
         File findLibFile = new File(System.getProperty("user.dir") + File.separator + "db" +
