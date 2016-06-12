@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem.musicplayer;
 
 import com.teamgamma.musicmanagementsystem.model.Song;
 
+import javafx.concurrent.Task;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
@@ -28,7 +29,6 @@ public class MP3Player implements IMusicPlayer {
     private Thread m_updateWorker;
 
     private Runnable m_onErrorAction;
-
     /**
      * Constructor
      *
@@ -206,27 +206,28 @@ public class MP3Player implements IMusicPlayer {
         return (new Runnable() {
             @Override
             public void run() {
-                // Create a new thread for updating slider/progress bar.
-                Thread updateThread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        while (m_player.getStatus() == MediaPlayer.Status.PLAYING
-                                && m_player.getCurrentTime().toMillis() != m_player.getMedia().getDuration().toMillis()) {
+                Task task = new Task<Void>(){ @Override
+                public Void call(){
+                    while (m_player.getStatus() == MediaPlayer.Status.PLAYING
+                            && m_player.getCurrentTime().toMillis() != m_player.getMedia().getDuration().toMillis()) {
 
-                            m_manager.notifyPlaybackObservers();
-                            /*System.out.println( "The End of the song is at " +
-                                    m_player.getMedia().getDuration().toMillis() + " Current time before player is " +
-                                    m_player.getCurrentTime().toMillis() + " Internal counter test "+ m_counter);
-                            */
-                            try {
-                                // 1s per update
-                                Thread.sleep(UPDATE_INTERVAL_IN_MILLISECONDS);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+                        m_manager.notifyPlaybackObservers();
+//                        System.out.println( "The End of the song is at " +
+//                                m_player.getMedia().getDuration().toMillis() + " Or from SongOBJ:" + m_trackLength + " Current time before player is " +
+//                                m_player.getCurrentTime().toMillis() + " Internal counter test " + m_internalCounter);
+
+                        try {
+                            // 1s per update
+                            Thread.sleep(UPDATE_INTERVAL_IN_MILLISECONDS);
+
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
-                });
+                    return null;
+                } };
+                // Create a new thread for updating slider/progress bar.
+                Thread updateThread = new Thread(task);
 
                 if (m_updateWorker == null || !m_updateWorker.isAlive()) {
                     m_updateWorker = updateThread;
@@ -255,12 +256,9 @@ public class MP3Player implements IMusicPlayer {
 //            // Need to start an update thread becuase the thread has already stopped.
 //            createNewUpdateThread = true;
 //        }
-        m_player.stop();
 
-        m_player.dispose();
-        setupMusicPlayer(m_currentSong);
+        //setupMusicPlayer(m_currentSong);
 
-        m_player.setStartTime(newTime);
         m_player.play();
     }
 

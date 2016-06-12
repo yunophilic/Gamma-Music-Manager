@@ -65,7 +65,7 @@ public class MusicPlayerManager {
      * Function to load the next song in the queue and play it.
      */
     public void playNextSong() {
-        if (isPlayingSongOnFromHistoryList()) {
+        if (isPlayingSongOnFromHistoryList() && m_historyIndex < m_songHistory.size() - 1) {
             if (m_repeatSong) {
                 m_musicPlayer.playSong(m_currentSong);
             } else {
