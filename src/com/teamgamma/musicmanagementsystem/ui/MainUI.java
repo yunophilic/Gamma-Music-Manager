@@ -35,7 +35,6 @@ public class MainUI extends BorderPane {
 
     private Node leftPane() {
         BorderPane leftPane = new BorderPane();
-        //List<Library> libraries = model.getM_libraries();
 
         LibraryUI libraryUI = new LibraryUI(model);
 
@@ -55,24 +54,11 @@ public class MainUI extends BorderPane {
         return rightPane;
     }
 
-    /*private Node sidePane(Library library){
-        BorderPane sidePane = new BorderPane();
-
-        LibraryUI libraryUI = new LibraryUI(library);
-        libraryUI.setMaxWidth(Double.MAX_VALUE);
-        libraryUI.setMaxHeight(Double.MAX_VALUE);
-
-        sidePane.setCenter(libraryUI);
-        return sidePane;
-    }*/
-
     private Node topPane() {
-        return getMenu();
+        return new MenuUI(model);
     }
 
     private Node bottomePane() {
-        //return new Label("Music Player");
-
         return new MusicPlayerUI(m_musicPlayerManager);
     }
 
@@ -81,32 +67,5 @@ public class MainUI extends BorderPane {
 
         centerPane.setCenter(new ContentListUI(model, m_musicPlayerManager));
         return centerPane;
-    }
-
-    private Node getMenu() {
-        final Menu menuFile = new Menu("File");
-
-        MenuItem addLibraryMenu = new MenuItem("Add Library");
-        addLibraryMenu.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent t) {
-                String pathInput = PromptUI.addNewLibrary();
-                if (pathInput == null) {
-                    return;
-                }
-                if (!model.addLibrary(pathInput)) {
-                    PromptUI.customPromptError("Error", null, "Path doesn't exist or duplicate library added");
-                    return;
-                }
-                PersistentStorage persistentStorage = new PersistentStorage();
-                persistentStorage.updatePersistentStorageLibrary(pathInput);
-                model.notifyLibraryObservers();
-            }
-        });
-
-        menuFile.getItems().addAll(addLibraryMenu);
-
-        MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(menuFile);
-        return menuBar;
     }
 }

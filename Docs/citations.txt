@@ -2,5 +2,7 @@ Icons for music player are from https://design.google.com/icons/ which is open s
 Jaudiotagger is used to read song metadata. Link: http://www.jthink.net/jaudiotagger/
 Code for rating scale conversions in Song.java taken from https://github.com/soc/jaudiotagger/blob/master/src/main/java/org/jaudiotagger/tag/id3/reference/MediaMonkeyPlayerRating.java
 Alert and dialog boxes referred from http://code.makery.ch/blog/javafx-dialogs-official/
+Folder icon is retrieved from http://www.iconarchive.com/show/yosemite-flat-icons-by-dtafalonso/Folder-icon.html
+Music file icon is retrieved form http://www.softicons.com/application-icons/itunes-metal-icons-by-jason-coloma/itunes-mp3-3-icon
 
 The Resources sheet in the List of Features spreadsheet also has a number of links that we used as reference.

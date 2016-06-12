@@ -19,6 +19,9 @@ public class SongManager {
     private File m_selectedCenterFolder;
     private File m_rightFolderSelected;
 
+    // Menu Manager
+    private MenuOptions m_menuOptions;
+
     public SongManager() {
         m_songManagerObservers = new ArrayList<>();
         m_libraries = new ArrayList<>();
@@ -26,6 +29,8 @@ public class SongManager {
         m_playlists = new ArrayList<>();
         m_selectedCenterFolder = null;
         m_rightFolderSelected = null;
+
+        m_menuOptions = new MenuOptions();
     }
 
     /**
@@ -194,6 +199,10 @@ public class SongManager {
         return m_fileBuffer;
     }
 
+    public MenuOptions getM_menuOptions(){
+        return m_menuOptions;
+    }
+
 
     /**********
      * Functions for observer pattern
@@ -232,4 +241,9 @@ public class SongManager {
         }
     }
 
+    public void notifyLeftPanelObservers() {
+        for (SongManagerObserver observer : m_songManagerObservers) {
+            observer.leftPanelOptionsChanged();
+        }
+    }
 }
