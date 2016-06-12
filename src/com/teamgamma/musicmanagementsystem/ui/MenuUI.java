@@ -55,6 +55,14 @@ public class MenuUI extends MenuBar{
 
     private Menu getMenuOptions() {
         final Menu menuOptions = new Menu("Options");
+        Menu leftPanelSubMenu = getLeftPanelSubMenu();
+        Menu centerPanelSubMenu = getCenterPanelSubMenu();
+
+        menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu);
+        return menuOptions;
+    }
+
+    private Menu getLeftPanelSubMenu() {
         Menu leftPanelSubMenu = new Menu("Left Panel");
         CheckMenuItem showFoldersOnly = new CheckMenuItem("Show folders only");
 
@@ -62,19 +70,39 @@ public class MenuUI extends MenuBar{
             if (showFoldersOnly.isSelected()){
                 System.out.println("Display folders only");
                 MenuOptions menuManager = model.getM_menuOptions();
-                menuManager.setShowFolder(true);
+                menuManager.setM_leftPanelShowFolder(true);
             } else {
                 System.out.println("Don't display folders only");
                 MenuOptions menuManager = model.getM_menuOptions();
-                menuManager.setShowFolder(false);
+                menuManager.setM_leftPanelShowFolder(false);
             }
 
             model.notifyLeftPanelObservers();
         });
 
         leftPanelSubMenu.getItems().addAll(showFoldersOnly);
+        return leftPanelSubMenu;
+    }
 
-        menuOptions.getItems().addAll(leftPanelSubMenu);
-        return menuOptions;
+    public Menu getCenterPanelSubMenu() {
+        Menu centerPanelSubMenu = new Menu("Center Panel");
+        CheckMenuItem showFoldersOnly = new CheckMenuItem("Show files in subfolders");
+
+        showFoldersOnly.setOnAction(event -> {
+            if (showFoldersOnly.isSelected()){
+                System.out.println("Display subfolder files");
+                MenuOptions menuManager = model.getM_menuOptions();
+                menuManager.setM_centerPanelShowSubfolderFiles(true);
+            } else {
+                System.out.println("Don't subfolder files");
+                MenuOptions menuManager = model.getM_menuOptions();
+                menuManager.setM_centerPanelShowSubfolderFiles(false);
+            }
+
+            model.notifyCenterFolderObservers();
+        });
+
+        centerPanelSubMenu.getItems().addAll(showFoldersOnly);
+        return centerPanelSubMenu;
     }
 }

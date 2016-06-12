@@ -133,7 +133,7 @@ public class LibraryUI extends StackPane {
 
         for (Library library : libraries) {
             TreeItem<TreeViewItem> rootItem = FileManager.generateTreeItems(
-                    library.getM_rootDir(), library.getM_rootDirPath(), model.getM_menuOptions().getShowFolder()
+                    library.getM_rootDir(), library.getM_rootDirPath(), model.getM_menuOptions().getM_leftPanelShowFolder()
             );
             rootItem.setExpanded(true);
             System.out.println("Added new root path:" + rootItem.toString());
