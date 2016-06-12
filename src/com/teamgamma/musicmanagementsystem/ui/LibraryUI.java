@@ -106,6 +106,13 @@ public class LibraryUI extends StackPane {
                 clearTreeView();
                 updateTreeView();
             }
+
+            @Override
+            public void leftPanelOptionsChanged() {
+                System.out.println("Left panel options in treeview");
+                clearTreeView();
+                updateTreeView();
+            }
         });
     }
 
@@ -126,7 +133,7 @@ public class LibraryUI extends StackPane {
 
         for (Library library : libraries) {
             TreeItem<TreeViewItem> rootItem = FileManager.generateTreeItems(
-                    library.getM_rootDir(), library.getM_rootDirPath()
+                    library.getM_rootDir(), library.getM_rootDirPath(), model.getM_menuOptions().getShowFolder()
             );
             rootItem.setExpanded(true);
             System.out.println("Added new root path:" + rootItem.toString());

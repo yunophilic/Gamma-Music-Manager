@@ -83,6 +83,11 @@ public class ContentListUI extends StackPane {
                 //setEmptyText();
                 updateList();
             }
+
+            @Override
+            public void leftPanelOptionsChanged() {
+                /* Do nothing */
+            }
         });
     }
 

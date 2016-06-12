@@ -149,6 +149,11 @@ public class Watcher {
             public void fileChanged() {
                 restartWatcher();
             }
+
+            @Override
+            public void leftPanelOptionsChanged() {
+                /* Do nothing */
+            }
         });
     }
 

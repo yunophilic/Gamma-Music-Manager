@@ -2,6 +2,8 @@ package com.teamgamma.musicmanagementsystem.model;
 
 import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
 import javafx.scene.control.TreeItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -21,21 +23,37 @@ public class FileManager {
      *
      * @return TreeItem<String> to the root item
      */
-    public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath) {
+
+    public static Image folderImage = new Image(ClassLoader.getSystemResourceAsStream("com/teamgamma/musicmanagementsystem/images/Folder-icon.png"));
+    public static Image songImage = new Image(ClassLoader.getSystemResourceAsStream("com/teamgamma/musicmanagementsystem/images/iTunes-mp3-3.png"));
+
+
+    public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath, boolean showFolderOnly) {
         TreeItem<TreeViewItem> item = new TreeItem<>(
                 (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
         );
 
+        File treeItemFile = item.getValue().getPath();
+        if (treeItemFile.isDirectory()) {
+            item.setGraphic(new ImageView(folderImage));
+        } else {
+            item.setGraphic(new ImageView(songImage));
+        }
+
         File[] children = file.listFiles(new FileFilter() {
             @Override
             public boolean accept(File f) {
-                return f.isDirectory() || f.getAbsolutePath().endsWith(".mp3");
+                if (showFolderOnly) {
+                    return f.isDirectory();
+                } else {
+                    return f.isDirectory() || f.getAbsolutePath().endsWith(".mp3");
+                }
             }
         });
 
         if (children != null) {
             for (File child : children) {
-                item.getChildren().add(generateTreeItems(child, dirPath)); //recursion here
+                item.getChildren().add(generateTreeItems(child, dirPath, showFolderOnly)); //recursion here
             }
         }
 
