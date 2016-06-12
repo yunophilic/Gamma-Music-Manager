@@ -132,17 +132,21 @@ public class ContentListUI extends StackPane {
 
             setTableColAttributes(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
 
-            table.setItems(FXCollections.observableArrayList(songs));
+            if (songs.isEmpty()){
+                table.setPlaceholder(new Label("No songs in folder"));
+            } else {
+                table.setItems(FXCollections.observableArrayList(songs));
 
-            table.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    if (event.getClickCount() == 2) {
-                        System.out.println(table.getSelectionModel().getSelectedItem());
-                        manager.playSongRightNow((Song) table.getSelectionModel().getSelectedItem());
+                table.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        if (event.getClickCount() == 2) {
+                            System.out.println(table.getSelectionModel().getSelectedItem());
+                            manager.playSongRightNow((Song) table.getSelectionModel().getSelectedItem());
+                        }
                     }
-                }
-            });
+                });
+            }
             this.getChildren().add(table);
 
             // Scrolls through list
@@ -225,72 +229,6 @@ public class ContentListUI extends StackPane {
         table.getColumns().addAll(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
-
-//    private void clearList() {
-//        System.out.println("Clearing list...");
-//        gridPane.getChildren().clear();
-//        this.getChildren().clear();
-//    }
-
-//    private void updateList() {
-//        if (model.getM_selectedCenterFolder() == null) {
-//            setEmptyText();
-//        } else {
-//            gridPane = new GridPane();
-//            System.out.println("Updating list...");
-//            List<Song> songs = model.getCenterPanelSongs();
-//            gridPane.add(new Label("Song Name   "), 0, 0);
-//            gridPane.add(new Label("Genre   "), 1, 0);
-//            gridPane.add(new Label("Artist   "), 2, 0);
-//            gridPane.add(new Label("Rating   "), 3, 0);
-//
-//            int row = 1;
-//            for (Song song : songs) {
-//                System.out.println("Found new song: " + song.getM_file().getAbsolutePath());
-//                //HBox rowOfSongInfo = new HBox();
-//                Label titleLabel = new Label(song.getM_title() + "   ");
-//                Label genreLabel = new Label(song.getM_genre() + "   ");
-//                Label artistLabel = new Label(song.getM_artist() + "   ");
-//                Label ratingLabel = new Label(song.getM_rating() + "   ");
-//                gridPane.add(titleLabel, 0, row);
-//                gridPane.add(genreLabel, 1, row);
-//                gridPane.add(artistLabel, 2, row);
-//                gridPane.add(ratingLabel, 3, row);
-//
-////                rowOfSongInfo.getChildren().addAll(titleLabel, genreLabel, artistLabel, ratingLabel);
-////                gridPane.add(rowOfSongInfo, 0, row);
-//
-//                row++;
-//
-//                titleLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-//                    @Override public void handle(MouseEvent e) {
-//                        System.out.println("CLICKED!");
-//
-//                        // Code to play song goes here
-//                    }
-//                });
-//
-//                genreLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-//                    @Override public void handle(MouseEvent e) {
-//                        // Code to play song goes here
-//                    }
-//                });
-//
-//                artistLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-//                    @Override public void handle(MouseEvent e) {
-//                        // Code to play song goes here
-//                    }
-//                });
-//
-//                ratingLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-//                    @Override public void handle(MouseEvent e) {
-//                        // Code to play song goes here
-//                    }
-//                });
-//            }
-//            this.getChildren().add(gridPane);
-//        }
-//    }
 
     private void setCssStyle() {
         final String cssDefault = "-fx-border-color: black;\n";

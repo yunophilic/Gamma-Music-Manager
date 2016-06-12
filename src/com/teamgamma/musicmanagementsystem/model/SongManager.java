@@ -146,14 +146,22 @@ public class SongManager {
 
     public List<Song> getCenterPanelSongs() {
         List<Song> centerPanelSongs = new ArrayList<>();
+        System.out.println("== Selected center folder: " + m_selectedCenterFolder.getAbsolutePath());
 
         if (m_selectedCenterFolder != null) {
             for (Library library : m_libraries) {
                 for (Song song : this.getSongs(library)) {
-                    String songFilePath = song.getM_file().getAbsolutePath();
-                    //System.out.println("    Path of song file: " + songFilePath);
-                    if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath())) {
-                        centerPanelSongs.add(song);
+                    if (m_menuOptions.getM_centerPanelShowSubfolderFiles()) {
+                        String songFilePath = song.getM_file().getAbsolutePath();
+                        if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath())) {
+                            centerPanelSongs.add(song);
+                        }
+                    } else {
+                        String songParentPath = song.getM_file().getParent();
+                        System.out.println("== Song parent path: " + songParentPath);
+                        if (songParentPath.equals(m_selectedCenterFolder.getAbsolutePath())) {
+                            centerPanelSongs.add(song);
+                        }
                     }
                 }
             }
