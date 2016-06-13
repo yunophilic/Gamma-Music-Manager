@@ -21,8 +21,13 @@ public class Library {
      * @param folderPath: root path to folder
      */
     public Library(String folderPath) {
-        m_rootDir = new File(folderPath);
-        m_songList = FileManager.generateSongs(folderPath);
+        try {
+            m_rootDir = new File(folderPath);
+            m_songList = FileManager.generateSongs(folderPath);
+        }
+        catch(NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
