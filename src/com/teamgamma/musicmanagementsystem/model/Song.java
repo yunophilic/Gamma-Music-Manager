@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.mp3.MP3File;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.id3.ID3v24Tag;
@@ -20,6 +21,7 @@ public class Song {
     private String m_album;
     private String m_genre;
     private String m_rating;
+    private double m_length;
 
     public Song(String pathToFile) {
         m_file = new File(pathToFile);
@@ -27,7 +29,8 @@ public class Song {
         try {
             AudioFile file = AudioFileIO.read(m_file);
             Tag tag = file.getTag();
-
+            MP3File mp3File = new MP3File(m_file);
+            m_length =  mp3File.getMP3AudioHeader().getPreciseTrackLength();
             //add new tag to file if tag is empty
             if (tag == null) {
                 tag = new ID3v24Tag();
@@ -225,4 +228,6 @@ public class Song {
             e.printStackTrace(); //for now
         }
     }
+
+    public double getM_length() {return m_length;}
 }

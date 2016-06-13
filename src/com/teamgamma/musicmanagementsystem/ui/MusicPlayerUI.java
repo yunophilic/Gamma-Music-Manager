@@ -141,13 +141,19 @@ public class MusicPlayerUI extends BorderPane {
         manager.registerChangeStateObservers(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                if (manager.isSomethingPlaying()) {
-                    playPauseButton.setGraphic(createImageViewForImage(PLAY_ICON_PATH));
-                    playPauseButton.setSelected(true);
-                } else {
-                    playPauseButton.setGraphic(createImageViewForImage(PAUSE_ICON_PATH));
-                    playPauseButton.setSelected(false);
-                }
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("Is music player playing something " + manager.isSomethingPlaying());
+                        if (!manager.isSomethingPlaying()) {
+                            playPauseButton.setGraphic(createImageViewForImage(PLAY_ICON_PATH));
+                            playPauseButton.setSelected(true);
+                        } else {
+                            playPauseButton.setGraphic(createImageViewForImage(PAUSE_ICON_PATH));
+                            playPauseButton.setSelected(false);
+                        }
+                    }
+                });
             }
         });
 
@@ -301,6 +307,7 @@ public class MusicPlayerUI extends BorderPane {
      * @return A human readable string of the duration.
      */
     private String convertDurationToTimeString(Duration duration) {
+        System.out.print("Converting duration  " + duration.toMillis());
         String timeString = "";
 
         double seconds = duration.toSeconds();
@@ -317,7 +324,7 @@ public class MusicPlayerUI extends BorderPane {
             timeString += "0";
         }
         timeString += leftOverSeconds;
-
+        System.out.println(" Got " +timeString);
         return timeString;
     }
 

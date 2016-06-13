@@ -50,15 +50,14 @@ public class MusicPlayerManager {
      */
     public MusicPlayerManager() {
         m_playingQueue = new ConcurrentLinkedQueue<Song>();
-
-        m_musicPlayer = new MP3Player(this);
-
         m_songHistory = new ArrayList<Song>();
 
         m_newSongObservers = new ArrayList<MusicPlayerObserver>();
         m_playbackObservers = new ArrayList<MusicPlayerObserver>();
         m_changeStateObserver = new ArrayList<MusicPlayerObserver>();
         m_errorObservers = new ArrayList<MusicPlayerObserver>();
+
+        m_musicPlayer = new JlayerMP3Player(this);
     }
 
     /**
@@ -224,7 +223,7 @@ public class MusicPlayerManager {
      * @return The end time of the song.
      */
     public Duration getEndTime() {
-        return ((MP3Player) m_musicPlayer).getEndTime();
+        return new Duration(m_currentSong.getM_length() * 1000);
     }
 
     /**
@@ -283,7 +282,7 @@ public class MusicPlayerManager {
      * @return The current playback time.
      */
     public Duration getCurrentPlayTime() {
-        return ((MP3Player) m_musicPlayer).getCurrentPlayTime();
+        return  m_musicPlayer.getCurrentPlayTime();
     }
 
     /**

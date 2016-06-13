@@ -193,6 +193,7 @@ public class MP3Player implements IMusicPlayer {
      *
      * @return  The current playback time or Duration.UNKNOWN if player is not ready or there is no song loaded.
      */
+    @Override
     public Duration getCurrentPlayTime() {
         return (isReadyToUse()) ? m_player.getCurrentTime() : Duration.UNKNOWN;
     }

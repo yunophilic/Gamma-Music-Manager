@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.musicplayer;
 
 import com.teamgamma.musicmanagementsystem.model.Song;
+import javafx.util.Duration;
 
 /**
  * Interface that defines actions a music player can have. Any player wishing to work in the application will have to
@@ -71,4 +72,10 @@ public interface IMusicPlayer {
      * Function to stop the song that is playing.
      */
     void stopSong();
+
+    /**
+     * Function to get the current playback time for the duration
+     * @return A duration object containing the currnet time.
+     */
+    Duration getCurrentPlayTime();
 }
