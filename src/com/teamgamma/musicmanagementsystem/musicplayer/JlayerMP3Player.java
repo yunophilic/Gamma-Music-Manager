@@ -13,7 +13,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 
 /**
- * Created by Eric on 2016-06-12.
+ * Class to implement a music player that uses the JLayer library
  */
 public class JlayerMP3Player implements IMusicPlayer{
 
@@ -27,17 +27,20 @@ public class JlayerMP3Player implements IMusicPlayer{
 
     private Song m_currentSong;
 
-    private int m_currentPlaybackTimeInMiliseconds = 0;
+    private int m_CurrentPlaybackTimeInMiliseconds = 0;
 
     private int m_lastFramePlayed = 0;
 
     private Runnable m_onFinishAction;
 
-    private Thread m_UIUpdateThread;
-
-    // Might requrire mutex for this
+    // Might require mutex for this
     private boolean m_isPlaying = false;
 
+    /**
+     * Constructor
+     *
+     * @param manager
+     */
     public JlayerMP3Player(MusicPlayerManager manager){
         m_manager = manager;
     }
@@ -47,19 +50,24 @@ public class JlayerMP3Player implements IMusicPlayer{
         stopSong();
         setUpMusicPlayer(songToPlay);
         createPlayBackThread().start();
-        // Only upon sucess save the song
+
+        // Only upon success save the song
         m_currentSong = songToPlay;
-        m_currentPlaybackTimeInMiliseconds = 0;
+        m_CurrentPlaybackTimeInMiliseconds = 0;
         m_manager.notifyNewSongObservers();
     }
 
+    /**
+     * Helper function to setup a new instance of a music player based on the song that is passed in.
+     *
+     * @param songToPlay The song tha you want to set up the music player for.
+     */
     private void setUpMusicPlayer(Song songToPlay) {
         try {
-            System.out.println("Trying to play" + songToPlay.getM_fileName());
             FileInputStream fileInputStream = new FileInputStream(songToPlay.getM_file());
             BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
             m_audioDevice = FactoryRegistry.systemRegistry().createAudioDevice();
-            System.out.println("Audio Device is " + m_audioDevice);
+
             m_player = new AdvancedPlayer(bufferedInputStream, m_audioDevice);
             m_player.setPlayBackListener(createPlaybackListeners());
 
@@ -71,37 +79,37 @@ public class JlayerMP3Player implements IMusicPlayer{
         }
     }
 
+    /**
+     * Helper function to setup the playback lister actions for the JLayer Advance Music Player.
+     *
+     * @return A class implementing the functionality of the playback listeners.
+     */
     private PlaybackListener createPlaybackListeners() {
         return new PlaybackListener() {
             @Override
             public void playbackStarted(PlaybackEvent playbackEvent) {
                 super.playbackStarted(playbackEvent);
                 m_lastFramePlayed = playbackEvent.getFrame();
-                System.out.println("Started playback for " + playbackEvent.getSource().toString());
-                System.out.println("the source is " + playbackEvent.getSource());
-
                 m_isPlaying = true;
-                System.out.println("Is Playback is " + m_isPlaying);
+
                 m_manager.notifyPlaybackObservers();
                 new Thread(createUpdateUIThread()).start();
                 m_manager.notifyChangeStateObservers();
-                System.out.println("\n\nSong Playback Listner Done \n\n");
+
             }
 
             @Override
             public void playbackFinished(PlaybackEvent playbackEvent) {
                 // Literally the song is finished playing not when close it called.
                 super.playbackFinished(playbackEvent);
-                System.out.println("\n\n PLAYBACK FINISHED NOTIFY \n\n");
-                System.out.println("Finished Playback for " + playbackEvent.getSource().toString());
-                System.out.println("the source is " + playbackEvent.getSource());
 
                 // Frame is the Milisecond precision of the current playback time.
                 m_lastFramePlayed = playbackEvent.getFrame();
-                m_currentPlaybackTimeInMiliseconds += m_lastFramePlayed;
-                System.out.println("Playback Finsish Last played frame is " + m_lastFramePlayed);
-                // stop playback UI thread?
+                m_CurrentPlaybackTimeInMiliseconds += m_lastFramePlayed;
+
+                // stop playback UI thread
                 m_isPlaying = false;
+
                 if (m_onFinishAction != null){
                     m_onFinishAction.run();
                 }
@@ -111,6 +119,10 @@ public class JlayerMP3Player implements IMusicPlayer{
         };
     }
 
+    /**
+     * Function to create a playback thread that will play the song from the begginning.
+     * @return  A thread that will play the song from the begginning.
+     */
     private Thread createPlayBackThread() {
         return new Thread(new Runnable() {
             @Override
@@ -136,19 +148,22 @@ public class JlayerMP3Player implements IMusicPlayer{
     @Override
     public void resumeSong() {
         // Play song where it was left off.
-        System.out.println("Resuming song Request: Starting song at (current Frame)" + m_currentPlaybackTimeInMiliseconds);
-
         setUpMusicPlayer(m_currentSong);
         createResumePlaybackThread().start();
 
     }
 
+    /**
+     * Function to create a thread and play the song from where it was left off.
+     * @return
+     */
     private Thread createResumePlaybackThread() {
         return new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    m_player.play((int) convertMilisecondsToFrame(m_currentPlaybackTimeInMiliseconds), Integer.MAX_VALUE);
+                    // using integer max as specified in source of the AdvancePlayer play()
+                    m_player.play((int) convertMilisecondsToFrame(m_CurrentPlaybackTimeInMiliseconds), Integer.MAX_VALUE);
                 } catch (Exception e) {
                     e.printStackTrace();
                     m_manager.setError(e);
@@ -194,9 +209,18 @@ public class JlayerMP3Player implements IMusicPlayer{
     }
 
     @Override
+    public void seekToTime(double percent) {
+        stopSong();
+        m_CurrentPlaybackTimeInMiliseconds = (int) Math.round(percent * m_currentSong.getM_length() *
+                MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
+
+        resumeSong();
+    }
+
+    @Override
     public Duration getCurrentPlayTime() {
-        // Get position returns current time in miliseconds
-        return new Duration(m_currentPlaybackTimeInMiliseconds + m_audioDevice.getPosition());
+        // Get position returns current time in milliseconds
+        return new Duration(m_CurrentPlaybackTimeInMiliseconds + m_audioDevice.getPosition());
     }
 
     @Override
@@ -212,6 +236,11 @@ public class JlayerMP3Player implements IMusicPlayer{
         }
     }
 
+    /**
+     * Function to create the thread that will notify the playback observer to update the UI.
+     *
+     * @return  A thread containing the logic to notify the updates.
+     */
     private Runnable createUpdateUIThread() {
         return (new Runnable() {
             @Override
@@ -222,7 +251,7 @@ public class JlayerMP3Player implements IMusicPlayer{
                         while (m_isPlaying) {
                             m_manager.notifyPlaybackObservers();
                             try{
-                                Thread.sleep(1000);
+                                Thread.sleep(MusicPlayerConstants.UPDATE_INTERVAL_IN_MILLISECONDS);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -235,9 +264,16 @@ public class JlayerMP3Player implements IMusicPlayer{
         });
     }
 
-
-    private long convertMilisecondsToFrame(int miliseconds) {
-        double percentOfSongFromMili = (double) miliseconds / (m_currentSong.getM_length() * 1000);
+    /**
+     * Helper function to convert from milliseconds to the number of frames based on the current song playing.
+     *
+     * @param milliseconds   The number of milliseconds to convert.
+     *
+     * @return The number of frames that is equal to the given milliseconds.
+     */
+    private long convertMilisecondsToFrame(int milliseconds) {
+        double percentOfSongFromMili = (double) milliseconds / (m_currentSong.getM_length() *
+                MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
         return Math.round(percentOfSongFromMili * m_currentSong.getM_frames());
     }
 }

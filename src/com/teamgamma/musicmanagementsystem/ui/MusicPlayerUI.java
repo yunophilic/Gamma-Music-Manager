@@ -264,16 +264,14 @@ public class MusicPlayerUI extends BorderPane {
         playbackSlider.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                /*  Removed from iteration 1 due to problems with JavaFx.
                 double sliderVal = playbackSlider.getValue();
                 System.out.println("Slider seek slider value is " + sliderVal);
                 manager.seekSongTo(sliderVal);
-                */
+
             }
         });
         // The labels here are for spacing and are there for no other purpose.
         playbackSliderWrapper.getChildren().addAll(new Label("0:0"), playbackSlider, new Label("0:0"));
-
         playbackSliderWrapper.setOpacity(0);
 
         // Make the slider always bigger than the progress bar to make it so the user only can click on the slider.
@@ -307,7 +305,6 @@ public class MusicPlayerUI extends BorderPane {
      * @return A human readable string of the duration.
      */
     private String convertDurationToTimeString(Duration duration) {
-        System.out.print("Converting duration  " + duration.toMillis());
         String timeString = "";
 
         double seconds = duration.toSeconds();
@@ -324,7 +321,6 @@ public class MusicPlayerUI extends BorderPane {
             timeString += "0";
         }
         timeString += leftOverSeconds;
-        System.out.println(" Got " +timeString);
         return timeString;
     }
 

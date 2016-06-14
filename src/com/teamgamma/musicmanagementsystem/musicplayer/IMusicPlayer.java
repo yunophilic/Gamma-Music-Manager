@@ -78,4 +78,10 @@ public interface IMusicPlayer {
      * @return A duration object containing the currnet time.
      */
     Duration getCurrentPlayTime();
+
+    /**
+     * Function to seek to the given percent of the song
+     * @param The percent of the song you want to seek to
+     */
+    void seekToTime(double percent);
 }

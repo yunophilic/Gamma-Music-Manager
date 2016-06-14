@@ -17,9 +17,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class MusicPlayerManager {
 
-    // Music Player Constants.
-    public static final int MAX_SONG_HISTORY = 10;
-
     private IMusicPlayer m_musicPlayer;
 
     private Queue<Song> m_playingQueue;
@@ -166,8 +163,8 @@ public class MusicPlayerManager {
      * Function to increase the volume.
      */
     public void increaseVolume() {
-        if (m_volumeLevel < MP3Player.MAX_VOLUME){
-            m_volumeLevel += MP3Player.VOLUME_CHANGE;
+        if (m_volumeLevel < MusicPlayerConstants.MAX_VOLUME){
+            m_volumeLevel += MusicPlayerConstants.VOLUME_CHANGE;
         }
         if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.increaseVolume();
@@ -178,8 +175,8 @@ public class MusicPlayerManager {
      * Function to decrease the volume.
      */
     public void decreaseVolume() {
-        if (m_volumeLevel > MP3Player.MIN_VOLUME) {
-            m_volumeLevel -= MP3Player.VOLUME_CHANGE;
+        if (m_volumeLevel > MusicPlayerConstants.MIN_VOLUME) {
+            m_volumeLevel -= MusicPlayerConstants.VOLUME_CHANGE;
         }
         if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.decreaseVolume();
@@ -248,7 +245,7 @@ public class MusicPlayerManager {
 
         // On insertion of new song in history set the last played index to be the latest song in history list.
         m_historyIndex = m_songHistory.size() - 1;
-        if (m_songHistory.size() > MAX_SONG_HISTORY) {
+        if (m_songHistory.size() > MusicPlayerConstants.MAX_SONG_HISTORY) {
             m_songHistory.remove(0);
         }
     }
@@ -296,7 +293,7 @@ public class MusicPlayerManager {
             assert (false);
         }
         if (m_musicPlayer.isReadyToUse()) {
-            ((MP3Player) m_musicPlayer).seekToTime(percent);
+            m_musicPlayer.seekToTime(percent);
         }
     }
 
