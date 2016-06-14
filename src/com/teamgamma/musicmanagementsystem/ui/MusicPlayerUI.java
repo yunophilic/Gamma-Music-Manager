@@ -141,13 +141,19 @@ public class MusicPlayerUI extends BorderPane {
         manager.registerChangeStateObservers(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                if (manager.isSomethingPlaying()) {
-                    playPauseButton.setGraphic(createImageViewForImage(PLAY_ICON_PATH));
-                    playPauseButton.setSelected(true);
-                } else {
-                    playPauseButton.setGraphic(createImageViewForImage(PAUSE_ICON_PATH));
-                    playPauseButton.setSelected(false);
-                }
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("Is music player playing something " + manager.isSomethingPlaying());
+                        if (!manager.isSomethingPlaying()) {
+                            playPauseButton.setGraphic(createImageViewForImage(PLAY_ICON_PATH));
+                            playPauseButton.setSelected(true);
+                        } else {
+                            playPauseButton.setGraphic(createImageViewForImage(PAUSE_ICON_PATH));
+                            playPauseButton.setSelected(false);
+                        }
+                    }
+                });
             }
         });
 
@@ -258,16 +264,14 @@ public class MusicPlayerUI extends BorderPane {
         playbackSlider.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                /*  Removed from iteration 1 due to problems with JavaFx.
                 double sliderVal = playbackSlider.getValue();
                 System.out.println("Slider seek slider value is " + sliderVal);
                 manager.seekSongTo(sliderVal);
-                */
+
             }
         });
         // The labels here are for spacing and are there for no other purpose.
         playbackSliderWrapper.getChildren().addAll(new Label("0:0"), playbackSlider, new Label("0:0"));
-
         playbackSliderWrapper.setOpacity(0);
 
         // Make the slider always bigger than the progress bar to make it so the user only can click on the slider.
@@ -317,7 +321,6 @@ public class MusicPlayerUI extends BorderPane {
             timeString += "0";
         }
         timeString += leftOverSeconds;
-
         return timeString;
     }
 

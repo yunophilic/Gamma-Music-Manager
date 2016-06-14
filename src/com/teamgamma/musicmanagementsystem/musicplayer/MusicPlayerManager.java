@@ -17,9 +17,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class MusicPlayerManager {
 
-    // Music Player Constants.
-    public static final int MAX_SONG_HISTORY = 10;
-
     private IMusicPlayer m_musicPlayer;
 
     private Queue<Song> m_playingQueue;
@@ -50,15 +47,14 @@ public class MusicPlayerManager {
      */
     public MusicPlayerManager() {
         m_playingQueue = new ConcurrentLinkedQueue<Song>();
-
-        m_musicPlayer = new MP3Player(this);
-
         m_songHistory = new ArrayList<Song>();
 
         m_newSongObservers = new ArrayList<MusicPlayerObserver>();
         m_playbackObservers = new ArrayList<MusicPlayerObserver>();
         m_changeStateObserver = new ArrayList<MusicPlayerObserver>();
         m_errorObservers = new ArrayList<MusicPlayerObserver>();
+
+        m_musicPlayer = new JlayerMP3Player(this);
     }
 
     /**
@@ -167,8 +163,8 @@ public class MusicPlayerManager {
      * Function to increase the volume.
      */
     public void increaseVolume() {
-        if (m_volumeLevel < MP3Player.MAX_VOLUME){
-            m_volumeLevel += MP3Player.VOLUME_CHANGE;
+        if (m_volumeLevel < MusicPlayerConstants.MAX_VOLUME){
+            m_volumeLevel += MusicPlayerConstants.VOLUME_CHANGE;
         }
         if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.increaseVolume();
@@ -179,8 +175,8 @@ public class MusicPlayerManager {
      * Function to decrease the volume.
      */
     public void decreaseVolume() {
-        if (m_volumeLevel > MP3Player.MIN_VOLUME) {
-            m_volumeLevel -= MP3Player.VOLUME_CHANGE;
+        if (m_volumeLevel > MusicPlayerConstants.MIN_VOLUME) {
+            m_volumeLevel -= MusicPlayerConstants.VOLUME_CHANGE;
         }
         if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.decreaseVolume();
@@ -224,7 +220,7 @@ public class MusicPlayerManager {
      * @return The end time of the song.
      */
     public Duration getEndTime() {
-        return ((MP3Player) m_musicPlayer).getEndTime();
+        return new Duration(m_currentSong.getM_length() * 1000);
     }
 
     /**
@@ -249,7 +245,7 @@ public class MusicPlayerManager {
 
         // On insertion of new song in history set the last played index to be the latest song in history list.
         m_historyIndex = m_songHistory.size() - 1;
-        if (m_songHistory.size() > MAX_SONG_HISTORY) {
+        if (m_songHistory.size() > MusicPlayerConstants.MAX_SONG_HISTORY) {
             m_songHistory.remove(0);
         }
     }
@@ -283,7 +279,7 @@ public class MusicPlayerManager {
      * @return The current playback time.
      */
     public Duration getCurrentPlayTime() {
-        return ((MP3Player) m_musicPlayer).getCurrentPlayTime();
+        return  m_musicPlayer.getCurrentPlayTime();
     }
 
     /**
@@ -297,7 +293,7 @@ public class MusicPlayerManager {
             assert (false);
         }
         if (m_musicPlayer.isReadyToUse()) {
-            ((MP3Player) m_musicPlayer).seekToTime(percent);
+            m_musicPlayer.seekToTime(percent);
         }
     }
 
