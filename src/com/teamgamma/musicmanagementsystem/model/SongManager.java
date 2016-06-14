@@ -12,7 +12,7 @@ import java.util.List;
 public class SongManager {
     private List<SongManagerObserver> m_songManagerObservers;
     private List<Library> m_libraries;
-    private File m_fileBuffer; //can be a directory
+    private File m_fileBuffer;
     private List<Playlist> m_playlists;
 
     // For observer pattern
@@ -43,12 +43,17 @@ public class SongManager {
         if (isInLibrary(directoryPath)) {
             return false;
         }
-        Library newLibrary = new Library(directoryPath);
-        if (!newLibrary.getM_rootDir().exists()) {
-            return false;
+        try {
+            Library newLibrary = new Library(directoryPath);
+            if (!newLibrary.getM_rootDir().exists()) {
+                return false;
+            }
+            m_libraries.add(newLibrary);
+            return true;
+        } catch(NullPointerException e) {
+            e.printStackTrace();
         }
-        m_libraries.add(newLibrary);
-        return true;
+        return false;
     }
 
     /**
@@ -92,14 +97,6 @@ public class SongManager {
     public void registerNewObserver(SongManagerObserver observer) {
         m_songManagerObservers.add(observer);
     }
-
-    /*public boolean addSong(Song songToAdd, Library library) {
-        return library.addSong(songToAdd);
-    }
-
-    public boolean removeSong(Song songToRemove, Library library) {
-        return library.removeSong(songToRemove);
-    }*/
 
     public void setM_fileBuffer(File m_fileBuffer) {
         this.m_fileBuffer = m_fileBuffer;
@@ -210,7 +207,6 @@ public class SongManager {
     public MenuOptions getM_menuOptions(){
         return m_menuOptions;
     }
-
 
     /**********
      * Functions for observer pattern

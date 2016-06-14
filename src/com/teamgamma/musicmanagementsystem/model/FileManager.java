@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.model;
 
 import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
+
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -18,16 +19,14 @@ import java.util.List;
  * Class to manage files in the program.
  */
 public class FileManager {
+    private static final Image folderImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "folder-icon.png"));
+    private static final Image songImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "music-file-icon.png"));
+
     /**
      * Recursively create tree items from the files in a directory and return a reference to the root item
      *
      * @return TreeItem<String> to the root item
      */
-
-    public static Image folderImage = new Image(ClassLoader.getSystemResourceAsStream("com/teamgamma/musicmanagementsystem/images/Folder-icon.png"));
-    public static Image songImage = new Image(ClassLoader.getSystemResourceAsStream("com/teamgamma/musicmanagementsystem/images/iTunes-mp3-3.png"));
-
-
     public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath, boolean showFolderOnly) {
         TreeItem<TreeViewItem> item = new TreeItem<>(
                 (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
@@ -112,6 +111,22 @@ public class FileManager {
         }
 
         return musicFiles;
+    }
+
+    /**
+     * Move file to the destDir
+     *
+     * @param fileToMove: File to be moved
+     * @param destDir:    File object with path to destination directory
+     * @return true if file is moved successfully
+     * @throws IOException
+     */
+    public static boolean moveFile(File fileToMove, File destDir) throws IOException {
+        Path sourceFilePath = fileToMove.toPath();
+        Path destDirPath = destDir.toPath();
+        Path destFilePath = destDirPath.resolve(sourceFilePath.getFileName());
+        Path resultPath = Files.move(fileToMove.toPath(), destFilePath);
+        return (resultPath.getParent().equals(destDir.toPath()));
     }
 
     /**
