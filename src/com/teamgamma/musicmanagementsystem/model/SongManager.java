@@ -43,12 +43,18 @@ public class SongManager {
         if (isInLibrary(directoryPath)) {
             return false;
         }
-        Library newLibrary = new Library(directoryPath);
-        if (!newLibrary.getM_rootDir().exists()) {
-            return false;
+        try {
+            Library newLibrary = new Library(directoryPath);
+            if (!newLibrary.getM_rootDir().exists()) {
+                return false;
+            }
+            m_libraries.add(newLibrary);
+            return true;
         }
-        m_libraries.add(newLibrary);
-        return true;
+        catch(NullPointerException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**
