@@ -6,9 +6,8 @@ import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
 import com.teamgamma.musicmanagementsystem.misc.CustomTreeCell;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
-import javafx.event.EventHandler;
+
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 
@@ -19,12 +18,12 @@ import java.util.List;
  * UI for the user's or external library
  */
 public class LibraryUI extends StackPane {
-    private SongManager model;
-    private TreeView<TreeViewItem> tree;
+    private SongManager m_model;
+    private TreeView<TreeViewItem> m_tree;
 
     public LibraryUI(SongManager model) {
         super();
-        this.model = model;
+        m_model = model;
         updateTreeView();
         setPaneStyle();
         registerAsLibraryObserver();
@@ -32,52 +31,30 @@ public class LibraryUI extends StackPane {
 
     private void updateTreeView() {
         System.out.println("updating treeview...");
-        List<Library> libraries = model.getM_libraries();
+        List<Library> libraries = m_model.getM_libraries();
 
         if (libraries.isEmpty()) {
             this.getChildren().add(new Label("Add a library"));
         } else {
-            tree = createTrees(libraries);
-            this.getChildren().add(tree);
-            setMouseEvent(tree);
+            m_tree = createTrees(libraries);
+            this.getChildren().add(m_tree);
             setTreeCellFactory();
         }
     }
 
     private void setTreeCellFactory() {
         System.out.println("setting cell factory...");
-        tree.setCellFactory(new Callback<TreeView<TreeViewItem>, TreeCell<TreeViewItem>>() {
+        m_tree.setCellFactory(new Callback<TreeView<TreeViewItem>, TreeCell<TreeViewItem>>() {
             @Override
             public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg) {
-                // custom tree cell that defines a context menu for the root tree item
-                return new CustomTreeCell(model, tree, true);
-            }
-        });
-    }
-
-    /**
-     * Notify observers on mouse event
-     *
-     * @param treeView
-     */
-    private void setMouseEvent(TreeView<TreeViewItem> treeView) {
-        treeView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if (mouseEvent.getClickCount() == 2) {
-                    TreeItem<TreeViewItem> item = treeView.getSelectionModel().getSelectedItem();
-                    if (item != null && item.getValue() != null) {
-                        System.out.println("Selected Text : " + item.getValue());
-                        model.setCenterFolder(item.getValue().getPath());
-                        model.notifyCenterFolderObservers();
-                    }
-                }
+                // custom m_tree cell that defines a context menu for the root m_tree item
+                return new CustomTreeCell(m_model, m_tree, true);
             }
         });
     }
 
     private void registerAsLibraryObserver() {
-        model.addObserver(new SongManagerObserver() {
+        m_model.addObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
                 System.out.println("Library changed in treeview");
@@ -117,13 +94,13 @@ public class LibraryUI extends StackPane {
     }
 
     private void clearTreeView() {
-        //tree.setRoot(null);
+        //m_tree.setRoot(null);
         System.out.println("clearing treeview...");
         this.getChildren().clear();
     }
 
     /**
-     * Construct the tree view
+     * Construct the m_tree view
      *
      * @return TreeView<String>
      */
@@ -133,7 +110,7 @@ public class LibraryUI extends StackPane {
 
         for (Library library : libraries) {
             TreeItem<TreeViewItem> rootItem = FileManager.generateTreeItems(
-                    library.getM_rootDir(), library.getM_rootDirPath(), model.getM_menuOptions().getM_leftPanelShowFolder()
+                    library.getM_rootDir(), library.getM_rootDirPath(), m_model.getM_menuOptions().getM_leftPanelShowFolder()
             );
             rootItem.setExpanded(true);
             System.out.println("Added new root path:" + rootItem.toString());
