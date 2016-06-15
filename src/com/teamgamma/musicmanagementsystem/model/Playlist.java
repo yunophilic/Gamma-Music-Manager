@@ -16,18 +16,35 @@ public class Playlist {
         m_songList = new ArrayList<>();
     }
 
+    /**
+     * Add song to playlist
+     * @param songToAdd
+     * @return boolean
+     */
     public boolean addSong(Song songToAdd) {
         return m_songList.add(songToAdd);
     }
 
+    /**
+     * Remove song from playlist
+     * @param songToRemove
+     * @return boolean
+     */
     public boolean removeSong(Song songToRemove) {
         return m_songList.remove(songToRemove);
     }
 
-    public void randomizePlaylist() {
+    /**
+     * Shuffle order of songs in playlist
+     */
+    public void shufflePlaylist() {
         Collections.shuffle(m_songList);
     }
 
+    /**
+     * Get playlist
+     * @return playlist
+     */
     public List<Song> getM_songList() {
         return m_songList;
     }

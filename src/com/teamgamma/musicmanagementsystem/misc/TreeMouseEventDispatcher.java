@@ -8,7 +8,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
 /**
- * Event handling class used in CustomTreeCell
+ * Custom EventDispatcher class to override the default double-click behaviour of TreeView
  */
 public class TreeMouseEventDispatcher implements EventDispatcher {
     private final EventDispatcher m_originalDispatcher;
@@ -21,12 +21,19 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
         m_selectedTreeViewItem = selectedTreeViewItem;
     }
 
+    /**
+     * Override the default collapse/expand behaviour of TreeViewItems, only show content in center panel
+     * @param event
+     * @param tail
+     * @return dispatch event
+     */
     @Override
     public Event dispatchEvent(Event event, EventDispatchChain tail) {
         if (event instanceof MouseEvent) {
-            if (((MouseEvent) event).getButton() == MouseButton.PRIMARY
-                    && ((MouseEvent) event).getClickCount() == 2) {
+            boolean isPrimaryMouseButton = ((MouseEvent) event).getButton() == MouseButton.PRIMARY;
+            boolean isDoubleClick = ((MouseEvent) event).getClickCount() == 2;
 
+            if (isPrimaryMouseButton && isDoubleClick) {
                 if (!event.isConsumed()) {
                     System.out.println("Selected Item: " + m_selectedTreeViewItem);
                     m_model.setCenterFolder(m_selectedTreeViewItem.getM_file());

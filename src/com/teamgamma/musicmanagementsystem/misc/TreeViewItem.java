@@ -17,7 +17,7 @@ public class TreeViewItem {
     /**
      * For tree view, show absolute m_file if this is an root m_file, otherwise, show just the file name
      *
-     * @return string
+     * @return string to show in TreeItem
      */
     @Override
     public String toString() {

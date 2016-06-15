@@ -77,13 +77,6 @@ public class FileManager {
             listOfSongs.add(new Song(musicFile.getAbsolutePath()));
         }
 
-        // For debugging
-        /*System.out.println("Number of music files found: " + listOfSongs.size());
-        for (Song song: listOfSongs) {
-            System.out.println("Song: " + song.getM_fileName());
-            System.out.println("      " + song.getM_rootDir().getAbsolutePath());
-        }*/
-
         return listOfSongs;
     }
 
