@@ -4,7 +4,9 @@ import java.io.File;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.audio.mp3.MP3File;
+import org.jaudiotagger.tag.FieldDataInvalidException;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.id3.ID3v24Tag;
@@ -12,6 +14,7 @@ import org.jaudiotagger.tag.id3.ID3v24Tag;
 /**
  * Underlying data structure for a Song. A File plus data additional data.
  * Credits to http://www.jthink.net/jaudiotagger/ for reading writing the song metadata
+ * Credits to https://github.com/soc/jaudiotagger/blob/master/src/main/java/org/jaudiotagger/tag/id3/reference/MediaMonkeyPlayerRating.java for rating conversion
  */
 public class Song {
     private File m_file;
@@ -30,36 +33,43 @@ public class Song {
         try {
             AudioFile file = AudioFileIO.read(m_file);
             Tag tag = file.getTag();
+            if (tag == null) {
+                tag = fillEmptyTag(file);
+            }
+            parseTags(tag);
+
             MP3File mp3File = new MP3File(m_file);
             m_length =  mp3File.getMP3AudioHeader().getPreciseTrackLength();
             m_frames = mp3File.getMP3AudioHeader().getNumberOfFrames();
-            //add new tag to file if tag is empty
-            if (tag == null) {
-                tag = new ID3v24Tag();
-                tag.setField(FieldKey.TITLE, "");
-                tag.setField(FieldKey.ARTIST, "");
-                tag.setField(FieldKey.ALBUM, "");
-                tag.setField(FieldKey.GENRE, "");
-                tag.setField(FieldKey.RATING, "");
-                file.setTag(tag);
-                AudioFileIO.write(file);
-            }
-
-            //parse metadata tags to attributes
-            m_title = tag.getFirst(FieldKey.TITLE);
-            m_artist = tag.getFirst(FieldKey.ARTIST);
-            m_album = tag.getFirst(FieldKey.ALBUM);
-            m_genre = tag.getFirst(FieldKey.GENRE);
-            String ratingInMetadata = tag.getFirst(FieldKey.RATING);
-            m_rating = Integer.toString(
-                    convertRatingToFiveStarScale(ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata))
-            );
         } catch (Exception e) {
             e.printStackTrace(); //for now
         }
     }
 
-    //credits to https://github.com/soc/jaudiotagger/blob/master/src/main/java/org/jaudiotagger/tag/id3/reference/MediaMonkeyPlayerRating.java
+    private void parseTags(Tag tag) {
+        m_title = tag.getFirst(FieldKey.TITLE);
+        m_artist = tag.getFirst(FieldKey.ARTIST);
+        m_album = tag.getFirst(FieldKey.ALBUM);
+        m_genre = tag.getFirst(FieldKey.GENRE);
+        String ratingInMetadata = tag.getFirst(FieldKey.RATING);
+        m_rating = Integer.toString(
+                convertRatingToFiveStarScale(ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata))
+        );
+    }
+
+    private Tag fillEmptyTag(AudioFile file) throws FieldDataInvalidException, CannotWriteException {
+        Tag tag;
+        tag = new ID3v24Tag();
+        tag.setField(FieldKey.TITLE, "");
+        tag.setField(FieldKey.ARTIST, "");
+        tag.setField(FieldKey.ALBUM, "");
+        tag.setField(FieldKey.GENRE, "");
+        tag.setField(FieldKey.RATING, "");
+        file.setTag(tag);
+        AudioFileIO.write(file);
+        return tag;
+    }
+
     private static int convertRatingFromFiveStarScale(int value) {
         if (value < 0 || value > 5)
             throw new IllegalArgumentException("convertRatingFromFiveStarScale() accepts values from 0 to 5 not: " + value);
@@ -94,7 +104,6 @@ public class Song {
         return newValue;
     }
 
-    //credits to https://github.com/soc/jaudiotagger/blob/master/src/main/java/org/jaudiotagger/tag/id3/reference/MediaMonkeyPlayerRating.java
     private static int convertRatingToFiveStarScale(int value) {
         int newValue = 0;
         if (value <= 0)
@@ -231,7 +240,11 @@ public class Song {
         }
     }
 
-    public double getM_length() {return m_length;}
+    public double getM_length() {
+        return m_length;
+    }
 
-    public long getM_frames() {return m_frames;}
+    public long getM_frames() {
+        return m_frames;
+    }
 }

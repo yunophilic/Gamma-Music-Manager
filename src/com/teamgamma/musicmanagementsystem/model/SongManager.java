@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,8 @@ import java.util.List;
 public class SongManager {
     private List<SongManagerObserver> m_songManagerObservers;
     private List<Library> m_libraries;
-    private File m_fileBuffer;
+    private File m_fileToCopy;
+    private File m_fileToMove;
     private List<Playlist> m_playlists;
 
     // For observer pattern
@@ -25,7 +27,8 @@ public class SongManager {
     public SongManager() {
         m_songManagerObservers = new ArrayList<>();
         m_libraries = new ArrayList<>();
-        m_fileBuffer = null;
+        m_fileToCopy = null;
+        m_fileToMove = null;
         m_playlists = new ArrayList<>();
         m_selectedCenterFolder = null;
         m_rightFolderSelected = null;
@@ -90,34 +93,81 @@ public class SongManager {
         return null;
     }
 
+    /**
+     * Get libraries
+     * @return list of libraries
+     */
     public List<Library> getM_libraries() {
         return m_libraries;
     }
 
-    public void registerNewObserver(SongManagerObserver observer) {
-        m_songManagerObservers.add(observer);
+    /**
+     * Set file/folder to be copied
+     * @param m_fileToCopy
+     */
+    public void setM_fileToCopy(File m_fileToCopy) {
+        this.m_fileToCopy = m_fileToCopy;
     }
 
-    public void setM_fileBuffer(File m_fileBuffer) {
-        this.m_fileBuffer = m_fileBuffer;
+    /**
+     * Set file/folder to be moved
+     * @param m_fileToMove
+     */
+    public void setM_fileToMove(File m_fileToMove) {
+        this.m_fileToMove = m_fileToMove;
     }
 
-    public boolean copyToDestination(File dest) throws IOException, InvalidPathException {
-        if (m_fileBuffer == null) {
-            return false;
+    /**
+     * Copy files in buffer to destination
+     * @param dest the destination folder
+     * @throws IOException
+     * @throws InvalidPathException
+     */
+    public void copyToDestination(File dest) throws Exception {
+        if (m_fileToCopy == null) {
+            throw new Exception("File to copy should not be null");
         }
 
-        //copy in file system
-        if (!FileManager.copyFilesRecursively(m_fileBuffer, dest)) {
-            return false;
+        if (!FileManager.copyFilesRecursively(m_fileToCopy, dest)) {
+            throw new IOException("Fail to copy");
         }
 
-        //update song objects inside the model
         updateLibraries();
-
-        return true;
     }
 
+    /**
+     * Move file from source to destination
+     * @param fileToMove
+     * @param destDir
+     * @throws IOException
+     */
+    public void moveFile(File fileToMove, File destDir) throws IOException {
+        FileManager.moveFile(fileToMove, destDir);
+        updateLibraries();
+    }
+
+    /**
+     * Delete a file
+     * @param fileToDelete
+     * @throws Exception
+     */
+    public void deleteFile(File fileToDelete) throws Exception {
+        if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
+            m_rightFolderSelected = null;
+        }
+        if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
+            m_selectedCenterFolder = null;
+        }
+
+        if (!FileManager.removeFile(fileToDelete)) {
+            throw new FileSystemException("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
+        }
+        updateLibraries();
+    }
+
+    /**
+     * Update the list of libraries
+     */
     private void updateLibraries() {
         // Delete current libraries and create new libraries with same paths
         // to update songs in libraries when files are moved
@@ -137,17 +187,26 @@ public class SongManager {
         }
     }
 
+    /**
+     * Get list of songs in a certain library within the library list
+     * @param library
+     * @return list of songs
+     */
     public List<Song> getSongs(Library library) {
         return library.getM_songList();
     }
 
+    /**
+     * Get songs to display in center panel
+     * @return list of songs
+     */
     public List<Song> getCenterPanelSongs() {
         List<Song> centerPanelSongs = new ArrayList<>();
         System.out.println("== Selected center folder: " + m_selectedCenterFolder.getAbsolutePath());
 
         if (m_selectedCenterFolder != null) {
             for (Library library : m_libraries) {
-                for (Song song : this.getSongs(library)) {
+                for (Song song : getSongs(library)) {
                     if (m_menuOptions.getM_centerPanelShowSubfolderFiles()) {
                         String songFilePath = song.getM_file().getAbsolutePath();
                         if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath())) {
@@ -168,40 +227,28 @@ public class SongManager {
     }
 
 
-    public File getRightFolderSelected() {
+    public File getM_rightFolderSelected() {
         return m_rightFolderSelected;
     }
 
-
-    public void setRightFolderSelected(File rightFolderSelected) {
-        m_rightFolderSelected = rightFolderSelected;
-    }
-
-
-    public void deleteFile(File fileToDelete) throws Exception {
-        if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
-            m_rightFolderSelected = null;
-        }
-        if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
-            m_selectedCenterFolder = null;
-        }
-
-        if (!FileManager.removeFile(fileToDelete)) {
-            throw new Exception("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
-        }
-        updateLibraries();
-    }
-
-    public void setCenterFolder(File newFolderSelected) {
-        this.m_selectedCenterFolder = newFolderSelected;
+    public void setM_rightFolderSelected(File m_rightFolderSelected) {
+        this.m_rightFolderSelected = m_rightFolderSelected;
     }
 
     public File getM_selectedCenterFolder() {
         return m_selectedCenterFolder;
     }
 
-    public File getM_fileBuffer() {
-        return m_fileBuffer;
+    public void setM_selectedCenterFolder(File m_newFolderSelected) {
+        this.m_selectedCenterFolder = m_newFolderSelected;
+    }
+
+    public File getM_fileToCopy() {
+        return m_fileToCopy;
+    }
+
+    public File getM_fileToMove() {
+        return m_fileToMove;
     }
 
     public MenuOptions getM_menuOptions(){

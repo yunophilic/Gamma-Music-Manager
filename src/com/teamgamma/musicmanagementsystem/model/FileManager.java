@@ -32,7 +32,7 @@ public class FileManager {
                 (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
         );
 
-        File treeItemFile = item.getValue().getPath();
+        File treeItemFile = item.getValue().getM_file();
         if (treeItemFile.isDirectory()) {
             item.setGraphic(new ImageView(folderImage));
         } else {
@@ -76,13 +76,6 @@ public class FileManager {
         for (File musicFile : musicFiles) {
             listOfSongs.add(new Song(musicFile.getAbsolutePath()));
         }
-
-        // For debugging
-        /*System.out.println("Number of music files found: " + listOfSongs.size());
-        for (Song song: listOfSongs) {
-            System.out.println("Song: " + song.getM_fileName());
-            System.out.println("      " + song.getM_rootDir().getAbsolutePath());
-        }*/
 
         return listOfSongs;
     }

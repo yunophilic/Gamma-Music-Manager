@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 
 
 /**
- * Class to manage database 
+ * Class to manage database
  */
 public class DatabaseManager {
 
@@ -28,6 +28,8 @@ public class DatabaseManager {
         try {
             Class.forName("org.sqlite.JDBC");
             System.out.println("Connecting to database...");
+            new File(System.getProperty("user.dir") + File.separator + "db").mkdir();
+
             // establish connection
             connection = DriverManager.getConnection("jdbc:sqlite:" + System.getProperty("user.dir") +
                     File.separator + "db" + File.separator + "dbFile.db");
