@@ -6,6 +6,7 @@ import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
 import com.teamgamma.musicmanagementsystem.misc.CustomTreeCell;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
@@ -14,12 +15,14 @@ import java.io.File;
 import java.util.List;
 
 public class DynamicTreeViewUI extends StackPane {
-    private SongManager model;
-    private TreeView<TreeViewItem> tree;
+    private SongManager m_model;
+    private MusicPlayerManager m_musicPlayerManager;
+    private TreeView<TreeViewItem> m_tree;
 
-    public DynamicTreeViewUI(SongManager model) {
+    public DynamicTreeViewUI(SongManager model, MusicPlayerManager musicPlayerManager) {
         super();
-        this.model = model;
+        m_model = model;
+        m_musicPlayerManager = musicPlayerManager;
         setPaneStyle();
         registerAsObserver();
 
@@ -28,31 +31,31 @@ public class DynamicTreeViewUI extends StackPane {
 
     private void updateTreeView() {
         System.out.println("updating treeview...");
-        List<Library> libraries = model.getM_libraries();
+        List<Library> libraries = m_model.getM_libraries();
 
-        if (model.getRightFolderSelected() == null) {
+        if (m_model.getRightFolderSelected() == null) {
             this.getChildren().add(new Label("Choose a folder to view"));
         } else {
-            tree = createTrees(libraries);
-            this.getChildren().add(tree);
+            m_tree = createTrees(libraries);
+            this.getChildren().add(m_tree);
             setTreeCellFactory();
         }
     }
 
     private void setTreeCellFactory() {
         System.out.println("setting cell factory...");
-        tree.setCellFactory(new Callback<TreeView<TreeViewItem>, TreeCell<TreeViewItem>>() {
+        m_tree.setCellFactory(new Callback<TreeView<TreeViewItem>, TreeCell<TreeViewItem>>() {
             @Override
             public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg) {
-                // custom tree cell that defines a context menu for the root tree item
-                return new CustomTreeCell(model, tree, false);
+                // custom m_tree cell that defines a context menu for the root m_tree item
+                return new CustomTreeCell(m_model, m_musicPlayerManager, m_tree, false);
             }
         });
     }
 
 
     private void registerAsObserver() {
-        model.addObserver(new SongManagerObserver() {
+        m_model.addObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
                 clearTreeView();
@@ -91,13 +94,13 @@ public class DynamicTreeViewUI extends StackPane {
     }
 
     private void clearTreeView() {
-        //tree.setRoot(null);
+        //m_tree.setRoot(null);
         System.out.println("clearing treeview...");
         this.getChildren().clear();
     }
 
     /**
-     * Construct the tree view
+     * Construct the m_tree view
      *
      * @return TreeView<String>
      */
@@ -107,7 +110,7 @@ public class DynamicTreeViewUI extends StackPane {
             TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
 
             TreeItem<TreeViewItem> rootItem = FileManager.generateTreeItems(
-                    model.getRightFolderSelected(), model.getRightFolderSelected().getAbsolutePath(), false
+                    m_model.getRightFolderSelected(), m_model.getRightFolderSelected().getAbsolutePath(), false
             );
 
             rootItem.setExpanded(true);

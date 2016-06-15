@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.List;
@@ -118,6 +119,25 @@ public class SongManager {
         return true;
     }
 
+    public void moveFile(File fileToMove, File destDir) throws IOException {
+        FileManager.moveFile(fileToMove, destDir);
+        updateLibraries();
+    }
+
+    public void deleteFile(File fileToDelete) throws Exception {
+        if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
+            m_rightFolderSelected = null;
+        }
+        if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
+            m_selectedCenterFolder = null;
+        }
+
+        if (!FileManager.removeFile(fileToDelete)) {
+            throw new FileSystemException("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
+        }
+        updateLibraries();
+    }
+
     private void updateLibraries() {
         // Delete current libraries and create new libraries with same paths
         // to update songs in libraries when files are moved
@@ -167,29 +187,12 @@ public class SongManager {
         return centerPanelSongs;
     }
 
-
     public File getRightFolderSelected() {
         return m_rightFolderSelected;
     }
 
-
     public void setRightFolderSelected(File rightFolderSelected) {
         m_rightFolderSelected = rightFolderSelected;
-    }
-
-
-    public void deleteFile(File fileToDelete) throws Exception {
-        if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
-            m_rightFolderSelected = null;
-        }
-        if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
-            m_selectedCenterFolder = null;
-        }
-
-        if (!FileManager.removeFile(fileToDelete)) {
-            throw new Exception("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
-        }
-        updateLibraries();
     }
 
     public void setCenterFolder(File newFolderSelected) {
