@@ -18,10 +18,10 @@ public class Watcher {
     private WatchService m_watcher;
     private WatchKey m_watchKey;
     private Thread m_watcherThread;
-    private SongManager model;
+    private SongManager m_model;
 
     public Watcher(SongManager model) {
-        this.model = model;
+        this.m_model = model;
         registerAsObserver();
         openWatcher();
         updateWatcher();
@@ -43,7 +43,7 @@ public class Watcher {
                         m_watchKey = m_watcher.poll(5, TimeUnit.SECONDS);
 
                         if (m_watchKey == null) { //WatchKey failed to grab more events
-                            Platform.runLater(() -> model.notifyFileObservers());
+                            Platform.runLater(() -> m_model.notifyFileObservers());
                             break;
                         }
                     }
@@ -97,7 +97,7 @@ public class Watcher {
 
     private void updateWatcher() {
         List<File> deletedDirs = new ArrayList<>();
-        for (Library lib : model.getM_libraries()) {
+        for (Library lib : m_model.getM_libraries()) {
             try {
                 addWatchDir(lib.getM_rootDirPath());
             } catch (IOException e) {
@@ -132,12 +132,12 @@ public class Watcher {
         PersistentStorage persistentStorage = new PersistentStorage();
         for (File file : deletedDirs) {
             persistentStorage.removePersistentStorageLibrary(file.getAbsolutePath());
-            model.removeLibrary(file);
+            m_model.removeLibrary(file);
         }
     }
 
     private void registerAsObserver() {
-        model.addObserver(new SongManagerObserver() {
+        m_model.addObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
                 restartWatcher();
