@@ -32,7 +32,7 @@ public class FileManager {
                 (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
         );
 
-        File treeItemFile = item.getValue().getPath();
+        File treeItemFile = item.getValue().getM_file();
         if (treeItemFile.isDirectory()) {
             item.setGraphic(new ImageView(folderImage));
         } else {

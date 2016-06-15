@@ -1,6 +1,5 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
-import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
@@ -37,7 +36,7 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
             if (isPrimaryMouseButton && isDoubleClick) {
                 if (!event.isConsumed()) {
                     System.out.println("Selected Item: " + m_selectedTreeViewItem);
-                    m_model.setCenterFolder(m_selectedTreeViewItem.getPath());
+                    m_model.setM_selectedCenterFolder(m_selectedTreeViewItem.getM_file());
                     m_model.notifyCenterFolderObservers();
                 }
 

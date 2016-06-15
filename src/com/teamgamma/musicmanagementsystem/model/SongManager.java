@@ -13,7 +13,8 @@ import java.util.List;
 public class SongManager {
     private List<SongManagerObserver> m_songManagerObservers;
     private List<Library> m_libraries;
-    private File m_fileBuffer;
+    private File m_fileToCopy;
+    private File m_fileToMove;
     private List<Playlist> m_playlists;
 
     // For observer pattern
@@ -26,7 +27,8 @@ public class SongManager {
     public SongManager() {
         m_songManagerObservers = new ArrayList<>();
         m_libraries = new ArrayList<>();
-        m_fileBuffer = null;
+        m_fileToCopy = null;
+        m_fileToMove = null;
         m_playlists = new ArrayList<>();
         m_selectedCenterFolder = null;
         m_rightFolderSelected = null;
@@ -100,34 +102,37 @@ public class SongManager {
     }
 
     /**
-     * Set file(s) to be copied
-     * @param m_fileBuffer
+     * Set file/folder to be copied
+     * @param m_fileToCopy
      */
-    public void setM_fileBuffer(File m_fileBuffer) {
-        this.m_fileBuffer = m_fileBuffer;
+    public void setM_fileToCopy(File m_fileToCopy) {
+        this.m_fileToCopy = m_fileToCopy;
+    }
+
+    /**
+     * Set file/folder to be moved
+     * @param m_fileToMove
+     */
+    public void setM_fileToMove(File m_fileToMove) {
+        this.m_fileToMove = m_fileToMove;
     }
 
     /**
      * Copy files in buffer to destination
-     * @param dest
-     * @return
+     * @param dest the destination folder
      * @throws IOException
      * @throws InvalidPathException
      */
-    public boolean copyToDestination(File dest) throws IOException, InvalidPathException {
-        if (m_fileBuffer == null) {
-            return false;
+    public void copyToDestination(File dest) throws Exception {
+        if (m_fileToCopy == null) {
+            throw new Exception("File to copy should not be null");
         }
 
-        //copy in file system
-        if (!FileManager.copyFilesRecursively(m_fileBuffer, dest)) {
-            return false;
+        if (!FileManager.copyFilesRecursively(m_fileToCopy, dest)) {
+            throw new IOException("Fail to copy");
         }
 
-        //update song objects inside the model
         updateLibraries();
-
-        return true;
     }
 
     /**
@@ -201,7 +206,7 @@ public class SongManager {
 
         if (m_selectedCenterFolder != null) {
             for (Library library : m_libraries) {
-                for (Song song : this.getSongs(library)) {
+                for (Song song : getSongs(library)) {
                     if (m_menuOptions.getM_centerPanelShowSubfolderFiles()) {
                         String songFilePath = song.getM_file().getAbsolutePath();
                         if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath())) {
@@ -221,24 +226,29 @@ public class SongManager {
         return centerPanelSongs;
     }
 
-    public File getRightFolderSelected() {
+
+    public File getM_rightFolderSelected() {
         return m_rightFolderSelected;
     }
 
-    public void setRightFolderSelected(File rightFolderSelected) {
-        m_rightFolderSelected = rightFolderSelected;
-    }
-
-    public void setCenterFolder(File newFolderSelected) {
-        this.m_selectedCenterFolder = newFolderSelected;
+    public void setM_rightFolderSelected(File m_rightFolderSelected) {
+        this.m_rightFolderSelected = m_rightFolderSelected;
     }
 
     public File getM_selectedCenterFolder() {
         return m_selectedCenterFolder;
     }
 
-    public File getM_fileBuffer() {
-        return m_fileBuffer;
+    public void setM_selectedCenterFolder(File m_newFolderSelected) {
+        this.m_selectedCenterFolder = m_newFolderSelected;
+    }
+
+    public File getM_fileToCopy() {
+        return m_fileToCopy;
+    }
+
+    public File getM_fileToMove() {
+        return m_fileToMove;
     }
 
     public MenuOptions getM_menuOptions(){

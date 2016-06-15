@@ -33,7 +33,7 @@ public class DynamicTreeViewUI extends StackPane {
         System.out.println("updating treeview...");
         List<Library> libraries = m_model.getM_libraries();
 
-        if (m_model.getRightFolderSelected() == null) {
+        if (m_model.getM_rightFolderSelected() == null) {
             this.getChildren().add(new Label("Choose a folder to view"));
         } else {
             m_tree = createTrees(libraries);
@@ -110,7 +110,7 @@ public class DynamicTreeViewUI extends StackPane {
             TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
 
             TreeItem<TreeViewItem> rootItem = FileManager.generateTreeItems(
-                    m_model.getRightFolderSelected(), m_model.getRightFolderSelected().getAbsolutePath(), false
+                    m_model.getM_rightFolderSelected(), m_model.getM_rightFolderSelected().getAbsolutePath(), false
             );
 
             rootItem.setExpanded(true);
