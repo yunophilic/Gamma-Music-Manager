@@ -70,12 +70,18 @@ public class MusicPlayerUI extends BorderPane {
         manager.registerErrorObservers(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                Exception e = manager.getError();
-                if (e == null) {
-                    PromptUI.unexpectedCrash();
-                } else {
-                    PromptUI.customPromptError("Music Player Error", e.getMessage(), e.toString());
-                }
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Exception e = manager.getError();
+                        if (e == null) {
+                            PromptUI.unexpectedCrash();
+                        } else {
+                            PromptUI.customPromptError("Music Player Error", e.getMessage(), e.toString());
+                        }
+                    }
+                });
+
             }
         });
         setCssStyle();

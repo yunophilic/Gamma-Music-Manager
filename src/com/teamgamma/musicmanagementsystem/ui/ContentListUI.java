@@ -11,6 +11,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
 import java.io.File;
@@ -143,6 +144,13 @@ public class ContentListUI extends StackPane {
                         if (event.getClickCount() == 2) {
                             System.out.println(table.getSelectionModel().getSelectedItem());
                             manager.playSongRightNow((Song) table.getSelectionModel().getSelectedItem());
+                        }
+                        if (event.getButton() == MouseButton.SECONDARY){
+                            System.out.println("Right click, adding to queue ");
+                            Song selectedSong = (Song) table.getSelectionModel().getSelectedItem();
+                            if (selectedSong != null) {
+                                manager.placeSongOnPlaybackQueue(selectedSong);
+                            }
                         }
                     }
                 });

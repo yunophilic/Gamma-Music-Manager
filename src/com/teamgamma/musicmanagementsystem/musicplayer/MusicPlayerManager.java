@@ -7,7 +7,12 @@ import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.Port;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -37,6 +42,8 @@ public class MusicPlayerManager {
 
     private List<MusicPlayerObserver> m_errorObservers;
 
+    private List<MusicPlayerObserver> m_queuingObserver;
+
     private Exception m_lastException;
 
     // Default value is 1 in JavaFX Media Player
@@ -53,7 +60,7 @@ public class MusicPlayerManager {
         m_playbackObservers = new ArrayList<MusicPlayerObserver>();
         m_changeStateObserver = new ArrayList<MusicPlayerObserver>();
         m_errorObservers = new ArrayList<MusicPlayerObserver>();
-
+        m_queuingObserver = new ArrayList<MusicPlayerObserver>();
         m_musicPlayer = new JlayerMP3Player(this);
     }
 
@@ -61,6 +68,7 @@ public class MusicPlayerManager {
      * Function to load the next song in the queue and play it.
      */
     public void playNextSong() {
+        System.out.println("Play next song");
         if (isPlayingSongOnFromHistoryList() && m_historyIndex < m_songHistory.size() - 1) {
             if (m_repeatSong) {
                 m_musicPlayer.playSong(m_currentSong);
@@ -71,14 +79,14 @@ public class MusicPlayerManager {
             }
         } else {
             Song nextSong = m_playingQueue.poll();
+            System.out.println("The next song is " + nextSong);
             if (null == nextSong) {
                 // No more songs to play.
                 if (m_repeatSong) {
                     m_musicPlayer.playSong(m_currentSong);
                 }
             } else {
-                m_musicPlayer.playSong(nextSong);
-                updateHistory();
+                playSongRightNow(nextSong);
             }
         }
     }
@@ -92,6 +100,8 @@ public class MusicPlayerManager {
         m_currentSong = songToPlay;
         m_musicPlayer.playSong(songToPlay);
         updateHistory();
+
+        notifyQueingObserver();
     }
 
     /**
@@ -108,6 +118,7 @@ public class MusicPlayerManager {
             // TODO: Make it move to front by changing prioirty.
             m_playingQueue.add(nextSong);
         }
+        notifyQueingObserver();
 
     }
 
@@ -169,6 +180,7 @@ public class MusicPlayerManager {
         if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.increaseVolume();
         }
+        setVolumeControl();
     }
 
     /**
@@ -181,6 +193,7 @@ public class MusicPlayerManager {
         if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.decreaseVolume();
         }
+        setVolumeControl();
     }
 
     /**
@@ -220,7 +233,7 @@ public class MusicPlayerManager {
      * @return The end time of the song.
      */
     public Duration getEndTime() {
-        return new Duration(m_currentSong.getM_length() * 1000);
+        return new Duration(m_currentSong.getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
     }
 
     /**
@@ -444,7 +457,68 @@ public class MusicPlayerManager {
         }
     }
 
+    /**
+     * Function to get the current volume level.
+     * @return  The current volume level
+     */
     public double getCurrentVolumeLevel() {
         return m_volumeLevel;
+    }
+
+    /**
+     * WIP
+     * Function to set the volume using Java Sound API.
+     */
+    private void setVolumeControl() {
+        Port lineIn;
+        FloatControl volCtrl;
+        try {
+            Mixer mixer = AudioSystem.getMixer(null);
+            lineIn = (Port)mixer.getLine(Port.Info.SPEAKER);
+            lineIn.open();
+            volCtrl = (FloatControl) lineIn.getControl(
+                    FloatControl.Type.VOLUME);
+
+            volCtrl.setValue((float) m_volumeLevel);
+            // Assuming getControl call succeeds,
+            // we now have our LINE_IN VOLUME control.
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Failed trying to find LINE_IN"
+                    + " VOLUME control: exception = " + e);
+        }
+    }
+
+    /**
+     * Function to get the history of songs that have been played in the music player
+     *
+     * @return  The list of songs representing the history.
+     */
+    public List<Song> getHistory() {
+        return m_songHistory;
+    }
+
+    /**
+     * Function to get all songs in the playing Queue.
+     *
+     * @return The songs that are in the playing queue.
+     */
+    public Collection<Song> getPlayingQueue() {
+        return m_playingQueue;
+    }
+
+    /**
+     * Function to register a observer for when there is an update to the playing queue.
+     * @param observer
+     */
+    public void registerQueingObserver(MusicPlayerObserver observer) {
+        m_queuingObserver.add(observer);
+    }
+
+    /**
+     * Function to notify the observers watching for updates to the playback queeu.
+     */
+    public void notifyQueingObserver() {
+        notifyAll(m_queuingObserver);
     }
 }
