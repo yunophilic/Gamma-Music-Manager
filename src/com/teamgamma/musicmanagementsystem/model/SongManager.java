@@ -13,7 +13,8 @@ import java.util.List;
 public class SongManager {
     private List<SongManagerObserver> m_songManagerObservers;
     private List<Library> m_libraries;
-    private File m_fileBuffer;
+    private File m_fileToCopy;
+    private File m_fileToMove;
     private List<Playlist> m_playlists;
 
     // For observer pattern
@@ -26,7 +27,8 @@ public class SongManager {
     public SongManager() {
         m_songManagerObservers = new ArrayList<>();
         m_libraries = new ArrayList<>();
-        m_fileBuffer = null;
+        m_fileToCopy = null;
+        m_fileToMove = null;
         m_playlists = new ArrayList<>();
         m_selectedCenterFolder = null;
         m_rightFolderSelected = null;
@@ -99,17 +101,21 @@ public class SongManager {
         m_songManagerObservers.add(observer);
     }
 
-    public void setM_fileBuffer(File m_fileBuffer) {
-        this.m_fileBuffer = m_fileBuffer;
+    public void setM_fileToCopy(File m_fileToCopy) {
+        this.m_fileToCopy = m_fileToCopy;
+    }
+
+    public void setM_fileToMove(File m_fileToMove) {
+        this.m_fileToMove = m_fileToMove;
     }
 
     public boolean copyToDestination(File dest) throws IOException, InvalidPathException {
-        if (m_fileBuffer == null) {
+        if (m_fileToCopy == null) {
             return false;
         }
 
         //copy in file system
-        if (!FileManager.copyFilesRecursively(m_fileBuffer, dest)) {
+        if (!FileManager.copyFilesRecursively(m_fileToCopy, dest)) {
             return false;
         }
 
@@ -203,8 +209,12 @@ public class SongManager {
         return m_selectedCenterFolder;
     }
 
-    public File getM_fileBuffer() {
-        return m_fileBuffer;
+    public File getM_fileToCopy() {
+        return m_fileToCopy;
+    }
+
+    public File getM_fileToMove() {
+        return m_fileToMove;
     }
 
     public MenuOptions getM_menuOptions(){

@@ -58,7 +58,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         copy.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
-                    m_model.setM_fileBuffer(m_selectedTreeViewItem.getPath());
+                    m_model.setM_fileToCopy(m_selectedTreeViewItem.getPath());
                 }
             }
         });
@@ -185,7 +185,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             @Override
             public void handle(WindowEvent event) {
                 // Disable paste if nothing is chosen to be copied
-                if (m_model.getM_fileBuffer() == null) {
+                if (m_model.getM_fileToCopy() == null) {
                     paste.setDisable(true);
                     paste.setStyle("-fx-text-fill: gray;");
                 } else {
@@ -213,12 +213,73 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             public void handle(MouseEvent mouseEvent) {
                 if(m_selectedTreeViewItem != null) {
                     System.out.println("Drag detected on " + m_selectedTreeViewItem);
+
+                    //update model
+                    m_model.setM_fileToMove(m_selectedTreeViewItem.getPath());
+
+                    //update dragboard
                     Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
                     ClipboardContent content = new ClipboardContent();
                     content.put(DataFormat.PLAIN_TEXT, m_selectedTreeViewItem.getPath().toString());
                     dragBoard.setContent(content);
+
                     mouseEvent.consume();
                 }
+            }
+        });
+
+        setOnDragOver(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent dragEvent) {
+                System.out.println("Drag over on " + m_selectedTreeViewItem);
+                if (dragEvent.getDragboard().hasString()) {
+                    String draggedItemPath = dragEvent.getDragboard().getString();
+                    String destination = m_selectedTreeViewItem.getPath().toString();
+                    if (!draggedItemPath.equals(destination)) {
+                        dragEvent.acceptTransferModes(TransferMode.MOVE);
+                    }
+                }
+                dragEvent.consume();
+            }
+        });
+
+        setOnDragDropped(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent dragEvent) {
+                System.out.println("Drag dropped on " + m_selectedTreeViewItem);
+
+                if (!m_selectedTreeViewItem.getPath().isDirectory()) {
+                    PromptUI.customPromptError("Error", null, "Cannot move to a file! Please drag to a directory!");
+                    return;
+                }
+
+                //fetch item to be moved and destination
+                /*String draggedItemPath = dragEvent.getDragboard().getString();
+                TreeItem<TreeViewItem> nodeToMove = searchTreeItem(draggedItemPath);
+                TreeItem<TreeViewItem> targetNode = searchTreeItem(m_selectedTreeViewItem.getPath().toString());*/
+
+                //move the item in UI (this have no effect because the file tree will be refreshed)
+                /*nodeToMove.getParent().getChildren().remove(nodeToMove);
+                targetNode.getChildren().add(nodeToMove);
+                targetNode.setExpanded(true);*/
+
+                //move in the file system
+                File fileToMove = m_model.getM_fileToMove();
+                File destination = m_selectedTreeViewItem.getPath();
+                try {
+                    m_model.moveFile(fileToMove, destination);
+                } catch (FileAlreadyExistsException ex) {
+                    PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
+                } catch (AccessDeniedException ex) {
+                    PromptUI.customPromptError("Error", null, "AccessDeniedException: \n" + ex.getMessage());
+                    ex.printStackTrace();
+                } catch (IOException ex) {
+                    PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
+                    ex.printStackTrace();
+                }
+
+                m_model.notifyLibraryObservers();
+                dragEvent.consume();
             }
         });
 
@@ -226,6 +287,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             @Override
             public void handle(DragEvent dragEvent) {
                 System.out.println("Drag done on " + m_selectedTreeViewItem);
+                m_model.setM_fileToMove(null);
                 dragEvent.consume();
             }
         });
@@ -238,64 +300,10 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             }
         });
 
-        setOnDragOver(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                System.out.println("Drag over on " + m_selectedTreeViewItem);
-                if (dragEvent.getDragboard().hasString()) {
-                    String draggedItemPath = dragEvent.getDragboard().getString();
-                    String destination = m_selectedTreeViewItem.getPath().toString();
-
-                    if (!draggedItemPath.equals(destination)) {
-                        dragEvent.acceptTransferModes(TransferMode.MOVE);
-                    }
-                }
-                dragEvent.consume();
-            }
-        });
-
         setOnDragExited(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent dragEvent) {
                 System.out.println("Drag exited on " + m_selectedTreeViewItem);
-                dragEvent.consume();
-            }
-        });
-
-        setOnDragDropped(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                System.out.println("Drag dropped on " + m_selectedTreeViewItem);
-                String draggedItemPath = dragEvent.getDragboard().getString();
-
-                if (!m_selectedTreeViewItem.getPath().isDirectory()) {
-                    PromptUI.customPromptError("Error", null, "Cannot move to a file! Please drag to a directory!");
-                    return;
-                }
-
-                //fetch item to be moved and destination
-                TreeItem<TreeViewItem> nodeToMove = searchTreeItem(draggedItemPath);
-                TreeItem<TreeViewItem> targetNode = searchTreeItem(m_selectedTreeViewItem.getPath().toString());
-
-                //move the item in UI (this have no effect because the file tree will be refreshed)
-                /*nodeToMove.getParent().getChildren().remove(nodeToMove);
-                targetNode.getChildren().add(nodeToMove);
-                targetNode.setExpanded(true);*/
-
-                //actually move in the file system
-                try {
-                    m_model.moveFile(nodeToMove.getValue().getPath(), targetNode.getValue().getPath());
-                } catch (FileAlreadyExistsException ex) {
-                    PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
-                } catch (AccessDeniedException ex) {
-                    PromptUI.customPromptError("Error", null, "AccessDeniedException: \n" + ex.getMessage());
-                    ex.printStackTrace();
-                } catch (IOException ex) {
-                    PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
-                    ex.printStackTrace();
-                }
-
-                m_model.notifyLibraryObservers();
                 dragEvent.consume();
             }
         });

@@ -22,39 +22,31 @@ import javafx.event.EventHandler;
  * UI class for list of songs in center of application
  */
 public class ContentListUI extends StackPane {
-    private SongManager model;
-    private MusicPlayerManager manager;
+    private SongManager m_model;
+    private MusicPlayerManager m_musicPlayerManager;
     //    private GridPane gridPane;
-    private TableView table;
+    private TableView m_table;
 
-    public ContentListUI(SongManager model, MusicPlayerManager manager) {
+    public ContentListUI(SongManager model, MusicPlayerManager musicPlayerManager) {
         super();
 
-        this.model = model;
-
-        this.manager = manager;
-
-        //setEmptyText();
+        m_model = model;
+        m_musicPlayerManager = musicPlayerManager;
 
         updateList();
 
-//        gridPane = new GridPane();
-
-        table = new TableView();
-
-        //gridPane.add(new Label("Contents in folder"), 10, 20);
+        m_table = new TableView();
 
         setCssStyle();
 
         registerAsCenterFolderObserver();
-
     }
 
     /**
      * Register as a observer to changes for the folder selected to be displayed here
      */
     private void registerAsCenterFolderObserver() {
-        model.addObserver(new SongManagerObserver() {
+        m_model.addObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
                 clearList();
@@ -92,22 +84,22 @@ public class ContentListUI extends StackPane {
     }
 
     private void setEmptyText(TableColumn fileNameCol, TableColumn titleCol, TableColumn artistCol, TableColumn albumCol, TableColumn genreCol, TableColumn ratingCol) {
-        table.getColumns().addAll(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        m_table.getColumns().addAll(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
+        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        table.setPlaceholder(new Label("Choose a folder to view its contents"));
-        this.getChildren().add(table);
+        m_table.setPlaceholder(new Label("Choose a folder to view its contents"));
+        this.getChildren().add(m_table);
 
     }
 
     private void clearList() {
         System.out.println("Clearing list...");
-        table.getItems().clear();
+        m_table.getItems().clear();
         this.getChildren().clear();
     }
 
     private void updateList() {
-        table = new TableView();
+        m_table = new TableView();
         TableColumn fileNameCol = new TableColumn("File Name");
         fileNameCol.setMinWidth(80);
         TableColumn titleCol = new TableColumn("Title");
@@ -121,40 +113,40 @@ public class ContentListUI extends StackPane {
         TableColumn ratingCol = new TableColumn("Rating");
         ratingCol.setMinWidth(20);
 
-        if (model.getM_selectedCenterFolder() == null) {
+        if (m_model.getM_selectedCenterFolder() == null) {
             setEmptyText(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
         } else {
-            table = new TableView();
-            System.out.println("Updating table...");
-            List<Song> songs = model.getCenterPanelSongs();
+            m_table = new TableView();
+            System.out.println("Updating m_table...");
+            List<Song> songs = m_model.getCenterPanelSongs();
 
-            table.setEditable(true);
+            m_table.setEditable(true);
 
             setTableColAttributes(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
 
             if (songs.isEmpty()){
-                table.setPlaceholder(new Label("No songs in folder"));
+                m_table.setPlaceholder(new Label("No songs in folder"));
             } else {
-                table.setItems(FXCollections.observableArrayList(songs));
+                m_table.setItems(FXCollections.observableArrayList(songs));
 
-                table.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                m_table.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {
                         if (event.getClickCount() == 2) {
-                            System.out.println(table.getSelectionModel().getSelectedItem());
-                            manager.playSongRightNow((Song) table.getSelectionModel().getSelectedItem());
+                            System.out.println(m_table.getSelectionModel().getSelectedItem());
+                            m_musicPlayerManager.playSongRightNow((Song) m_table.getSelectionModel().getSelectedItem());
                         }
                     }
                 });
             }
-            this.getChildren().add(table);
+            this.getChildren().add(m_table);
 
             // Scrolls through list
             ScrollPane scrollpane = new ScrollPane();
             scrollpane.setFitToWidth(true);
             scrollpane.setFitToHeight(true);
             scrollpane.setPrefSize(500, 500);
-            scrollpane.setContent(table);
+            scrollpane.setContent(m_table);
         }
     }
 
@@ -220,14 +212,14 @@ public class ContentListUI extends StackPane {
                                     t.getTablePosition().getRow())).setRating(Integer.parseInt(t.getNewValue()));
                         } catch (IllegalArgumentException ex) {
                             PromptUI.customPromptError("Error", "", "Rating should be in range 0 to 5");
-                            model.notifyCenterFolderObservers();
+                            m_model.notifyCenterFolderObservers();
                         }
                     }
                 }
         );
 
-        table.getColumns().addAll(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        m_table.getColumns().addAll(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
+        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
     private void setCssStyle() {
