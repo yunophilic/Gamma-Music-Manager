@@ -280,6 +280,11 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 System.out.println("Drag dropped on " + m_selectedTreeViewItem);
                 String draggedItemPath = dragEvent.getDragboard().getString();
 
+                if (!m_selectedTreeViewItem.getPath().isDirectory()) {
+                    PromptUI.customPromptError("Error", null, "Cannot move to a file! Please drag to a directory!");
+                    return;
+                }
+
                 //fetch item to be moved and destination
                 TreeItem<TreeViewItem> nodeToMove = searchTreeItem(draggedItemPath);
                 TreeItem<TreeViewItem> targetNode = searchTreeItem(m_selectedTreeViewItem.getPath().toString());
