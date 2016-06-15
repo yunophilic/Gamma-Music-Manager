@@ -12,49 +12,62 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.nio.file.StandardWatchEventKinds.*;
+import java.util.concurrent.TimeUnit;
 
 public class Watcher {
     private WatchService m_watcher;
     private WatchKey m_watchKey;
     private Thread m_watcherThread;
-    private SongManager m_model;
+    private SongManager model;
 
     public Watcher(SongManager model) {
-        this.m_model = model;
+        this.model = model;
         registerAsObserver();
         openWatcher();
         updateWatcher();
     }
 
     public void startWatcher() {
-        m_watcherThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("**** Watching...");
+        m_watcherThread = new Thread(() -> {
+            System.out.println("**** Watching...");
+            boolean isFirst = true;
 
-                while (true) {
-                    try {
+            while (true) {
+                try {
+                    if (isFirst) {
                         m_watchKey = m_watcher.take();
 
-                        for (WatchEvent<?> event : m_watchKey.pollEvents()) {
-                            WatchEvent.Kind<?> kind = event.kind();
-                            Path eventPath = (Path) event.context();
-                            System.out.println("**** "+ eventPath.toAbsolutePath().toString() + ": " + kind + ": " + eventPath);
+                        isFirst = false;
+                        System.out.println("**** File system changed...");
+                    } else { //Try for more events with timeout
+                        m_watchKey = m_watcher.poll(5, TimeUnit.SECONDS);
+
+                        if (m_watchKey == null) { //WatchKey failed to grab more events
+                            Platform.runLater(() -> model.notifyFileObservers());
+                            break;
                         }
-                        m_watchKey.reset();
-                        Platform.runLater(() -> m_model.notifyFileObservers());
-                    } catch (Exception e) {
-                        System.out.println("**** Watcher thread interrupted...");
-                        break;
                     }
+
+                    printWatchEvent();
+                    m_watchKey.reset();
+                } catch (InterruptedException e) {
+                    System.out.println("**** Watcher thread interrupted...");
+                    break;
                 }
-                System.out.println("**** Watcher thread terminated...");
             }
+            System.out.println("**** Watcher thread terminated...");
         });
 
         m_watcherThread.start();
+    }
+
+    private void printWatchEvent() {
+        for (WatchEvent<?> event : m_watchKey.pollEvents()) {
+            WatchEvent.Kind<?> kind = event.kind();
+            Path eventPath = (Path) event.context();
+            System.out.println("**** " + kind + ": " + eventPath
+                    + " [ " + eventPath.toAbsolutePath().toString() + " ]");
+        }
     }
 
     public void stopWatcher() {
@@ -84,7 +97,7 @@ public class Watcher {
 
     private void updateWatcher() {
         List<File> deletedDirs = new ArrayList<>();
-        for (Library lib : m_model.getM_libraries()) {
+        for (Library lib : model.getM_libraries()) {
             try {
                 addWatchDir(lib.getM_rootDirPath());
             } catch (IOException e) {
@@ -104,9 +117,9 @@ public class Watcher {
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                 try {
                     dir.register(m_watcher,
-                            ENTRY_CREATE,
-                            ENTRY_MODIFY,
-                            ENTRY_DELETE);
+                            StandardWatchEventKinds.ENTRY_CREATE,
+                            StandardWatchEventKinds.ENTRY_DELETE,
+                            StandardWatchEventKinds.ENTRY_MODIFY);
                     return FileVisitResult.CONTINUE;
                 } catch (IOException e) {
                     return FileVisitResult.TERMINATE;
@@ -119,12 +132,12 @@ public class Watcher {
         PersistentStorage persistentStorage = new PersistentStorage();
         for (File file : deletedDirs) {
             persistentStorage.removePersistentStorageLibrary(file.getAbsolutePath());
-            m_model.removeLibrary(file);
+            model.removeLibrary(file);
         }
     }
 
     private void registerAsObserver() {
-        m_model.addObserver(new SongManagerObserver() {
+        model.addObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
                 restartWatcher();
@@ -152,7 +165,7 @@ public class Watcher {
 
             @Override
             public void leftPanelOptionsChanged() {
-                /* Do nothing */
+                //Do nothing
             }
         });
     }
