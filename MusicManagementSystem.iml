@@ -17,5 +17,16 @@
         <jarDirectory url="file://$MODULE_DIR$/ThirdParty" recursive="false" />
       </library>
     </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../DatabaseExample/sqlite-jdbc-3.8.11.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../DatabaseExample/sqlite-jdbc-3.8.11.2.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>

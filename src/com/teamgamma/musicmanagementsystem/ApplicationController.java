@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem;
 
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.PersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -48,6 +49,7 @@ public class ApplicationController extends Application {
                 File.separator + "library-sample" + File.separator + "external library";*/
 
         SongManager songManager = new SongManager();
+        DatabaseManager dbManager = new DatabaseManager();
 
         PersistentStorage persistentStorage = new PersistentStorage();
         if (!persistentStorage.isThereSavedState()) {
