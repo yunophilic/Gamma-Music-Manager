@@ -6,6 +6,7 @@ import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventDispatcher;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeCell;
@@ -194,19 +195,6 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
      * Set mouse events on this CustomTreeCell
      */
     private void setMouseEvents() {
-        setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if (mouseEvent.getClickCount() == 2) {
-                    if (m_selectedTreeViewItem != null) {
-                        System.out.println("Selected Item: " + m_selectedTreeViewItem);
-                        m_model.setCenterFolder(m_selectedTreeViewItem.getPath());
-                        m_model.notifyCenterFolderObservers();
-                    }
-                }
-            }
-        });
-
         setOnDragDetected(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
@@ -333,6 +321,8 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
     public void updateItem(TreeViewItem item, boolean empty) {
         super.updateItem(item, empty);
         m_selectedTreeViewItem = item; //more efficient than using the tree to get selected item
+        EventDispatcher originalDispatcher = getEventDispatcher();
+        setEventDispatcher(new TreeMouseEventDispatcher(originalDispatcher, m_model, m_selectedTreeViewItem));
         setContextMenu(m_contextMenu);
     }
 }
