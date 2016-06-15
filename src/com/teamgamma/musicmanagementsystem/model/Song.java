@@ -4,7 +4,9 @@ import java.io.File;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.audio.mp3.MP3File;
+import org.jaudiotagger.tag.FieldDataInvalidException;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.id3.ID3v24Tag;
@@ -33,30 +35,39 @@ public class Song {
             MP3File mp3File = new MP3File(m_file);
             m_length =  mp3File.getMP3AudioHeader().getPreciseTrackLength();
             m_frames = mp3File.getMP3AudioHeader().getNumberOfFrames();
-            //add new tag to file if tag is empty
+
             if (tag == null) {
-                tag = new ID3v24Tag();
-                tag.setField(FieldKey.TITLE, "");
-                tag.setField(FieldKey.ARTIST, "");
-                tag.setField(FieldKey.ALBUM, "");
-                tag.setField(FieldKey.GENRE, "");
-                tag.setField(FieldKey.RATING, "");
-                file.setTag(tag);
-                AudioFileIO.write(file);
+                tag = fillEmptyTag(file);
             }
 
-            //parse metadata tags to attributes
-            m_title = tag.getFirst(FieldKey.TITLE);
-            m_artist = tag.getFirst(FieldKey.ARTIST);
-            m_album = tag.getFirst(FieldKey.ALBUM);
-            m_genre = tag.getFirst(FieldKey.GENRE);
-            String ratingInMetadata = tag.getFirst(FieldKey.RATING);
-            m_rating = Integer.toString(
-                    convertRatingToFiveStarScale(ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata))
-            );
+            parseTags(tag);
         } catch (Exception e) {
             e.printStackTrace(); //for now
         }
+    }
+
+    private void parseTags(Tag tag) {
+        m_title = tag.getFirst(FieldKey.TITLE);
+        m_artist = tag.getFirst(FieldKey.ARTIST);
+        m_album = tag.getFirst(FieldKey.ALBUM);
+        m_genre = tag.getFirst(FieldKey.GENRE);
+        String ratingInMetadata = tag.getFirst(FieldKey.RATING);
+        m_rating = Integer.toString(
+                convertRatingToFiveStarScale(ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata))
+        );
+    }
+
+    private Tag fillEmptyTag(AudioFile file) throws FieldDataInvalidException, CannotWriteException {
+        Tag tag;
+        tag = new ID3v24Tag();
+        tag.setField(FieldKey.TITLE, "");
+        tag.setField(FieldKey.ARTIST, "");
+        tag.setField(FieldKey.ALBUM, "");
+        tag.setField(FieldKey.GENRE, "");
+        tag.setField(FieldKey.RATING, "");
+        file.setTag(tag);
+        AudioFileIO.write(file);
+        return tag;
     }
 
     //credits to https://github.com/soc/jaudiotagger/blob/master/src/main/java/org/jaudiotagger/tag/id3/reference/MediaMonkeyPlayerRating.java

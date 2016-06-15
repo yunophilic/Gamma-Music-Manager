@@ -338,7 +338,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
     @Override
     public void updateItem(TreeViewItem item, boolean empty) {
         super.updateItem(item, empty);
-        m_selectedTreeViewItem = item; //more efficient than using the tree to get selected item
+        m_selectedTreeViewItem = item;
         EventDispatcher originalDispatcher = getEventDispatcher();
         setEventDispatcher(new TreeMouseEventDispatcher(originalDispatcher, m_model, m_selectedTreeViewItem));
         setContextMenu(m_contextMenu);

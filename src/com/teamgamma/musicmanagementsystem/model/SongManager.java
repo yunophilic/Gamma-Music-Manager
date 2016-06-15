@@ -91,18 +91,29 @@ public class SongManager {
         return null;
     }
 
+    /**
+     * Get libraries
+     * @return list of libraries
+     */
     public List<Library> getM_libraries() {
         return m_libraries;
     }
 
-    public void registerNewObserver(SongManagerObserver observer) {
-        m_songManagerObservers.add(observer);
-    }
-
+    /**
+     * Set file(s) to be copied
+     * @param m_fileBuffer
+     */
     public void setM_fileBuffer(File m_fileBuffer) {
         this.m_fileBuffer = m_fileBuffer;
     }
 
+    /**
+     * Copy files in buffer to destination
+     * @param dest
+     * @return
+     * @throws IOException
+     * @throws InvalidPathException
+     */
     public boolean copyToDestination(File dest) throws IOException, InvalidPathException {
         if (m_fileBuffer == null) {
             return false;
@@ -119,11 +130,22 @@ public class SongManager {
         return true;
     }
 
+    /**
+     * Move file from source to destination
+     * @param fileToMove
+     * @param destDir
+     * @throws IOException
+     */
     public void moveFile(File fileToMove, File destDir) throws IOException {
         FileManager.moveFile(fileToMove, destDir);
         updateLibraries();
     }
 
+    /**
+     * Delete a file
+     * @param fileToDelete
+     * @throws Exception
+     */
     public void deleteFile(File fileToDelete) throws Exception {
         if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
             m_rightFolderSelected = null;
@@ -138,6 +160,9 @@ public class SongManager {
         updateLibraries();
     }
 
+    /**
+     * Update the list of libraries
+     */
     private void updateLibraries() {
         // Delete current libraries and create new libraries with same paths
         // to update songs in libraries when files are moved
@@ -157,10 +182,19 @@ public class SongManager {
         }
     }
 
+    /**
+     * Get list of songs in a certain library within the library list
+     * @param library
+     * @return list of songs
+     */
     public List<Song> getSongs(Library library) {
         return library.getM_songList();
     }
 
+    /**
+     * Get songs to display in center panel
+     * @return list of songs
+     */
     public List<Song> getCenterPanelSongs() {
         List<Song> centerPanelSongs = new ArrayList<>();
         System.out.println("== Selected center folder: " + m_selectedCenterFolder.getAbsolutePath());

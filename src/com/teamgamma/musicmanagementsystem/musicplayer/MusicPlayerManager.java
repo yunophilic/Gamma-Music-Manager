@@ -118,7 +118,7 @@ public class MusicPlayerManager {
     public void playPlaylist() {
         // Method should add in playlist to queue.
         Playlist player = new Playlist("Playlist 1");
-        player.randomizePlaylist();
+        player.shufflePlaylist();
         for (Song s : player.getM_songList()) {
             // Add every song in playlist to queue (Is this what you mean?)
             m_playingQueue.add(s);
