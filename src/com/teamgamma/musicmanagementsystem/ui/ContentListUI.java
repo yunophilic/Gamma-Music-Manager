@@ -31,23 +31,15 @@ public class ContentListUI extends StackPane {
         super();
 
         this.model = model;
-
         this.manager = manager;
-
-        //setEmptyText();
 
         updateList();
 
-//        gridPane = new GridPane();
-
         table = new TableView();
-
-        //gridPane.add(new Label("Contents in folder"), 10, 20);
 
         setCssStyle();
 
         registerAsCenterFolderObserver();
-
     }
 
     /**

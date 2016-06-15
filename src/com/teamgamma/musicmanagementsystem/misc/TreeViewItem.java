@@ -17,7 +17,7 @@ public class TreeViewItem {
     /**
      * For tree view, show absolute path if this is an root path, otherwise, show just the file name
      *
-     * @return
+     * @return string to show in TreeItem
      */
     @Override
     public String toString() {
