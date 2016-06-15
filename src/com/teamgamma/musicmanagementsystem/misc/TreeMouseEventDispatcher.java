@@ -36,7 +36,7 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
             if (isPrimaryMouseButton && isDoubleClick) {
                 if (!event.isConsumed()) {
                     System.out.println("Selected Item: " + m_selectedTreeViewItem);
-                    m_model.setCenterFolder(m_selectedTreeViewItem.getM_file());
+                    m_model.setM_selectedCenterFolder(m_selectedTreeViewItem.getM_file());
                     m_model.notifyCenterFolderObservers();
                 }
 

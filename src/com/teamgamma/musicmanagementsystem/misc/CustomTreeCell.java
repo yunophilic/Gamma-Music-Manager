@@ -83,6 +83,8 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                         PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
                     } catch (IOException ex) {
                         PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
+                    } catch (Exception ex) {
+                        PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
                     }
                 }
             }
@@ -132,12 +134,12 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     System.out.println("Remove library");
                     m_model.removeLibrary(m_selectedTreeViewItem.getM_file());
 
-                    if (m_model.getRightFolderSelected() != null) {
-                        boolean isLibraryInRight = m_model.getRightFolderSelected().getAbsolutePath().contains(
+                    if (m_model.getM_rightFolderSelected() != null) {
+                        boolean isLibraryInRight = m_model.getM_rightFolderSelected().getAbsolutePath().contains(
                                 m_selectedTreeViewItem.getM_file().getAbsolutePath()
                         );
                         if (isLibraryInRight) {
-                            m_model.setRightFolderSelected(null);
+                            m_model.setM_rightFolderSelected(null);
                         }
                     }
 
@@ -147,7 +149,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                         );
                         if (isLibraryInCenter) {
                             System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
-                            m_model.setCenterFolder(null);
+                            m_model.setM_selectedCenterFolder(null);
                         }
                     }
                     PersistentStorage persistentStorage = new PersistentStorage();
@@ -168,7 +170,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     if (!folderSelected.isDirectory()) {
                         PromptUI.customPromptError("Not a directory!", "", "Please select a directory.");
                     } else {
-                        m_model.setRightFolderSelected(folderSelected);
+                        m_model.setM_rightFolderSelected(folderSelected);
                         m_model.notifyRightFolderObservers();
                     }
                 }
