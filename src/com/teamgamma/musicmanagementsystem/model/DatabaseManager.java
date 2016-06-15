@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 
 
 /**
- * Class to manage database 
+ * Class to manage database
  */
 public class DatabaseManager {
 
