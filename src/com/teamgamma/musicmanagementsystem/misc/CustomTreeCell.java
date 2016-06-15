@@ -1,8 +1,8 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
-import com.teamgamma.musicmanagementsystem.model.FileManager;
 import com.teamgamma.musicmanagementsystem.model.PersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
 import javafx.event.ActionEvent;
@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystemException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
     //attributes
     private ContextMenu m_contextMenu;
     private SongManager m_model;
+    private MusicPlayerManager m_musicPlayerManager;
     private TreeView<TreeViewItem> m_tree;
     private TreeViewItem m_selectedTreeViewItem;
 
@@ -34,8 +36,9 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
     private static final String SHOW_IN_RIGHT_PANE = "Show in Right Pane";
 
 
-    public CustomTreeCell(SongManager model, TreeView<TreeViewItem> tree, boolean isLeftPane) {
+    public CustomTreeCell(SongManager model, MusicPlayerManager musicPlayerManager, TreeView<TreeViewItem> tree, boolean isLeftPane) {
         m_model = model;
+        m_musicPlayerManager = musicPlayerManager;
         m_tree = tree;
         m_contextMenu = new ContextMenu();
         m_contextMenu.getItems().addAll(generateMenuItems(isLeftPane));
@@ -94,11 +97,21 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                             "Are you sure you want to permanently delete \"" + fileToDelete.getName() + "\"?")) {
                         return;
                     }
-                    //try to actually delete
-                    try {
-                        m_model.deleteFile(fileToDelete);
-                    } catch (Exception ex) {
-                        PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
+                    //try to actually delete (retry if FileSystemException happens)
+                    for(int i=0; i<2; i++) {
+                        try {
+                            m_model.deleteFile(fileToDelete);
+                            break;
+                        } catch (FileSystemException ex) {
+                            m_musicPlayerManager.stopSong();
+                            if (i==1) { //if this exception still thrown after retry (for debugging)
+                                ex.printStackTrace();
+                            }
+                        } catch (Exception ex) {
+                            PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
+                            ex.printStackTrace();
+                            break;
+                        }
                     }
                     PersistentStorage persistentStorage = new PersistentStorage();
                     persistentStorage.removePersistentStorageLibrary(fileToDelete.getAbsolutePath());
@@ -271,14 +284,14 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 TreeItem<TreeViewItem> nodeToMove = searchTreeItem(draggedItemPath);
                 TreeItem<TreeViewItem> targetNode = searchTreeItem(m_selectedTreeViewItem.getPath().toString());
 
-                //move the item in UI (this have no effect because the Watcher will refresh the file tree when files moved)
+                //move the item in UI (this have no effect because the file tree will be refreshed)
                 /*nodeToMove.getParent().getChildren().remove(nodeToMove);
                 targetNode.getChildren().add(nodeToMove);
                 targetNode.setExpanded(true);*/
 
                 //actually move in the file system
                 try {
-                    FileManager.moveFile(nodeToMove.getValue().getPath(), targetNode.getValue().getPath());
+                    m_model.moveFile(nodeToMove.getValue().getPath(), targetNode.getValue().getPath());
                 } catch (FileAlreadyExistsException ex) {
                     PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
                 } catch (AccessDeniedException ex) {

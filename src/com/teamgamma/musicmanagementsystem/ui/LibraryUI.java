@@ -7,6 +7,7 @@ import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
 import com.teamgamma.musicmanagementsystem.misc.CustomTreeCell;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
 
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
@@ -19,11 +20,13 @@ import java.util.List;
  */
 public class LibraryUI extends StackPane {
     private SongManager m_model;
+    private MusicPlayerManager m_musicPlayerManager;
     private TreeView<TreeViewItem> m_tree;
 
-    public LibraryUI(SongManager model) {
+    public LibraryUI(SongManager model, MusicPlayerManager musicPlayerManager) {
         super();
         m_model = model;
+        m_musicPlayerManager = musicPlayerManager;
         updateTreeView();
         setPaneStyle();
         registerAsLibraryObserver();
@@ -48,7 +51,7 @@ public class LibraryUI extends StackPane {
             @Override
             public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg) {
                 // custom m_tree cell that defines a context menu for the root m_tree item
-                return new CustomTreeCell(m_model, m_tree, true);
+                return new CustomTreeCell(m_model, m_musicPlayerManager, m_tree, true);
             }
         });
     }
