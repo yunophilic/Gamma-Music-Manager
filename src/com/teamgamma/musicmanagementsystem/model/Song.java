@@ -12,6 +12,7 @@ import org.jaudiotagger.tag.id3.ID3v24Tag;
 /**
  * Underlying data structure for a Song. A File plus data additional data.
  * Credits to http://www.jthink.net/jaudiotagger/ for reading writing the song metadata
+ * Credits to https://github.com/soc/jaudiotagger/blob/master/src/main/java/org/jaudiotagger/tag/id3/reference/MediaMonkeyPlayerRating.java for rating conversion
  */
 public class Song {
     private File m_file;
@@ -30,9 +31,7 @@ public class Song {
         try {
             AudioFile file = AudioFileIO.read(m_file);
             Tag tag = file.getTag();
-            MP3File mp3File = new MP3File(m_file);
-            m_length =  mp3File.getMP3AudioHeader().getPreciseTrackLength();
-            m_frames = mp3File.getMP3AudioHeader().getNumberOfFrames();
+
             //add new tag to file if tag is empty
             if (tag == null) {
                 tag = new ID3v24Tag();
@@ -54,12 +53,16 @@ public class Song {
             m_rating = Integer.toString(
                     convertRatingToFiveStarScale(ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata))
             );
+
+            //get length of song and frames
+            MP3File mp3File = new MP3File(m_file);
+            m_length =  mp3File.getMP3AudioHeader().getPreciseTrackLength();
+            m_frames = mp3File.getMP3AudioHeader().getNumberOfFrames();
         } catch (Exception e) {
             e.printStackTrace(); //for now
         }
     }
 
-    //credits to https://github.com/soc/jaudiotagger/blob/master/src/main/java/org/jaudiotagger/tag/id3/reference/MediaMonkeyPlayerRating.java
     private static int convertRatingFromFiveStarScale(int value) {
         if (value < 0 || value > 5)
             throw new IllegalArgumentException("convertRatingFromFiveStarScale() accepts values from 0 to 5 not: " + value);
@@ -94,7 +97,6 @@ public class Song {
         return newValue;
     }
 
-    //credits to https://github.com/soc/jaudiotagger/blob/master/src/main/java/org/jaudiotagger/tag/id3/reference/MediaMonkeyPlayerRating.java
     private static int convertRatingToFiveStarScale(int value) {
         int newValue = 0;
         if (value <= 0)
@@ -231,7 +233,11 @@ public class Song {
         }
     }
 
-    public double getM_length() {return m_length;}
+    public double getM_length() {
+        return m_length;
+    }
 
-    public long getM_frames() {return m_frames;}
+    public long getM_frames() {
+        return m_frames;
+    }
 }

@@ -21,6 +21,9 @@ import java.nio.file.FileSystemException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Event handling class used in LibraryUI and DynamicTreeViewUI
+ */
 public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
     //attributes
     private ContextMenu m_contextMenu;
@@ -43,7 +46,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         m_tree = tree;
         m_contextMenu = new ContextMenu();
         m_contextMenu.getItems().addAll(generateMenuItems(isLeftPane));
-        setMouseEvents();
+        setDragEvents();
     }
 
     /**
@@ -58,7 +61,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         copy.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
-                    m_model.setM_fileToCopy(m_selectedTreeViewItem.getPath());
+                    m_model.setM_fileToCopy(m_selectedTreeViewItem.getM_file());
                 }
             }
         });
@@ -68,7 +71,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         paste.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
-                    File dest = m_selectedTreeViewItem.getPath();
+                    File dest = m_selectedTreeViewItem.getM_file();
                     if (!dest.isDirectory()) {
                         PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
                         return;
@@ -90,7 +93,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         delete.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
-                    File fileToDelete = m_selectedTreeViewItem.getPath();
+                    File fileToDelete = m_selectedTreeViewItem.getM_file();
                     //confirmation dialog
                     if (!PromptUI.customPromptConfirmation(
                             "Deleting " + (fileToDelete.isDirectory() ? "folder" : "file"),
@@ -127,11 +130,11 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
                     System.out.println("Remove library");
-                    m_model.removeLibrary(m_selectedTreeViewItem.getPath());
+                    m_model.removeLibrary(m_selectedTreeViewItem.getM_file());
 
                     if (m_model.getRightFolderSelected() != null) {
                         boolean isLibraryInRight = m_model.getRightFolderSelected().getAbsolutePath().contains(
-                                m_selectedTreeViewItem.getPath().getAbsolutePath()
+                                m_selectedTreeViewItem.getM_file().getAbsolutePath()
                         );
                         if (isLibraryInRight) {
                             m_model.setRightFolderSelected(null);
@@ -140,7 +143,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
 
                     if (m_model.getM_selectedCenterFolder() != null) {
                         boolean isLibraryInCenter = m_model.getM_selectedCenterFolder().getAbsolutePath().contains(
-                                m_selectedTreeViewItem.getPath().getAbsolutePath()
+                                m_selectedTreeViewItem.getM_file().getAbsolutePath()
                         );
                         if (isLibraryInCenter) {
                             System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
@@ -149,7 +152,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     }
                     PersistentStorage persistentStorage = new PersistentStorage();
                     persistentStorage.removePersistentStorageLibrary(
-                            m_selectedTreeViewItem.getPath().getAbsolutePath()
+                            m_selectedTreeViewItem.getM_file().getAbsolutePath()
                     );
                     m_model.notifyLibraryObservers();
                 }
@@ -161,7 +164,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         openInRightPane.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
-                    File folderSelected = m_selectedTreeViewItem.getPath();
+                    File folderSelected = m_selectedTreeViewItem.getM_file();
                     if (!folderSelected.isDirectory()) {
                         PromptUI.customPromptError("Not a directory!", "", "Please select a directory.");
                     } else {
@@ -194,7 +197,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 }
 
                 // Do not show remove library option if selected item is not a library
-                if (m_selectedTreeViewItem == null || !m_selectedTreeViewItem.isRootPath()) {
+                if (m_selectedTreeViewItem == null || !m_selectedTreeViewItem.isM_isRootPath()) {
                     removeLibrary.setDisable(true);
                     removeLibrary.setVisible(false);
                 }
@@ -207,7 +210,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
     /**
      * Set mouse events on this CustomTreeCell
      */
-    private void setMouseEvents() {
+    private void setDragEvents() {
         setOnDragDetected(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
@@ -215,12 +218,13 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     System.out.println("Drag detected on " + m_selectedTreeViewItem);
 
                     //update model
-                    m_model.setM_fileToMove(m_selectedTreeViewItem.getPath());
+                    m_model.setM_fileToMove(m_selectedTreeViewItem.getM_file());
 
-                    //update dragboard
+                    //update drag board
                     Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
+                    dragBoard.setDragView(snapshot(null, null));
                     ClipboardContent content = new ClipboardContent();
-                    content.put(DataFormat.PLAIN_TEXT, m_selectedTreeViewItem.getPath().toString());
+                    content.put(DataFormat.PLAIN_TEXT, m_selectedTreeViewItem.getM_file().getAbsolutePath());
                     dragBoard.setContent(content);
 
                     mouseEvent.consume();
@@ -234,7 +238,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 System.out.println("Drag over on " + m_selectedTreeViewItem);
                 if (dragEvent.getDragboard().hasString()) {
                     String draggedItemPath = dragEvent.getDragboard().getString();
-                    String destination = m_selectedTreeViewItem.getPath().toString();
+                    String destination = m_selectedTreeViewItem.getM_file().getAbsolutePath();
                     if (!draggedItemPath.equals(destination)) {
                         dragEvent.acceptTransferModes(TransferMode.MOVE);
                     }
@@ -248,7 +252,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             public void handle(DragEvent dragEvent) {
                 System.out.println("Drag dropped on " + m_selectedTreeViewItem);
 
-                if (!m_selectedTreeViewItem.getPath().isDirectory()) {
+                if (!m_selectedTreeViewItem.getM_file().isDirectory()) {
                     PromptUI.customPromptError("Error", null, "Cannot move to a file! Please drag to a directory!");
                     return;
                 }
@@ -256,7 +260,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 //fetch item to be moved and destination
                 /*String draggedItemPath = dragEvent.getDragboard().getString();
                 TreeItem<TreeViewItem> nodeToMove = searchTreeItem(draggedItemPath);
-                TreeItem<TreeViewItem> targetNode = searchTreeItem(m_selectedTreeViewItem.getPath().toString());*/
+                TreeItem<TreeViewItem> targetNode = searchTreeItem(m_selectedTreeViewItem.getM_file().getAbsolutePath());*/
 
                 //move the item in UI (this have no effect because the file tree will be refreshed)
                 /*nodeToMove.getParent().getChildren().remove(nodeToMove);
@@ -265,7 +269,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
 
                 //move in the file system
                 File fileToMove = m_model.getM_fileToMove();
-                File destination = m_selectedTreeViewItem.getPath();
+                File destination = m_selectedTreeViewItem.getM_file();
                 try {
                     m_model.moveFile(fileToMove, destination);
                 } catch (FileAlreadyExistsException ex) {
@@ -286,13 +290,13 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         setOnDragDone(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent dragEvent) {
-                System.out.println("Drag done on " + m_selectedTreeViewItem);
+                System.out.println("Drag done");
                 m_model.setM_fileToMove(null);
                 dragEvent.consume();
             }
         });
 
-        setOnDragEntered(new EventHandler<DragEvent>() {
+        /*setOnDragEntered(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent dragEvent) {
                 System.out.println("Drag entered on " + m_selectedTreeViewItem);
@@ -306,7 +310,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 System.out.println("Drag exited on " + m_selectedTreeViewItem);
                 dragEvent.consume();
             }
-        });
+        });*/
     }
 
     /**
@@ -328,7 +332,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
      */
     private TreeItem<TreeViewItem> searchTreeItem(TreeItem<TreeViewItem> node, String path) {
         //base case
-        if (node.getValue().getPath().toString().equals(path)) {
+        if (node.getValue().getM_file().getAbsolutePath().equals(path)) {
             return node;
         }
 

@@ -6,33 +6,33 @@ import java.io.File;
  * Class that represents an item in the file tree
  */
 public class TreeViewItem {
-    private File path;
-    private boolean isRootPath;
+    private File m_file;
+    private boolean m_isRootPath;
 
     public TreeViewItem(File path, boolean isRootPath) {
-        this.path = path;
-        this.isRootPath = isRootPath;
+        m_file = path;
+        m_isRootPath = isRootPath;
     }
 
     /**
-     * For tree view, show absolute path if this is an root path, otherwise, show just the file name
+     * For tree view, show absolute m_file if this is an root m_file, otherwise, show just the file name
      *
-     * @return
+     * @return string
      */
     @Override
     public String toString() {
-        if (isRootPath) {
-            return path.getAbsolutePath();
+        if (m_isRootPath) {
+            return m_file.getAbsolutePath();
         } else {
-            return path.getName();
+            return m_file.getName();
         }
     }
 
-    public File getPath() {
-        return path;
+    public File getM_file() {
+        return m_file;
     }
 
-    public boolean isRootPath() {
-        return isRootPath;
+    public boolean isM_isRootPath() {
+        return m_isRootPath;
     }
 }
