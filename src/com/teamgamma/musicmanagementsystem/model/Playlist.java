@@ -1,5 +1,7 @@
 package com.teamgamma.musicmanagementsystem.model;
 
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +42,51 @@ public class Playlist {
     public void shufflePlaylist() {
         Collections.shuffle(m_songList);
     }
+
+    public List<Song> shuffleSomePlaylist() {
+        List<Song> copyList = new ArrayList<>();
+        MusicPlayerManager copier = new MusicPlayerManager();
+        boolean currentSong = false;
+        int counter = 0;
+        int tracker = 0;
+        int playlistSize = 0;
+
+        // Find point to shuffle from
+        for(Song s: m_songList) {
+            if (s != copier.getCurrentSongPlaying()) {
+                counter += 1;
+            }
+            // FOUND POINT TO SHUFFLE
+            else {
+                currentSong = true;
+                tracker = counter;
+                break;
+            }
+        }
+
+        // Add all songs from index point to end of playlist to copyList (Excludes played songs)
+        for (counter = counter; counter < m_songList.size(); counter++) {
+            copyList.add(m_songList.get(counter));
+        }
+
+        // Shuffle
+        Collections.shuffle(copyList);
+        playlistSize = m_songList.size();
+
+        // Get rid of the songs from the index point onwards (Because original playlist is not shuffled)
+        while (tracker != playlistSize) {
+            m_songList.remove(tracker);
+            tracker++;
+        }
+
+        // Add the shuffled copylist to original playlist
+        for (Song s: copyList) {
+            m_songList.add(s);
+        }
+
+        return m_songList;
+    }
+
 
     /**
      * Get playlist
