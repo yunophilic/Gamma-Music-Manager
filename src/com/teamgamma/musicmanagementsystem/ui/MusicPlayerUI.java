@@ -64,9 +64,10 @@ public class MusicPlayerUI extends BorderPane {
         HBox playbackControls = createPlayBackControlBox(manager);
         this.setCenter(playbackControls);
 
+       /*   Removed for now until volume is working.
         HBox otherControlBox = createOtherOptionsBox(manager);
         this.setBottom(otherControlBox);
-
+        */
         manager.registerErrorObservers(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
