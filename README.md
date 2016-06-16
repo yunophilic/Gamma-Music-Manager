@@ -9,11 +9,11 @@ ___
 * **Docs:** Contains documentation for this project including archive of our backlog, planning documentation and links to the Google Doc folder containing the most up to date documentation. This folder also contains our citations for the code and resources we used. 
 * **db:** This folder will be created after you run our application. This folder is used as storage for our application. If this folder is not present then the application will act if it is the first time running the application.
 * **non-projectCode:** Contains code that is not part of the application itself. This could be things like POC or example source code. 
-* **library-sample:** Contains some sample music flies used for testing. 
+* **library-sample:** Contains some sample music files used for testing. 
 
 ---
 ## Build Instructions 
-This application can be built by using Intellij IDE on Windows. Load the project in to Intellij and run using Java 8. We do not officially  support Linux or Mac OSX as of right now.
+This application can be built by using IntelliJ IDE on Windows. Load the project in to IntelliJ and run using Java 8. We do not officially  support Linux or Mac OSX as of right now.
 ### Dependencies 
 * Java 8
 * [jaudiotagger-2.2.3](http://www.jthink.net/jaudiotagger/) 
