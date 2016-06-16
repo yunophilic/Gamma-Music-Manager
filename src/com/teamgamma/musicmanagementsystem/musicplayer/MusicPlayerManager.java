@@ -11,10 +11,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.Port;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -24,7 +22,7 @@ public class MusicPlayerManager {
 
     private IMusicPlayer m_musicPlayer;
 
-    private Queue<Song> m_playingQueue;
+    private Deque<Song> m_playingQueue;
 
     private List<Song> m_songHistory;
 
@@ -53,7 +51,7 @@ public class MusicPlayerManager {
      * Constructor
      */
     public MusicPlayerManager() {
-        m_playingQueue = new ConcurrentLinkedQueue<Song>();
+        m_playingQueue = new ConcurrentLinkedDeque<Song>();
         m_songHistory = new ArrayList<Song>();
 
         m_newSongObservers = new ArrayList<MusicPlayerObserver>();
@@ -110,7 +108,7 @@ public class MusicPlayerManager {
      *
      * @param nextSong
      */
-    public void placeSongOnPlaybackQueue(Song nextSong) {
+    public void placeSongOnBackOfPlaybackQueue(Song nextSong) {
         if (m_playingQueue.isEmpty() && !isSomethingPlaying()) {
             m_musicPlayer.playSong(nextSong);
             m_currentSong = nextSong;
@@ -520,5 +518,15 @@ public class MusicPlayerManager {
      */
     public void notifyQueingObserver() {
         notifyAll(m_queuingObserver);
+    }
+
+    /**
+     * Function to add a song to the front of the playback queue.
+     *
+     * @param songToPlace The song to place in the queue
+     */
+    public void placeSongAtStartOfQueue(Song songToPlace) {
+        m_playingQueue.addFirst(songToPlace);
+        notifyQueingObserver();
     }
 }

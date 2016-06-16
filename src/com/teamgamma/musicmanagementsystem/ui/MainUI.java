@@ -5,7 +5,6 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 
 /**
  * MainUI Class.
@@ -35,7 +34,7 @@ public class MainUI extends BorderPane {
 
         leftPane.setCenter(libraryUI);
         leftPane.setPrefWidth(250);
-        leftPane.setBottom(new MusicPlayerHistory(m_musicPlayerManager));
+        leftPane.setBottom(new MusicPlayerHistoryUI(m_musicPlayerManager));
         return leftPane;
     }
 
@@ -55,7 +54,6 @@ public class MainUI extends BorderPane {
 
     private Node bottomPane() {
         BorderPane musicPlayerWrapper = new BorderPane();
-        //musicPlayerWrapper.setCenter(new MusicPlayerHistory(m_musicPlayerManager));
         return musicPlayerWrapper;
     }
 

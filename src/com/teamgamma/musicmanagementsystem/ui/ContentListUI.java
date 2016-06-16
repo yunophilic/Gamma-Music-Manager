@@ -140,11 +140,10 @@ public class ContentListUI extends StackPane {
                             System.out.println(m_table.getSelectionModel().getSelectedItem());
                             m_musicPlayerManager.playSongRightNow(m_table.getSelectionModel().getSelectedItem());
                         }
-                        if (event.getButton() == MouseButton.SECONDARY){
-                            System.out.println("Right click, adding to queue ");
-                            Song selectedSong = (Song) m_table.getSelectionModel().getSelectedItem();
+                        if (event.getButton() == MouseButton.SECONDARY) {
+                            Song selectedSong = m_table.getSelectionModel().getSelectedItem();
                             if (selectedSong != null) {
-                                m_musicPlayerManager.placeSongOnPlaybackQueue(selectedSong);
+                                m_musicPlayerManager.placeSongOnBackOfPlaybackQueue(selectedSong);
                             }
                         }
                     }

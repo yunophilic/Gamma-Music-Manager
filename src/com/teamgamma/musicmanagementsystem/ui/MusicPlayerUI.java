@@ -101,7 +101,7 @@ public class MusicPlayerUI extends BorderPane {
         addSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                manager.placeSongOnPlaybackQueue(new Song(songPath.getText()));
+                manager.placeSongOnBackOfPlaybackQueue(new Song(songPath.getText()));
             }
         });
         musicFileBox.getChildren().addAll(songPathHeader, songPath, addSong);
