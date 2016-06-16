@@ -14,7 +14,7 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/ThirdParty" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/ThirdParty" recursive="true" />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
