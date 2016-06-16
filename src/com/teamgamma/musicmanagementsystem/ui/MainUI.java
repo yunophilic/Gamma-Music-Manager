@@ -34,7 +34,7 @@ public class MainUI extends BorderPane {
 
         leftPane.setCenter(libraryUI);
         leftPane.setPrefWidth(250);
-
+        leftPane.setBottom(new MusicPlayerHistoryUI(m_musicPlayerManager));
         return leftPane;
     }
 
@@ -53,13 +53,16 @@ public class MainUI extends BorderPane {
     }
 
     private Node bottomPane() {
-        return new MusicPlayerUI(m_musicPlayerManager);
+        BorderPane musicPlayerWrapper = new BorderPane();
+        return musicPlayerWrapper;
     }
 
     private Node centerPane() {
         BorderPane centerPane = new BorderPane();
 
+
         centerPane.setCenter(new ContentListUI(m_model, m_musicPlayerManager));
+        centerPane.setBottom(new MusicPlayerUI(m_musicPlayerManager));
         return centerPane;
     }
 }

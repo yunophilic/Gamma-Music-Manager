@@ -70,12 +70,18 @@ public class MusicPlayerUI extends BorderPane {
         manager.registerErrorObservers(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                Exception e = manager.getError();
-                if (e == null) {
-                    PromptUI.unexpectedCrash();
-                } else {
-                    PromptUI.customPromptError("Music Player Error", e.getMessage(), e.toString());
-                }
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Exception e = manager.getError();
+                        if (e == null) {
+                            PromptUI.unexpectedCrash();
+                        } else {
+                            PromptUI.customPromptError("Music Player Error", e.getMessage(), e.toString());
+                        }
+                    }
+                });
+
             }
         });
         setCssStyle();
@@ -95,7 +101,7 @@ public class MusicPlayerUI extends BorderPane {
         addSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                manager.placeSongOnPlaybackQueue(new Song(songPath.getText()));
+                manager.placeSongOnBackOfPlaybackQueue(new Song(songPath.getText()));
             }
         });
         musicFileBox.getChildren().addAll(songPathHeader, songPath, addSong);
