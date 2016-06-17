@@ -1,11 +1,14 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
+import com.teamgamma.musicmanagementsystem.model.PersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -18,10 +21,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystemException;
 import java.util.List;
 
 import javafx.event.EventHandler;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
+import javafx.util.converter.IntegerStringConverter;
 
 /**
  * UI class for list of songs in center of application
@@ -30,19 +36,15 @@ public class ContentListUI extends StackPane {
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private TableView<Song> m_table;
+    private ContextMenu m_contextMenu;
 
     public ContentListUI(SongManager model, MusicPlayerManager musicPlayerManager) {
         super();
-
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
-
-        updateList();
-
-        m_table = new TableView<>();
-
+        m_contextMenu = new ContextMenu();
+        updateTable();
         setCssStyle();
-
         registerAsCenterFolderObserver();
     }
 
@@ -53,14 +55,14 @@ public class ContentListUI extends StackPane {
         m_model.addObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
-                clearList();
-                updateList();
+                clearTable();
+                updateTable();
             }
 
             @Override
             public void centerFolderChanged() {
-                clearList();
-                updateList();
+                clearTable();
+                updateTable();
             }
 
             @Override
@@ -75,9 +77,8 @@ public class ContentListUI extends StackPane {
 
             @Override
             public void fileChanged() {
-                clearList();
-                //setEmptyText();
-                updateList();
+                clearTable();
+                updateTable();
             }
 
             @Override
@@ -96,13 +97,13 @@ public class ContentListUI extends StackPane {
 
     }
 
-    private void clearList() {
+    private void clearTable() {
         System.out.println("Clearing list...");
         m_table.getItems().clear();
         this.getChildren().clear();
     }
 
-    private void updateList() {
+    private void updateTable() {
         m_table = new TableView<>();
         TableColumn<Song, File> fileNameCol = new TableColumn<>("File Name");
         fileNameCol.setMinWidth(80);
@@ -114,7 +115,7 @@ public class ContentListUI extends StackPane {
         albumCol.setMinWidth(60);
         TableColumn<Song, String> genreCol = new TableColumn<>("Genre");
         genreCol.setMinWidth(60);
-        TableColumn<Song, String> ratingCol = new TableColumn<>("Rating");
+        TableColumn<Song, Integer> ratingCol = new TableColumn<>("Rating");
         ratingCol.setMinWidth(20);
 
         if (m_model.getM_selectedCenterFolder() == null) {
@@ -149,7 +150,7 @@ public class ContentListUI extends StackPane {
                                           TableColumn<Song, String> artistCol,
                                           TableColumn<Song, String> albumCol,
                                           TableColumn<Song, String> genreCol,
-                                          TableColumn<Song, String> ratingCol) {
+                                          TableColumn<Song, Integer> ratingCol) {
         fileNameCol.setCellValueFactory(new PropertyValueFactory<>("m_fileName"));
 
         titleCol.setCellValueFactory(new PropertyValueFactory<>("m_title"));
@@ -197,13 +198,13 @@ public class ContentListUI extends StackPane {
         );
 
         ratingCol.setCellValueFactory(new PropertyValueFactory<>("m_rating"));
-        ratingCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        ratingCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         ratingCol.setOnEditCommit(
-                new EventHandler<TableColumn.CellEditEvent<Song, String>>() {
+                new EventHandler<TableColumn.CellEditEvent<Song, Integer>>() {
                     @Override
-                    public void handle(TableColumn.CellEditEvent<Song, String> t) {
+                    public void handle(TableColumn.CellEditEvent<Song, Integer> t) {
                         try {
-                            t.getTableView().getItems().get(t.getTablePosition().getRow()).setRating(Integer.parseInt(t.getNewValue()));
+                            t.getTableView().getItems().get(t.getTablePosition().getRow()).setRating(t.getNewValue());
                         } catch (IllegalArgumentException ex) {
                             PromptUI.customPromptError("Error", "", "Rating should be in range 0 to 5");
                             m_model.notifyCenterFolderObservers();
@@ -234,6 +235,12 @@ public class ContentListUI extends StackPane {
                         Song selectedSong = row.getItem();
                         if (selectedSong != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
                             m_musicPlayerManager.playSongRightNow(selectedSong);
+                        } else if (event.getButton() == MouseButton.PRIMARY) {
+                            m_contextMenu.hide();
+                        } else if (event.getButton() == MouseButton.SECONDARY) {
+                            m_contextMenu.hide();
+                            m_contextMenu = generateContextMenu(row.getItem());
+                            m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
                         }
                     }
                 });
@@ -305,6 +312,130 @@ public class ContentListUI extends StackPane {
                 return row;
             }
         });
+    }
+
+    private ContextMenu generateContextMenu(Song selectedSong) {
+        ContextMenu contextMenu = new ContextMenu();
+
+        //copy option
+        MenuItem copy = new MenuItem(ContextMenuConstants.COPY);
+        copy.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                if (selectedSong != null) {
+                    m_model.setM_fileToCopy(selectedSong.getM_file());
+                }
+            }
+        });
+
+        //paste option
+        MenuItem paste = new MenuItem(ContextMenuConstants.PASTE);
+        paste.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                if (selectedSong != null) {
+                    File dest = m_model.getM_selectedCenterFolder();
+                    if (!dest.isDirectory()) {
+                        PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
+                        return;
+                    }
+                    try {
+                        m_model.copyToDestination(dest);
+                        m_model.notifyFileObservers();
+                    } catch (FileAlreadyExistsException ex) {
+                        PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
+                    } catch (IOException ex) {
+                        PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
+                    } catch (Exception ex) {
+                        PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
+                    }
+                }
+            }
+        });
+
+        //delete option
+        MenuItem delete = new MenuItem(ContextMenuConstants.DELETE);
+        delete.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                if (selectedSong != null) {
+                    File fileToDelete = selectedSong.getM_file();
+                    //confirmation dialog
+                    if (!PromptUI.customPromptConfirmation(
+                            "Deleting " + (fileToDelete.isDirectory() ? "folder" : "file"),
+                            null,
+                            "Are you sure you want to permanently delete \"" + fileToDelete.getName() + "\"?")) {
+                        return;
+                    }
+                    //try to actually delete (retry if FileSystemException happens)
+                    for(int i=0; i<2; i++) {
+                        try {
+                            m_model.deleteFile(fileToDelete);
+                            break;
+                        } catch (FileSystemException ex) {
+                            m_musicPlayerManager.stopSong();
+                            if (i==1) { //if this exception still thrown after retry (for debugging)
+                                ex.printStackTrace();
+                            }
+                        } catch (Exception ex) {
+                            PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
+                            ex.printStackTrace();
+                            break;
+                        }
+                    }
+                    PersistentStorage persistentStorage = new PersistentStorage();
+                    persistentStorage.removePersistentStorageLibrary(fileToDelete.getAbsolutePath());
+                    m_model.notifyFileObservers();
+                }
+            }
+        });
+
+        //edit properties option
+        MenuItem editProperties = new MenuItem(ContextMenuConstants.EDIT_PROPERTIES);
+        editProperties.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //open a dialog to edit metadata...
+            }
+        });
+
+        //add to playlist option
+        MenuItem addToPlaylist = new MenuItem(ContextMenuConstants.ADD_TO_PLAYLIST);
+        addToPlaylist.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //add to playlist functionality...
+            }
+        });
+
+        contextMenu.getItems().addAll(copy, paste, delete, editProperties, addToPlaylist);
+        contextMenu.setOnShown(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                // Disable paste if nothing is chosen to be copied
+                if (m_model.getM_fileToCopy() == null) {
+                    paste.setDisable(true);
+                    paste.setStyle("-fx-text-fill: gray;");
+                } else {
+                    paste.setDisable(false);
+                    paste.setStyle("-fx-text-fill: black;");
+                }
+
+                // Disable copy, edit, delete, addToPlaylist if no song is selected in table
+                if (selectedSong == null) {
+                    copy.setDisable(true);
+                    copy.setStyle("-fx-text-fill: gray;");
+                    delete.setDisable(true);
+                    delete.setStyle("-fx-text-fill: gray;");
+                    editProperties.setDisable(true);
+                    editProperties.setStyle("-fx-text-fill: gray;");
+                    addToPlaylist.setDisable(true);
+                    addToPlaylist.setStyle("-fx-text-fill: gray;");
+                }
+            }
+        });
+
+        return contextMenu;
     }
 
     private void setCssStyle() {
