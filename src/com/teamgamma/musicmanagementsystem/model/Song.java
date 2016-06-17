@@ -23,7 +23,7 @@ public class Song {
     private String m_artist;
     private String m_album;
     private String m_genre;
-    private String m_rating;
+    private int m_rating;
     private double m_length;
     private long m_frames;
 
@@ -52,9 +52,7 @@ public class Song {
         m_album = tag.getFirst(FieldKey.ALBUM);
         m_genre = tag.getFirst(FieldKey.GENRE);
         String ratingInMetadata = tag.getFirst(FieldKey.RATING);
-        m_rating = Integer.toString(
-                convertRatingToFiveStarScale(ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata))
-        );
+        m_rating = convertRatingToFiveStarScale(ratingInMetadata.equals("") ? 0 : Integer.parseInt(ratingInMetadata));
     }
 
     private Tag fillEmptyTag(AudioFile file) throws FieldDataInvalidException, CannotWriteException {
@@ -164,7 +162,7 @@ public class Song {
         return m_genre;
     }
 
-    public String getM_rating() {
+    public int getM_rating() {
         return m_rating;
     }
 
@@ -232,7 +230,7 @@ public class Song {
             tag.setField(FieldKey.RATING, Integer.toString(convertRatingFromFiveStarScale(rating)));
             AudioFileIO.write(file);
             //update object attr
-            m_rating = Integer.toString(rating);
+            m_rating = rating;
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
