@@ -536,7 +536,7 @@ public class MusicPlayerManager {
      * @return True if there is a song that can be previously played, False other wise.
      */
     public boolean isNothingPrevious(){
-        return m_songHistory.isEmpty();
+        return m_songHistory.isEmpty() && (m_currentSong == null);
     }
 
     /**
