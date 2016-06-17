@@ -9,16 +9,19 @@ import javafx.scene.input.MouseEvent;
 
 /**
  * Custom EventDispatcher class to override the default double-click behaviour of TreeView
+ * This class is a modification of http://stackoverflow.com/questions/15509203/disable-treeitems-default-expand-collapse-on-double-click-javafx-2-2
  */
 public class TreeMouseEventDispatcher implements EventDispatcher {
     private final EventDispatcher m_originalDispatcher;
     private SongManager m_model;
     private TreeViewItem m_selectedTreeViewItem;
+    private boolean m_isLeftPane;
 
-    public TreeMouseEventDispatcher(EventDispatcher originalDispatcher, SongManager model, TreeViewItem selectedTreeViewItem) {
+    public TreeMouseEventDispatcher(EventDispatcher originalDispatcher, SongManager model, TreeViewItem selectedTreeViewItem, boolean isLeftPane) {
         m_originalDispatcher = originalDispatcher;
         m_model = model;
         m_selectedTreeViewItem = selectedTreeViewItem;
+        m_isLeftPane = isLeftPane;
     }
 
     /**
@@ -35,9 +38,12 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
 
             if (isPrimaryMouseButton && isDoubleClick) {
                 if (!event.isConsumed()) {
-                    System.out.println("Selected Item: " + m_selectedTreeViewItem);
-                    m_model.setM_selectedCenterFolder(m_selectedTreeViewItem.getM_file());
-                    m_model.notifyCenterFolderObservers();
+                    // Only notify center panel if this is a left panel
+                    if (m_isLeftPane) {
+                        System.out.println("Selected Item: " + m_selectedTreeViewItem);
+                        m_model.setM_selectedCenterFolder(m_selectedTreeViewItem.getM_file());
+                        m_model.notifyCenterFolderObservers();
+                    }
                 }
 
                 event.consume();
