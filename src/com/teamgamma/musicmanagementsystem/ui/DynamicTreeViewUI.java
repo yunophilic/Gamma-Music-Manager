@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
 import com.teamgamma.musicmanagementsystem.model.FileManager;
 import com.teamgamma.musicmanagementsystem.model.Library;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
@@ -109,7 +110,7 @@ public class DynamicTreeViewUI extends StackPane {
             File dummyRootFile = new File(libraries.get(0).getM_rootDirPath());
             TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
 
-            TreeItem<TreeViewItem> rootItem = FileManager.generateTreeItems(
+            TreeItem<TreeViewItem> rootItem = TreeViewUtil.generateTreeItems(
                     m_model.getM_rightFolderSelected(), m_model.getM_rightFolderSelected().getAbsolutePath(), false
             );
 

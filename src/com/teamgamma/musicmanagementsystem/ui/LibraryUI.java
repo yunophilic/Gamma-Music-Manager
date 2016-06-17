@@ -1,6 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.model.FileManager;
+import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
 import com.teamgamma.musicmanagementsystem.model.Library;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
@@ -112,7 +112,7 @@ public class LibraryUI extends StackPane {
         TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
 
         for (Library library : libraries) {
-            TreeItem<TreeViewItem> rootItem = FileManager.generateTreeItems(
+            TreeItem<TreeViewItem> rootItem = TreeViewUtil.generateTreeItems(
                     library.getM_rootDir(), library.getM_rootDirPath(), m_model.getM_menuOptions().getM_leftPanelShowFolder()
             );
             rootItem.setExpanded(true);

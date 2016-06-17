@@ -316,40 +316,6 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         });*/
     }
 
-    /**
-     * Search for the TreeItem<TreeViewItem> from the whole tree based on the given path
-     *
-     * @param path the specified path
-     * @return TreeItem<TreeViewItem> or null if not found
-     */
-    private TreeItem<TreeViewItem> searchTreeItem(String path) {
-        return searchTreeItem(m_tree.getRoot(), path);
-    }
-
-    /**
-     * Search for the TreeItem<TreeViewItem> from the sub-tree rooted at the specified node based on the given path
-     *
-     * @param node the specified node
-     * @param path the specified path
-     * @return TreeItem<TreeViewItem> or null if not found
-     */
-    private TreeItem<TreeViewItem> searchTreeItem(TreeItem<TreeViewItem> node, String path) {
-        //base case
-        if (node.getValue().getM_file().getAbsolutePath().equals(path)) {
-            return node;
-        }
-
-        //recursive case
-        for (TreeItem<TreeViewItem> child : node.getChildren()) {
-            TreeItem<TreeViewItem> target = searchTreeItem(child, path);
-            if (target != null) {
-                return target;
-            }
-        }
-
-        return null;
-    }
-
     @Override
     public void updateItem(TreeViewItem item, boolean empty) {
         super.updateItem(item, empty);
