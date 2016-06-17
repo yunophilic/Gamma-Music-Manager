@@ -124,7 +124,7 @@ public class ContentListUI extends StackPane {
             m_table = new TableView<>();
             m_table.setEditable(true);
 
-            setTableRowDragEvents();
+            setTableRowMouseEvents();
             setTableColumnAttributes(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
 
             List<Song> songs = m_model.getCenterPanelSongs();
@@ -132,22 +132,6 @@ public class ContentListUI extends StackPane {
                 m_table.setPlaceholder(new Label("No songs in folder"));
             } else {
                 m_table.setItems(FXCollections.observableArrayList(songs));
-
-                m_table.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        if (event.getClickCount() == 2) {
-                            System.out.println(m_table.getSelectionModel().getSelectedItem());
-                            m_musicPlayerManager.playSongRightNow(m_table.getSelectionModel().getSelectedItem());
-                        }
-                        if (event.getButton() == MouseButton.SECONDARY) {
-                            Song selectedSong = m_table.getSelectionModel().getSelectedItem();
-                            if (selectedSong != null) {
-                                m_musicPlayerManager.placeSongOnBackOfPlaybackQueue(selectedSong);
-                            }
-                        }
-                    }
-                });
             }
             this.getChildren().add(m_table);
 
@@ -238,16 +222,26 @@ public class ContentListUI extends StackPane {
         m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
-    private void setTableRowDragEvents() {
+    private void setTableRowMouseEvents() {
         m_table.setRowFactory(new Callback<TableView<Song>, TableRow<Song>>() {
             @Override
             public TableRow<Song> call(TableView<Song> param) {
                 TableRow<Song> row = new TableRow<>();
 
+                row.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        Song selectedSong = row.getItem();
+                        if (selectedSong != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+                            m_musicPlayerManager.playSongRightNow(selectedSong);
+                        }
+                    }
+                });
+
                 row.setOnDragDetected(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
-                        Song selectedItem = m_table.getSelectionModel().getSelectedItem();
+                        Song selectedItem = row.getItem();
 
                         System.out.println("Drag detected on " + selectedItem.getM_file());
 
@@ -307,24 +301,6 @@ public class ContentListUI extends StackPane {
                         dragEvent.consume();
                     }
                 });
-
-                /*row.setOnDragEntered(new EventHandler<DragEvent>() {
-                    @Override
-                    public void handle(DragEvent dragEvent) {
-                        Song selectedItem = m_table.getSelectionModel().getSelectedItem();
-                        System.out.println("Drag entered on " + selectedItem);
-                        dragEvent.consume();
-                    }
-                });
-
-                row.setOnDragExited(new EventHandler<DragEvent>() {
-                    @Override
-                    public void handle(DragEvent dragEvent) {
-                        Song selectedItem = m_table.getSelectionModel().getSelectedItem();
-                        System.out.println("Drag exited on " + selectedItem);
-                        dragEvent.consume();
-                    }
-                });*/
 
                 return row;
             }
