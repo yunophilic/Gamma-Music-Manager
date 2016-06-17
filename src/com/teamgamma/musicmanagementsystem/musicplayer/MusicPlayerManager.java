@@ -529,4 +529,24 @@ public class MusicPlayerManager {
         m_playingQueue.addFirst(songToPlace);
         notifyQueingObserver();
     }
+
+    /**
+     * Function to check if there is something if previous song can be done.
+     *
+     * @return True if there is a song that can be previously played, False other wise.
+     */
+    public boolean isNothingPrevious(){
+        return m_songHistory.isEmpty();
+    }
+
+    /**
+     * Function to check if there is a next song to play.
+     *
+     * @return True if there is, False other wise.
+     */
+    public boolean isThereANextSong(){
+        return (!m_playingQueue.isEmpty() ||
+                (isPlayingSongOnFromHistoryList() && (m_historyIndex < (m_songHistory.size() - 1))));
+
+    }
 }

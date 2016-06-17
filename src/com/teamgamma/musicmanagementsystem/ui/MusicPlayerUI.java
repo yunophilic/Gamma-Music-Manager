@@ -41,6 +41,8 @@ public class MusicPlayerUI extends BorderPane {
 
     public static final String DEFAULT_TIME_STRING = "0:00";
     public static final String CURRENT_SONG_PLAYING_HEADER = "Playing: ";
+    public static final double FADED = 0.5;
+    public static final double NOT_FADED = 1.0;
 
     /**
      * Constructor
@@ -120,6 +122,7 @@ public class MusicPlayerUI extends BorderPane {
         playbackControls.setAlignment(Pos.CENTER);
 
         Button previousSong = createIconButton(PREVIOUS_ICON_PATH);
+        previousSong.setOpacity(0.5);
         previousSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -128,6 +131,17 @@ public class MusicPlayerUI extends BorderPane {
         });
         previousSong.setAlignment(Pos.CENTER_LEFT);
         playbackControls.getChildren().add(previousSong);
+
+        manager.registerNewSongObserver(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                if (manager.isNothingPrevious()) {
+                    previousSong.setOpacity(FADED);
+                } else {
+                    previousSong.setOpacity(NOT_FADED);
+                }
+            }
+        });
 
         ToggleButton playPauseButton = new ToggleButton();
         playPauseButton.setStyle("-fx-background-color: transparent");
@@ -168,6 +182,7 @@ public class MusicPlayerUI extends BorderPane {
         playbackControls.getChildren().add(playPauseButton);
 
         Button skipButton = createIconButton(NEXT_SONG_ICON_PATH);
+        skipButton.setOpacity(FADED);
         skipButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -175,7 +190,31 @@ public class MusicPlayerUI extends BorderPane {
             }
         });
         playbackControls.getChildren().add(skipButton);
+
+        manager.registerQueingObserver(createNextSongButtonFadedAction(manager, skipButton));
+        manager.registerNewSongObserver(createNextSongButtonFadedAction(manager, skipButton));
         return playbackControls;
+    }
+
+    /**
+     * Helper function to create the observer that will be used to fade the next button or not.
+     *
+     * @param manager       The music player manager to query.
+     * @param skipButton    The button to update.
+     *
+     * @return  The observer containing the next song faded logic.
+     */
+    private MusicPlayerObserver createNextSongButtonFadedAction(final MusicPlayerManager manager, final Button skipButton) {
+        return new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                if (manager.isThereANextSong()) {
+                    skipButton.setOpacity(NOT_FADED);
+                } else {
+                    skipButton.setOpacity(FADED);
+                }
+            }
+        };
     }
 
     /**
@@ -219,6 +258,8 @@ public class MusicPlayerUI extends BorderPane {
         });
 
         otherControlBox.getChildren().addAll(volumeDownButton, volumeUpButton, repeatSongButton);
+
+        HBox.setHgrow(otherControlBox, Priority.ALWAYS);
         otherControlBox.setAlignment(Pos.CENTER);
         return otherControlBox;
     }
