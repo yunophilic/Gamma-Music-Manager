@@ -31,6 +31,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
     private MusicPlayerManager m_musicPlayerManager;
     private TreeView<TreeViewItem> m_tree;
     private TreeViewItem m_selectedTreeViewItem;
+    private boolean m_isLeftPane;
 
     //constants
     private static final String COPY = "Copy";
@@ -45,17 +46,17 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         m_musicPlayerManager = musicPlayerManager;
         m_tree = tree;
         m_contextMenu = new ContextMenu();
-        m_contextMenu.getItems().addAll(generateMenuItems(isLeftPane));
+        m_isLeftPane = isLeftPane;
+        m_contextMenu.getItems().addAll(generateMenuItems());
         setDragEvents();
     }
 
     /**
      * Generate menu items
      *
-     * @param isLeftPane determines the menu items
      * @return List<MenuItem>
      */
-    private List<MenuItem> generateMenuItems(boolean isLeftPane) {
+    private List<MenuItem> generateMenuItems() {
         //copy option
         MenuItem copy = new MenuItem(COPY);
         copy.setOnAction(new EventHandler<ActionEvent>() {
@@ -181,7 +182,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         menuItems.add(copy);
         menuItems.add(paste);
         menuItems.add(delete);
-        if (isLeftPane) {
+        if (m_isLeftPane) {
             menuItems.add(removeLibrary);
             menuItems.add(openInRightPane);
         }
@@ -354,7 +355,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         super.updateItem(item, empty);
         m_selectedTreeViewItem = item;
         EventDispatcher originalDispatcher = getEventDispatcher();
-        setEventDispatcher(new TreeMouseEventDispatcher(originalDispatcher, m_model, m_selectedTreeViewItem));
+        setEventDispatcher(new TreeMouseEventDispatcher(originalDispatcher, m_model, m_selectedTreeViewItem, m_isLeftPane));
         setContextMenu(m_contextMenu);
     }
 }
