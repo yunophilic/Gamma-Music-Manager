@@ -60,7 +60,7 @@ public class LibraryUI extends StackPane {
     }
 
     private void registerAsLibraryObserver() {
-        m_model.addObserver(new SongManagerObserver() {
+        m_model.addSongManagerObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
                 System.out.println("Library changed in treeview");
@@ -111,7 +111,7 @@ public class LibraryUI extends StackPane {
      * @return TreeView<String>
      */
     private TreeView<TreeViewItem> createTrees(List<Library> libraries) {
-        File dummyRootFile = new File(libraries.get(0).getM_rootDirPath());
+        File dummyRootFile = new File(System.getProperty("user.dir"));
         TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
 
         for (Library library : libraries) {

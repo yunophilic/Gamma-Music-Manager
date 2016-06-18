@@ -95,4 +95,8 @@ public class Playlist {
     public List<Song> getM_songList() {
         return m_songList;
     }
+
+    public String getM_playlistName() {
+        return m_playlistName;
+    }
 }

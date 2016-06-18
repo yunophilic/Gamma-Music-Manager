@@ -7,11 +7,13 @@ import javafx.scene.image.ImageView;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.List;
 
 /**
  * Utility class that provides functionality for the FileTree
  */
 public class TreeViewUtil {
+    private static final Image openFolderImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "Status-folder-open-icon.png"));
     private static final Image folderImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "folder-icon.png"));
     private static final Image songImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "musical-note.png"));
 
@@ -58,7 +60,7 @@ public class TreeViewUtil {
      * @param path the specified path
      * @return TreeItem<TreeViewItem> or null if not found
      */
-    private static TreeItem<TreeViewItem> searchTreeItem(TreeView<TreeViewItem> tree, String path) {
+    public static TreeItem<TreeViewItem> searchTreeItem(TreeView<TreeViewItem> tree, String path) {
         return searchTreeItem(tree.getRoot(), path);
     }
 
@@ -72,6 +74,7 @@ public class TreeViewUtil {
     private static TreeItem<TreeViewItem> searchTreeItem(TreeItem<TreeViewItem> node, String path) {
         //base case
         if (node.getValue().getM_file().getAbsolutePath().equals(path)) {
+            //System.out.println("Returning node: " + node);
             return node;
         }
 
@@ -84,5 +87,37 @@ public class TreeViewUtil {
         }
 
         return null;
+    }
+
+    /**
+     * Set all tree item icons to closed folder icon or a song icon
+     * @param treeItem
+     */
+    public static void closeAllFoldersIcons(TreeItem<TreeViewItem> treeItem) {
+        //System.out.println("#### closing file: " + treeItem.getValue());
+        if (treeItem.getValue().getM_file().isDirectory()) {
+            treeItem.setGraphic(new ImageView(folderImage));
+        } else {
+            treeItem.setGraphic(new ImageView(songImage));
+        }
+        if (!treeItem.getChildren().isEmpty()){
+            List<TreeItem<TreeViewItem>> childTreeItems = treeItem.getChildren();
+            for (TreeItem<TreeViewItem> child: childTreeItems) {
+                closeAllFoldersIcons(child);
+            }
+        }
+    }
+
+    /**
+     * Set selected tree item's icon to open folder icon
+     * @param m_tree
+     * @param filePath
+     */
+    public static void setOpenFolder(TreeView<TreeViewItem> m_tree, String filePath) {
+        System.out.println("^^^^^ Tree root: " + m_tree.getRoot());
+        TreeItem<TreeViewItem> selectedTreeItem = TreeViewUtil.searchTreeItem(m_tree, filePath);
+        //System.out.println("@@@ Found treeitem: " + selectedTreeItem.getValue());
+        System.out.println("@@@ Found treeitem: " + selectedTreeItem);
+        selectedTreeItem.setGraphic(new ImageView(openFolderImage));
     }
 }

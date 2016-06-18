@@ -1,7 +1,9 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
-import com.teamgamma.musicmanagementsystem.model.*;
+import com.teamgamma.musicmanagementsystem.model.Library;
+import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
 import com.teamgamma.musicmanagementsystem.misc.CustomTreeCell;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -55,7 +57,7 @@ public class DynamicTreeViewUI extends StackPane {
 
 
     private void registerAsObserver() {
-        m_model.addObserver(new SongManagerObserver() {
+        m_model.addSongManagerObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
                 clearTreeView();

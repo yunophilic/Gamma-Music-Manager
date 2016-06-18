@@ -311,7 +311,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         super.updateItem(item, empty);
         m_selectedTreeViewItem = item;
         EventDispatcher originalDispatcher = getEventDispatcher();
-        setEventDispatcher(new TreeMouseEventDispatcher(originalDispatcher, m_model, m_selectedTreeViewItem, m_isLeftPane));
+        setEventDispatcher(new TreeMouseEventDispatcher(originalDispatcher, m_model, m_tree, m_selectedTreeViewItem, m_isLeftPane));
         setContextMenu(m_contextMenu);
     }
 }
