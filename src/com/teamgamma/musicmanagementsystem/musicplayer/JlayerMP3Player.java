@@ -1,8 +1,11 @@
 package com.teamgamma.musicmanagementsystem.musicplayer;
 
 import com.teamgamma.musicmanagementsystem.model.Song;
+
 import javafx.concurrent.Task;
 import javafx.util.Duration;
+
+import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.player.AudioDevice;
 import javazoom.jl.player.FactoryRegistry;
 import javazoom.jl.player.advanced.AdvancedPlayer;
@@ -11,6 +14,8 @@ import javazoom.jl.player.advanced.PlaybackListener;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Class to implement a music player that uses the JLayer library
@@ -33,8 +38,17 @@ public class JlayerMP3Player implements IMusicPlayer{
 
     private Runnable m_onFinishAction;
 
-    // Might require mutex for this
     private boolean m_isPlaying = false;
+
+    private Lock m_lock = new ReentrantLock();
+
+    private Thread m_currentUIThread;
+
+    private Thread m_currentPlaybackThread;
+
+    private BufferedInputStream m_bufferedStream;
+
+    private FileInputStream m_fs;
 
     /**
      * Constructor
@@ -49,7 +63,9 @@ public class JlayerMP3Player implements IMusicPlayer{
     public void playSong(Song songToPlay) {
         stopSong();
         setUpMusicPlayer(songToPlay);
-        createPlayBackThread().start();
+
+        m_currentPlaybackThread = createPlayBackThread();
+        m_currentPlaybackThread.start();
 
         // Only upon success save the song
         m_currentSong = songToPlay;
@@ -64,11 +80,11 @@ public class JlayerMP3Player implements IMusicPlayer{
      */
     private void setUpMusicPlayer(Song songToPlay) {
         try {
-            FileInputStream fileInputStream = new FileInputStream(songToPlay.getM_file());
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+            m_fs = new FileInputStream(songToPlay.getM_file());
+            m_bufferedStream = new BufferedInputStream(m_fs);
             m_audioDevice = FactoryRegistry.systemRegistry().createAudioDevice();
 
-            m_player = new AdvancedPlayer(bufferedInputStream, m_audioDevice);
+            m_player = new AdvancedPlayer(m_bufferedStream, m_audioDevice);
             m_player.setPlayBackListener(createPlaybackListeners());
 
             m_isReady = true;
@@ -89,25 +105,38 @@ public class JlayerMP3Player implements IMusicPlayer{
             @Override
             public void playbackStarted(PlaybackEvent playbackEvent) {
                 super.playbackStarted(playbackEvent);
-                m_lastFramePlayed = playbackEvent.getFrame();
-                m_isPlaying = true;
+                // Wait for the current UI thread to stop if it is still running.
+                try {
+                    m_lock.lock();
+                    m_isPlaying = false;
+                    if (m_currentUIThread != null) {
+                        // Spawn a new thread to join it so we do not get any UI hangs.
+                        createTerminationThread(m_currentUIThread).start();
+                    }
+                    m_isPlaying = true;
 
-                m_manager.notifyPlaybackObservers();
-                new Thread(createUpdateUIThread()).start();
-                m_manager.notifyChangeStateObservers();
+                    // Initial notify
+                    m_manager.notifyPlaybackObservers();
+                    m_currentUIThread = new Thread(createUpdateUIThread());
+                    if (m_currentUIThread.getState() == Thread.State.NEW) {
+                        m_currentUIThread.start();
+                    }
 
+                    m_manager.notifyChangeStateObservers();
+                } finally {
+                    m_lock.unlock();
+                }
             }
 
             @Override
             public void playbackFinished(PlaybackEvent playbackEvent) {
-                // Literally the song is finished playing not when close it called.
                 super.playbackFinished(playbackEvent);
 
-                // Frame is the Milisecond precision of the current playback time.
+                // Frame is the Millisecond precision of the current playback time and not the MP3 frame.
                 m_lastFramePlayed = playbackEvent.getFrame();
                 m_CurrentPlaybackTimeInMiliseconds += m_lastFramePlayed;
 
-                // stop playback UI thread
+                // Stop playback UI thread
                 m_isPlaying = false;
 
                 if (m_onFinishAction != null){
@@ -120,8 +149,30 @@ public class JlayerMP3Player implements IMusicPlayer{
     }
 
     /**
-     * Function to create a playback thread that will play the song from the begginning.
-     * @return  A thread that will play the song from the begginning.
+     * Helper function to create a thread with the logic to interrupt and join the thread given.
+     *
+     * @param threadToTerminate The thread to terminate
+     *
+     * @return  A Thread that can be used to terminate the thread in the parameter.
+     */
+    private Thread createTerminationThread(Thread threadToTerminate) {
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    threadToTerminate.interrupt();
+                    threadToTerminate.join();
+                } catch (InterruptedException e) {
+                    m_manager.setError(e);
+                    m_manager.notifyError();
+                }
+            }
+        });
+    }
+
+    /**
+     * Function to create a playback thread that will play the song from the beginning.
+     * @return  A thread that will play the song from the beginning.
      */
     private Thread createPlayBackThread() {
         return new Thread(new Runnable() {
@@ -149,8 +200,9 @@ public class JlayerMP3Player implements IMusicPlayer{
     public void resumeSong() {
         // Play song where it was left off.
         setUpMusicPlayer(m_currentSong);
-        createResumePlaybackThread().start();
 
+        m_currentPlaybackThread = createResumePlaybackThread();
+        m_currentPlaybackThread.start();
     }
 
     /**
@@ -162,9 +214,13 @@ public class JlayerMP3Player implements IMusicPlayer{
             @Override
             public void run() {
                 try {
-                    // using integer max as specified in source of the AdvancePlayer play()
+                    // Using integer max as specified in source of the AdvancePlayer play()
                     m_player.play((int) convertMilisecondsToFrame(m_CurrentPlaybackTimeInMiliseconds), Integer.MAX_VALUE);
-                } catch (Exception e) {
+                } catch (BitstreamException bistreamError) {
+                    // Ignore since this exception would be for when we want to interrupt the music player so we can
+                    // the thread.
+                }
+                catch (Exception e) {
                     e.printStackTrace();
                     m_manager.setError(e);
                     m_manager.notifyError();
@@ -226,13 +282,26 @@ public class JlayerMP3Player implements IMusicPlayer{
     @Override
     public void stopSong() {
         if (isReadyToUse()) {
-            m_isPlaying = false;
             m_isReady = false;
-            if (m_isPlaying) {
-                m_player.stop();
-            }
 
-            m_player.close();
+            // This should kill the UI threads if they are not waiting.
+            m_isPlaying = false;
+
+            // This should kill the current playback thread.
+            if (m_currentPlaybackThread != null && m_currentPlaybackThread.isAlive()){
+
+                m_player.stop();
+                m_player.close();
+                try {
+                    m_fs.close();
+                    m_bufferedStream.close();
+                } catch (Exception e) {
+                    m_manager.setError(e);
+                    m_manager.notifyError();
+                }
+
+                createTerminationThread(m_currentPlaybackThread).start();
+            }
         }
     }
 
@@ -253,7 +322,9 @@ public class JlayerMP3Player implements IMusicPlayer{
                             try{
                                 Thread.sleep(MusicPlayerConstants.UPDATE_INTERVAL_IN_MILLISECONDS);
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                // It is alright if we get interrupted while we sleep.
+                                // Make sure to return and stop the thread.
+                                return null;
                             }
                         }
                         return null;
