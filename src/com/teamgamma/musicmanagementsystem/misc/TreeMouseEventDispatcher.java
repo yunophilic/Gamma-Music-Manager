@@ -47,8 +47,10 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
 
             if (isPrimaryMouseButton && isDoubleClick) {
                 if (!event.isConsumed()) {
-                    // Only notify center panel if this is a left panel
-                    if (m_isLeftPane) {
+                    boolean isFolder = m_selectedTreeViewItem.getM_file().isDirectory();
+
+                    // Only notify center panel if this is a left panel and if this is a directory
+                    if (m_isLeftPane && isFolder) {
                         System.out.println("Selected Item: " + m_selectedTreeViewItem);
                         m_model.setM_selectedCenterFolder(m_selectedTreeViewItem.getM_file());
                         m_model.notifyCenterFolderObservers();
