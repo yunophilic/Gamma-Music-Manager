@@ -52,7 +52,7 @@ public class ContentListUI extends StackPane {
      * Register as a observer to changes for the folder selected to be displayed here
      */
     private void registerAsCenterFolderObserver() {
-        m_model.addObserver(new SongManagerObserver() {
+        m_model.addSongManagerObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
                 clearTable();
@@ -404,7 +404,19 @@ public class ContentListUI extends StackPane {
         addToPlaylist.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                //add to playlist functionality...
+                System.out.println("Adding to playlist...");
+                // TODO: remove this once we can create Playlists
+                m_model.notifyPlaylistSongsObservers();
+
+                // TODO: Uncomment this section when we have create Playlist working
+                // TODO: verify if it works (this is just a rough version)
+                // TODO: get playlist name from user input (prompt)
+                /*String playlistName = "playlist";
+                boolean songAddedSuccess = m_model.addToPlaylist(selectedSong, playlistName);
+
+                if (!songAddedSuccess){
+                    // TODO: show prompt with error
+                }*/
             }
         });
 

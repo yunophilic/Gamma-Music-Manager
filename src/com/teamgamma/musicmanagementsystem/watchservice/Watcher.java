@@ -137,7 +137,7 @@ public class Watcher {
     }
 
     private void registerAsObserver() {
-        m_model.addObserver(new SongManagerObserver() {
+        m_model.addSongManagerObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
                 restartWatcher();
