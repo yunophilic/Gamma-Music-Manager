@@ -1,22 +1,29 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import javafx.scene.control.Alert;
+import com.teamgamma.musicmanagementsystem.model.Song;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextInputDialog;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
+import javafx.util.Pair;
 
 /**
  * Various prompts for UI
@@ -269,6 +276,80 @@ public class PromptUI {
         return null;
     }
 
+    /**
+     * Prompt for editing song metadata
+     *
+     * @param song file for editing
+     */
+    public static void editMetadata(Song song) {
+        Dialog<Pair<String, String>> dialog = new Dialog<>();
+        dialog.setTitle("Song Information");
+        dialog.setHeaderText("Edit Music Metadata");
+
+        // Set the icon (must be included in the project).
+        //dialog.setGraphic(new ImageView(this.getClass().getResource("EDIT_METADATA_ICON").toString()));
+
+        ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 100, 10, 10));
+
+        TextField title = new TextField();
+        title.setText(song.getM_fileName());
+        title.setPrefWidth(200);
+        TextField artist = new TextField();
+        artist.setText(song.getM_artist());
+        TextField album = new TextField();
+        album.setText(song.getM_album());
+        TextField genre = new TextField();
+        genre.setText(song.getM_genre());
+
+        ChoiceBox<String> ratings = new ChoiceBox();
+        ratings.getItems().addAll("No rating", "1", "2", "3", "4", "5");
+        if (song.getM_rating() == 0) {
+            ratings.getSelectionModel().select("No rating");
+        }
+        else if (song.getM_rating() == 1) {
+            ratings.getSelectionModel().select("1");
+        }
+        else if (song.getM_rating() == 2) {
+            ratings.getSelectionModel().select("2");
+        }
+        else if (song.getM_rating() == 3) {
+            ratings.getSelectionModel().select("3");
+        }
+        else if (song.getM_rating() == 4) {
+            ratings.getSelectionModel().select("4");
+        }
+        else if (song.getM_rating() == 5) {
+            ratings.getSelectionModel().select("5");
+        }
+        else {
+            throw new IllegalArgumentException("File rating is out of range!");
+        }
+
+        grid.add(new Label("Title:"), 0, 0);
+        grid.add(title, 1, 0);
+        grid.add(new Label("Artist:"), 0, 1);
+        grid.add(artist, 1, 1);
+        grid.add(new Label("Album:"), 0, 2);
+        grid.add(album, 1, 2);
+        grid.add(new Label("Genre:"), 0, 3);
+        grid.add(genre, 1, 3);
+        grid.add(new Label("Rating:"), 0, 4);
+        grid.add(ratings, 1, 4);
+
+        dialog.getDialogPane().setContent(grid);
+        dialog.showAndWait();
+        song.setTitle(title.getText());
+        song.setArtist(artist.getText());
+        song.setAlbum(album.getText());
+        song.setGenre(ratings.getValue());
+
+    }
     // ---------------------- Confirmation Prompts
 
     /**
