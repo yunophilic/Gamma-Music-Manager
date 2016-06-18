@@ -19,46 +19,6 @@ import java.util.List;
  * Class to manage files in the program.
  */
 public class FileManager {
-    private static final Image folderImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "folder-icon.png"));
-    private static final Image songImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "music-file-icon.png"));
-
-    /**
-     * Recursively create tree items from the files in a directory and return a reference to the root item
-     *
-     * @return TreeItem<String> to the root item
-     */
-    public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath, boolean showFolderOnly) {
-        TreeItem<TreeViewItem> item = new TreeItem<>(
-                (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
-        );
-
-        File treeItemFile = item.getValue().getM_file();
-        if (treeItemFile.isDirectory()) {
-            item.setGraphic(new ImageView(folderImage));
-        } else {
-            item.setGraphic(new ImageView(songImage));
-        }
-
-        File[] children = file.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                if (showFolderOnly) {
-                    return f.isDirectory();
-                } else {
-                    return f.isDirectory() || f.getAbsolutePath().endsWith(".mp3");
-                }
-            }
-        });
-
-        if (children != null) {
-            for (File child : children) {
-                item.getChildren().add(generateTreeItems(child, dirPath, showFolderOnly)); //recursion here
-            }
-        }
-
-        return item;
-    }
-
     /**
      * Generate list of Song objects based on path
      *

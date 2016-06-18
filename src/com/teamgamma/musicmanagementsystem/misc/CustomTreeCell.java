@@ -33,14 +33,6 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
     private TreeViewItem m_selectedTreeViewItem;
     private boolean m_isLeftPane;
 
-    //constants
-    private static final String COPY = "Copy";
-    private static final String PASTE = "Paste";
-    private static final String DELETE = "Delete";
-    private static final String REMOVE_THIS_LIBRARY = "Remove This Library";
-    private static final String SHOW_IN_RIGHT_PANE = "Show in Right Pane";
-
-
     public CustomTreeCell(SongManager model, MusicPlayerManager musicPlayerManager, TreeView<TreeViewItem> tree, boolean isLeftPane) {
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
@@ -58,7 +50,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
      */
     private List<MenuItem> generateMenuItems() {
         //copy option
-        MenuItem copy = new MenuItem(COPY);
+        MenuItem copy = new MenuItem(ContextMenuConstants.COPY);
         copy.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
@@ -68,7 +60,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         });
 
         //paste option
-        MenuItem paste = new MenuItem(PASTE);
+        MenuItem paste = new MenuItem(ContextMenuConstants.PASTE);
         paste.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
@@ -92,7 +84,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         });
 
         //delete option
-        MenuItem delete = new MenuItem(DELETE);
+        MenuItem delete = new MenuItem(ContextMenuConstants.DELETE);
         delete.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
@@ -128,7 +120,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         });
 
         //remove library
-        MenuItem removeLibrary = new MenuItem(REMOVE_THIS_LIBRARY);
+        MenuItem removeLibrary = new MenuItem(ContextMenuConstants.REMOVE_THIS_LIBRARY);
         removeLibrary.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
@@ -163,7 +155,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         });
 
         //open in right pane option
-        MenuItem openInRightPane = new MenuItem(SHOW_IN_RIGHT_PANE);
+        MenuItem openInRightPane = new MenuItem(ContextMenuConstants.SHOW_IN_RIGHT_PANE);
         openInRightPane.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
@@ -314,40 +306,6 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 dragEvent.consume();
             }
         });*/
-    }
-
-    /**
-     * Search for the TreeItem<TreeViewItem> from the whole tree based on the given path
-     *
-     * @param path the specified path
-     * @return TreeItem<TreeViewItem> or null if not found
-     */
-    private TreeItem<TreeViewItem> searchTreeItem(String path) {
-        return searchTreeItem(m_tree.getRoot(), path);
-    }
-
-    /**
-     * Search for the TreeItem<TreeViewItem> from the sub-tree rooted at the specified node based on the given path
-     *
-     * @param node the specified node
-     * @param path the specified path
-     * @return TreeItem<TreeViewItem> or null if not found
-     */
-    private TreeItem<TreeViewItem> searchTreeItem(TreeItem<TreeViewItem> node, String path) {
-        //base case
-        if (node.getValue().getM_file().getAbsolutePath().equals(path)) {
-            return node;
-        }
-
-        //recursive case
-        for (TreeItem<TreeViewItem> child : node.getChildren()) {
-            TreeItem<TreeViewItem> target = searchTreeItem(child, path);
-            if (target != null) {
-                return target;
-            }
-        }
-
-        return null;
     }
 
     @Override
