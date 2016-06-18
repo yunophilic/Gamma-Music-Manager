@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class SongManager {
     private List<SongManagerObserver> m_songManagerObservers;
+    private List<PlaylistObserver> m_playlistObservers;
     private List<Library> m_libraries;
     private File m_fileToCopy;
     private File m_fileToMove;
@@ -26,6 +27,7 @@ public class SongManager {
 
     public SongManager() {
         m_songManagerObservers = new ArrayList<>();
+        m_playlistObservers = new ArrayList<>();
         m_libraries = new ArrayList<>();
         m_fileToCopy = null;
         m_fileToMove = null;
@@ -227,6 +229,46 @@ public class SongManager {
     }
 
 
+    /**
+     * Add song to playlist
+     *
+     * @param selectedSong
+     * @param playlistName
+     * @return true if song added successfully, false otherwise
+     */
+    public boolean addToPlaylist(Song selectedSong, String playlistName) {
+        // Find playlist and add song to it if found
+        Playlist playlist = findPlaylist(playlistName);
+        if (playlist != null) {
+            boolean isAdded = playlist.addSong(selectedSong);
+
+            if (isAdded) {
+                // Notify playlist observers of changes
+                notifyPlaylistSongsObservers();
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Find the playlist with the playlistName
+     *
+     * @param playlistName
+     * @return Playlist
+     */
+    private Playlist findPlaylist(String playlistName) {
+        for (Playlist playlist: m_playlists){
+            if (playlist.getM_playlistName().equals(playlistName)){
+                return playlist;
+            }
+        }
+        return null;
+    }
+
     public File getM_rightFolderSelected() {
         return m_rightFolderSelected;
     }
@@ -259,10 +301,13 @@ public class SongManager {
      * Functions for observer pattern
      *************/
 
-    public void addObserver(SongManagerObserver observer) {
+    public void addSongManagerObserver(SongManagerObserver observer) {
         m_songManagerObservers.add(observer);
     }
 
+    public void addPlaylistObserver(PlaylistObserver observer) {
+        m_playlistObservers.add(observer);
+    }
 
     public void notifyLibraryObservers() {
         for (SongManagerObserver observer : m_songManagerObservers) {
@@ -295,6 +340,18 @@ public class SongManager {
     public void notifyLeftPanelObservers() {
         for (SongManagerObserver observer : m_songManagerObservers) {
             observer.leftPanelOptionsChanged();
+        }
+    }
+
+    public void notifyPlaylistSongsObservers() {
+        for (PlaylistObserver observer : m_playlistObservers) {
+            observer.songsChanged();
+        }
+    }
+
+    public void notifyPlaylistsObservers() {
+        for (PlaylistObserver observer : m_playlistObservers) {
+            observer.playlistsChanged();
         }
     }
 }

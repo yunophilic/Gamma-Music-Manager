@@ -57,7 +57,7 @@ public class LibraryUI extends StackPane {
     }
 
     private void registerAsLibraryObserver() {
-        m_model.addObserver(new SongManagerObserver() {
+        m_model.addSongManagerObserver(new SongManagerObserver() {
             @Override
             public void librariesChanged() {
                 System.out.println("Library changed in treeview");
