@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Library;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
@@ -50,7 +51,7 @@ public class DynamicTreeViewUI extends StackPane {
             @Override
             public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg) {
                 // custom m_tree cell that defines a context menu for the root m_tree item
-                return new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, false);
+                return new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, false);
             }
         });
     }

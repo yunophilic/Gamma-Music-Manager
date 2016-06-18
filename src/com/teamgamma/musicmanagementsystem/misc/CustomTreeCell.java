@@ -30,14 +30,20 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private ContextMenu m_contextMenu;
+    private TreeView<TreeViewItem> m_tree;
     private TreeViewItem m_selectedTreeViewItem;
     private boolean m_isLeftPane;
 
-    public CustomTreeCell(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager, boolean isLeftPane) {
+    public CustomTreeCell(SongManager model,
+                          MusicPlayerManager musicPlayerManager,
+                          DatabaseManager databaseManager,
+                          TreeView<TreeViewItem> tree,
+                          boolean isLeftPane) {
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         m_contextMenu = new ContextMenu();
+        m_tree = tree;
         m_isLeftPane = isLeftPane;
         m_contextMenu.getItems().addAll(generateMenuItems());
         setDragEvents();

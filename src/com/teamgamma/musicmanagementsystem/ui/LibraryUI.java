@@ -54,7 +54,7 @@ public class LibraryUI extends StackPane {
             @Override
             public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg) {
                 // custom m_tree cell that defines a context menu for the root m_tree item
-                return new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, true);
+                return new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, true);
             }
         });
     }
