@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
@@ -11,14 +12,15 @@ import javafx.scene.layout.BorderPane;
  */
 public class MainUI extends BorderPane {
     private SongManager m_model;
-
     private MusicPlayerManager m_musicPlayerManager;
+    private DatabaseManager m_databaseManager;
 
-    public MainUI(SongManager model, MusicPlayerManager musicPlayerManager) {
+    public MainUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
 
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
+        m_databaseManager = databaseManager;
 
         this.setLeft(leftPane());
         this.setRight(rightPane());
@@ -30,7 +32,7 @@ public class MainUI extends BorderPane {
     private Node leftPane() {
         BorderPane leftPane = new BorderPane();
 
-        LibraryUI libraryUI = new LibraryUI(m_model, m_musicPlayerManager);
+        LibraryUI libraryUI = new LibraryUI(m_model, m_musicPlayerManager, m_databaseManager);
 
         leftPane.setCenter(libraryUI);
         leftPane.setPrefWidth(250);
@@ -40,7 +42,7 @@ public class MainUI extends BorderPane {
 
     private Node rightPane() {
         BorderPane rightPane = new BorderPane();
-        DynamicTreeViewUI dynamicTreeViewUI = new DynamicTreeViewUI(m_model, m_musicPlayerManager);
+        DynamicTreeViewUI dynamicTreeViewUI = new DynamicTreeViewUI(m_model, m_musicPlayerManager, m_databaseManager);
 
         rightPane.setCenter(dynamicTreeViewUI);
         rightPane.setPrefWidth(250);
@@ -49,7 +51,7 @@ public class MainUI extends BorderPane {
     }
 
     private Node topPane() {
-        return new MenuUI(m_model);
+        return new MenuUI(m_model, m_databaseManager);
     }
 
     private Node bottomPane() {
@@ -61,7 +63,7 @@ public class MainUI extends BorderPane {
         BorderPane centerPane = new BorderPane();
 
 
-        centerPane.setCenter(new ContentListUI(m_model, m_musicPlayerManager));
+        centerPane.setCenter(new ContentListUI(m_model, m_musicPlayerManager, m_databaseManager));
         centerPane.setBottom(new MusicPlayerUI(m_musicPlayerManager));
         return centerPane;
     }

@@ -1,6 +1,6 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
-import com.teamgamma.musicmanagementsystem.model.PersistentStorage;
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
@@ -26,17 +26,17 @@ import java.util.List;
  */
 public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
     //attributes
-    private ContextMenu m_contextMenu;
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
-    private TreeView<TreeViewItem> m_tree;
+    private DatabaseManager m_databaseManager;
+    private ContextMenu m_contextMenu;
     private TreeViewItem m_selectedTreeViewItem;
     private boolean m_isLeftPane;
 
-    public CustomTreeCell(SongManager model, MusicPlayerManager musicPlayerManager, TreeView<TreeViewItem> tree, boolean isLeftPane) {
+    public CustomTreeCell(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager, boolean isLeftPane) {
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
-        m_tree = tree;
+        m_databaseManager = databaseManager;
         m_contextMenu = new ContextMenu();
         m_isLeftPane = isLeftPane;
         m_contextMenu.getItems().addAll(generateMenuItems());
@@ -112,8 +112,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                             break;
                         }
                     }
-                    PersistentStorage persistentStorage = new PersistentStorage();
-                    persistentStorage.removePersistentStorageLibrary(fileToDelete.getAbsolutePath());
+                    m_databaseManager.removeLibrary(fileToDelete.getAbsolutePath());
                     m_model.notifyFileObservers();
                 }
             }
@@ -145,8 +144,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                             m_model.setM_selectedCenterFolder(null);
                         }
                     }
-                    PersistentStorage persistentStorage = new PersistentStorage();
-                    persistentStorage.removePersistentStorageLibrary(
+                    m_databaseManager.removeLibrary(
                             m_selectedTreeViewItem.getM_file().getAbsolutePath()
                     );
                     m_model.notifyLibraryObservers();

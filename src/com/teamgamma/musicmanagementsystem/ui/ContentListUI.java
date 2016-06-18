@@ -1,10 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
-import com.teamgamma.musicmanagementsystem.model.PersistentStorage;
-import com.teamgamma.musicmanagementsystem.model.Song;
-import com.teamgamma.musicmanagementsystem.model.SongManager;
-import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
+import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
 import javafx.collections.FXCollections;
@@ -35,13 +32,16 @@ import javafx.util.converter.IntegerStringConverter;
 public class ContentListUI extends StackPane {
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
+    private DatabaseManager m_databaseManager;
     private TableView<Song> m_table;
     private ContextMenu m_contextMenu;
 
-    public ContentListUI(SongManager model, MusicPlayerManager musicPlayerManager) {
+    public ContentListUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
+        m_databaseManager = databaseManager;
+        m_table = new TableView<>();
         m_contextMenu = new ContextMenu();
         updateTable();
         setCssStyle();
@@ -383,8 +383,7 @@ public class ContentListUI extends StackPane {
                             break;
                         }
                     }
-                    PersistentStorage persistentStorage = new PersistentStorage();
-                    persistentStorage.removePersistentStorageLibrary(fileToDelete.getAbsolutePath());
+                    m_databaseManager.removeLibrary(fileToDelete.getAbsolutePath());
                     m_model.notifyFileObservers();
                 }
             }

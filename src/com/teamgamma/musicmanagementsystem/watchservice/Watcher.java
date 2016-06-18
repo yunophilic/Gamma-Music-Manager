@@ -1,9 +1,6 @@
 package com.teamgamma.musicmanagementsystem.watchservice;
 
-import com.teamgamma.musicmanagementsystem.model.Library;
-import com.teamgamma.musicmanagementsystem.model.PersistentStorage;
-import com.teamgamma.musicmanagementsystem.model.SongManager;
-import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
+import com.teamgamma.musicmanagementsystem.model.*;
 import javafx.application.Platform;
 
 import java.io.File;
@@ -19,9 +16,11 @@ public class Watcher {
     private WatchKey m_watchKey;
     private Thread m_watcherThread;
     private SongManager m_model;
+    private DatabaseManager m_databaseManager;
 
-    public Watcher(SongManager model) {
-        this.m_model = model;
+    public Watcher(SongManager model, DatabaseManager databaseManager) {
+        m_model = model;
+        m_databaseManager = databaseManager;
         registerAsObserver();
         openWatcher();
         updateWatcher();
@@ -129,9 +128,8 @@ public class Watcher {
     }
 
     private void deleteWatchDir(List<File> deletedDirs) {
-        PersistentStorage persistentStorage = new PersistentStorage();
         for (File file : deletedDirs) {
-            persistentStorage.removePersistentStorageLibrary(file.getAbsolutePath());
+            m_databaseManager.removeLibrary(file.getAbsolutePath());
             m_model.removeLibrary(file);
         }
     }

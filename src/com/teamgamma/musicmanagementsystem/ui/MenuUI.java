@@ -1,7 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.MenuOptions;
-import com.teamgamma.musicmanagementsystem.model.PersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -14,11 +14,13 @@ import javafx.scene.control.MenuItem;
  * Class for the Menu Bar
  */
 public class MenuUI extends MenuBar{
-    private SongManager model;
+    private SongManager m_model;
+    private DatabaseManager m_databaseManager;
 
-    public MenuUI(SongManager model){
+    public MenuUI(SongManager model, DatabaseManager databaseManager){
         super();
-        this.model = model;
+        m_model = model;
+        m_databaseManager = databaseManager;
 
         setMenu();
     }
@@ -40,13 +42,12 @@ public class MenuUI extends MenuBar{
                 if (pathInput == null) {
                     return;
                 }
-                if (!model.addLibrary(pathInput)) {
+                if (!m_model.addLibrary(pathInput)) {
                     PromptUI.customPromptError("Error", null, "Path doesn't exist or duplicate library added");
                     return;
                 }
-                PersistentStorage persistentStorage = new PersistentStorage();
-                persistentStorage.updatePersistentStorageLibrary(pathInput);
-                model.notifyLibraryObservers();
+                m_databaseManager.addLibrary(pathInput);
+                m_model.notifyLibraryObservers();
             }
         });
         menuFile.getItems().addAll(addLibraryMenu);
@@ -69,15 +70,15 @@ public class MenuUI extends MenuBar{
         showFoldersOnly.setOnAction(event -> {
             if (showFoldersOnly.isSelected()){
                 System.out.println("Display folders only");
-                MenuOptions menuManager = model.getM_menuOptions();
+                MenuOptions menuManager = m_model.getM_menuOptions();
                 menuManager.setM_leftPanelShowFolder(true);
             } else {
                 System.out.println("Don't display folders only");
-                MenuOptions menuManager = model.getM_menuOptions();
+                MenuOptions menuManager = m_model.getM_menuOptions();
                 menuManager.setM_leftPanelShowFolder(false);
             }
 
-            model.notifyLeftPanelObservers();
+            m_model.notifyLeftPanelObservers();
         });
 
         leftPanelSubMenu.getItems().addAll(showFoldersOnly);
@@ -91,15 +92,15 @@ public class MenuUI extends MenuBar{
         showFoldersOnly.setOnAction(event -> {
             if (showFoldersOnly.isSelected()){
                 System.out.println("Display subfolder files");
-                MenuOptions menuManager = model.getM_menuOptions();
+                MenuOptions menuManager = m_model.getM_menuOptions();
                 menuManager.setM_centerPanelShowSubfolderFiles(true);
             } else {
                 System.out.println("Don't subfolder files");
-                MenuOptions menuManager = model.getM_menuOptions();
+                MenuOptions menuManager = m_model.getM_menuOptions();
                 menuManager.setM_centerPanelShowSubfolderFiles(false);
             }
 
-            model.notifyCenterFolderObservers();
+            m_model.notifyCenterFolderObservers();
         });
 
         centerPanelSubMenu.getItems().addAll(showFoldersOnly);
