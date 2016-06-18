@@ -6,7 +6,6 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
 
 import javafx.application.Platform;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -26,7 +25,7 @@ public class MusicPlayerUI extends BorderPane {
 
     // Constants for MusicPlayerUI.
     public static final int SECONDS_IN_MINUTE = 60;
-    public static final double SEEK_BAR_Y_SCALE = 3;
+    public static final double SEEK_BAR_Y_SCALE = 1.5;
     public static final int HEADER_FONT_SIZE = 20;
     public static final int SONG_TITLE_HEADER_SIZE = 15;
 
@@ -123,7 +122,7 @@ public class MusicPlayerUI extends BorderPane {
         playbackControls.setAlignment(Pos.CENTER);
 
         Button previousSong = createIconButton(PREVIOUS_ICON_PATH);
-        previousSong.setOpacity(FADED);
+        previousSong.setOpacity(0.5);
         previousSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -166,6 +165,7 @@ public class MusicPlayerUI extends BorderPane {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
+                        System.out.println("Is music player playing something " + manager.isSomethingPlaying());
                         if (!manager.isSomethingPlaying()) {
                             playPauseButton.setGraphic(createImageViewForImage(PLAY_ICON_PATH));
                             playPauseButton.setSelected(true);
@@ -320,7 +320,8 @@ public class MusicPlayerUI extends BorderPane {
         });
         // The labels here are for spacing and are there for no other purpose.
         playbackSliderWrapper.getChildren().addAll(new Label("0:0"), playbackSlider, new Label("0:0"));
-        playbackSliderWrapper.setOpacity(0.0);
+        playbackSliderWrapper.setOpacity(0);
+
         // Make the slider always bigger than the progress bar to make it so the user only can click on the slider.
         playbackSliderWrapper.setScaleY(SEEK_BAR_Y_SCALE);
 
@@ -340,7 +341,6 @@ public class MusicPlayerUI extends BorderPane {
                 });
             }
         });
-
 
         musicPlayerProgress.getChildren().addAll(progressWrapper, playbackSliderWrapper);
         return musicPlayerProgress;
