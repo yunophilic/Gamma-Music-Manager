@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
+import com.teamgamma.musicmanagementsystem.model.Library;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -7,6 +8,7 @@ import javafx.scene.image.ImageView;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -120,4 +122,44 @@ public class TreeViewUtil {
         System.out.println("@@@ Found treeitem: " + selectedTreeItem);
         selectedTreeItem.setGraphic(new ImageView(openFolderImage));
     }
+
+    public static List<TreeViewItem> getTreeViewItems(List<TreeItem<TreeViewItem>> treeItems) {
+        List<TreeViewItem> treeViewItems = new ArrayList<>();
+
+        for (TreeItem<TreeViewItem> treeItem: treeItems) {
+            treeViewItems.add(treeItem.getValue());
+        }
+
+        return treeViewItems;
+    }
+
+    public static boolean isLibraryInList(List<TreeViewItem> libraryNodes, Library library) {
+        for (TreeViewItem libraryNode: libraryNodes) {
+            String libraryNodePath = libraryNode.getM_file().getAbsolutePath();
+            if (libraryNodePath.equals(library.getM_rootDirPath())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isLibraryNodeInList(List<Library> libraries, TreeViewItem libraryNode) {
+        for (Library library: libraries) {
+            String libraryNodePath = libraryNode.getM_file().getAbsolutePath();
+            if (libraryNodePath.equals(library.getM_rootDirPath())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /*public static void deleteLibrary(TreeView<TreeViewItem> tree, TreeViewItem libraryNode) {
+        for (TreeItem<TreeViewItem> treeViewItem: tree.getRoot().getChildren()) {
+            if (treeViewItem.getValue().equals(libraryNode)) {
+
+            }
+        }
+    }*/
 }

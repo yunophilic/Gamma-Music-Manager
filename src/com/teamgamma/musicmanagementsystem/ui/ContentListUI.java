@@ -295,7 +295,7 @@ public class ContentListUI extends StackPane {
                             ex.printStackTrace();
                         }
 
-                        m_model.notifyLibraryObservers();
+                        m_model.notifyFileObservers();
                         dragEvent.consume();
                     }
                 });

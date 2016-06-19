@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Library;
@@ -66,6 +67,8 @@ public class LibraryUI extends StackPane {
                 System.out.println("Library changed in treeview");
                 clearTreeView();
                 updateTreeView();
+
+                //updateLibraryTrees(m_model.getM_libraryAction());
             }
 
             @Override
@@ -97,6 +100,28 @@ public class LibraryUI extends StackPane {
                 updateTreeView();
             }
         });
+    }
+
+    private void updateLibraryTrees(String libraryAction) {
+        List<TreeViewItem> libraryNodes = TreeViewUtil.getTreeViewItems(m_tree.getRoot().getChildren());
+        List<Library> libraries = m_model.getM_libraries();
+
+        if (libraryAction.equals(Actions.ADD)) {
+            for (Library library : libraries) {
+                // If library is not in libraryNodes, add new node
+                if (!TreeViewUtil.isLibraryInList(libraryNodes, library)) {
+                    TreeItem<TreeViewItem> newLibrary = TreeViewUtil.generateTreeItems(library.getM_rootDir(), library.getM_rootDirPath(), m_model.getM_menuOptions().getM_leftPanelShowFolder());
+                    m_tree.getRoot().getChildren().add(newLibrary);
+                }
+            }
+        } /*else if (libraryAction.equals(Actions.DELETE)) {
+            for (TreeViewItem libraryNode: libraryNodes) {
+                if (!TreeViewUtil.isLibraryNodeInList(libraries, libraryNode)) {
+                    TreeViewUtil.deleteNode(m_tree, libraryNode);
+                }
+            }
+        }*/
+
     }
 
     private void clearTreeView() {

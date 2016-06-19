@@ -150,9 +150,11 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                             m_model.setM_selectedCenterFolder(null);
                         }
                     }
+
                     m_databaseManager.removeLibrary(
                             m_selectedTreeViewItem.getM_file().getAbsolutePath()
                     );
+                    m_model.setM_libraryAction(Actions.DELETE);
                     m_model.notifyLibraryObservers();
                 }
             }
@@ -281,7 +283,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     ex.printStackTrace();
                 }
 
-                m_model.notifyLibraryObservers();
+                m_model.notifyFileObservers();
                 dragEvent.consume();
             }
         });

@@ -1,5 +1,7 @@
 package com.teamgamma.musicmanagementsystem.model;
 
+import com.teamgamma.musicmanagementsystem.misc.Actions;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystemException;
@@ -24,6 +26,9 @@ public class SongManager {
 
     // Menu Manager
     private MenuOptions m_menuOptions;
+
+    // Actions
+    private String m_libraryAction;
 
     public SongManager() {
         m_songManagerObservers = new ArrayList<>();
@@ -295,6 +300,16 @@ public class SongManager {
 
     public MenuOptions getM_menuOptions(){
         return m_menuOptions;
+    }
+
+
+    public void setM_libraryAction(String m_libraryAction) {
+        this.m_libraryAction = m_libraryAction;
+    }
+
+
+    public String getM_libraryAction() {
+        return m_libraryAction;
     }
 
     /**********
