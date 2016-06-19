@@ -394,7 +394,8 @@ public class ContentListUI extends StackPane {
         editProperties.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                //open a dialog to edit metadata...
+                PromptUI.editMetadata(selectedSong);
+                m_model.notifyCenterFolderObservers();
             }
         });
 
