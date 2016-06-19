@@ -27,7 +27,7 @@ public class SongManager {
     // Menu Manager
     private MenuOptions m_menuOptions;
 
-    // Actions
+    // For actions such as paste, delete
     private String m_libraryAction;
 
     public SongManager() {

@@ -155,11 +155,9 @@ public class TreeViewUtil {
         return false;
     }
 
-    /*public static void deleteLibrary(TreeView<TreeViewItem> tree, TreeViewItem libraryNode) {
-        for (TreeItem<TreeViewItem> treeViewItem: tree.getRoot().getChildren()) {
-            if (treeViewItem.getValue().equals(libraryNode)) {
+    public static void deleteLibrary(TreeView<TreeViewItem> tree, TreeItem<TreeViewItem> libraryNode) {
+        TreeItem<TreeViewItem> root = tree.getRoot();
 
-            }
-        }
-    }*/
+        root.getChildren().remove(libraryNode);
+    }
 }

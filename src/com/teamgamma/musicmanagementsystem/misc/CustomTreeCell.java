@@ -154,7 +154,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     m_databaseManager.removeLibrary(
                             m_selectedTreeViewItem.getM_file().getAbsolutePath()
                     );
-                    m_model.setM_libraryAction(Actions.DELETE);
+                    m_model.setM_libraryAction(Actions.REMOVE_FROM_VIEW);
                     m_model.notifyLibraryObservers();
                 }
             }

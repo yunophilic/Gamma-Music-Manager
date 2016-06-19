@@ -10,6 +10,7 @@ import com.teamgamma.musicmanagementsystem.misc.CustomTreeCell;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
 
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
@@ -65,10 +66,10 @@ public class LibraryUI extends StackPane {
             @Override
             public void librariesChanged() {
                 System.out.println("Library changed in treeview");
-                clearTreeView();
-                updateTreeView();
+                //clearTreeView();
+                //updateTreeView();
 
-                //updateLibraryTrees(m_model.getM_libraryAction());
+                updateLibraryTrees(m_model.getM_libraryAction());
             }
 
             @Override
@@ -103,24 +104,23 @@ public class LibraryUI extends StackPane {
     }
 
     private void updateLibraryTrees(String libraryAction) {
-        List<TreeViewItem> libraryNodes = TreeViewUtil.getTreeViewItems(m_tree.getRoot().getChildren());
+        List<TreeItem<TreeViewItem>> libraryNodes = m_tree.getRoot().getChildren();
+        List<TreeViewItem> libraryItems = TreeViewUtil.getTreeViewItems(libraryNodes);
         List<Library> libraries = m_model.getM_libraries();
 
         if (libraryAction.equals(Actions.ADD)) {
             for (Library library : libraries) {
-                // If library is not in libraryNodes, add new node
-                if (!TreeViewUtil.isLibraryInList(libraryNodes, library)) {
+                // If library is not in libraryItems, add new node
+                if (!TreeViewUtil.isLibraryInList(libraryItems, library)) {
                     TreeItem<TreeViewItem> newLibrary = TreeViewUtil.generateTreeItems(library.getM_rootDir(), library.getM_rootDirPath(), m_model.getM_menuOptions().getM_leftPanelShowFolder());
-                    m_tree.getRoot().getChildren().add(newLibrary);
+                    newLibrary.setExpanded(true);
+                    libraryNodes.add(newLibrary);
                 }
             }
-        } /*else if (libraryAction.equals(Actions.DELETE)) {
-            for (TreeViewItem libraryNode: libraryNodes) {
-                if (!TreeViewUtil.isLibraryNodeInList(libraries, libraryNode)) {
-                    TreeViewUtil.deleteNode(m_tree, libraryNode);
-                }
-            }
-        }*/
+        } else if (libraryAction.equals(Actions.REMOVE_FROM_VIEW) || libraryAction.equals(Actions.DELETE)) {
+            TreeItem<TreeViewItem> removedLibrary = m_tree.getSelectionModel().getSelectedItem();
+            boolean remove = removedLibrary.getParent().getChildren().remove(removedLibrary);
+        }
 
     }
 
