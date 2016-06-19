@@ -271,8 +271,10 @@ public class PromptUI {
      */
     public static void editMetadata(Song song) {
         Dialog dialog = new Dialog<>();
-        dialog.setTitle("Song Information");
-        dialog.setHeaderText("Edit Music Metadata");
+        dialog.setTitle("Edit Song Info");
+        dialog.setHeaderText(song.getM_title() + "\n" +
+                             song.getM_artist() + "\n" +
+                             song.getM_album());
 
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "edit-metadata.png"))));
@@ -295,20 +297,20 @@ public class PromptUI {
         TextField genre = new TextField();
         genre.setText(song.getM_genre());
 
-        ChoiceBox<String> ratings = new ChoiceBox<>();
-        ratings.getItems().addAll("No rating", "1", "2", "3", "4", "5");
+        ChoiceBox<String> rating = new ChoiceBox<>();
+        rating.getItems().addAll("No rating", "1", "2", "3", "4", "5");
         if (song.getM_rating() == 0) {
-            ratings.getSelectionModel().select("No rating");
+            rating.getSelectionModel().select("No rating");
         } else if (song.getM_rating() == 1) {
-            ratings.getSelectionModel().select("1");
+            rating.getSelectionModel().select("1");
         } else if (song.getM_rating() == 2) {
-            ratings.getSelectionModel().select("2");
+            rating.getSelectionModel().select("2");
         } else if (song.getM_rating() == 3) {
-            ratings.getSelectionModel().select("3");
+            rating.getSelectionModel().select("3");
         } else if (song.getM_rating() == 4) {
-            ratings.getSelectionModel().select("4");
+            rating.getSelectionModel().select("4");
         } else if (song.getM_rating() == 5) {
-            ratings.getSelectionModel().select("5");
+            rating.getSelectionModel().select("5");
         } else {
             throw new IllegalArgumentException("File rating is out of range!");
         }
@@ -322,19 +324,22 @@ public class PromptUI {
         grid.add(new Label("Genre:"), 0, 3);
         grid.add(genre, 1, 3);
         grid.add(new Label("Rating:"), 0, 4);
-        grid.add(ratings, 1, 4);
+        grid.add(rating, 1, 4);
 
         dialog.getDialogPane().setContent(grid);
         Optional<ButtonType> result = dialog.showAndWait();
 
         if (result.isPresent() && result.get() == okButton) {
-                song.setTitle(title.getText());
-                song.setArtist(artist.getText());
-                song.setAlbum(album.getText());
-                song.setGenre(ratings.getValue());
-        }
+            song.setTitle(title.getText());
+            song.setArtist(artist.getText());
+            song.setAlbum(album.getText());
+            song.setGenre(genre.getText());
 
+            String ratingStr = rating.getValue();
+            song.setRating(ratingStr.equals("No rating") ? 0: Integer.parseInt(ratingStr));
+        }
     }
+
     // ---------------------- Confirmation Prompts
 
     /**
