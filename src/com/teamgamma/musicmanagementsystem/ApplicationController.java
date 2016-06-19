@@ -1,12 +1,12 @@
 package com.teamgamma.musicmanagementsystem;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
-import com.teamgamma.musicmanagementsystem.model.PersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -22,19 +22,9 @@ public class ApplicationController extends Application {
     private static final double MIN_WINDOW_WIDTH = 800;
     private static final double MIN_WINDOW_HEIGHT = 400;
 
+    private DatabaseManager m_databaseManager;
+
     public static void main(String[] args) {
-
-        /*TextUI userInterface = new TextUI();
-
-        PersistentStorage persistentStorage = new PersistentStorage();
-        if (persistentStorage.isThereSavedState()) {
-            // Load state from file. Use it to initialize stuff.
-        }
-        String pathToDir = userInterface.getUserInputForDirectory();
-
-        SongManager songManager = new SongManager(pathToDir);
-
-        System.out.println("The path in song manager is " + songManager.getLibraryRootDirPath());*/
         launch(args);
     }
 
@@ -42,46 +32,28 @@ public class ApplicationController extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Music Management System");
 
-        //for now!
-        /*String myLibPath = System.getProperty("user.dir") +
-                File.separator + "library-sample" + File.separator + "my library";
-        String externLibPath = System.getProperty("user.dir") +
-                File.separator + "library-sample" + File.separator + "external library";*/
-
         SongManager songManager = new SongManager();
-        DatabaseManager dbManager = new DatabaseManager();
-
-        PersistentStorage persistentStorage = new PersistentStorage();
-        if (!persistentStorage.isThereSavedState()) {
+        m_databaseManager = new DatabaseManager();
+        if (!m_databaseManager.isThereSavedState()) {
             System.out.println("No libraries are existent");
             System.out.println("creating new library storage file...");
-            persistentStorage.createFileLibraries();
+            m_databaseManager.createDatabaseFile();
             String firstLibrary = PromptUI.initialWelcome();
             songManager.addLibrary(firstLibrary);
-            persistentStorage.updatePersistentStorageLibrary(firstLibrary);
+            m_databaseManager.setupDatabase();
+            m_databaseManager.addLibrary(firstLibrary);
+        } else {
+            m_databaseManager.setupDatabase();
         }
-        List<String> loadSongsFromLibrary = persistentStorage.getPersistentStorageLibrary();
+        List<String> librariesPath = m_databaseManager.getLibraries();
         System.out.println("loading libraries...");
-        for (int i = 0; i < loadSongsFromLibrary.size(); i++) {
-            songManager.addLibrary(loadSongsFromLibrary.get(i));
+        for (String libPath : librariesPath) {
+            songManager.addLibrary(libPath);
         }
-
-        //songManager.setM_externalLibrary(externLibPath);
-
-        /*if (songManager.addLibrary(myLibPath)) {
-            System.out.println("New library added");
-        } else {
-            System.out.println("Duplicate library");
-        }
-        if (songManager.addLibrary(externLibPath)) {
-            System.out.println("New library added");
-        } else {
-            System.out.println("Duplicate library");
-        }*/
 
         MusicPlayerManager musicPlayerManager = new MusicPlayerManager();
-        MainUI root = new MainUI(songManager, musicPlayerManager);
-        Watcher watcher = new Watcher(songManager);
+        MainUI rootUI = new MainUI(songManager, musicPlayerManager, m_databaseManager);
+        Watcher watcher = new Watcher(songManager, m_databaseManager);
         watcher.startWatcher();
 
         primaryStage.setOnCloseRequest(e -> {
@@ -90,16 +62,15 @@ public class ApplicationController extends Application {
             musicPlayerManager.stopSong();
         });
 
-        primaryStage.setScene(new Scene(root, 1200, 650));
+        primaryStage.setScene(new Scene(rootUI, 1200, 650));
 
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.show();
-
     }
 
     @Override
     public void stop() {
-
+        m_databaseManager.closeConnection();
     }
 }

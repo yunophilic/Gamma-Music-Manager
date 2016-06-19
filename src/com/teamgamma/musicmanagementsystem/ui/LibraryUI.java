@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Library;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
@@ -21,12 +22,14 @@ import java.util.List;
 public class LibraryUI extends StackPane {
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
+    private DatabaseManager m_databaseManager;
     private TreeView<TreeViewItem> m_tree;
 
-    public LibraryUI(SongManager model, MusicPlayerManager musicPlayerManager) {
+    public LibraryUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
+        m_databaseManager = databaseManager;
         updateTreeView();
         setPaneStyle();
         registerAsLibraryObserver();
@@ -51,7 +54,7 @@ public class LibraryUI extends StackPane {
             @Override
             public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg) {
                 // custom m_tree cell that defines a context menu for the root m_tree item
-                return new CustomTreeCell(m_model, m_musicPlayerManager, m_tree, true);
+                return new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, true);
             }
         });
     }
