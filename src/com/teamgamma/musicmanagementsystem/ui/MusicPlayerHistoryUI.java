@@ -33,8 +33,8 @@ public class MusicPlayerHistoryUI extends HBox{
     public MusicPlayerHistoryUI(MusicPlayerManager manager) {
         m_manager = manager;
 
-        TitledPane playbackHistory = createTitlePane(PLAYBACK_HISTORY_HEADER, m_manager.getHistory());
-        TitledPane queuingList = createTitlePane(QUEUING_HEADER, m_manager.getPlayingQueue());
+        TitledPane playbackHistory = createTitlePane(PLAYBACK_HISTORY_HEADER, m_manager.getHistory(), createPlaybackQueueAction());
+        TitledPane queuingList = createTitlePane(QUEUING_HEADER, m_manager.getPlayingQueue(), createHistoryAction());
 
         Accordion accordion = new Accordion();
         accordion.getPanes().addAll(playbackHistory, queuingList);
@@ -45,7 +45,7 @@ public class MusicPlayerHistoryUI extends HBox{
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                playbackHistory.setContent(createUIList(manager.getHistory()));
+                playbackHistory.setContent(createUIList(manager.getHistory(), createHistoryAction()));
 
             }
         });
@@ -53,7 +53,7 @@ public class MusicPlayerHistoryUI extends HBox{
         manager.registerQueingObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                queuingList.setContent(createUIList(manager.getPlayingQueue()));
+                queuingList.setContent(createUIList(manager.getPlayingQueue(), createPlaybackQueueAction()));
             }
         });
     }
@@ -65,10 +65,12 @@ public class MusicPlayerHistoryUI extends HBox{
      *
      * @param songs The collection of songs that is wanted to be displayed.
      *
+     * @param action The action to take when building a row.
+     *
      * @return  A TitlePane with the title and collection of songs displayed.
      */
-    private TitledPane createTitlePane(String title, Collection<Song> songs) {
-        TitledPane titlePane = new TitledPane(title, createUIList(songs));
+    private TitledPane createTitlePane(String title, Collection<Song> songs, ILabelAction action) {
+        TitledPane titlePane = new TitledPane(title, createUIList(songs, action));
         titlePane.setAnimated(true);
         titlePane.setCollapsible(true);
         titlePane.setExpanded(false);
@@ -82,7 +84,7 @@ public class MusicPlayerHistoryUI extends HBox{
      *
      * @return A scrollable UI element that contains all the songs in the collection.
      */
-    private ScrollPane createUIList(Collection<Song> listOfSongs) {
+    private ScrollPane createUIList(Collection<Song> listOfSongs, ILabelAction rowCreation) {
         ScrollPane wrapper = new ScrollPane();
 
         VBox allSongs = new VBox();
@@ -90,15 +92,7 @@ public class MusicPlayerHistoryUI extends HBox{
 
         int songNumber = 0;
         for (Song song : listOfSongs) {
-            HBox row = new HBox();
-
-            if (songNumber == 0) {
-                row.getChildren().add(createOldestStyleLabel(Integer.toString(songNumber)));
-                row.getChildren().add(createOldestStyleLabel(song.getM_fileName()));
-            } else {
-                row.getChildren().add(new Label(Integer.toString(songNumber)));
-                row.getChildren().add(new Label(song.getM_fileName()));
-            }
+            HBox row = rowCreation.createRow(song, songNumber);
 
             row.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
@@ -171,5 +165,66 @@ public class MusicPlayerHistoryUI extends HBox{
 
         playbackMenu.getItems().addAll(playSong, placeSongAtStartOfQueue, placeSongOnBackOfQueue);
         return playbackMenu;
+    }
+
+    /**
+     * Interface to abstract the logic needed to build a row for displaying a collection of songs. This will be used
+     * so that we can have less duplicate code for displaying songs from a collection.
+     */
+    private interface ILabelAction {
+        HBox createRow(Song songForRow, int songIndex);
+    }
+
+    /**
+     * Function to create a implementation of the interface that will contain the logic for displaying songs in the
+     * playback queue.
+     *
+     * @return The implementation of the playback action.
+     */
+    private ILabelAction createPlaybackQueueAction(){
+        return new ILabelAction() {
+            @Override
+            public HBox createRow(Song songForRow, int songIndex) {
+                HBox row = new HBox();
+
+                if (songIndex == 0) {
+                    row.getChildren().add(createOldestStyleLabel(Integer.toString(songIndex)));
+                    row.getChildren().add(createOldestStyleLabel(songForRow.getM_fileName()));
+                } else {
+                    row.getChildren().add(new Label(Integer.toString(songIndex)));
+                    row.getChildren().add(new Label(songForRow.getM_fileName()));
+                }
+                return row;
+            }
+        };
+    }
+
+    /**
+     * Function to create a implementation of the interface that will contain the logic for displaying songs that are
+     * in the history.
+     *
+     * @return The implementation of the history action.
+     */
+    private ILabelAction createHistoryAction(){
+        return new ILabelAction() {
+            @Override
+            public HBox createRow(Song songForRow, int songIndex) {
+                HBox row = new HBox();
+
+                if (songIndex == 0) {
+                    row.getChildren().add(createOldestStyleLabel(Integer.toString(songIndex)));
+                    row.getChildren().add(createOldestStyleLabel(songForRow.getM_fileName()));
+                } else {
+                    row.getChildren().add(new Label(Integer.toString(songIndex)));
+                    row.getChildren().add(new Label(songForRow.getM_fileName()));
+                }
+
+                if (m_manager.isPlayingSongOnFromHistoryList() && songIndex == m_manager.getM_historyIndex()) {
+
+                    row.setStyle("-fx-background-color: lightblue");
+                }
+                return row;
+            }
+        };
     }
 }
