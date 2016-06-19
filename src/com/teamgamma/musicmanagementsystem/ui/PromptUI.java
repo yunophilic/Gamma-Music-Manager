@@ -1,29 +1,21 @@
 package com.teamgamma.musicmanagementsystem.ui;
-
 import com.teamgamma.musicmanagementsystem.model.Song;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
+
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.StageStyle;
-import javafx.util.Pair;
+
 
 /**
  * Various prompts for UI
@@ -35,9 +27,9 @@ public class PromptUI {
     /**
      * Custom information prompt for use. Note that this prompt only contains a single "OK" button
      *
-     * @param title
+     * @param title of prompt
      * @param headerText  (optional)
-     * @param bodyMessage
+     * @param bodyMessage within prompt
      */
     public static void customPromptInformation(String title, String headerText, String bodyMessage) {
         Alert alert = new Alert(AlertType.INFORMATION);
@@ -51,9 +43,9 @@ public class PromptUI {
     /**
      * Custom confirmation prompt for use. Contains "OK" and "Cancel" buttons
      *
-     * @param title
+     * @param title of prompt
      * @param headerText  (optional)
-     * @param bodyMessage
+     * @param bodyMessage within prompt
      * @return false if user clicks "Cancel"
      */
     public static boolean customPromptConfirmation(String title, String headerText, String bodyMessage) {
@@ -63,19 +55,15 @@ public class PromptUI {
         alert.setContentText(bodyMessage);
 
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            return true;
-        } else {
-            return false;
-        }
+        return (result.isPresent() && result.get() == ButtonType.OK);
     }
 
     /**
      * Custom warning prompt for use. Note that this prompt only contains a single "OK" button
      *
-     * @param title
+     * @param title of prompt
      * @param headerText  (optional)
-     * @param bodyMessage
+     * @param bodyMessage within prompt
      */
     public static void customPromptWarning(String title, String headerText, String bodyMessage) {
         Alert alert = new Alert(AlertType.WARNING);
@@ -89,9 +77,9 @@ public class PromptUI {
     /**
      * Custom error prompt for use. Note that this prompt only contains a single "OK" button
      *
-     * @param title
+     * @param title of prompt
      * @param headerText  (optional)
-     * @param bodyMessage
+     * @param bodyMessage within prompt
      */
     public static void customPromptError(String title, String headerText, String bodyMessage) {
         Alert alert = new Alert(AlertType.ERROR);
@@ -111,23 +99,27 @@ public class PromptUI {
      * @return set directory for master panel
      */
     public static String initialWelcome() {
-        Alert alert = new Alert(AlertType.NONE);
-        alert.setTitle("Welcome!");
-        alert.setHeaderText(null);
-        alert.setContentText("Welcome to the Music Management System. Before " +
+
+        Dialog dialog = new Dialog<>();
+        dialog.setTitle("Welcome!");
+        dialog.setHeaderText(null);
+        // TEMPORARY
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+              "gamma-logo.png"), 88, 20, false, false)));
+
+        dialog.setContentText("Welcome to the Music Management System. Before " +
                 "beginning, please select a media library.");
-
         ButtonType browse = new ButtonType("Browse");
-        alert.getButtonTypes().setAll(browse);
-        alert.showAndWait();
+        dialog.getDialogPane().getButtonTypes().addAll(browse, ButtonType.CANCEL);
+        Optional<ButtonType> result = dialog.showAndWait();
 
-        DirectoryChooser directory = new DirectoryChooser();
-        File selectedFile = directory.showDialog(null);
-
-        if (selectedFile != null) {
-            return selectedFile.getAbsolutePath();
+        if (result.isPresent() && result.get() == browse) {
+            DirectoryChooser directory = new DirectoryChooser();
+            File selectedFile = directory.showDialog(null);
+            if (selectedFile != null) {
+                return selectedFile.getAbsolutePath();
+            }
         }
-
         return null;
     }
 
@@ -136,7 +128,7 @@ public class PromptUI {
     /**
      * File not found in program (copy)
      *
-     * @param missingFile
+     * @param missingFile not found
      * @return true if user wishes to delete file reference
      */
     public static boolean fileNotFoundCopy(File missingFile) {
@@ -152,16 +144,14 @@ public class PromptUI {
         alert.getButtonTypes().setAll(deleteReference, cancel);
         Optional<ButtonType> result = alert.showAndWait();
 
-        if (result.get() == deleteReference) {
-            return true;
-        }
-        return false;
+        return (result.isPresent() && result.get() == deleteReference);
+
     }
 
     /**
      * File not found in program (move)
      *
-     * @param missingFile
+     * @param missingFile not found
      * @return true if user wishes to delete file reference
      */
     public static boolean fileNotFoundMove(File missingFile) {
@@ -177,17 +167,15 @@ public class PromptUI {
         alert.getButtonTypes().setAll(deleteReference, cancel);
         Optional<ButtonType> result = alert.showAndWait();
 
-        if (result.get() == deleteReference) {
-            return true;
-        }
-        return false;
+        return (result.isPresent() && result.get() == deleteReference);
+
     }
 
     /**
      * File copied is attempting to paste into a song file as its destination (instead of a folder)
      *
-     * @param copiedFile
-     * @param destinationFile
+     * @param copiedFile copied
+     * @param destinationFile paste
      */
     public static void invalidPasteDestination(File copiedFile, File destinationFile) {
         Alert alert = new Alert(AlertType.ERROR);
@@ -203,7 +191,7 @@ public class PromptUI {
     /**
      * File failed to rename
      *
-     * @param file
+     * @param file renamed
      */
     public static void failedToRename(File file) {
         Alert alert = new Alert(AlertType.ERROR);
@@ -231,7 +219,7 @@ public class PromptUI {
     /**
      * File exists in directory, after copy attempt
      *
-     * @param duplicate
+     * @param duplicate file
      * @return 0 if user clicks cancel
      */
     public static int fileAlreadyExists(File duplicate) {
@@ -248,9 +236,9 @@ public class PromptUI {
 
         Optional<ButtonType> result = alert.showAndWait();
 
-        if (result.get() == replace) {
+        if (result.isPresent() && result.get() == replace) {
             return 1;
-        } else if (result.get() == rename) {
+        } else if (result.isPresent() && result.get() == rename) {
             fileRenameDuplicate(duplicate);
             return 2;
         } else {
@@ -282,12 +270,12 @@ public class PromptUI {
      * @param song file for editing
      */
     public static void editMetadata(Song song) {
-        Dialog<Pair<String, String>> dialog = new Dialog<>();
+        Dialog dialog = new Dialog<>();
         dialog.setTitle("Song Information");
         dialog.setHeaderText("Edit Music Metadata");
 
-        // Set the icon (must be included in the project).
-        //dialog.setGraphic(new ImageView(this.getClass().getResource("EDIT_METADATA_ICON").toString()));
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "edit-metadata.png"))));
 
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
@@ -298,7 +286,7 @@ public class PromptUI {
         grid.setPadding(new Insets(20, 100, 10, 10));
 
         TextField title = new TextField();
-        title.setText(song.getM_fileName());
+        title.setText(song.getM_title());
         title.setPrefWidth(200);
         TextField artist = new TextField();
         artist.setText(song.getM_artist());
@@ -307,27 +295,21 @@ public class PromptUI {
         TextField genre = new TextField();
         genre.setText(song.getM_genre());
 
-        ChoiceBox<String> ratings = new ChoiceBox();
+        ChoiceBox<String> ratings = new ChoiceBox<>();
         ratings.getItems().addAll("No rating", "1", "2", "3", "4", "5");
         if (song.getM_rating() == 0) {
             ratings.getSelectionModel().select("No rating");
-        }
-        else if (song.getM_rating() == 1) {
+        } else if (song.getM_rating() == 1) {
             ratings.getSelectionModel().select("1");
-        }
-        else if (song.getM_rating() == 2) {
+        } else if (song.getM_rating() == 2) {
             ratings.getSelectionModel().select("2");
-        }
-        else if (song.getM_rating() == 3) {
+        } else if (song.getM_rating() == 3) {
             ratings.getSelectionModel().select("3");
-        }
-        else if (song.getM_rating() == 4) {
+        } else if (song.getM_rating() == 4) {
             ratings.getSelectionModel().select("4");
-        }
-        else if (song.getM_rating() == 5) {
+        } else if (song.getM_rating() == 5) {
             ratings.getSelectionModel().select("5");
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("File rating is out of range!");
         }
 
@@ -343,11 +325,14 @@ public class PromptUI {
         grid.add(ratings, 1, 4);
 
         dialog.getDialogPane().setContent(grid);
-        dialog.showAndWait();
-        song.setTitle(title.getText());
-        song.setArtist(artist.getText());
-        song.setAlbum(album.getText());
-        song.setGenre(ratings.getValue());
+        Optional<ButtonType> result = dialog.showAndWait();
+
+        if (result.isPresent() && result.get() == okButton) {
+                song.setTitle(title.getText());
+                song.setArtist(artist.getText());
+                song.setAlbum(album.getText());
+                song.setGenre(ratings.getValue());
+        }
 
     }
     // ---------------------- Confirmation Prompts
@@ -355,7 +340,7 @@ public class PromptUI {
     /**
      * Delete folder and contents
      *
-     * @param folder
+     * @param folder to delete
      */
     public static void deleteFolder(File folder) {
         Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -369,7 +354,7 @@ public class PromptUI {
         alert.getButtonTypes().setAll(deleteReference, cancel);
         Optional<ButtonType> result = alert.showAndWait();
 
-        if (result.get() == deleteReference) {
+        if (result.isPresent() && result.get() == deleteReference) {
             folder.delete();
         }
     }
@@ -377,7 +362,7 @@ public class PromptUI {
     /**
      * Delete song
      *
-     * @param mediaFile
+     * @param mediaFile to delete
      */
     public static void deleteSong(File mediaFile) {
         Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -390,7 +375,7 @@ public class PromptUI {
         alert.getButtonTypes().setAll(deleteReference, cancel);
         Optional<ButtonType> result = alert.showAndWait();
 
-        if (result.get() == deleteReference) {
+        if (result.isPresent() && result.get() == deleteReference) {
             mediaFile.delete();
         }
     }
@@ -400,7 +385,7 @@ public class PromptUI {
      * Renames file. Keeps track of "_n" suffix of file if more duplicates found, and increments n
      * (shown as the default value for the text box)
      *
-     * @param duplicate
+     * @param duplicate file
      */
     public static void fileRenameDuplicate(File duplicate) {
         int numIndex = 2;
