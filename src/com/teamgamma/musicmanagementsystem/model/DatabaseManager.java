@@ -111,15 +111,15 @@ public class DatabaseManager {
 
             //left tree view table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS LeftTreeView (" +
-                                            "path TEXT PRIMARY KEY NOT NULL," +
-                                            "expanded BOOLEAN NOT NULL," +
-                                            "selected BOOLEAN NOT NULL" +
+                                            "path     TEXT    PRIMARY KEY NOT NULL," +
+                                            "expanded BOOLEAN             NOT NULL," +
+                                            "selected BOOLEAN             NOT NULL" +
                                       ")");
 
             //right tree view table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS RightTreeView (" +
-                                            "path TEXT PRIMARY KEY NOT NULL," +
-                                            "expanded BOOLEAN NOT NULL" +
+                                            "path     TEXT    PRIMARY KEY NOT NULL," +
+                                            "expanded BOOLEAN             NOT NULL" +
                                       ")");
 
             //History table
