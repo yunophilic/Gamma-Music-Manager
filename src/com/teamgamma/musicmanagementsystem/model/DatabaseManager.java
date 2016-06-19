@@ -74,7 +74,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Init database connection
+     * Initialize database connection
      */
     private void setupConnection(){
         try {
@@ -120,6 +120,23 @@ public class DatabaseManager {
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS RightTreeView (" +
                                             "path TEXT PRIMARY KEY NOT NULL," +
                                             "expanded BOOLEAN NOT NULL" +
+                                      ")");
+
+            //History table
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS History (" +
+                                            "songPath TEXT      PRIMARY KEY NOT NULL," +
+                                            "time     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL" +
+                                      ")");
+
+            //Playlist table
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS Playlist (" +
+                                            "songPath TEXT PRIMARY KEY NOT NULL" +
+                                      ")");
+
+            //PlaybackQueue table
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS PlaybackQueue (" +
+                                            "songPath TEXT      PRIMARY KEY NOT NULL," +
+                                            "time     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL" +
                                       ")");
 
             statement.close();
