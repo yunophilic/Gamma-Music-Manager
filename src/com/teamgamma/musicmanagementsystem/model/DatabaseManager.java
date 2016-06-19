@@ -106,38 +106,48 @@ public class DatabaseManager {
 
             //library table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS Library (" +
-                                            "libraryPath TEXT PRIMARY KEY NOT NULL" +
-                                      ")");
+                                        "libraryPath TEXT PRIMARY KEY NOT NULL" +
+                                    ")");
 
             //left tree view table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS LeftTreeView (" +
-                                            "path     TEXT    PRIMARY KEY NOT NULL," +
-                                            "expanded BOOLEAN             NOT NULL," +
-                                            "selected BOOLEAN             NOT NULL" +
-                                      ")");
+                                        "path     TEXT    PRIMARY KEY NOT NULL," +
+                                        "expanded BOOLEAN             NOT NULL," +
+                                        "selected BOOLEAN             NOT NULL" +
+                                    ")");
 
             //right tree view table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS RightTreeView (" +
-                                            "path     TEXT    PRIMARY KEY NOT NULL," +
-                                            "expanded BOOLEAN             NOT NULL" +
-                                      ")");
+                                        "path     TEXT    PRIMARY KEY NOT NULL," +
+                                        "expanded BOOLEAN             NOT NULL" +
+                                    ")");
 
-            //History table
-            statement.executeUpdate("CREATE TABLE IF NOT EXISTS History (" +
-                                            "songPath TEXT      PRIMARY KEY NOT NULL," +
-                                            "time     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL" +
-                                      ")");
-
-            //Playlist table
+            //playlist table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS Playlist (" +
-                                            "songPath TEXT PRIMARY KEY NOT NULL" +
-                                      ")");
+                                        "playlistName TEXT PRIMARY KEY NOT NULL" +
+                                    ")");
 
-            //PlaybackQueue table
+            //song playlist table
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS SongPlaylist (" +
+                                        "songPath       TEXT      NOT NULL," +
+                                        "playlistName   TEXT      NOT NULL," +
+                                        "lastPlayed     BOOLEAN   NOT NULL," +
+                                        "orderNumber    INTEGER   NOT NULL," +
+                                        "PRIMARY KEY(songPath, playlistName)" +
+                                        "FOREIGN KEY(playlistName) REFERENCES Playlist(playlistName)" +
+                                    ")");
+
+            //history table
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS History (" +
+                                        "songPath TEXT      PRIMARY KEY               NOT NULL," +
+                                        "time     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL" +
+                                    ")");
+
+            //playback queue table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS PlaybackQueue (" +
-                                            "songPath TEXT      PRIMARY KEY NOT NULL," +
-                                            "time     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL" +
-                                      ")");
+                                        "songPath TEXT      PRIMARY KEY               NOT NULL," +
+                                        "time     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL" +
+                                    ")");
 
             statement.close();
         } catch (SQLException e) {
