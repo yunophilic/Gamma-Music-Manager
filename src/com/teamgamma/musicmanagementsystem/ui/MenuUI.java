@@ -103,6 +103,8 @@ public class MenuUI extends MenuBar{
             m_model.notifyCenterFolderObservers();
         });
 
+        m_model.notifyCenterFolderObservers();
+
         centerPanelSubMenu.getItems().addAll(showFoldersOnly);
         return centerPanelSubMenu;
     }
