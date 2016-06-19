@@ -134,6 +134,7 @@ public class ContentListUI extends StackPane {
                 m_table.setPlaceholder(new Label("No songs in folder"));
             } else {
                 m_table.setItems(FXCollections.observableArrayList(songs));
+                m_table.setTableMenuButtonVisible(true);
             }
             this.getChildren().add(m_table);
 
@@ -152,6 +153,8 @@ public class ContentListUI extends StackPane {
                                           TableColumn<Song, String> albumCol,
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, Integer> ratingCol) {
+
+
 
         fileNameCol.setCellValueFactory(new PropertyValueFactory<>("m_fileName"));
 
