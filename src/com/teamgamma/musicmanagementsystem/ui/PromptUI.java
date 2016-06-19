@@ -1,20 +1,24 @@
 package com.teamgamma.musicmanagementsystem.ui;
+
 import com.teamgamma.musicmanagementsystem.model.Song;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.StageStyle;
 
 
 /**
@@ -27,7 +31,7 @@ public class PromptUI {
     /**
      * Custom information prompt for use. Note that this prompt only contains a single "OK" button
      *
-     * @param title of prompt
+     * @param title       of prompt
      * @param headerText  (optional)
      * @param bodyMessage within prompt
      */
@@ -43,7 +47,7 @@ public class PromptUI {
     /**
      * Custom confirmation prompt for use. Contains "OK" and "Cancel" buttons
      *
-     * @param title of prompt
+     * @param title       of prompt
      * @param headerText  (optional)
      * @param bodyMessage within prompt
      * @return false if user clicks "Cancel"
@@ -61,7 +65,7 @@ public class PromptUI {
     /**
      * Custom warning prompt for use. Note that this prompt only contains a single "OK" button
      *
-     * @param title of prompt
+     * @param title       of prompt
      * @param headerText  (optional)
      * @param bodyMessage within prompt
      */
@@ -77,7 +81,7 @@ public class PromptUI {
     /**
      * Custom error prompt for use. Note that this prompt only contains a single "OK" button
      *
-     * @param title of prompt
+     * @param title       of prompt
      * @param headerText  (optional)
      * @param bodyMessage within prompt
      */
@@ -105,7 +109,7 @@ public class PromptUI {
         dialog.setHeaderText(null);
         // TEMPORARY
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-              "gamma-logo.png"), 88, 20, false, false)));
+                "gamma-logo.png"), 88, 20, false, false)));
 
         dialog.setContentText("Welcome to the Music Management System. Before " +
                 "beginning, please select a media library.");
@@ -174,7 +178,7 @@ public class PromptUI {
     /**
      * File copied is attempting to paste into a song file as its destination (instead of a folder)
      *
-     * @param copiedFile copied
+     * @param copiedFile      copied
      * @param destinationFile paste
      */
     public static void invalidPasteDestination(File copiedFile, File destinationFile) {
@@ -273,8 +277,8 @@ public class PromptUI {
         Dialog dialog = new Dialog<>();
         dialog.setTitle("Edit Song Info");
         dialog.setHeaderText(song.getM_title() + "\n" +
-                             song.getM_artist() + "\n" +
-                             song.getM_album());
+                song.getM_artist() + "\n" +
+                song.getM_album());
 
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "edit-metadata.png"))));
@@ -336,7 +340,7 @@ public class PromptUI {
             song.setGenre(genre.getText());
 
             String ratingStr = rating.getValue();
-            song.setRating(ratingStr.equals("No rating") ? 0: Integer.parseInt(ratingStr));
+            song.setRating(ratingStr.equals("No rating") ? 0 : Integer.parseInt(ratingStr));
         }
     }
 
@@ -407,15 +411,25 @@ public class PromptUI {
 
         TextInputDialog dialog = new TextInputDialog(fileNameFull.substring(0,
                 beforeExtension) + "_" + numIndex + fileNameFull.substring(beforeExtension));
-        dialog.setTitle("Rename File");
-        dialog.setHeaderText("\"" + duplicate.getName() + "\":");
+
+        dialog.setTitle("Name Already Exists");
+        dialog.setHeaderText("The file name \"" + duplicate.getName() + "\" already exists in the folder!");
         dialog.setContentText("Rename the file to:");
 
         Optional<String> result = dialog.showAndWait();
 
-        Path source = Paths.get(duplicate.getAbsolutePath());
         try {
-            Files.move(source, source.resolveSibling(result.get()));
+            Path source = Paths.get(duplicate.getAbsolutePath());
+            if (result.isPresent()) {
+                String parentDirectory = duplicate.getParent();
+                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                if (result.get().isEmpty()) {
+                    fileRenameRetry(duplicate);
+                } else if (nameAlreadyExists.exists()) {
+                    fileRenameDuplicate(nameAlreadyExists);
+                }
+                Files.move(source, source.resolveSibling(result.get()));
+            }
         } catch (IOException e) {
             failedToRename(duplicate);
         }
@@ -423,18 +437,71 @@ public class PromptUI {
 
     /**
      * Renames file
-     *
-     * @return new file name
      */
-    public static String fileRename(File duplicate) {
+    public static void fileRename(File fileToRename) {
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Rename File");
-        dialog.setHeaderText("\"" + duplicate.getName() + "\":");
+        dialog.setTitle("Rename Media File");
+
+        String fileNameFull = fileToRename.getName();
+        int beforeExtension = fileNameFull.lastIndexOf('.');
+        String fileName = fileNameFull.substring(0, beforeExtension);
+        String extension = fileNameFull.substring(beforeExtension);
+
+        dialog.setHeaderText(fileName + ":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-song.png"))));
         dialog.setContentText("Rename the file to:");
 
         Optional<String> result = dialog.showAndWait();
 
-        return result.get();
+        try {
+            Path source = Paths.get(fileToRename.getAbsolutePath());
+            if (result.isPresent()) {
+                String parentDirectory = fileToRename.getParent();
+                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
+                if (result.get().isEmpty()) {
+                    fileRenameRetry(fileToRename);
+                } else if (nameAlreadyExists.exists()) {
+                    fileRenameDuplicate(nameAlreadyExists);
+                }
+                Files.move(source, source.resolveSibling(result.get() + extension));
+            }
+        } catch (IOException e) {
+            failedToRename(fileToRename);
+        }
+    }
+
+    public static void fileRenameRetry(File fileToRename) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Rename Media File");
+
+        String fileNameFull = fileToRename.getName();
+        int beforeExtension = fileNameFull.lastIndexOf('.');
+        String fileName = fileNameFull.substring(0, beforeExtension);
+        String extension = fileNameFull.substring(beforeExtension);
+
+        dialog.setHeaderText("Please enter at least one character \n to rename \"" + fileName + "\":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-song.png"))));
+        dialog.setContentText("Rename the file to:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        try {
+            Path source = Paths.get(fileToRename.getAbsolutePath());
+            if (result.isPresent()) {
+                String parentDirectory = fileToRename.getParent();
+                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
+                if (result.get().isEmpty()) {
+                    fileRenameRetry(fileToRename);
+                } else if (nameAlreadyExists.exists()) {
+                    fileRenameDuplicate(nameAlreadyExists);
+                }
+                Files.move(source, source.resolveSibling(result.get() + extension));
+            }
+        } catch (IOException e) {
+            failedToRename(fileToRename);
+        }
     }
 
 }

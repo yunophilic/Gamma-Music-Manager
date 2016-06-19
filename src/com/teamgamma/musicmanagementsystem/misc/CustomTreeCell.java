@@ -89,6 +89,17 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             }
         });
 
+        //rename option
+        MenuItem rename = new MenuItem(ContextMenuConstants.RENAME_THIS_FILE);
+        rename.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e) {
+                if (m_selectedTreeViewItem != null) {
+                    File fileToRename = m_selectedTreeViewItem.getM_file();
+                    PromptUI.fileRename(fileToRename);
+                }
+            }
+        });
+
         //delete option
         MenuItem delete = new MenuItem(ContextMenuConstants.DELETE);
         delete.setOnAction(new EventHandler<ActionEvent>() {
@@ -179,6 +190,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         List<MenuItem> menuItems = new ArrayList<>();
         menuItems.add(copy);
         menuItems.add(paste);
+        menuItems.add(rename);
         menuItems.add(delete);
         if (m_isLeftPane) {
             menuItems.add(removeLibrary);
