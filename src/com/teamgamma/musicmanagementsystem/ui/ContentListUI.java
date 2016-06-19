@@ -20,6 +20,7 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemException;
 import java.util.List;
+import java.util.ArrayList;
 
 import javafx.event.EventHandler;
 import javafx.stage.WindowEvent;
@@ -151,18 +152,18 @@ public class ContentListUI extends StackPane {
                                           TableColumn<Song, String> albumCol,
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, Integer> ratingCol) {
+
         fileNameCol.setCellValueFactory(new PropertyValueFactory<>("m_fileName"));
 
         titleCol.setCellValueFactory(new PropertyValueFactory<>("m_title"));
+
         titleCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        titleCol.setOnEditCommit(
-                new EventHandler<TableColumn.CellEditEvent<Song, String>>() {
-                    @Override
-                    public void handle(TableColumn.CellEditEvent<Song, String> t) {
-                        t.getTableView().getItems().get(t.getTablePosition().getRow()).setTitle(t.getNewValue());
-                    }
-                }
-        );
+        titleCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Song, String>>() {
+            @Override
+            public void handle(TableColumn.CellEditEvent<Song, String> t) {
+                t.getTableView().getItems().get(t.getTablePosition().getRow()).setTitle(t.getNewValue());
+            }
+        });
 
         artistCol.setCellValueFactory(new PropertyValueFactory<>("m_artist"));
         artistCol.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -219,7 +220,6 @@ public class ContentListUI extends StackPane {
         m_table.getColumns().add(albumCol);
         m_table.getColumns().add(genreCol);
         m_table.getColumns().add(ratingCol);
-
         m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
@@ -405,8 +405,9 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent event) {
                 System.out.println("Adding to playlist...");
+                System.out.println(selectedSong.getM_fileName());
                 // TODO: remove this once we can create Playlists
-                m_model.notifyPlaylistSongsObservers();
+                //m_model.notifyPlaylistSongsObservers();
 
                 // TODO: Uncomment this section when we have create Playlist working
                 // TODO: verify if it works (this is just a rough version)
@@ -420,7 +421,21 @@ public class ContentListUI extends StackPane {
             }
         });
 
-        contextMenu.getItems().addAll(copy, paste, delete, editProperties, addToPlaylist);
+        //create playlist option
+        MenuItem createPlaylist = new MenuItem(ContextMenuConstants.CREATE_NEW_PLAYLIST);
+        createPlaylist.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Playlist playlist = new Playlist("Playlist");
+                List<Playlist> playlistStorage = new ArrayList<>();
+                playlistStorage.add(playlist);
+                System.out.println("Created New Playlist");
+                m_model.notifyPlaylistSongsObservers();
+
+            }
+        });
+
+        contextMenu.getItems().addAll(copy, paste, delete, editProperties, addToPlaylist, createPlaylist);
         contextMenu.setOnShown(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
@@ -443,6 +458,8 @@ public class ContentListUI extends StackPane {
                     editProperties.setStyle("-fx-text-fill: gray;");
                     addToPlaylist.setDisable(true);
                     addToPlaylist.setStyle("-fx-text-fill: gray;");
+                    createPlaylist.setDisable(true);
+                    createPlaylist.setStyle("-fx-text-fill: gray;");
                 }
             }
         });
