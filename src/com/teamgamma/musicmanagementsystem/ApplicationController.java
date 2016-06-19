@@ -34,7 +34,7 @@ public class ApplicationController extends Application {
 
         SongManager songManager = new SongManager();
         m_databaseManager = new DatabaseManager();
-        if (!m_databaseManager.isThereSavedState()) {
+        if (!m_databaseManager.isDatabaseFileExist()) {
             System.out.println("No libraries are existent");
             System.out.println("creating new library storage file...");
             m_databaseManager.createDatabaseFile();

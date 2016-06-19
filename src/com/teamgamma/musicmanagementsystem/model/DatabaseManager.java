@@ -1,5 +1,7 @@
 package com.teamgamma.musicmanagementsystem.model;
 
+import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,6 +9,7 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -18,25 +21,44 @@ public class DatabaseManager {
 
     private Connection m_connection;
     private PreparedStatement m_addLibraryStatement;
+    private PreparedStatement m_addLeftTreeItemStatement;
     private PreparedStatement m_deleteLibraryStatement;
+    private PreparedStatement m_clearLeftTreeViewStatement;
+    private PreparedStatement m_setSelectedLeftTreeItemStatement;
     private PreparedStatement m_getLibrariesStatement;
-    private PreparedStatement m_getSelectedCenterFolderStatement;
+    private PreparedStatement m_getSelectedLeftTreeItemStatement;
     private PreparedStatement m_getExpandedLeftTreeItemsStatement;
 
     public DatabaseManager() {
     }
 
+    /**
+     * prepare all prepared statements
+     */
     private void prepareStatements() {
         try {
             m_addLibraryStatement = m_connection.prepareStatement("INSERT INTO Library VALUES (?)");
+
+            m_addLeftTreeItemStatement = m_connection.prepareStatement("INSERT INTO LeftTreeView (path, isExpanded) " +
+                                                                        "VALUES (?, ?)");
+
             m_deleteLibraryStatement = m_connection.prepareStatement("DELETE FROM Library WHERE libraryPath=?");
+
+            m_clearLeftTreeViewStatement = m_connection.prepareStatement("DELETE FROM LeftTreeView");
+
+            m_setSelectedLeftTreeItemStatement = m_connection.prepareStatement("UPDATE LeftTreeView " +
+                                                                            "SET isSelected=1 " +
+                                                                            "WHERE path=?");
+
             m_getLibrariesStatement = m_connection.prepareStatement("SELECT * FROM Library");
-            m_getSelectedCenterFolderStatement = m_connection.prepareStatement("SELECT * " +
+
+            m_getSelectedLeftTreeItemStatement = m_connection.prepareStatement("SELECT * " +
                                                                             "FROM LeftTreeView " +
-                                                                            "WHERE selected=1");
+                                                                            "WHERE isSelected=1");
+
             m_getExpandedLeftTreeItemsStatement = m_connection.prepareStatement("SELECT * " +
                                                                             "FROM LeftTreeView " +
-                                                                            "WHERE expanded=1");
+                                                                            "WHERE isExpanded=1");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -56,7 +78,7 @@ public class DatabaseManager {
      *
      * @return true if something, false otherwise
      */
-    public boolean isThereSavedState() {
+    public boolean isDatabaseFileExist() {
         return new File(DB_FILE_PATH).exists();
     }
 
@@ -111,15 +133,15 @@ public class DatabaseManager {
 
             //left tree view table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS LeftTreeView (" +
-                                        "path     TEXT    PRIMARY KEY NOT NULL," +
-                                        "expanded BOOLEAN             NOT NULL," +
-                                        "selected BOOLEAN             NOT NULL" +
+                                        "path       TEXT    PRIMARY KEY NOT NULL," +
+                                        "isExpanded BOOLEAN             NOT NULL," +
+                                        "isSelected BOOLEAN             NOT NULL DEFAULT 0" +
                                     ")");
 
             //right tree view table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS RightTreeView (" +
-                                        "path     TEXT    PRIMARY KEY NOT NULL," +
-                                        "expanded BOOLEAN             NOT NULL" +
+                                        "path       TEXT    PRIMARY KEY NOT NULL," +
+                                        "isExpanded BOOLEAN             NOT NULL" +
                                     ")");
 
             //playlist table
@@ -131,7 +153,7 @@ public class DatabaseManager {
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS SongPlaylist (" +
                                         "songPath       TEXT      NOT NULL," +
                                         "playlistName   TEXT      NOT NULL," +
-                                        "lastPlayed     BOOLEAN   NOT NULL," +
+                                        "isLastPlayed   BOOLEAN   NOT NULL," +
                                         "orderNumber    INTEGER   NOT NULL," +
                                         "PRIMARY KEY(songPath, playlistName)" +
                                         "FOREIGN KEY(playlistName) REFERENCES Playlist(playlistName)" +
@@ -242,13 +264,41 @@ public class DatabaseManager {
     }
 
     /**
+     * Save state of the left tree view
+     */
+    public void saveLeftTreeViewState(Map<String, Boolean> pathExpandedMap) {
+        try {
+            m_clearLeftTreeViewStatement.execute();
+            for (Map.Entry<String, Boolean> entry : pathExpandedMap.entrySet()) {
+                m_addLeftTreeItemStatement.setString(1, entry.getKey());
+                m_addLeftTreeItemStatement.setBoolean(2, entry.getValue());
+                m_addLeftTreeItemStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Save selected left tree item
+     */
+    public void saveSelectedLeftTreeItem(String centerFolderPath) {
+        try {
+            m_setSelectedLeftTreeItemStatement.setString(1, centerFolderPath);
+            m_setSelectedLeftTreeItemStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Get the path of the tree view item in the center table
      *
      * @return List of paths of expanded tree view items
      */
-    public String getSelectedCenterFolder() {
+    public String getSelectedLeftTreeItem() {
         try {
-            ResultSet resultSet = m_getSelectedCenterFolderStatement.executeQuery();
+            ResultSet resultSet = m_getSelectedLeftTreeItemStatement.executeQuery();
             return resultSet.getString("path");
         } catch (SQLException e) {
             e.printStackTrace();
