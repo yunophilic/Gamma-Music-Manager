@@ -77,6 +77,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     }
                     try {
                         m_model.copyToDestination(dest);
+                        m_model.setM_fileAction(Actions.PASTE);
                         m_model.notifyFileObservers();
                     } catch (FileAlreadyExistsException ex) {
                         PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
@@ -96,6 +97,8 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 if (m_selectedTreeViewItem != null) {
                     File fileToRename = m_selectedTreeViewItem.getM_file();
                     PromptUI.fileRename(fileToRename);
+
+                    m_model.setM_fileAction(Actions.RENAME);
                 }
             }
         });
@@ -130,7 +133,6 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                         }
                     }
                     m_databaseManager.removeLibrary(fileToDelete.getAbsolutePath());
-                    m_model.notifyFileObservers();
                 }
             }
         });

@@ -18,6 +18,7 @@ public class SongManager {
     private List<Library> m_libraries;
     private File m_fileToCopy;
     private File m_fileToMove;
+    private File m_deletedFile;
     private List<Playlist> m_playlists;
 
     // For observer pattern
@@ -29,6 +30,7 @@ public class SongManager {
 
     // For actions such as paste, delete
     private String m_libraryAction;
+    private String m_fileAction;
 
     public SongManager() {
         m_songManagerObservers = new ArrayList<>();
@@ -170,6 +172,13 @@ public class SongManager {
             throw new FileSystemException("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
         }
         updateLibraries();
+
+        setM_deletedFile(fileToDelete);
+        setM_fileAction(Actions.DELETE);
+        notifyFileObservers();
+
+        // Clear file to delete buffer
+        setM_deletedFile(null);
     }
 
     /**
@@ -274,6 +283,10 @@ public class SongManager {
         return null;
     }
 
+    public void fileDeleted(File fileToDelete) {
+
+    }
+
     public File getM_rightFolderSelected() {
         return m_rightFolderSelected;
     }
@@ -303,14 +316,31 @@ public class SongManager {
     }
 
 
-    public void setM_libraryAction(String m_libraryAction) {
-        this.m_libraryAction = m_libraryAction;
+    public void setM_libraryAction(String libraryAction) {
+        m_libraryAction = libraryAction;
     }
 
 
     public String getM_libraryAction() {
         return m_libraryAction;
     }
+
+    public void setM_fileAction(String fileAction) {
+        m_fileAction = fileAction;
+    }
+    
+    public String getM_fileAction() {
+        return m_fileAction;
+    }
+
+    public void setM_deletedFile(File deletedFile) {
+        m_deletedFile = deletedFile;
+    }
+
+    public File getM_deletedFile() {
+        return m_deletedFile;
+    }
+
 
     /**********
      * Functions for observer pattern

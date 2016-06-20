@@ -90,8 +90,10 @@ public class LibraryUI extends StackPane {
             @Override
             public void fileChanged() {
                 System.out.println("File changed in treeview");
-                clearTreeView();
-                updateTreeView();
+                //clearTreeView();
+                //updateTreeView();
+
+                updateFiles(m_model.getM_fileAction());
             }
 
             @Override
@@ -101,6 +103,19 @@ public class LibraryUI extends StackPane {
                 updateTreeView();
             }
         });
+    }
+
+    private void updateFiles(String fileAction) {
+        /*if (fileAction.equals(Actions.ADD)) {
+
+        } else*/ if (fileAction.equals(Actions.DELETE)) {
+            String deletedFilePath = m_model.getM_deletedFile().getAbsolutePath();
+            TreeItem<TreeViewItem> removedFile = TreeViewUtil.searchTreeItem(m_tree, deletedFilePath);
+            removedFile.getParent().getChildren().remove(removedFile);
+        } else {
+            clearTreeView();
+            updateTreeView();
+        }
     }
 
     private void updateLibraryTrees(String libraryAction) {
