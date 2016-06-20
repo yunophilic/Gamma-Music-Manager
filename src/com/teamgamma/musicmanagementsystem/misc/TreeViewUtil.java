@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
 import com.teamgamma.musicmanagementsystem.model.Library;
+import com.teamgamma.musicmanagementsystem.model.SongManager;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -142,6 +143,16 @@ public class TreeViewUtil {
         }
 
         return false;
+    }
+
+    public static void updateTreeItems(String fileAction, TreeView<TreeViewItem> tree, SongManager model) {
+        /*if (fileAction.equals(Actions.ADD)) {
+
+        } else*/ if (fileAction.equals(Actions.DELETE)) {
+            String deletedFilePath = model.getM_deletedFile().getAbsolutePath();
+            TreeItem<TreeViewItem> removedFile = TreeViewUtil.searchTreeItem(tree, deletedFilePath);
+            removedFile.getParent().getChildren().remove(removedFile);
+        }
     }
 
     public static boolean isLibraryNodeInList(List<Library> libraries, TreeViewItem libraryNode) {

@@ -106,12 +106,8 @@ public class LibraryUI extends StackPane {
     }
 
     private void updateFiles(String fileAction) {
-        /*if (fileAction.equals(Actions.ADD)) {
-
-        } else*/ if (fileAction.equals(Actions.DELETE)) {
-            String deletedFilePath = m_model.getM_deletedFile().getAbsolutePath();
-            TreeItem<TreeViewItem> removedFile = TreeViewUtil.searchTreeItem(m_tree, deletedFilePath);
-            removedFile.getParent().getChildren().remove(removedFile);
+        if (fileAction.equals(Actions.DELETE)) {
+            TreeViewUtil.updateTreeItems(fileAction, m_tree, m_model);
         } else {
             clearTreeView();
             updateTreeView();
