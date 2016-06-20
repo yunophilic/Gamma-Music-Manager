@@ -21,6 +21,8 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemException;
 import java.util.List;
 import java.util.ArrayList;
+import javafx.scene.control.MenuItem;
+
 
 import javafx.event.EventHandler;
 import javafx.stage.WindowEvent;
@@ -134,7 +136,7 @@ public class ContentListUI extends StackPane {
                 m_table.setPlaceholder(new Label("No songs in folder"));
             } else {
                 m_table.setItems(FXCollections.observableArrayList(songs));
-                m_table.setTableMenuButtonVisible(true);
+                showOrHideTableColumns(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
             }
             this.getChildren().add(m_table);
 
@@ -145,6 +147,18 @@ public class ContentListUI extends StackPane {
             scrollpane.setPrefSize(500, 500);
             scrollpane.setContent(m_table);
         }
+    }
+
+    private void showOrHideTableColumns(TableColumn<Song, File> fileNameCol, TableColumn<Song, String> titleCol, TableColumn<Song, String> artistCol, TableColumn<Song, String> albumCol, TableColumn<Song, String> genreCol, TableColumn<Song, Integer> ratingCol) {
+        m_table.setTableMenuButtonVisible(true);
+        // fileName and artist default columns for centerListUI
+        fileNameCol.setVisible(true);
+        artistCol.setVisible(true);
+
+        titleCol.setVisible(false);
+        albumCol.setVisible(false);
+        genreCol.setVisible(false);
+        ratingCol.setVisible(false);
     }
 
     private void setTableColumnAttributes(TableColumn<Song, File> fileNameCol,
