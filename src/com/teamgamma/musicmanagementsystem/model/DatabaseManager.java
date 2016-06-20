@@ -57,7 +57,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Init database connection
+     * Initialize database connection
      */
     private void setupConnection(){
         try {
@@ -96,15 +96,32 @@ public class DatabaseManager {
 
             //left tree view table
             m_statement.executeUpdate("CREATE TABLE IF NOT EXISTS LeftTreeView (" +
-                                            "path TEXT PRIMARY KEY NOT NULL," +
+                                            "path     TEXT    PRIMARY KEY NOT NULL," +
                                             "expanded BOOLEAN NOT NULL," +
                                             "selected BOOLEAN NOT NULL" +
                                       ")");
 
             //right tree view table
-            m_statement.executeUpdate("CREATE TABLE IF NOT EXISTS LeftTreeView (" +
-                                            "path TEXT PRIMARY KEY NOT NULL," +
+            m_statement.executeUpdate("CREATE TABLE IF NOT EXISTS RightTreeView (" +
+                                            "path     TEXT    PRIMARY KEY NOT NULL," +
                                             "expanded BOOLEAN NOT NULL" +
+                                      ")");
+
+            //History table
+            m_statement.executeUpdate("CREATE TABLE IF NOT EXISTS History (" +
+                                            "songPath TEXT      PRIMARY KEY NOT NULL," +
+                                            "time     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL" +
+                                      ")");
+
+            //Playlist table
+            m_statement.executeUpdate("CREATE TABLE IF NOT EXISTS Playlist (" +
+                                            "songPath TEXT PRIMARY KEY NOT NULL" +
+                                      ")");
+
+            //PlaybackQueue table
+            m_statement.executeUpdate("CREATE TABLE IF NOT EXISTS PlaybackQueue (" +
+                                            "songPath TEXT      PRIMARY KEY NOT NULL," +
+                                            "time     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL" +
                                       ")");
 
             m_statement.close();

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.event.EventHandler;
@@ -33,6 +34,7 @@ public class PlaylistUI extends StackPane {
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private TableView<Song> m_table;
+    private TableView<Playlist> m_playlistTable;
     private ContextMenu m_contextMenu;
 
     public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager) {
@@ -65,6 +67,7 @@ public class PlaylistUI extends StackPane {
 
     private void setEmptyText() {
         m_table = new TableView<>();
+        m_playlistTable = new TableView<>();
 
         m_table.setPlaceholder(new Label("Empty"));
         this.getChildren().add(m_table);
@@ -79,10 +82,29 @@ public class PlaylistUI extends StackPane {
     private void updateTable() {
         System.out.println("Updating playlist panel...");
         m_table = new TableView<>();
+       // m_table.setEditable(true);
+
+        /*MenuItem createPlaylist = new MenuItem(ContextMenuConstants.CREATE_NEW_PLAYLIST);
+        createPlaylist.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Playlist playlist = new Playlist("Playlist");
+                List<Playlist> playlistStorage = new ArrayList<>();
+                playlistStorage.add(playlist);
+                System.out.println("Created New Playlist");
+
+            }
+        });*/
+
+
 
         m_table.setPlaceholder(new Label("This pane was notified of changes to playlist"));
         this.getChildren().add(m_table);
+
+
     }
+
+
 
     private void setCssStyle() {
         final String cssDefault = "-fx-border-color: black;\n";
