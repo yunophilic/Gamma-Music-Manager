@@ -39,6 +39,11 @@ public class ContentListUI extends StackPane {
     private TableView<Song> m_table;
     private ContextMenu m_contextMenu;
 
+    // constants
+    public static final int FILENAME_COLUMN_WIDTH = 80;
+    public static final int COLUMN_WIDTH = 60;
+    public static final int RATING_COLUMN_WIDTH = 20;
+
     public ContentListUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
         m_model = model;
@@ -109,17 +114,19 @@ public class ContentListUI extends StackPane {
     private void updateTable() {
         m_table = new TableView<>();
         TableColumn<Song, File> fileNameCol = new TableColumn<>("File Name");
-        fileNameCol.setMinWidth(80);
+        fileNameCol.setMinWidth(FILENAME_COLUMN_WIDTH);
         TableColumn<Song, String> titleCol = new TableColumn<>("Title");
-        titleCol.setMinWidth(60);
+        titleCol.setMinWidth(COLUMN_WIDTH);
         TableColumn<Song, String> artistCol = new TableColumn<>("Artist");
-        artistCol.setMinWidth(60);
+        artistCol.setMinWidth(COLUMN_WIDTH);
         TableColumn<Song, String> albumCol = new TableColumn<>("Album");
-        albumCol.setMinWidth(60);
+        albumCol.setMinWidth(COLUMN_WIDTH);
         TableColumn<Song, String> genreCol = new TableColumn<>("Genre");
-        genreCol.setMinWidth(60);
+        genreCol.setMinWidth(COLUMN_WIDTH);
         TableColumn<Song, Integer> ratingCol = new TableColumn<>("Rating");
-        ratingCol.setMinWidth(20);
+        ratingCol.setMinWidth(RATING_COLUMN_WIDTH);
+
+        showOrHideTableColumns(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
 
         if (m_model.getM_selectedCenterFolder() == null) {
             setEmptyText(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
@@ -131,12 +138,13 @@ public class ContentListUI extends StackPane {
             setTableRowMouseEvents();
             setTableColumnAttributes(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
 
+
             List<Song> songs = m_model.getCenterPanelSongs();
+
             if (songs.isEmpty()){
                 m_table.setPlaceholder(new Label("No songs in folder"));
             } else {
                 m_table.setItems(FXCollections.observableArrayList(songs));
-                showOrHideTableColumns(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
             }
             this.getChildren().add(m_table);
 
