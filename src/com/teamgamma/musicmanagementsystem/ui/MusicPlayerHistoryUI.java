@@ -19,8 +19,9 @@ public class MusicPlayerHistoryUI extends HBox{
 
     // Constants
     public static final int VERTICAL_SPACING = 5;
-    public static final int HORIZONTAIL_ELEMENT_SPACING = 5;
-    public static final int MAX_HIGHT = 400;
+    public static final int HORIZONTAL_ELEMENT_SPACING = 5;
+    public static final int MAX_HEIGHT = 400;
+    public static final int PREF_HEIGHT = 175;
 
     public static final String MENU_ITEM_PLAY_SONG = "Play Song";
     public static final String MENU_ITEM_PLAY_SONG_NEXT = "Play Song Next";
@@ -93,7 +94,7 @@ public class MusicPlayerHistoryUI extends HBox{
         int songNumber = 0;
         for (Song song : listOfSongs) {
             HBox row = rowCreation.createRow(song, songNumber);
-
+            String baseStyle = row.getStyle();
             row.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
@@ -102,13 +103,26 @@ public class MusicPlayerHistoryUI extends HBox{
                     }
                 }
             });
+            row.setOnMouseEntered(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    row.setStyle("-fx-background-color: lightgray");
+                }
+            });
+            row.setOnMouseExited(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    row.setStyle(baseStyle);
+                }
+            });
 
-            row.setSpacing(HORIZONTAIL_ELEMENT_SPACING);
+            row.setSpacing(HORIZONTAL_ELEMENT_SPACING);
             allSongs.getChildren().add(row);
 
             songNumber++;
         }
-        allSongs.setMaxHeight(MAX_HIGHT);
+        allSongs.setPrefHeight(PREF_HEIGHT);
+        allSongs.setMaxHeight(MAX_HEIGHT);
 
         wrapper.setContent(allSongs);
         return wrapper;
@@ -189,11 +203,19 @@ public class MusicPlayerHistoryUI extends HBox{
 
                 if (songIndex == 0) {
                     row.getChildren().add(createOldestStyleLabel(Integer.toString(songIndex)));
-                    row.getChildren().add(createOldestStyleLabel(songForRow.getM_fileName()));
+
+                    Label fileName = createOldestStyleLabel(songForRow.getM_fileName());
+                    row.getChildren().add(fileName);
+                    HBox.setHgrow(fileName, Priority.ALWAYS);
+
                 } else {
                     row.getChildren().add(new Label(Integer.toString(songIndex)));
-                    row.getChildren().add(new Label(songForRow.getM_fileName()));
+
+                    Label fileName = new Label(songForRow.getM_fileName());
+                    row.getChildren().add(fileName);
+                    HBox.setHgrow(fileName, Priority.ALWAYS);
                 }
+
                 return row;
             }
         };
@@ -213,14 +235,19 @@ public class MusicPlayerHistoryUI extends HBox{
 
                 if (songIndex == 0) {
                     row.getChildren().add(createOldestStyleLabel(Integer.toString(songIndex)));
-                    row.getChildren().add(createOldestStyleLabel(songForRow.getM_fileName()));
+
+                    Label fileName = createOldestStyleLabel(songForRow.getM_fileName());
+                    row.getChildren().add(fileName);
+                    HBox.setHgrow(fileName, Priority.ALWAYS);
                 } else {
                     row.getChildren().add(new Label(Integer.toString(songIndex)));
-                    row.getChildren().add(new Label(songForRow.getM_fileName()));
+
+                    Label fileName = new Label(songForRow.getM_fileName());
+                    row.getChildren().add(fileName);
+                    HBox.setHgrow(fileName, Priority.ALWAYS);
                 }
 
                 if (m_manager.isPlayingSongOnFromHistoryList() && songIndex == m_manager.getM_historyIndex()) {
-
                     row.setStyle("-fx-background-color: lightblue");
                 }
                 return row;
