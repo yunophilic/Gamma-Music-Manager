@@ -48,7 +48,9 @@ public class PlaylistUI extends StackPane {
 
             @Override
             public void playlistsChanged() {
-                // TODO: Add/remove tab for playlist or add/remove playlist from dropdown list
+                //refresh drop down menu
+                m_dropDownMenu.getItems().clear();
+                m_dropDownMenu.getItems().addAll(m_model.getM_playlists());
             }
         });
     }
