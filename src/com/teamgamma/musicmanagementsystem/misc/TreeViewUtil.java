@@ -15,7 +15,7 @@ import java.util.List;
 public class TreeViewUtil {
     private static final Image openFolderImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "Status-folder-open-icon.png"));
     private static final Image folderImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "folder-icon.png"));
-    private static final Image songImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "musical-note.png"));
+    private static final Image songImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "music-file-icon.png"));
 
     /**
      * Recursively create tree items from the files in a directory and return a reference to the root item
