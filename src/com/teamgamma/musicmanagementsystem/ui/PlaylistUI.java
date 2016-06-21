@@ -1,31 +1,16 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.FileSystemException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javafx.event.EventHandler;
-import javafx.stage.WindowEvent;
-import javafx.util.Callback;
-import javafx.util.converter.IntegerStringConverter;
 
 /**
  * UI class for list of songs in center of application
@@ -34,15 +19,18 @@ public class PlaylistUI extends StackPane {
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private TableView<Song> m_table;
-    private TableView<Playlist> m_playlistTable;
-    private ContextMenu m_contextMenu;
+    private ComboBox<Playlist> m_dropDownMenu;
+
+    /*private ContextMenu m_contextMenu;*/
 
     public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager) {
         super();
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
-        m_contextMenu = new ContextMenu();
-        setEmptyText();
+        /*m_contextMenu = new ContextMenu();*/
+        m_dropDownMenu = new ComboBox<>();
+        initDropDownMenu();
+        initTableView();
         setCssStyle();
         registerAsPlaylistObserver();
     }
@@ -65,24 +53,31 @@ public class PlaylistUI extends StackPane {
         });
     }
 
-    private void setEmptyText() {
-        m_table = new TableView<>();
-        m_playlistTable = new TableView<>();
+    private void initDropDownMenu() {
+        ObservableList<Playlist> options = FXCollections.observableList(m_model.getM_playlists());
+        m_dropDownMenu.getItems().addAll(options);
+        m_dropDownMenu.setMinSize(200, 10);
+        getChildren().add(m_dropDownMenu);
+        setAlignment(m_dropDownMenu, Pos.TOP_CENTER);
+    }
 
+    private void initTableView() {
+        m_table = new TableView<>();
         m_table.setPlaceholder(new Label("Empty"));
-        this.getChildren().add(m_table);
+        getChildren().add(m_table);
+        setMargin(m_table, new Insets(25, 0, 0, 0));
     }
 
     private void clearTable() {
         System.out.println("Clearing playlist panel...");
         m_table.getItems().clear();
-        this.getChildren().clear();
+        getChildren().clear();
     }
 
     private void updateTable() {
         System.out.println("Updating playlist panel...");
         m_table = new TableView<>();
-       // m_table.setEditable(true);
+        //m_table.setEditable(true);
 
         /*MenuItem createPlaylist = new MenuItem(ContextMenuConstants.CREATE_NEW_PLAYLIST);
         createPlaylist.setOnAction(new EventHandler<ActionEvent>() {
@@ -96,12 +91,8 @@ public class PlaylistUI extends StackPane {
             }
         });*/
 
-
-
         m_table.setPlaceholder(new Label("This pane was notified of changes to playlist"));
-        this.getChildren().add(m_table);
-
-
+        getChildren().add(m_table);
     }
 
 
