@@ -311,6 +311,10 @@ public class SongManager {
         return m_fileToMove;
     }
 
+    public List<Playlist> getM_playlists() {
+        return m_playlists;
+    }
+
     public MenuOptions getM_menuOptions(){
         return m_menuOptions;
     }
