@@ -412,8 +412,6 @@ public class PromptUI {
 
         TextInputDialog dialog = new TextInputDialog(fileNameFull.substring(0,
                 beforeExtension) + "_" + numIndex + fileNameFull.substring(beforeExtension));
-        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "rename-file-exists.png"))));
         dialog.setTitle("Name Already Exists");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-file-exists.png"))));
