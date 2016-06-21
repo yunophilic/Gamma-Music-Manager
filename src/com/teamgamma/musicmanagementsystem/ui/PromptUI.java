@@ -415,6 +415,8 @@ public class PromptUI {
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-file-exists.png"))));
         dialog.setTitle("Name Already Exists");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-file-exists.png"))));
         dialog.setHeaderText("The file name \"" + duplicate.getName() + "\" already exists in the folder!");
         dialog.setContentText("Rename the file to:");
 
