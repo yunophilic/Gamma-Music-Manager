@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 
 import javafx.geometry.Insets;
@@ -391,7 +392,7 @@ public class PromptUI {
 
 
     /**
-     * Renames file. Keeps track of "_n" suffix of file if more duplicates found, and increments n
+     * Renames file . Keeps track of "_n" suffix of file if more duplicates found, and increments n
      * (shown as the default value for the text box)
      *
      * @param duplicate file
@@ -411,7 +412,8 @@ public class PromptUI {
 
         TextInputDialog dialog = new TextInputDialog(fileNameFull.substring(0,
                 beforeExtension) + "_" + numIndex + fileNameFull.substring(beforeExtension));
-
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-file-exists.png"))));
         dialog.setTitle("Name Already Exists");
         dialog.setHeaderText("The file name \"" + duplicate.getName() + "\" already exists in the folder!");
         dialog.setContentText("Rename the file to:");
@@ -471,7 +473,10 @@ public class PromptUI {
         }
     }
 
-    public static void fileRenameRetry(File fileToRename) {
+    /**
+     * Renames file after previous rename attempt has blank in text box
+     */
+    private static void fileRenameRetry(File fileToRename) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Rename Media File");
 
@@ -502,6 +507,130 @@ public class PromptUI {
         } catch (IOException e) {
             failedToRename(fileToRename);
         }
+    }
+
+    /**
+     * Prompt to add playlist
+     *
+     * @return playlistName, otherwise null if user clicks cancel
+     */
+    public static String addPlaylist() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Add Playlist");
+
+        dialog.setHeaderText(null);
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "add-playlist.png"))));
+        dialog.setContentText("New playlist:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()) {
+            if (result.get().isEmpty()) {
+                addPlaylistRetry();
+            }
+            return result.get();
+        }
+        return null;
+    }
+
+    /**
+     * Prompt to add playlist after previous add playlist attempt has blank text box
+     *
+     * @return playlistName, otherwise null if user clicks cancel
+     */
+    private static String addPlaylistRetry() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Add Playlist");
+
+        dialog.setHeaderText("Please enter at least one character for the playlist name:");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "add-playlist.png"))));
+        dialog.setContentText("New playlist:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()) {
+            if (result.get().isEmpty()) {
+                addPlaylistRetry();
+            }
+            return result.get();
+        }
+        return null;
+    }
+
+    /**
+     * Prompt to edit playlist after previous add playlist attempt has blank text box
+     *
+     * @param playlistName to edit
+     * @return newPlaylistName
+     */
+    public static String editPlaylist(Playlist playlistName) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Edit Playlist");
+
+        dialog.setHeaderText("Rename \"" + playlistName.getM_playlistName() + "\":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-playlist.png"))));
+        dialog.setContentText("Rename playlist:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()) {
+            if (result.get().isEmpty()) {
+                editPlaylistRetry(playlistName);
+            }
+            return result.get();
+        }
+        return null;
+    }
+
+    /**
+     * Prompt to edit playlist
+     *
+     * @param playlistName to edit
+     * @return newPlaylistName
+     */
+    public static String editPlaylistRetry(Playlist playlistName) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Edit Playlist");
+
+        dialog.setHeaderText("Please enter at least one character for the playlist name:");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-playlist.png"))));
+        dialog.setContentText("Rename playlist \"" + playlistName.getM_playlistName() + "\":");
+
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()) {
+            if (result.get().isEmpty()) {
+                editPlaylistRetry(playlistName);
+            }
+            return result.get();
+        }
+        return null;
+    }
+
+    /**
+     * Prompt to remove playlist
+     *
+     * @param playlistName to remove
+     * @return true if user confirms prompt to delete playlist
+     */
+    public static boolean removePlaylist(Playlist playlistName) {
+        Dialog dialog = new Dialog();
+        dialog.setTitle("Remove Playlist");
+
+        dialog.setHeaderText("\"" + playlistName.getM_playlistName() + "\":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "remove-playlist.png"))));
+        dialog.setContentText("Are you sure you want to remove this playlist?");
+        ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
+
+        Optional result = dialog.showAndWait();
+
+        return result.isPresent() && result.get() == okButton;
     }
 
 }
