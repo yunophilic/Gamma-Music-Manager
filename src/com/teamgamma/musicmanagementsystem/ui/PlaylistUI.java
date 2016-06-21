@@ -5,12 +5,18 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
+
+import java.io.File;
 
 /**
  * UI class for list of songs in center of application
@@ -29,7 +35,7 @@ public class PlaylistUI extends StackPane {
         m_musicPlayerManager = musicPlayerManager;
         /*m_contextMenu = new ContextMenu();*/
         m_dropDownMenu = new ComboBox<>();
-        initDropDownMenu();
+        initTopMenu(createSelectPlaylistLabel(), createDropDownMenu(), createCreateNewPlaylistButton());
         initTableView();
         setCssStyle();
         registerAsPlaylistObserver();
@@ -55,25 +61,56 @@ public class PlaylistUI extends StackPane {
         });
     }
 
-    private void initDropDownMenu() {
+    private Label createSelectPlaylistLabel() {
+        Label selectPlaylistLabel = new Label(" Select Playlist:");
+        selectPlaylistLabel.setPrefSize(80, 30);
+        return selectPlaylistLabel;
+    }
+
+    private ComboBox<Playlist> createDropDownMenu() {
         ObservableList<Playlist> options = FXCollections.observableList(m_model.getM_playlists());
-        m_dropDownMenu.getItems().addAll(options);
-        m_dropDownMenu.setMinSize(200, 10);
-        getChildren().add(m_dropDownMenu);
-        setAlignment(m_dropDownMenu, Pos.TOP_CENTER);
+        ComboBox<Playlist> dropDownMenu = new ComboBox<>();
+        dropDownMenu.getItems().addAll(options);
+        dropDownMenu.setMaxSize(1000, 30);
+        return dropDownMenu;
+    }
+
+    private Button createCreateNewPlaylistButton() {
+        Button createNewPlaylistButton = new Button();
+        createNewPlaylistButton.setStyle("-fx-background-color: transparent");
+        createNewPlaylistButton.setGraphic( new ImageView("res" + File.separator + "plus-button.png") );
+        createNewPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                //TODO: Handle this event to create new playlist
+            }
+        });
+        return createNewPlaylistButton;
+    }
+
+    private void initTopMenu(Label selectPlaylistLabel, ComboBox<Playlist> dropDownMenu, Button addPlaylistButton) {
+        m_dropDownMenu = dropDownMenu;
+
+        HBox topMenu = new HBox();
+        topMenu.getChildren().addAll(selectPlaylistLabel, m_dropDownMenu, addPlaylistButton);
+        HBox.setHgrow(selectPlaylistLabel, Priority.NEVER);
+        HBox.setHgrow(m_dropDownMenu, Priority.ALWAYS);
+        HBox.setHgrow(addPlaylistButton, Priority.NEVER);
+
+        super.getChildren().add(topMenu);
     }
 
     private void initTableView() {
         m_table = new TableView<>();
         m_table.setPlaceholder(new Label("Empty"));
-        getChildren().add(m_table);
-        setMargin(m_table, new Insets(25, 0, 0, 0));
+        super.getChildren().add(m_table);
+        setMargin(m_table, new Insets(30, 0, 0, 0));
     }
 
     private void clearTable() {
         System.out.println("Clearing playlist panel...");
         m_table.getItems().clear();
-        getChildren().clear();
+        super.getChildren().clear();
     }
 
     private void updateTable() {
@@ -94,7 +131,7 @@ public class PlaylistUI extends StackPane {
         });*/
 
         m_table.setPlaceholder(new Label("This pane was notified of changes to playlist"));
-        getChildren().add(m_table);
+        super.getChildren().add(m_table);
     }
 
 
