@@ -9,6 +9,8 @@ public class ContextMenuConstants {
     public static final String DELETE = "Delete";
     public static final String REMOVE_THIS_LIBRARY = "Remove This Library";
     public static final String SHOW_IN_RIGHT_PANE = "Show in Right Pane";
+    public static final String RENAME_THIS_FILE = "Rename";
     public static final String EDIT_PROPERTIES = "Edit Properties";
     public static final String ADD_TO_PLAYLIST = "Add to Playlist";
+    public static final String CREATE_NEW_PLAYLIST = "Create New Playlist";
 }

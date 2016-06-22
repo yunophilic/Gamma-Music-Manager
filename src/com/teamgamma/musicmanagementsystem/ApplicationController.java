@@ -38,10 +38,12 @@ public class ApplicationController extends Application {
             System.out.println("No libraries are existent");
             System.out.println("creating new library storage file...");
             m_databaseManager.createDatabaseFile();
-            String firstLibrary = PromptUI.initialWelcome();
-            songManager.addLibrary(firstLibrary);
             m_databaseManager.setupDatabase();
-            m_databaseManager.addLibrary(firstLibrary);
+            String firstLibrary = PromptUI.initialWelcome();
+            if (firstLibrary != null) {
+                songManager.addLibrary(firstLibrary);
+                m_databaseManager.addLibrary(firstLibrary);
+            }
         } else {
             m_databaseManager.setupDatabase();
         }

@@ -413,7 +413,7 @@ public class MusicPlayerManager {
      *
      * @return True if the player is playing off the history list, False other wise.
      */
-    private boolean isPlayingSongOnFromHistoryList() {
+    public boolean isPlayingSongOnFromHistoryList() {
         return ((m_historyIndex != (m_songHistory.size() - 1)) && !m_songHistory.isEmpty());
     }
 
@@ -547,6 +547,14 @@ public class MusicPlayerManager {
     public boolean isThereANextSong(){
         return (!m_playingQueue.isEmpty() ||
                 (isPlayingSongOnFromHistoryList() && (m_historyIndex < (m_songHistory.size() - 1))));
-
     }
+
+    /**
+     * Fucntion to get the history index in the manager.
+     *
+     * @return The index for the history data structure.
+     */
+    public int getM_historyIndex() {
+        return m_historyIndex;
+    };
 }

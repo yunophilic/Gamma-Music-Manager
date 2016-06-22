@@ -8,9 +8,11 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
@@ -130,6 +132,7 @@ public class MusicPlayerUI extends BorderPane {
                 manager.playPreviousSong();
             }
         });
+        createMouseOverUIChange(previousSong);
         previousSong.setAlignment(Pos.CENTER_LEFT);
         playbackControls.getChildren().add(previousSong);
 
@@ -160,6 +163,7 @@ public class MusicPlayerUI extends BorderPane {
             }
         });
 
+        createMouseOverUIChange(playPauseButton);
         manager.registerChangeStateObservers(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
@@ -189,11 +193,32 @@ public class MusicPlayerUI extends BorderPane {
                 manager.playNextSong();
             }
         });
+        createMouseOverUIChange(skipButton);
         playbackControls.getChildren().add(skipButton);
 
         manager.registerQueingObserver(createNextSongButtonFadedAction(manager, skipButton));
         manager.registerNewSongObserver(createNextSongButtonFadedAction(manager, skipButton));
         return playbackControls;
+    }
+
+    /**
+     * Function to create a UI indication when mousing over something.
+     *
+     * @param element  The element to apply UI effect on.
+     */
+    private void createMouseOverUIChange(final Node element) {
+        element.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                element.setStyle("-fx-background-color: #BFDCF5;");
+            }
+        });
+        element.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                element.setStyle("-fx-background-color: transparent");
+            }
+        });
     }
 
     /**
