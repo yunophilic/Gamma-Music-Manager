@@ -14,7 +14,7 @@ public interface SongManagerObserver {
     void songChanged();
 
     // Update UI if file location is changed (ie. copy, paste, remove)
-    void fileChanged();
+    void fileChanged(String action);
 
     void leftPanelOptionsChanged();
 }

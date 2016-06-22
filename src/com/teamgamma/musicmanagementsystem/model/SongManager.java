@@ -177,10 +177,8 @@ public class SongManager {
         FileManager.moveFile(fileToMove, destDir);
         updateLibraries();
 
-        setM_libraryFileAction(Actions.DROP);
-        setM_rightPanelFileAction(Actions.DROP);
         setM_dragDest(destDir);
-        notifyFileObservers();
+        notifyFileObservers(Actions.DROP);
     }
 
     /**
@@ -202,9 +200,7 @@ public class SongManager {
         updateLibraries();
 
         setM_deletedFile(fileToDelete);
-        setM_libraryFileAction(Actions.DELETE);
-        setM_rightPanelFileAction(Actions.DELETE);
-        notifyFileObservers();
+        notifyFileObservers(Actions.DELETE);
 
         // Clear file to delete buffer
         setM_deletedFile(null);
@@ -429,9 +425,9 @@ public class SongManager {
 
     }
 
-    public void notifyFileObservers() {
+    public void notifyFileObservers(String action) {
         for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.fileChanged();
+            observer.fileChanged(action);
         }
     }
 

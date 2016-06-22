@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Library;
@@ -84,9 +85,9 @@ public class DynamicTreeViewUI extends StackPane {
             }
 
             @Override
-            public void fileChanged() {
+            public void fileChanged(String action) {
                 System.out.println("File changed in treeview");
-                updateFiles(m_model.getM_rightPanelFileAction());
+                updateFiles(action);
             }
 
             @Override
@@ -98,7 +99,7 @@ public class DynamicTreeViewUI extends StackPane {
 
     private void updateFiles(String fileAction) {
         try {
-            if (fileAction != null) {
+            if (fileAction != null && !fileAction.equals(Actions.NONE)) {
                 if (m_model.getM_rightFolderSelected() == null) {
                     this.getChildren().add(new Label("Choose a folder to view"));
                 } else {

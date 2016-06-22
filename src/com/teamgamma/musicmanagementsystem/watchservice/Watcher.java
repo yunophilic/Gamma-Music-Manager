@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.watchservice;
 
+import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.model.*;
 import javafx.application.Platform;
 
@@ -42,7 +43,7 @@ public class Watcher {
                         m_watchKey = m_watcher.poll(5, TimeUnit.SECONDS);
 
                         if (m_watchKey == null) { //WatchKey failed to grab more events
-                            Platform.runLater(() -> m_model.notifyFileObservers());
+                            Platform.runLater(() -> m_model.notifyFileObservers(Actions.NONE));
                             break;
                         }
                     }
@@ -157,7 +158,7 @@ public class Watcher {
             }
 
             @Override
-            public void fileChanged() {
+            public void fileChanged(String action) {
                 restartWatcher();
             }
 

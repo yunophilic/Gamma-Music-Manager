@@ -85,7 +85,7 @@ public class ContentListUI extends StackPane {
             }
 
             @Override
-            public void fileChanged() {
+            public void fileChanged(String action) {
                 clearTable();
                 updateTable();
             }
@@ -366,9 +366,7 @@ public class ContentListUI extends StackPane {
                     }
                     try {
                         m_model.copyToDestination(dest);
-                        m_model.setM_libraryFileAction(Actions.PASTE);
-                        m_model.setM_rightPanelFileAction(Actions.PASTE);
-                        m_model.notifyFileObservers();
+                        m_model.notifyFileObservers(Actions.PASTE);
                     } catch (FileAlreadyExistsException ex) {
                         PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
                     } catch (IOException ex) {

@@ -11,4 +11,5 @@ public class Actions {
     public static final String REMOVE_FROM_VIEW = "Remove from view";
     public static final String PASTE = "Paste";
     public static final String RENAME = "Rename";
+    public static final String NONE = "None";
 }
