@@ -10,7 +10,6 @@ import com.teamgamma.musicmanagementsystem.misc.CustomTreeCell;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
 
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
@@ -94,7 +93,7 @@ public class LibraryUI extends StackPane {
                 //clearTreeView();
                 //updateTreeView();
 
-                updateFiles(m_model.getM_fileAction());
+                updateFiles(m_model.getM_libraryFileAction());
             }
 
             @Override
@@ -110,6 +109,7 @@ public class LibraryUI extends StackPane {
         try {
             if (fileAction != null) {
                 TreeViewUtil.updateTreeItems(fileAction, m_tree, m_model);
+                m_model.setM_libraryFileAction(null);
             }
         } catch (IOException ex) {
             PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());

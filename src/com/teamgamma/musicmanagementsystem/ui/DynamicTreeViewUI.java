@@ -13,6 +13,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class DynamicTreeViewUI extends StackPane {
@@ -85,8 +86,7 @@ public class DynamicTreeViewUI extends StackPane {
             @Override
             public void fileChanged() {
                 System.out.println("File changed in treeview");
-                clearTreeView();
-                updateTreeView();
+                updateFiles(m_model.getM_rightPanelFileAction());
             }
 
             @Override
@@ -94,6 +94,22 @@ public class DynamicTreeViewUI extends StackPane {
                 /* Do nothing */
             }
         });
+    }
+
+    private void updateFiles(String fileAction) {
+        try {
+            if (fileAction != null) {
+                if (m_model.getM_rightFolderSelected() == null) {
+                    this.getChildren().add(new Label("Choose a folder to view"));
+                } else {
+                    TreeViewUtil.updateTreeItems(fileAction, m_tree, m_model);
+                    m_model.setM_rightPanelFileAction(null);
+                }
+            }
+        } catch (IOException ex) {
+            PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     private void clearTreeView() {

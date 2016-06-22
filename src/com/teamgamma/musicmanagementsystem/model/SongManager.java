@@ -32,7 +32,8 @@ public class SongManager {
 
     // For actions such as paste, delete
     private String m_libraryAction;
-    private String m_fileAction;
+    private String m_libraryFileAction;
+    private String m_rightPanelFileAction;
 
     public SongManager() {
         m_songManagerObservers = new ArrayList<>();
@@ -173,13 +174,13 @@ public class SongManager {
      * @throws IOException
      */
     public void moveFile(File fileToMove, File destDir) throws IOException {
-        // UI must be updated before the file is moved (i.e. before original file is deleted)
-        setM_fileAction(Actions.DROP);
-        setM_dragDest(destDir);
-        notifyFileObservers();
-
         FileManager.moveFile(fileToMove, destDir);
         updateLibraries();
+
+        setM_libraryFileAction(Actions.DROP);
+        setM_rightPanelFileAction(Actions.DROP);
+        setM_dragDest(destDir);
+        notifyFileObservers();
     }
 
     /**
@@ -201,7 +202,8 @@ public class SongManager {
         updateLibraries();
 
         setM_deletedFile(fileToDelete);
-        setM_fileAction(Actions.DELETE);
+        setM_libraryFileAction(Actions.DELETE);
+        setM_rightPanelFileAction(Actions.DELETE);
         notifyFileObservers();
 
         // Clear file to delete buffer
@@ -368,12 +370,20 @@ public class SongManager {
         return m_libraryAction;
     }
 
-    public void setM_fileAction(String fileAction) {
-        m_fileAction = fileAction;
+    public void setM_libraryFileAction(String fileAction) {
+        m_libraryFileAction = fileAction;
     }
     
-    public String getM_fileAction() {
-        return m_fileAction;
+    public String getM_libraryFileAction() {
+        return m_libraryFileAction;
+    }
+
+    public void setM_rightPanelFileAction(String fileAction) {
+        m_rightPanelFileAction = fileAction;
+    }
+
+    public String getM_rightPanelFileAction() {
+        return m_rightPanelFileAction;
     }
 
     public void setM_deletedFile(File deletedFile) {

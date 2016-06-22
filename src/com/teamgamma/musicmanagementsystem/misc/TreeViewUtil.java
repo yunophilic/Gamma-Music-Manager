@@ -150,35 +150,34 @@ public class TreeViewUtil {
 
     public static void updateTreeItems(String fileAction, TreeView<TreeViewItem> tree, SongManager model) throws IOException{
         if (fileAction.equals(Actions.DRAG)) {
+
+        } else if (fileAction.equals(Actions.DROP)) {
+            // Add new node to destination file node
+            addNewNode(tree, model,model.getM_fileToMove().getName(), model.getM_dragDest().getAbsolutePath());
+
+            // Remove node from old folder it was in
             String deletedFilePath = model.getM_fileToMove().getAbsolutePath();
             TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
 
             removedFile.getParent().getChildren().remove(removedFile);
-        } else if (fileAction.equals(Actions.DROP)) {
-            File copiedFile = model.getM_fileToMove();
-            String newParentPath = model.getM_dragDest().getAbsolutePath();
-
-            TreeItem<TreeViewItem> newFileNode = generateTreeItems(copiedFile, newParentPath, model.getM_menuOptions().getM_leftPanelShowFolder());
-            addNewNode(tree, newParentPath, newFileNode);
         } else if (fileAction.equals(Actions.DELETE)) {
             String deletedFilePath = model.getM_deletedFile().getAbsolutePath();
             TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
 
             removedFile.getParent().getChildren().remove(removedFile);
         } else if (fileAction.equals(Actions.PASTE)) {
-            File copiedFile = model.getM_fileToCopy();
-            String newParentPath = model.getM_copyDest().getAbsolutePath();
-
-            TreeItem<TreeViewItem> newFileNode = generateTreeItems(copiedFile, newParentPath, model.getM_menuOptions().getM_leftPanelShowFolder());
-            addNewNode(tree, newParentPath, newFileNode);
+            addNewNode(tree, model, model.getM_fileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
         } else {
             throw new IOException("Invalid file action!");
         }
-
-        model.setM_fileAction(null);
     }
 
-    private static void addNewNode(TreeView<TreeViewItem> tree, String newParentPath, TreeItem<TreeViewItem> newFileNode) {
+    private static void addNewNode(TreeView<TreeViewItem> tree, SongManager model, String fileName, String newParentPath) {
+        String newFilePath = newParentPath + '\\' + fileName;
+        File copiedFile = new File(newFilePath);
+
+        TreeItem<TreeViewItem> newFileNode = generateTreeItems(copiedFile, newParentPath, model.getM_menuOptions().getM_leftPanelShowFolder());
+
         TreeItem<TreeViewItem> parentFileNode;
 
         parentFileNode = searchTreeItem(tree, newParentPath);

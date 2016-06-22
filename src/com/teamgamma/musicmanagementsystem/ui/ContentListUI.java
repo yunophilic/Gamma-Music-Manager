@@ -321,8 +321,6 @@ public class ContentListUI extends StackPane {
                             ex.printStackTrace();
                         }
 
-                        m_model.setM_fileAction(Actions.DROP);
-                        m_model.notifyFileObservers();
                         dragEvent.consume();
                     }
                 });
@@ -368,7 +366,8 @@ public class ContentListUI extends StackPane {
                     }
                     try {
                         m_model.copyToDestination(dest);
-                        m_model.setM_fileAction(Actions.PASTE);
+                        m_model.setM_libraryFileAction(Actions.PASTE);
+                        m_model.setM_rightPanelFileAction(Actions.PASTE);
                         m_model.notifyFileObservers();
                     } catch (FileAlreadyExistsException ex) {
                         PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
