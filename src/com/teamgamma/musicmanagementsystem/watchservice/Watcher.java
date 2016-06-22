@@ -3,24 +3,32 @@ package com.teamgamma.musicmanagementsystem.watchservice;
 import com.teamgamma.musicmanagementsystem.model.*;
 import javafx.application.Platform;
 
+import name.pachler.nio.file.*;
+import name.pachler.nio.file.ext.ExtendedWatchEventKind;
+import name.pachler.nio.file.ext.ExtendedWatchEventModifier;
+
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Watcher {
+    private int m_timeout = 2000;
     private WatchService m_watcher;
     private WatchKey m_watchKey;
     private Thread m_watcherThread;
+    private Map<WatchKey, Path> m_keyMaps;
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
 
     public Watcher(SongManager model, DatabaseManager databaseManager) {
         m_model = model;
         m_databaseManager = databaseManager;
+        m_keyMaps = new HashMap<>();
+
         registerAsObserver();
         openWatcher();
         updateWatcher();
@@ -39,7 +47,7 @@ public class Watcher {
                         isFirst = false;
                         System.out.println("**** File system changed...");
                     } else { //Try for more events with timeout
-                        m_watchKey = m_watcher.poll(5, TimeUnit.SECONDS);
+                        m_watchKey = m_watcher.poll(m_timeout, TimeUnit.MILLISECONDS);
 
                         if (m_watchKey == null) { //WatchKey failed to grab more events
                             Platform.runLater(() -> m_model.notifyFileObservers());
@@ -48,7 +56,12 @@ public class Watcher {
                     }
 
                     printWatchEvent();
-                    m_watchKey.reset();
+                    boolean valid = m_watchKey.reset();
+                    if(!valid) {
+                        m_keyMaps.remove(m_watchKey);
+                        Platform.runLater(() -> m_model.notifyFileObservers());
+                        break;
+                    }
                 } catch (InterruptedException e) {
                     System.out.println("**** Watcher thread interrupted...");
                     break;
@@ -61,11 +74,12 @@ public class Watcher {
     }
 
     private void printWatchEvent() {
+        Path dir = m_keyMaps.get(m_watchKey);
         for (WatchEvent<?> event : m_watchKey.pollEvents()) {
             WatchEvent.Kind<?> kind = event.kind();
             Path eventPath = (Path) event.context();
             System.out.println("**** " + kind + ": " + eventPath
-                    + " [ " + eventPath.toAbsolutePath().toString() + " ]");
+                    + " [ " + dir + File.separator + eventPath + " ]");
         }
     }
 
@@ -73,18 +87,13 @@ public class Watcher {
         m_watcherThread.interrupt();
         try {
             m_watcher.close();
-            System.out.println("**** Watcher closed...");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     private void openWatcher() {
-        try {
-            m_watcher = FileSystems.getDefault().newWatchService();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        m_watcher = FileSystems.getDefault().newWatchService();
     }
 
     private void restartWatcher() {
@@ -98,33 +107,30 @@ public class Watcher {
         List<File> deletedDirs = new ArrayList<>();
         for (Library lib : m_model.getM_libraries()) {
             try {
-                addWatchDir(lib.getM_rootDirPath());
+                if(lib.getM_rootDir().exists()) {
+                    addWatchDir(lib.getM_rootDirPath());
+                } else {
+                    deletedDirs.add(lib.getM_rootDir());
+                }
             } catch (IOException e) {
-                System.out.println("**** Directory does not exist: " + lib.getM_rootDirPath());
-                deletedDirs.add(lib.getM_rootDir());
+                e.printStackTrace();
             }
         }
         deleteWatchDir(deletedDirs);
     }
 
-    private void addWatchDir(String rootDir) throws IOException {
-        Path path = Paths.get(rootDir);
+    private void addWatchDir(String rootDirPath) throws IOException {
+        Path path = Paths.get(rootDirPath);
 
-        //Register root + all sub directories in root directory to watcher
-        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                try {
-                    dir.register(m_watcher,
-                            StandardWatchEventKinds.ENTRY_CREATE,
-                            StandardWatchEventKinds.ENTRY_DELETE,
-                            StandardWatchEventKinds.ENTRY_MODIFY);
-                    return FileVisitResult.CONTINUE;
-                } catch (IOException e) {
-                    return FileVisitResult.TERMINATE;
-                }
-            }
-        });
+        WatchEvent.Kind[] eventKinds = {
+                StandardWatchEventKind.ENTRY_CREATE,
+                StandardWatchEventKind.ENTRY_DELETE,
+                StandardWatchEventKind.ENTRY_MODIFY,
+                ExtendedWatchEventKind.ENTRY_RENAME_FROM,
+                ExtendedWatchEventKind.ENTRY_RENAME_TO
+        };
+        WatchKey key = path.register(m_watcher, eventKinds, ExtendedWatchEventModifier.FILE_TREE);
+        m_keyMaps.put(key, path);
     }
 
     private void deleteWatchDir(List<File> deletedDirs) {
