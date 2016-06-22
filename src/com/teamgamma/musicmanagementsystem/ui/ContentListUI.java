@@ -126,8 +126,6 @@ public class ContentListUI extends StackPane {
         TableColumn<Song, Integer> ratingCol = new TableColumn<>("Rating");
         ratingCol.setMinWidth(RATING_COLUMN_MIN_WIDTH);
 
-        showOrHideTableColumns(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
-
         if (m_model.getM_selectedCenterFolder() == null) {
             setEmptyText(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
         } else {
@@ -137,7 +135,6 @@ public class ContentListUI extends StackPane {
 
             setTableRowMouseEvents();
             setTableColumnAttributes(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
-
 
             List<Song> songs = m_model.getCenterPanelSongs();
 
@@ -155,6 +152,8 @@ public class ContentListUI extends StackPane {
             scrollpane.setPrefSize(500, 500);
             scrollpane.setContent(m_table);
         }
+
+        showOrHideTableColumns(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
     }
 
     private void showOrHideTableColumns(TableColumn<Song, File> fileNameCol, TableColumn<Song, String> titleCol, TableColumn<Song, String> artistCol, TableColumn<Song, String> albumCol, TableColumn<Song, String> genreCol, TableColumn<Song, Integer> ratingCol) {
