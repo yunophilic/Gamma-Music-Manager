@@ -9,6 +9,7 @@ import javafx.scene.image.ImageView;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,11 +27,13 @@ public class TreeViewUtil {
      * @return TreeItem<String> to the root item
      */
     public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath, boolean showFolderOnly) {
+        System.out.println(file + ", " + dirPath);
         TreeItem<TreeViewItem> item = new TreeItem<>(
                 (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
         );
 
         File treeItemFile = item.getValue().getM_file();
+        System.out.println("$$$" + treeItemFile + ", " + treeItemFile.isDirectory());
         if (treeItemFile.isDirectory()) {
             item.setGraphic(new ImageView(folderImage));
         } else {
@@ -145,14 +148,43 @@ public class TreeViewUtil {
         return false;
     }
 
-    public static void updateTreeItems(String fileAction, TreeView<TreeViewItem> tree, SongManager model) {
-        /*if (fileAction.equals(Actions.ADD)) {
+    public static void updateTreeItems(String fileAction, TreeView<TreeViewItem> tree, SongManager model) throws IOException{
+        if (fileAction.equals(Actions.DRAG)) {
+            String deletedFilePath = model.getM_fileToMove().getAbsolutePath();
+            TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
 
-        } else*/ if (fileAction.equals(Actions.DELETE)) {
-            String deletedFilePath = model.getM_deletedFile().getAbsolutePath();
-            TreeItem<TreeViewItem> removedFile = TreeViewUtil.searchTreeItem(tree, deletedFilePath);
             removedFile.getParent().getChildren().remove(removedFile);
+        } else if (fileAction.equals(Actions.DROP)) {
+            File copiedFile = model.getM_fileToMove();
+            String newParentPath = model.getM_dragDest().getAbsolutePath();
+
+            TreeItem<TreeViewItem> newFileNode = generateTreeItems(copiedFile, newParentPath, model.getM_menuOptions().getM_leftPanelShowFolder());
+            addNewNode(tree, newParentPath, newFileNode);
+        } else if (fileAction.equals(Actions.DELETE)) {
+            String deletedFilePath = model.getM_deletedFile().getAbsolutePath();
+            TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
+
+            removedFile.getParent().getChildren().remove(removedFile);
+        } else if (fileAction.equals(Actions.PASTE)) {
+            File copiedFile = model.getM_fileToCopy();
+            String newParentPath = model.getM_copyDest().getAbsolutePath();
+
+            TreeItem<TreeViewItem> newFileNode = generateTreeItems(copiedFile, newParentPath, model.getM_menuOptions().getM_leftPanelShowFolder());
+            addNewNode(tree, newParentPath, newFileNode);
+        } else {
+            throw new IOException("Invalid file action!");
         }
+
+        model.setM_fileAction(null);
+    }
+
+    private static void addNewNode(TreeView<TreeViewItem> tree, String newParentPath, TreeItem<TreeViewItem> newFileNode) {
+        TreeItem<TreeViewItem> parentFileNode;
+
+        parentFileNode = searchTreeItem(tree, newParentPath);
+
+        parentFileNode.getChildren().add(newFileNode);
+        parentFileNode.setExpanded(true);
     }
 
     public static boolean isLibraryNodeInList(List<Library> libraries, TreeViewItem libraryNode) {

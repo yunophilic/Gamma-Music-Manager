@@ -17,7 +17,9 @@ public class SongManager {
     private List<PlaylistObserver> m_playlistObservers;
     private List<Library> m_libraries;
     private File m_fileToCopy;
+    private File m_copyDest;
     private File m_fileToMove;
+    private File m_dragDest;
     private File m_deletedFile;
     private List<Playlist> m_playlists;
 
@@ -41,6 +43,8 @@ public class SongManager {
         m_playlists = new ArrayList<>();
         m_selectedCenterFolder = null;
         m_rightFolderSelected = null;
+        m_copyDest = null;
+        m_dragDest = null;
 
         m_menuOptions = new MenuOptions();
     }
@@ -111,6 +115,22 @@ public class SongManager {
     }
 
     /**
+     * Check if given file is a library
+     * @param file
+     * @return
+     */
+    public boolean isLibrary(File file) {
+        String filePath = file.getAbsolutePath();
+        for (Library library: m_libraries) {
+            String libraryPath = library.getM_rootDirPath();
+            if (libraryPath.equals(filePath)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Set file/folder to be copied
      * @param m_fileToCopy
      */
@@ -141,16 +161,23 @@ public class SongManager {
             throw new IOException("Fail to copy");
         }
 
+        m_copyDest = dest;
+
         updateLibraries();
     }
 
     /**
-     * Move file from source to destination
+     * Update UI and move file from source to destination
      * @param fileToMove
      * @param destDir
      * @throws IOException
      */
     public void moveFile(File fileToMove, File destDir) throws IOException {
+        // UI must be updated before the file is moved (i.e. before original file is deleted)
+        setM_fileAction(Actions.DROP);
+        setM_dragDest(destDir);
+        notifyFileObservers();
+
         FileManager.moveFile(fileToMove, destDir);
         updateLibraries();
     }
@@ -285,6 +312,18 @@ public class SongManager {
 
     public void fileDeleted(File fileToDelete) {
 
+    }
+
+    public File getM_dragDest() {
+        return m_dragDest;
+    }
+
+    public void setM_dragDest(File dest) {
+        m_dragDest = dest;
+    }
+
+    public File getM_copyDest() {
+        return m_copyDest;
     }
 
     public File getM_rightFolderSelected() {

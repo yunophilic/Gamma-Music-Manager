@@ -297,8 +297,6 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     ex.printStackTrace();
                 }
 
-                m_model.setM_fileAction(Actions.ADD);
-                m_model.notifyFileObservers();
                 dragEvent.consume();
             }
         });

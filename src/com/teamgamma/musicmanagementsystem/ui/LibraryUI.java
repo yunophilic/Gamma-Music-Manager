@@ -16,6 +16,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -106,11 +107,13 @@ public class LibraryUI extends StackPane {
     }
 
     private void updateFiles(String fileAction) {
-        if (fileAction.equals(Actions.DELETE)) {
-            TreeViewUtil.updateTreeItems(fileAction, m_tree, m_model);
-        } else {
-            clearTreeView();
-            updateTreeView();
+        try {
+            if (fileAction != null) {
+                TreeViewUtil.updateTreeItems(fileAction, m_tree, m_model);
+            }
+        } catch (IOException ex) {
+            PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
