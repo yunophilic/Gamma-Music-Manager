@@ -275,7 +275,7 @@ public class PromptUI {
      * @param song file for editing
      */
     public static void editMetadata(Song song) {
-        Dialog dialog = new Dialog<>();
+        Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit Song Info");
         dialog.setHeaderText(song.getM_title() + "\n" +
                 song.getM_artist() + "\n" +
@@ -514,7 +514,7 @@ public class PromptUI {
      *
      * @return playlistName, otherwise null if user clicks cancel
      */
-    public static String addPlaylist() {
+    public static String addNewPlaylist() {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Add Playlist");
 
@@ -562,14 +562,14 @@ public class PromptUI {
     /**
      * Prompt to edit playlist after previous add playlist attempt has blank text box
      *
-     * @param playlistName to edit
+     * @param playlistToEdit to edit
      * @return newPlaylistName
      */
-    public static String editPlaylist(Playlist playlistName) {
+    public static String editPlaylist(Playlist playlistToEdit) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Edit Playlist");
 
-        dialog.setHeaderText("Rename \"" + playlistName.getM_playlistName() + "\":");
+        dialog.setHeaderText("Rename \"" + playlistToEdit.getM_playlistName() + "\":");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-playlist.png"))));
         dialog.setContentText("Rename playlist:");
@@ -578,7 +578,7 @@ public class PromptUI {
 
         if (result.isPresent()) {
             if (result.get().isEmpty()) {
-                editPlaylistRetry(playlistName);
+                editPlaylistRetry(playlistToEdit);
             }
             return result.get();
         }
@@ -588,23 +588,23 @@ public class PromptUI {
     /**
      * Prompt to edit playlist
      *
-     * @param playlistName to edit
+     * @param playlistToEdit to edit
      * @return newPlaylistName
      */
-    public static String editPlaylistRetry(Playlist playlistName) {
+    private static String editPlaylistRetry(Playlist playlistToEdit) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Edit Playlist");
 
         dialog.setHeaderText("Please enter at least one character for the playlist name:");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-playlist.png"))));
-        dialog.setContentText("Rename playlist \"" + playlistName.getM_playlistName() + "\":");
+        dialog.setContentText("Rename playlist \"" + playlistToEdit.getM_playlistName() + "\":");
 
         Optional<String> result = dialog.showAndWait();
 
         if (result.isPresent()) {
             if (result.get().isEmpty()) {
-                editPlaylistRetry(playlistName);
+                editPlaylistRetry(playlistToEdit);
             }
             return result.get();
         }
@@ -614,14 +614,14 @@ public class PromptUI {
     /**
      * Prompt to remove playlist
      *
-     * @param playlistName to remove
+     * @param playlistToRemove to remove
      * @return true if user confirms prompt to delete playlist
      */
-    public static boolean removePlaylist(Playlist playlistName) {
+    public static boolean removePlaylist(Playlist playlistToRemove) {
         Dialog dialog = new Dialog();
         dialog.setTitle("Remove Playlist");
 
-        dialog.setHeaderText("\"" + playlistName.getM_playlistName() + "\":");
+        dialog.setHeaderText("\"" + playlistToRemove.getM_playlistName() + "\":");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "remove-playlist.png"))));
         dialog.setContentText("Are you sure you want to remove this playlist?");

@@ -73,7 +73,7 @@ public class MainUI extends BorderPane {
         HBox pane = new HBox();
 
         ContentListUI contentListUI = new ContentListUI(m_model, m_musicPlayerManager, m_databaseManager);
-        PlaylistUI playlistUI = new PlaylistUI(m_model, m_musicPlayerManager);
+        PlaylistUI playlistUI = new PlaylistUI(m_model, m_musicPlayerManager, m_databaseManager);
 
         HBox.setHgrow(contentListUI, Priority.ALWAYS);
         HBox.setHgrow(playlistUI, Priority.ALWAYS);

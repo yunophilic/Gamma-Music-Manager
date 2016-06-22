@@ -34,9 +34,9 @@ public class ApplicationController extends Application {
 
         SongManager songManager = new SongManager();
         m_databaseManager = new DatabaseManager();
-        if (!m_databaseManager.isThereSavedState()) {
+        if (!m_databaseManager.isDatabaseFileExist()) {
             System.out.println("No libraries are existent");
-            System.out.println("creating new library storage file...");
+            System.out.println("creating new database file...");
             m_databaseManager.createDatabaseFile();
             m_databaseManager.setupDatabase();
             String firstLibrary = PromptUI.initialWelcome();
@@ -47,10 +47,15 @@ public class ApplicationController extends Application {
         } else {
             m_databaseManager.setupDatabase();
         }
-        List<String> librariesPath = m_databaseManager.getLibraries();
+        List<String> libraryPathList = m_databaseManager.getLibraries();
         System.out.println("loading libraries...");
-        for (String libPath : librariesPath) {
-            songManager.addLibrary(libPath);
+        for (String libraryPath : libraryPathList) {
+            songManager.addLibrary(libraryPath);
+        }
+        List<String> playlistNameList = m_databaseManager.getPlaylists();
+        System.out.println("loading playlists...");
+        for (String playlistName : playlistNameList) {
+            songManager.addPlaylist(playlistName);
         }
 
         MusicPlayerManager musicPlayerManager = new MusicPlayerManager();

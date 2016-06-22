@@ -87,16 +87,25 @@ public class Playlist {
         return m_songList;
     }
 
-
-    /**
-     * Get playlist
-     * @return playlist
-     */
     public List<Song> getM_songList() {
         return m_songList;
     }
 
     public String getM_playlistName() {
+        return m_playlistName;
+    }
+
+    public void setM_playlistName(String m_playlistName) {
+        this.m_playlistName = m_playlistName;
+    }
+
+    /**
+     * For drop down menu
+     *
+     * @return name of the playlist
+     */
+    @Override
+    public String toString() {
         return m_playlistName;
     }
 }
