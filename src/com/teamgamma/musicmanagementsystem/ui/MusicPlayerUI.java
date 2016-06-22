@@ -6,13 +6,14 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
 
 import javafx.application.Platform;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
+
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseDragEvent;
+import javafx.scene.input.DragEvent;
+
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
@@ -24,7 +25,7 @@ import java.io.File;
 /**
  * Class for Music Player MainUI. Acts as the controller for the media player.
  */
-public class MusicPlayerUI extends BorderPane {
+public class MusicPlayerUI extends VBox {
 
     // Constants for MusicPlayerUI.
     public static final int SECONDS_IN_MINUTE = 60;
@@ -38,6 +39,7 @@ public class MusicPlayerUI extends BorderPane {
     public static final String NEXT_SONG_ICON_PATH = "res\\ic_skip_next_black_48dp_1x.png";
     public static final String VOLUME_UP_ICON_PATH = "res\\ic_volume_up_black_48dp_1x.png";
     public static final String VOLUME_DOWN_ICON_PATH = "res\\ic_volume_down_black_48dp_1x.png";
+    public static final String VOLUME_MUTE_ICON_PATH = "res\\ic_volume_mute_black_48dp_1x.png";
     public static final String PLAYLIST_REPEAT_ICON_PATH = "res\\ic_repeat_black_48dp_1x.png";
     public static final String ADD_TO_PLAYLIST_ICON_PATH = "res/ic_playlist_add_black_48dp_1x.png";
     public static final String SONG_REPEAT_ICON_PATH = "res\\ic_repeat_one_black_48dp_1x.png";
@@ -64,15 +66,15 @@ public class MusicPlayerUI extends BorderPane {
         //topWrapper.getChildren().add(musicFileBox);
 
         topWrapper.getChildren().addAll(createProgressBarBox(manager), createCurrentTimeBox(manager));
-        this.setTop(topWrapper);
+        this.getChildren().add(topWrapper);
 
         HBox playbackControls = createPlayBackControlBox(manager);
-        this.setCenter(playbackControls);
+        this.getChildren().add(playbackControls);
 
-       /*   Removed for now until volume is working.
+        //  Removed for now until volume is working.
         HBox otherControlBox = createOtherOptionsBox(manager);
-        this.setBottom(otherControlBox);
-        */
+        this.getChildren().add(otherControlBox);
+
         manager.registerErrorObservers(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
@@ -250,41 +252,16 @@ public class MusicPlayerUI extends BorderPane {
      */
     private HBox createOtherOptionsBox(final MusicPlayerManager manager) {
         HBox otherControlBox = new HBox();
-        Button volumeUpButton = createIconButton(VOLUME_UP_ICON_PATH);
-        volumeUpButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                manager.increaseVolume();
-            }
-        });
 
-        Button volumeDownButton = createIconButton(VOLUME_DOWN_ICON_PATH);
-        volumeDownButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                manager.decreaseVolume();
-            }
-        });
+        Button volumeDownIcon = createIconButton(VOLUME_MUTE_ICON_PATH);
+        volumeDownIcon.setScaleShape(true);
 
-        ToggleButton repeatSongButton = new ToggleButton();
-        repeatSongButton.setGraphic(createImageViewForImage(SONG_REPEAT_ICON_PATH));
-        repeatSongButton.setStyle("-fx-background-color: transparent");
-        repeatSongButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                boolean isSelected = repeatSongButton.isSelected();
-                manager.setRepeat(isSelected);
-                if (isSelected) {
-                    repeatSongButton.setStyle("-fx-background-color: lightgray");
-                } else {
-                    repeatSongButton.setStyle("-fx-background-color: transparent");
-                }
-            }
-        });
+        Button volumeUpIcon = createIconButton(VOLUME_UP_ICON_PATH);
+        volumeUpIcon.setScaleShape(false);
 
-        otherControlBox.getChildren().addAll(volumeDownButton, volumeUpButton, repeatSongButton);
-
-        HBox.setHgrow(otherControlBox, Priority.ALWAYS);
+        Slider volumeControlSider = createSliderVolumeControl(manager);
+        otherControlBox.getChildren().addAll(volumeDownIcon,  volumeControlSider, volumeUpIcon);
+        HBox.setHgrow(volumeControlSider, Priority.ALWAYS);
         otherControlBox.setAlignment(Pos.CENTER);
         return otherControlBox;
     }
@@ -506,5 +483,31 @@ public class MusicPlayerUI extends BorderPane {
             }
         });
         return songTimesWrapper;
+    }
+
+    /**
+     * Function to create the slider for volume control.
+     *
+     * @param manager The music player manager to interact with.
+     *
+     * @return A slider to control volume.
+     */
+    private Slider createSliderVolumeControl(MusicPlayerManager manager) {
+        Slider volumeSlider = new Slider(0,1,1);
+
+        volumeSlider.setOnDragDone(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                manager.setVolumeLevel(volumeSlider.getValue());
+            }
+        });
+        volumeSlider.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                manager.setVolumeLevel(volumeSlider.getValue());
+            }
+        });
+        return volumeSlider;
+
     }
 }

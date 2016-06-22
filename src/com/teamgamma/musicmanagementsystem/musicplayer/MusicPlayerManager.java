@@ -7,10 +7,7 @@ import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.Port;
+import javax.sound.sampled.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -464,26 +461,22 @@ public class MusicPlayerManager {
     }
 
     /**
-     * WIP
      * Function to set the volume using Java Sound API.
+     * Based on http://stackoverflow.com/questions/648107/changing-volume-in-java-when-using-jlayer
      */
     private void setVolumeControl() {
-        Port lineIn;
-        FloatControl volCtrl;
         try {
-            Mixer mixer = AudioSystem.getMixer(null);
-            lineIn = (Port)mixer.getLine(Port.Info.SPEAKER);
-            lineIn.open();
-            volCtrl = (FloatControl) lineIn.getControl(
+            Port speakerPort = (Port) AudioSystem.getLine(Port.Info.SPEAKER);
+            speakerPort.open();
+
+            FloatControl volCtrl = (FloatControl) speakerPort.getControl(
                     FloatControl.Type.VOLUME);
 
             volCtrl.setValue((float) m_volumeLevel);
-            // Assuming getControl call succeeds,
-            // we now have our LINE_IN VOLUME control.
+
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Failed trying to find LINE_IN"
-                    + " VOLUME control: exception = " + e);
+            m_lastException = e;
+            notifyError();
         }
     }
 
@@ -550,11 +543,21 @@ public class MusicPlayerManager {
     }
 
     /**
-     * Fucntion to get the history index in the manager.
+     * Function to get the history index in the manager.
      *
      * @return The index for the history data structure.
      */
     public int getM_historyIndex() {
         return m_historyIndex;
     };
+
+    /**
+     * Function to set the Volume of the music player.
+     * 
+     * @param volumeLevel The volume to set it at.
+     */
+    public void setVolumeLevel(double volumeLevel) {
+        m_volumeLevel = volumeLevel;
+        setVolumeControl();
+    }
 }
