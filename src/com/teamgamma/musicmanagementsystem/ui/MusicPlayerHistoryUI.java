@@ -19,8 +19,9 @@ public class MusicPlayerHistoryUI extends HBox{
 
     // Constants
     public static final int VERTICAL_SPACING = 5;
-    public static final int HORIZONTAIL_ELEMENT_SPACING = 5;
-    public static final int MAX_HIGHT = 400;
+    public static final int HORIZONTAL_ELEMENT_SPACING = 5;
+    public static final int MAX_HEIGHT = 400;
+    public static final int PREF_HEIGHT = 175;
 
     public static final String MENU_ITEM_PLAY_SONG = "Play Song";
     public static final String MENU_ITEM_PLAY_SONG_NEXT = "Play Song Next";
@@ -33,8 +34,8 @@ public class MusicPlayerHistoryUI extends HBox{
     public MusicPlayerHistoryUI(MusicPlayerManager manager) {
         m_manager = manager;
 
-        TitledPane playbackHistory = createTitlePane(PLAYBACK_HISTORY_HEADER, m_manager.getHistory());
-        TitledPane queuingList = createTitlePane(QUEUING_HEADER, m_manager.getPlayingQueue());
+        TitledPane playbackHistory = createTitlePane(PLAYBACK_HISTORY_HEADER, m_manager.getHistory(), createPlaybackQueueAction());
+        TitledPane queuingList = createTitlePane(QUEUING_HEADER, m_manager.getPlayingQueue(), createHistoryAction());
 
         Accordion accordion = new Accordion();
         accordion.getPanes().addAll(playbackHistory, queuingList);
@@ -45,7 +46,7 @@ public class MusicPlayerHistoryUI extends HBox{
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                playbackHistory.setContent(createUIList(manager.getHistory()));
+                playbackHistory.setContent(createUIList(manager.getHistory(), createHistoryAction()));
 
             }
         });
@@ -53,7 +54,7 @@ public class MusicPlayerHistoryUI extends HBox{
         manager.registerQueingObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                queuingList.setContent(createUIList(manager.getPlayingQueue()));
+                queuingList.setContent(createUIList(manager.getPlayingQueue(), createPlaybackQueueAction()));
             }
         });
     }
@@ -65,10 +66,12 @@ public class MusicPlayerHistoryUI extends HBox{
      *
      * @param songs The collection of songs that is wanted to be displayed.
      *
+     * @param action The action to take when building a row.
+     *
      * @return  A TitlePane with the title and collection of songs displayed.
      */
-    private TitledPane createTitlePane(String title, Collection<Song> songs) {
-        TitledPane titlePane = new TitledPane(title, createUIList(songs));
+    private TitledPane createTitlePane(String title, Collection<Song> songs, ILabelAction action) {
+        TitledPane titlePane = new TitledPane(title, createUIList(songs, action));
         titlePane.setAnimated(true);
         titlePane.setCollapsible(true);
         titlePane.setExpanded(false);
@@ -82,7 +85,7 @@ public class MusicPlayerHistoryUI extends HBox{
      *
      * @return A scrollable UI element that contains all the songs in the collection.
      */
-    private ScrollPane createUIList(Collection<Song> listOfSongs) {
+    private ScrollPane createUIList(Collection<Song> listOfSongs, ILabelAction rowCreation) {
         ScrollPane wrapper = new ScrollPane();
 
         VBox allSongs = new VBox();
@@ -90,16 +93,8 @@ public class MusicPlayerHistoryUI extends HBox{
 
         int songNumber = 0;
         for (Song song : listOfSongs) {
-            HBox row = new HBox();
-
-            if (songNumber == 0) {
-                row.getChildren().add(createOldestStyleLabel(Integer.toString(songNumber)));
-                row.getChildren().add(createOldestStyleLabel(song.getM_fileName()));
-            } else {
-                row.getChildren().add(new Label(Integer.toString(songNumber)));
-                row.getChildren().add(new Label(song.getM_fileName()));
-            }
-
+            HBox row = rowCreation.createRow(song, songNumber);
+            String baseStyle = row.getStyle();
             row.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
@@ -108,13 +103,26 @@ public class MusicPlayerHistoryUI extends HBox{
                     }
                 }
             });
+            row.setOnMouseEntered(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    row.setStyle("-fx-background-color: lightgray");
+                }
+            });
+            row.setOnMouseExited(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    row.setStyle(baseStyle);
+                }
+            });
 
-            row.setSpacing(HORIZONTAIL_ELEMENT_SPACING);
+            row.setSpacing(HORIZONTAL_ELEMENT_SPACING);
             allSongs.getChildren().add(row);
 
             songNumber++;
         }
-        allSongs.setMaxHeight(MAX_HIGHT);
+        allSongs.setPrefHeight(PREF_HEIGHT);
+        allSongs.setMaxHeight(MAX_HEIGHT);
 
         wrapper.setContent(allSongs);
         return wrapper;
@@ -171,5 +179,79 @@ public class MusicPlayerHistoryUI extends HBox{
 
         playbackMenu.getItems().addAll(playSong, placeSongAtStartOfQueue, placeSongOnBackOfQueue);
         return playbackMenu;
+    }
+
+    /**
+     * Interface to abstract the logic needed to build a row for displaying a collection of songs. This will be used
+     * so that we can have less duplicate code for displaying songs from a collection.
+     */
+    private interface ILabelAction {
+        HBox createRow(Song songForRow, int songIndex);
+    }
+
+    /**
+     * Function to create a implementation of the interface that will contain the logic for displaying songs in the
+     * playback queue.
+     *
+     * @return The implementation of the playback action.
+     */
+    private ILabelAction createPlaybackQueueAction(){
+        return new ILabelAction() {
+            @Override
+            public HBox createRow(Song songForRow, int songIndex) {
+                HBox row = new HBox();
+
+                if (songIndex == 0) {
+                    row.getChildren().add(createOldestStyleLabel(Integer.toString(songIndex)));
+
+                    Label fileName = createOldestStyleLabel(songForRow.getM_fileName());
+                    row.getChildren().add(fileName);
+                    HBox.setHgrow(fileName, Priority.ALWAYS);
+
+                } else {
+                    row.getChildren().add(new Label(Integer.toString(songIndex)));
+
+                    Label fileName = new Label(songForRow.getM_fileName());
+                    row.getChildren().add(fileName);
+                    HBox.setHgrow(fileName, Priority.ALWAYS);
+                }
+
+                return row;
+            }
+        };
+    }
+
+    /**
+     * Function to create a implementation of the interface that will contain the logic for displaying songs that are
+     * in the history.
+     *
+     * @return The implementation of the history action.
+     */
+    private ILabelAction createHistoryAction(){
+        return new ILabelAction() {
+            @Override
+            public HBox createRow(Song songForRow, int songIndex) {
+                HBox row = new HBox();
+
+                if (songIndex == 0) {
+                    row.getChildren().add(createOldestStyleLabel(Integer.toString(songIndex)));
+
+                    Label fileName = createOldestStyleLabel(songForRow.getM_fileName());
+                    row.getChildren().add(fileName);
+                    HBox.setHgrow(fileName, Priority.ALWAYS);
+                } else {
+                    row.getChildren().add(new Label(Integer.toString(songIndex)));
+
+                    Label fileName = new Label(songForRow.getM_fileName());
+                    row.getChildren().add(fileName);
+                    HBox.setHgrow(fileName, Priority.ALWAYS);
+                }
+
+                if (m_manager.isPlayingSongOnFromHistoryList() && songIndex == m_manager.getM_historyIndex()) {
+                    row.setStyle("-fx-background-color: lightblue");
+                }
+                return row;
+            }
+        };
     }
 }
