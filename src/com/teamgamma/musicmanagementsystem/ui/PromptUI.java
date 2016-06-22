@@ -591,7 +591,7 @@ public class PromptUI {
      * @param playlistName to edit
      * @return newPlaylistName
      */
-    public static String editPlaylistRetry(Playlist playlistName) {
+    private static String editPlaylistRetry(Playlist playlistName) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Edit Playlist");
 
@@ -614,14 +614,14 @@ public class PromptUI {
     /**
      * Prompt to remove playlist
      *
-     * @param playlistName to remove
+     * @param playlistToRemove to remove
      * @return true if user confirms prompt to delete playlist
      */
-    public static boolean removePlaylist(Playlist playlistName) {
+    public static boolean removePlaylist(Playlist playlistToRemove) {
         Dialog dialog = new Dialog();
         dialog.setTitle("Remove Playlist");
 
-        dialog.setHeaderText("\"" + playlistName.getM_playlistName() + "\":");
+        dialog.setHeaderText("\"" + playlistToRemove.getM_playlistName() + "\":");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "remove-playlist.png"))));
         dialog.setContentText("Are you sure you want to remove this playlist?");

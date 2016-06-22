@@ -228,12 +228,27 @@ public class SongManager {
         return centerPanelSongs;
     }
 
-    public Playlist addNewPlaylist(String playlistName) {
+    /**
+     * Add new playlist to m_playlists
+     *
+     * @param playlistName name of new playlist
+     * @return new Playlist object created
+     */
+    public Playlist addPlaylist(String playlistName) {
         Playlist newPlaylist = new Playlist(playlistName);
         m_playlists.add(newPlaylist);
         return newPlaylist;
     }
 
+    /**
+     * Remove existing playlist
+     *
+     * @param playlistToRemove playlist to remove
+     * @return new Playlist object created
+     */
+    public boolean removePlaylist(Playlist playlistToRemove) {
+        return m_playlists.remove(playlistToRemove);
+    }
 
     /**
      * Add song to playlist

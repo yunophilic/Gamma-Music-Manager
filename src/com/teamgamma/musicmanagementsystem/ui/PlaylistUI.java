@@ -24,16 +24,25 @@ import java.io.File;
 public class PlaylistUI extends StackPane {
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
+    private DatabaseManager m_databaseManager;
     private TableView<Song> m_table;
     private ComboBox<Playlist> m_dropDownMenu;
 
-    /*private ContextMenu m_contextMenu;*/
+    //constants
+    private static final int DROP_DOWN_MENU_MIN_WIDTH = 100;
+    private static final int DROP_DOWN_MENU_MAX_WIDTH = 700;
+    private static final int DROP_DOWN_MENU_PREF_WIDTH = 200;
+    private static final int DROP_DOWN_MENU_PREF_HEIGHT = 30;
+    private static final int SELECT_PLAYLIST_LABEL_PREF_WIDTH = 80;
+    private static final int SELECT_PLAYLIST_LABEL_PREF_HEIGHT = 30;
+    private static final Insets TABLE_VIEW_MARGIN = new Insets(30, 0, 0, 0);
 
-    public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager) {
+
+    public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
-        /*m_contextMenu = new ContextMenu();*/
+        m_databaseManager = databaseManager;
         m_dropDownMenu = new ComboBox<>();
         initTopMenu(createSelectPlaylistLabel(), createDropDownMenu(), createAddNewPlaylistButton());
         initTableView();
@@ -63,7 +72,7 @@ public class PlaylistUI extends StackPane {
 
     private Label createSelectPlaylistLabel() {
         Label selectPlaylistLabel = new Label(" Select Playlist:");
-        selectPlaylistLabel.setPrefSize(80, 30);
+        selectPlaylistLabel.setPrefSize(SELECT_PLAYLIST_LABEL_PREF_WIDTH, SELECT_PLAYLIST_LABEL_PREF_HEIGHT);
         return selectPlaylistLabel;
     }
 
@@ -71,7 +80,12 @@ public class PlaylistUI extends StackPane {
         ObservableList<Playlist> options = FXCollections.observableList(m_model.getM_playlists());
         ComboBox<Playlist> dropDownMenu = new ComboBox<>();
         dropDownMenu.getItems().addAll(options);
-        dropDownMenu.setMaxSize(1000, 30);
+        dropDownMenu.setMinWidth(DROP_DOWN_MENU_MIN_WIDTH);
+        dropDownMenu.setMaxWidth(DROP_DOWN_MENU_MAX_WIDTH);
+        dropDownMenu.setPrefSize(DROP_DOWN_MENU_PREF_WIDTH, DROP_DOWN_MENU_PREF_HEIGHT);
+        if(!options.isEmpty()) {
+            dropDownMenu.setValue(options.get(0));
+        }
         return dropDownMenu;
     }
 
@@ -84,8 +98,9 @@ public class PlaylistUI extends StackPane {
             public void handle(MouseEvent event) {
                 String playlistName = PromptUI.addNewPlaylist();
                 if (playlistName != null) {
-                    Playlist newPlaylist = m_model.addNewPlaylist(playlistName);
+                    Playlist newPlaylist = m_model.addPlaylist(playlistName);
                     m_model.notifyPlaylistsObservers();
+                    m_databaseManager.addPlaylist(playlistName);
                     m_dropDownMenu.setValue(newPlaylist);
                 }
             }
@@ -109,7 +124,7 @@ public class PlaylistUI extends StackPane {
         m_table = new TableView<>();
         m_table.setPlaceholder(new Label("Empty"));
         super.getChildren().add(m_table);
-        setMargin(m_table, new Insets(30, 0, 0, 0));
+        setMargin(m_table, TABLE_VIEW_MARGIN);
     }
 
     private void clearTable() {
