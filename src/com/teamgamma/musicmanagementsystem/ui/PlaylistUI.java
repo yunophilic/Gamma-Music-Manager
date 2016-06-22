@@ -36,6 +36,9 @@ public class PlaylistUI extends StackPane {
     private static final int SELECT_PLAYLIST_LABEL_PREF_WIDTH = 80;
     private static final int SELECT_PLAYLIST_LABEL_PREF_HEIGHT = 30;
     private static final Insets TABLE_VIEW_MARGIN = new Insets(30, 0, 0, 0);
+    private static final String ADD_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "add-playlist-button.png";
+    private static final String REMOVE_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "remove-playlist-button.png";
+    private static final String EDIT_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "edit-playlist-button.png";
 
 
     public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
@@ -44,7 +47,11 @@ public class PlaylistUI extends StackPane {
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         m_dropDownMenu = new ComboBox<>();
-        initTopMenu(createSelectPlaylistLabel(), createDropDownMenu(), createAddNewPlaylistButton(), createRemovePlaylistButton());
+        initTopMenu(createSelectPlaylistLabel(),
+                    createDropDownMenu(),
+                    createAddNewPlaylistButton(),
+                    createRemovePlaylistButton(),
+                    createEditPlaylistButton());
         initTableView();
         setCssStyle();
         registerAsPlaylistObserver();
@@ -91,7 +98,7 @@ public class PlaylistUI extends StackPane {
     private Button createAddNewPlaylistButton() {
         Button addNewPlaylistButton = new Button();
         addNewPlaylistButton.setStyle("-fx-background-color: transparent");
-        addNewPlaylistButton.setGraphic( new ImageView("res" + File.separator + "add-playlist-button.png") );
+        addNewPlaylistButton.setGraphic( new ImageView(ADD_PLAYLIST_BUTTON_ICON_PATH) );
         addNewPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -110,7 +117,7 @@ public class PlaylistUI extends StackPane {
     private Button createRemovePlaylistButton() {
         Button removePlaylistButton = new Button();
         removePlaylistButton.setStyle("-fx-background-color: transparent");
-        removePlaylistButton.setGraphic( new ImageView("res" + File.separator + "remove-playlist-button.png") );
+        removePlaylistButton.setGraphic( new ImageView(REMOVE_PLAYLIST_BUTTON_ICON_PATH) );
         removePlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -135,14 +142,44 @@ public class PlaylistUI extends StackPane {
         return removePlaylistButton;
     }
 
+    private Button createEditPlaylistButton() {
+        Button editPlaylistButton = new Button();
+        editPlaylistButton.setStyle("-fx-background-color: transparent");
+        editPlaylistButton.setGraphic( new ImageView(EDIT_PLAYLIST_BUTTON_ICON_PATH) );
+        editPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (m_dropDownMenu.getItems().isEmpty()) {
+                    PromptUI.customPromptError("Error", null, "No playlist exist!");
+                    return;
+                }
+                int selectedDropDownIndex = m_dropDownMenu.getSelectionModel().getSelectedIndex();
+                Playlist selectedPlaylist = m_dropDownMenu.getValue();
+                if (selectedPlaylist == null) {
+                    PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
+                    return;
+                }
+                String newPlaylistName = PromptUI.editPlaylist(selectedPlaylist);
+                if (newPlaylistName != null) {
+                    selectedPlaylist.setM_playlistName(newPlaylistName);
+                    //TODO: update database
+                    m_model.notifyPlaylistsObservers();
+                    m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
+                }
+            }
+        });
+        return editPlaylistButton;
+    }
+
     private void initTopMenu(Label selectPlaylistLabel,
                              ComboBox<Playlist> dropDownMenu,
                              Button addPlaylistButton,
-                             Button removePlaylistButton) {
+                             Button removePlaylistButton,
+                             Button editPlaylistButton) {
         m_dropDownMenu = dropDownMenu;
 
         HBox topMenu = new HBox();
-        topMenu.getChildren().addAll(selectPlaylistLabel, m_dropDownMenu, addPlaylistButton, removePlaylistButton);
+        topMenu.getChildren().addAll(selectPlaylistLabel, m_dropDownMenu, addPlaylistButton, removePlaylistButton, editPlaylistButton);
         HBox.setHgrow(selectPlaylistLabel, Priority.NEVER);
         HBox.setHgrow(m_dropDownMenu, Priority.ALWAYS);
         HBox.setHgrow(addPlaylistButton, Priority.NEVER);
@@ -155,7 +192,7 @@ public class PlaylistUI extends StackPane {
         m_table = new TableView<>();
         m_table.setPlaceholder(new Label("Empty"));
         super.getChildren().add(m_table);
-        setMargin(m_table, TABLE_VIEW_MARGIN);
+        StackPane.setMargin(m_table, TABLE_VIEW_MARGIN);
     }
 
     private void clearTable() {
