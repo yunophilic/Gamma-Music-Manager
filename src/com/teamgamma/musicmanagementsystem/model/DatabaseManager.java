@@ -254,6 +254,7 @@ public class DatabaseManager {
         try {
             m_renamePlaylistStatement.setString(1, oldPlaylistName);
             m_renamePlaylistStatement.setString(2, newPlaylistName);
+            m_renamePlaylistStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
