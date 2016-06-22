@@ -25,6 +25,7 @@ public class DatabaseManager {
     private PreparedStatement m_addLeftTreeItemStatement;
     private PreparedStatement m_deleteLibraryStatement;
     private PreparedStatement m_deletePlaylistStatement;
+    private PreparedStatement m_renamePlaylistStatement;
     private PreparedStatement m_clearLeftTreeViewStatement;
     private PreparedStatement m_setSelectedLeftTreeItemStatement;
     private PreparedStatement m_getLibrariesStatement;
@@ -50,6 +51,10 @@ public class DatabaseManager {
             m_deleteLibraryStatement = m_connection.prepareStatement("DELETE FROM Library WHERE libraryPath=?");
 
             m_deletePlaylistStatement = m_connection.prepareStatement("DELETE FROM Playlist WHERE playlistName=?");
+
+            m_renamePlaylistStatement = m_connection.prepareStatement("UPDATE Playlist " +
+                                                                    "SET playlistName=? " +
+                                                                    "WHERE playlistName=?");
 
             m_clearLeftTreeViewStatement = m_connection.prepareStatement("DELETE FROM LeftTreeView");
 
@@ -240,6 +245,15 @@ public class DatabaseManager {
         try {
             m_deletePlaylistStatement.setString(1, playlistName);
             m_deletePlaylistStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void renamePlaylist(String oldPlaylistName, String newPlaylistName) {
+        try {
+            m_renamePlaylistStatement.setString(1, oldPlaylistName);
+            m_renamePlaylistStatement.setString(2, newPlaylistName);
         } catch (SQLException e) {
             e.printStackTrace();
         }
