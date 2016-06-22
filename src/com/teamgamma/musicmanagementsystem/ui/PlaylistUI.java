@@ -44,7 +44,7 @@ public class PlaylistUI extends StackPane {
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         m_dropDownMenu = new ComboBox<>();
-        initTopMenu(createSelectPlaylistLabel(), createDropDownMenu(), createAddNewPlaylistButton());
+        initTopMenu(createSelectPlaylistLabel(), createDropDownMenu(), createAddNewPlaylistButton(), createRemovePlaylistButton());
         initTableView();
         setCssStyle();
         registerAsPlaylistObserver();
@@ -63,7 +63,6 @@ public class PlaylistUI extends StackPane {
 
             @Override
             public void playlistsChanged() {
-                //refresh drop down menu
                 m_dropDownMenu.getItems().clear();
                 m_dropDownMenu.getItems().addAll(m_model.getM_playlists());
             }
@@ -92,30 +91,62 @@ public class PlaylistUI extends StackPane {
     private Button createAddNewPlaylistButton() {
         Button addNewPlaylistButton = new Button();
         addNewPlaylistButton.setStyle("-fx-background-color: transparent");
-        addNewPlaylistButton.setGraphic( new ImageView("res" + File.separator + "plus-button.png") );
+        addNewPlaylistButton.setGraphic( new ImageView("res" + File.separator + "add-playlist-button.png") );
         addNewPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                String playlistName = PromptUI.addNewPlaylist();
-                if (playlistName != null) {
-                    Playlist newPlaylist = m_model.addPlaylist(playlistName);
+                String newPlaylistName = PromptUI.addNewPlaylist();
+                if (newPlaylistName != null) {
+                    Playlist newPlaylist = m_model.addPlaylist(newPlaylistName);
+                    m_databaseManager.addPlaylist(newPlaylistName);
                     m_model.notifyPlaylistsObservers();
-                    m_databaseManager.addPlaylist(playlistName);
-                    m_dropDownMenu.setValue(newPlaylist);
+                    m_dropDownMenu.getSelectionModel().select(newPlaylist);
                 }
             }
         });
         return addNewPlaylistButton;
     }
 
-    private void initTopMenu(Label selectPlaylistLabel, ComboBox<Playlist> dropDownMenu, Button addPlaylistButton) {
+    private Button createRemovePlaylistButton() {
+        Button removePlaylistButton = new Button();
+        removePlaylistButton.setStyle("-fx-background-color: transparent");
+        removePlaylistButton.setGraphic( new ImageView("res" + File.separator + "remove-playlist-button.png") );
+        removePlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                int selectedDropDownIndex = m_dropDownMenu.getSelectionModel().getSelectedIndex();
+                if (selectedDropDownIndex < 0) {
+                    PromptUI.customPromptError("Error", null, "No playlist exist!");
+                    return;
+                }
+                Playlist selectedPlaylist = m_dropDownMenu.getValue();
+                if (selectedPlaylist == null) {
+                    PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
+                    return;
+                }
+                if (PromptUI.removePlaylist(selectedPlaylist)) {
+                    m_model.removePlaylist(selectedPlaylist);
+                    m_databaseManager.removePlaylist(selectedPlaylist.getM_playlistName());
+                    m_model.notifyPlaylistsObservers();
+                    m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
+                }
+            }
+        });
+        return removePlaylistButton;
+    }
+
+    private void initTopMenu(Label selectPlaylistLabel,
+                             ComboBox<Playlist> dropDownMenu,
+                             Button addPlaylistButton,
+                             Button removePlaylistButton) {
         m_dropDownMenu = dropDownMenu;
 
         HBox topMenu = new HBox();
-        topMenu.getChildren().addAll(selectPlaylistLabel, m_dropDownMenu, addPlaylistButton);
+        topMenu.getChildren().addAll(selectPlaylistLabel, m_dropDownMenu, addPlaylistButton, removePlaylistButton);
         HBox.setHgrow(selectPlaylistLabel, Priority.NEVER);
         HBox.setHgrow(m_dropDownMenu, Priority.ALWAYS);
         HBox.setHgrow(addPlaylistButton, Priority.NEVER);
+        HBox.setHgrow(removePlaylistButton, Priority.NEVER);
 
         super.getChildren().add(topMenu);
     }
