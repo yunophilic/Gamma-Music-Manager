@@ -114,11 +114,11 @@ public class PlaylistUI extends StackPane {
         removePlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                int selectedDropDownIndex = m_dropDownMenu.getSelectionModel().getSelectedIndex();
-                if (selectedDropDownIndex < 0) {
+                if (m_dropDownMenu.getItems().isEmpty()) {
                     PromptUI.customPromptError("Error", null, "No playlist exist!");
                     return;
                 }
+                int selectedDropDownIndex = m_dropDownMenu.getSelectionModel().getSelectedIndex();
                 Playlist selectedPlaylist = m_dropDownMenu.getValue();
                 if (selectedPlaylist == null) {
                     PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
