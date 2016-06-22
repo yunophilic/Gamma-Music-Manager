@@ -21,11 +21,14 @@ public class DatabaseManager {
 
     private Connection m_connection;
     private PreparedStatement m_addLibraryStatement;
+    private PreparedStatement m_addPlaylistStatement;
     private PreparedStatement m_addLeftTreeItemStatement;
     private PreparedStatement m_deleteLibraryStatement;
+    private PreparedStatement m_deletePlaylistStatement;
     private PreparedStatement m_clearLeftTreeViewStatement;
     private PreparedStatement m_setSelectedLeftTreeItemStatement;
     private PreparedStatement m_getLibrariesStatement;
+    private PreparedStatement m_getPlaylistsStatement;
     private PreparedStatement m_getSelectedLeftTreeItemStatement;
     private PreparedStatement m_getExpandedLeftTreeItemsStatement;
 
@@ -39,10 +42,14 @@ public class DatabaseManager {
         try {
             m_addLibraryStatement = m_connection.prepareStatement("INSERT INTO Library VALUES (?)");
 
+            m_addPlaylistStatement = m_connection.prepareStatement("INSERT INTO Playlist VALUES (?)");
+
             m_addLeftTreeItemStatement = m_connection.prepareStatement("INSERT INTO LeftTreeView (path, isExpanded) " +
                                                                         "VALUES (?, ?)");
 
             m_deleteLibraryStatement = m_connection.prepareStatement("DELETE FROM Library WHERE libraryPath=?");
+
+            m_deletePlaylistStatement = m_connection.prepareStatement("DELETE FROM Playlist WHERE playlistName=?");
 
             m_clearLeftTreeViewStatement = m_connection.prepareStatement("DELETE FROM LeftTreeView");
 
@@ -51,6 +58,8 @@ public class DatabaseManager {
                                                                             "WHERE path=?");
 
             m_getLibrariesStatement = m_connection.prepareStatement("SELECT * FROM Library");
+
+            m_getPlaylistsStatement = m_connection.prepareStatement("SELECT * FROM Playlist");
 
             m_getSelectedLeftTreeItemStatement = m_connection.prepareStatement("SELECT * " +
                                                                             "FROM LeftTreeView " +
@@ -178,7 +187,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Updates file by adding a new library
+     * Update db by adding a new library
      *
      * @param libraryPath String
      */
@@ -192,23 +201,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Updates file by adding multiple libraries
-     *
-     * @param librariesPath List<String>
-     */
-    public void addLibraries(List<String> librariesPath) {
-        try {
-            for(String libraryPath : librariesPath) {
-                m_addLibraryStatement.setString(1, libraryPath);
-                m_addLibraryStatement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Updates file by removing an existing library
+     * Update db by removing an existing library
      *
      * @param libraryPath String
      * @return success or fail boolean
@@ -225,21 +218,30 @@ public class DatabaseManager {
     }
 
     /**
-     * Updates file by removing multiple existing libraries
+     * Update db by adding a new playlist
      *
-     * @param librariesPath List<String>
-     * @return success or fail boolean
+     * @param playlistName String
      */
-    public boolean removeLibraries(List<String> librariesPath) {
+    public void addPlaylist(String playlistName) {
         try {
-            for (String libraryPath : librariesPath) {
-                m_deleteLibraryStatement.setString(1, libraryPath);
-                m_deleteLibraryStatement.executeUpdate();
-            }
-            return true;
+            m_addPlaylistStatement.setString(1, playlistName);
+            m_addPlaylistStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+        }
+    }
+
+    /**
+     * Update db by removing an existing playlist
+     *
+     * @param playlistName String
+     */
+    public void removePlaylist(String playlistName) {
+        try {
+            m_deletePlaylistStatement.setString(1, playlistName);
+            m_deletePlaylistStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -250,13 +252,32 @@ public class DatabaseManager {
      */
     public List<String> getLibraries() {
         try {
-            List<String> librariesPath = new ArrayList<>();
+            List<String> libraryPathList = new ArrayList<>();
             ResultSet resultSet = m_getLibrariesStatement.executeQuery();
             while(resultSet.next()) {
-                librariesPath.add(resultSet.getString("libraryPath"));
+                libraryPathList.add(resultSet.getString("libraryPath"));
             }
             resultSet.close();
-            return librariesPath;
+            return libraryPathList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Fetch playlist names
+     *
+     * @return  List of playlist names String
+     */
+    public List<String> getPlaylists() {
+        try {
+            List<String> playlistNameList = new ArrayList<>();
+            ResultSet resultSet = m_getPlaylistsStatement.executeQuery();
+            while (resultSet.next()) {
+                playlistNameList.add(resultSet.getString("playlistName"));
+            }
+            return playlistNameList;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
