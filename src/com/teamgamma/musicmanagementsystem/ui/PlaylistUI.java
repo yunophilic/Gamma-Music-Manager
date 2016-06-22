@@ -35,7 +35,7 @@ public class PlaylistUI extends StackPane {
         m_musicPlayerManager = musicPlayerManager;
         /*m_contextMenu = new ContextMenu();*/
         m_dropDownMenu = new ComboBox<>();
-        initTopMenu(createSelectPlaylistLabel(), createDropDownMenu(), createCreateNewPlaylistButton());
+        initTopMenu(createSelectPlaylistLabel(), createDropDownMenu(), createAddNewPlaylistButton());
         initTableView();
         setCssStyle();
         registerAsPlaylistObserver();
@@ -75,17 +75,22 @@ public class PlaylistUI extends StackPane {
         return dropDownMenu;
     }
 
-    private Button createCreateNewPlaylistButton() {
-        Button createNewPlaylistButton = new Button();
-        createNewPlaylistButton.setStyle("-fx-background-color: transparent");
-        createNewPlaylistButton.setGraphic( new ImageView("res" + File.separator + "plus-button.png") );
-        createNewPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+    private Button createAddNewPlaylistButton() {
+        Button addNewPlaylistButton = new Button();
+        addNewPlaylistButton.setStyle("-fx-background-color: transparent");
+        addNewPlaylistButton.setGraphic( new ImageView("res" + File.separator + "plus-button.png") );
+        addNewPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                //TODO: Handle this event to create new playlist
+                String playlistName = PromptUI.addNewPlaylist();
+                if (playlistName != null) {
+                    Playlist newPlaylist = m_model.addNewPlaylist(playlistName);
+                    m_model.notifyPlaylistsObservers();
+                    m_dropDownMenu.setValue(newPlaylist);
+                }
             }
         });
-        return createNewPlaylistButton;
+        return addNewPlaylistButton;
     }
 
     private void initTopMenu(Label selectPlaylistLabel, ComboBox<Playlist> dropDownMenu, Button addPlaylistButton) {

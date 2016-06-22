@@ -228,6 +228,12 @@ public class SongManager {
         return centerPanelSongs;
     }
 
+    public Playlist addNewPlaylist(String playlistName) {
+        Playlist newPlaylist = new Playlist(playlistName);
+        m_playlists.add(newPlaylist);
+        return newPlaylist;
+    }
+
 
     /**
      * Add song to playlist

@@ -275,7 +275,7 @@ public class PromptUI {
      * @param song file for editing
      */
     public static void editMetadata(Song song) {
-        Dialog dialog = new Dialog<>();
+        Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit Song Info");
         dialog.setHeaderText(song.getM_title() + "\n" +
                 song.getM_artist() + "\n" +
@@ -514,7 +514,7 @@ public class PromptUI {
      *
      * @return playlistName, otherwise null if user clicks cancel
      */
-    public static String addPlaylist() {
+    public static String addNewPlaylist() {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Add Playlist");
 
