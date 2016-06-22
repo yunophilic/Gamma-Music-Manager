@@ -60,7 +60,7 @@ public class Watcher {
                     boolean valid = m_watchKey.reset();
                     if(!valid) {
                         m_keyMaps.remove(m_watchKey);
-                        Platform.runLater(() -> m_model.notifyFileObservers());
+                        Platform.runLater(() -> m_model.notifyFileObservers(Actions.NONE));
                         break;
                     }
                 } catch (InterruptedException e) {
