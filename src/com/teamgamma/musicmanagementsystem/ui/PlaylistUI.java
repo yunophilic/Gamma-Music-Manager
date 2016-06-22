@@ -159,10 +159,11 @@ public class PlaylistUI extends StackPane {
                     PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
                     return;
                 }
+                String oldPlaylistName = selectedPlaylist.getM_playlistName();
                 String newPlaylistName = PromptUI.editPlaylist(selectedPlaylist);
                 if (newPlaylistName != null) {
                     selectedPlaylist.setM_playlistName(newPlaylistName);
-                    //TODO: update database
+                    m_databaseManager.renamePlaylist(oldPlaylistName, newPlaylistName);
                     m_model.notifyPlaylistsObservers();
                     m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
                 }
