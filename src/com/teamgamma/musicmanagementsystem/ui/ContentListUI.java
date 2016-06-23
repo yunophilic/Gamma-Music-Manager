@@ -21,7 +21,7 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemException;
 import java.util.List;
-import java.util.ArrayList;
+
 import javafx.scene.control.MenuItem;
 
 
@@ -41,9 +41,9 @@ public class ContentListUI extends StackPane {
     private ContextMenu m_contextMenu;
 
     // constants
-    public static final int FILENAME_COLUMN_WIDTH = 80;
-    public static final int COLUMN_WIDTH = 60;
-    public static final int RATING_COLUMN_WIDTH = 20;
+    public static final int FILENAME_COLUMN_MIN_WIDTH = 80;
+    public static final int COLUMN_MIN_WIDTH = 60;
+    public static final int RATING_COLUMN_MIN_WIDTH = 20;
 
     public ContentListUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
@@ -115,19 +115,17 @@ public class ContentListUI extends StackPane {
     private void updateTable() {
         m_table = new TableView<>();
         TableColumn<Song, File> fileNameCol = new TableColumn<>("File Name");
-        fileNameCol.setMinWidth(FILENAME_COLUMN_WIDTH);
+        fileNameCol.setMinWidth(FILENAME_COLUMN_MIN_WIDTH);
         TableColumn<Song, String> titleCol = new TableColumn<>("Title");
-        titleCol.setMinWidth(COLUMN_WIDTH);
+        titleCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, String> artistCol = new TableColumn<>("Artist");
-        artistCol.setMinWidth(COLUMN_WIDTH);
+        artistCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, String> albumCol = new TableColumn<>("Album");
-        albumCol.setMinWidth(COLUMN_WIDTH);
+        albumCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, String> genreCol = new TableColumn<>("Genre");
-        genreCol.setMinWidth(COLUMN_WIDTH);
+        genreCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, Integer> ratingCol = new TableColumn<>("Rating");
-        ratingCol.setMinWidth(RATING_COLUMN_WIDTH);
-
-        showOrHideTableColumns(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
+        ratingCol.setMinWidth(RATING_COLUMN_MIN_WIDTH);
 
         if (m_model.getM_selectedCenterFolder() == null) {
             setEmptyText(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
@@ -138,7 +136,6 @@ public class ContentListUI extends StackPane {
 
             setTableRowMouseEvents();
             setTableColumnAttributes(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
-
 
             List<Song> songs = m_model.getCenterPanelSongs();
 
@@ -156,6 +153,8 @@ public class ContentListUI extends StackPane {
             scrollpane.setPrefSize(500, 500);
             scrollpane.setContent(m_table);
         }
+
+        showOrHideTableColumns(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
     }
 
     private void showOrHideTableColumns(TableColumn<Song, File> fileNameCol, TableColumn<Song, String> titleCol, TableColumn<Song, String> artistCol, TableColumn<Song, String> albumCol, TableColumn<Song, String> genreCol, TableColumn<Song, Integer> ratingCol) {
@@ -445,7 +444,7 @@ public class ContentListUI extends StackPane {
         });
 
         //create playlist option
-        MenuItem createPlaylist = new MenuItem(ContextMenuConstants.CREATE_NEW_PLAYLIST);
+        /*MenuItem createPlaylist = new MenuItem(ContextMenuConstants.CREATE_NEW_PLAYLIST);
         createPlaylist.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -456,9 +455,9 @@ public class ContentListUI extends StackPane {
                 m_model.notifyPlaylistSongsObservers();
 
             }
-        });
+        });*/
 
-        contextMenu.getItems().addAll(copy, paste, delete, editProperties, addToPlaylist, createPlaylist);
+        contextMenu.getItems().addAll(copy, paste, delete, editProperties, addToPlaylist);
         contextMenu.setOnShown(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
@@ -481,8 +480,8 @@ public class ContentListUI extends StackPane {
                     editProperties.setStyle("-fx-text-fill: gray;");
                     addToPlaylist.setDisable(true);
                     addToPlaylist.setStyle("-fx-text-fill: gray;");
-                    createPlaylist.setDisable(true);
-                    createPlaylist.setStyle("-fx-text-fill: gray;");
+                    /*createPlaylist.setDisable(true);
+                    createPlaylist.setStyle("-fx-text-fill: gray;");*/
                 }
             }
         });

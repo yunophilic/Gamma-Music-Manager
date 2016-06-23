@@ -109,6 +109,17 @@ public class SongManager {
     }
 
     /**
+     * Get Song object in a library
+     * @param songFile File object representing the song
+     * @param libraryRootDir File object representing the root dir of the the library
+     * @return list of songs
+     */
+    public Song getSongInLibrary(File songFile, File libraryRootDir) {
+        Library library = getLibrary(libraryRootDir);
+        return (library != null) ? library.getSong(songFile) : null;
+    }
+
+    /**
      * Get libraries
      * @return list of libraries
      */
@@ -234,7 +245,7 @@ public class SongManager {
      * @param library
      * @return list of songs
      */
-    public List<Song> getSongs(Library library) {
+    private List<Song> getSongs(Library library) {
         return library.getM_songList();
     }
 
@@ -268,6 +279,27 @@ public class SongManager {
         return centerPanelSongs;
     }
 
+    /**
+     * Add new playlist to m_playlists
+     *
+     * @param playlistName name of new playlist
+     * @return new Playlist object created
+     */
+    public Playlist addPlaylist(String playlistName) {
+        Playlist newPlaylist = new Playlist(playlistName);
+        m_playlists.add(newPlaylist);
+        return newPlaylist;
+    }
+
+    /**
+     * Remove existing playlist
+     *
+     * @param playlistToRemove playlist to remove
+     * @return new Playlist object created
+     */
+    public boolean removePlaylist(Playlist playlistToRemove) {
+        return m_playlists.remove(playlistToRemove);
+    }
 
     /**
      * Add song to playlist

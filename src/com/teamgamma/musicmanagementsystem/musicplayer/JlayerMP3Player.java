@@ -62,8 +62,11 @@ public class JlayerMP3Player implements IMusicPlayer{
     @Override
     public void playSong(Song songToPlay) {
         stopSong();
-        setUpMusicPlayer(songToPlay);
-
+        try {
+            setUpMusicPlayer(songToPlay);
+        } catch (Exception e) {
+            return;
+        }
         m_currentPlaybackThread = createPlayBackThread();
         m_currentPlaybackThread.start();
 
@@ -78,7 +81,7 @@ public class JlayerMP3Player implements IMusicPlayer{
      *
      * @param songToPlay The song tha you want to set up the music player for.
      */
-    private void setUpMusicPlayer(Song songToPlay) {
+    private void setUpMusicPlayer(Song songToPlay) throws Exception{
         try {
             m_fs = new FileInputStream(songToPlay.getM_file());
             m_bufferedStream = new BufferedInputStream(m_fs);
@@ -92,6 +95,7 @@ public class JlayerMP3Player implements IMusicPlayer{
             e.printStackTrace();
             m_manager.setError(e);
             m_manager.notifyError();
+            throw e;
         }
     }
 
@@ -199,8 +203,11 @@ public class JlayerMP3Player implements IMusicPlayer{
     @Override
     public void resumeSong() {
         // Play song where it was left off.
-        setUpMusicPlayer(m_currentSong);
-
+        try {
+            setUpMusicPlayer(m_currentSong);
+        } catch (Exception e) {
+            return;
+        }
         m_currentPlaybackThread = createResumePlaybackThread();
         m_currentPlaybackThread.start();
     }
