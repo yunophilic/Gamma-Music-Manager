@@ -232,10 +232,9 @@ public class MusicPlayerManager {
         if (null == m_currentSong) {
             return;
         }
-        if (isPlayingSongOnFromHistoryList()) {
-            // Reset to be the last index as someone as we need to add something to the back of the list
-            m_historyIndex = m_songHistory.size() - 1;
-        }
+        // Set the index to the last element to the newest element in the list.
+        m_historyIndex = m_songHistory.size() - 1;
+
         if (!m_songHistory.isEmpty()) {
             // Check to see if the current song is also the last played song in history
             if (m_currentSong == m_songHistory.get(m_historyIndex)) {

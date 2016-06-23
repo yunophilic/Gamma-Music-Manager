@@ -188,8 +188,12 @@ public class JlayerMP3Player implements IMusicPlayer{
                 } catch (BitstreamException bistreamError) {
                     // Ignore since this exception would be for when we want to interrupt the music player so we can
                     // the thread.
-                }
-                catch (Exception e) {
+                } catch (ArrayIndexOutOfBoundsException arrayOutOfBounds) {
+                    // Need to reset the player as we hit the 0.01% case that this exception happen as said in their
+                    // documentation
+                    m_manager.pause();
+                    m_manager.resume();
+                } catch (Exception e) {
                     e.printStackTrace();
                     m_manager.setError(e);
                     m_manager.notifyError();
@@ -230,8 +234,12 @@ public class JlayerMP3Player implements IMusicPlayer{
                 } catch (BitstreamException bistreamError) {
                     // Ignore since this exception would be for when we want to interrupt the music player so we can
                     // the thread.
-                }
-                catch (Exception e) {
+                } catch (ArrayIndexOutOfBoundsException arrayOutOfBounds) {
+                    // Need to reset the player as we hit the 0.01% case that this exception happen as said in their
+                    // documentation
+                    m_manager.pause();
+                    m_manager.resume();
+                } catch (Exception e) {
                     e.printStackTrace();
                     m_manager.setError(e);
                     m_manager.notifyError();
