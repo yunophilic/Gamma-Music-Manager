@@ -394,7 +394,12 @@ public class MusicPlayerUI extends VBox {
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
+                Song currentPlayingSong = manager.getCurrentSongPlaying();
+                if (currentPlayingSong == null) {
+                    songTitle.setText("");
+                } else {
+                    songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
+                }
             }
         });
         songTitleWrapper.getChildren().addAll(songTitleHeader, songTitle);
