@@ -1,6 +1,8 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
+import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;
@@ -21,13 +23,20 @@ import java.util.List;
 public class TreeMouseEventDispatcher implements EventDispatcher {
     private final EventDispatcher m_originalDispatcher;
     private SongManager m_model;
+    private MusicPlayerManager m_musicPlayerManager;
     private TreeViewItem m_selectedTreeViewItem;
     private TreeView<TreeViewItem> m_tree;
     private boolean m_isLeftPane;
 
-    public TreeMouseEventDispatcher(EventDispatcher originalDispatcher, SongManager model, TreeView<TreeViewItem> tree, TreeViewItem selectedTreeViewItem, boolean isLeftPane) {
+    public TreeMouseEventDispatcher(EventDispatcher originalDispatcher,
+                                    SongManager model,
+                                    MusicPlayerManager musicPlayerManager,
+                                    TreeView<TreeViewItem> tree,
+                                    TreeViewItem selectedTreeViewItem,
+                                    boolean isLeftPane) {
         m_originalDispatcher = originalDispatcher;
         m_model = model;
+        m_musicPlayerManager = musicPlayerManager;
         m_tree = tree;
         m_selectedTreeViewItem = selectedTreeViewItem;
         m_isLeftPane = isLeftPane;
@@ -49,7 +58,7 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                 if (!event.isConsumed()) {
                     boolean isFolder = m_selectedTreeViewItem.getM_file().isDirectory();
 
-                    // Only notify center panel if this is a left panel and if this is a directory
+                    //Only notify center panel if this is a left panel and if this is a directory
                     if (m_isLeftPane && isFolder) {
                         System.out.println("Selected Item: " + m_selectedTreeViewItem);
                         m_model.setM_selectedCenterFolder(m_selectedTreeViewItem.getM_file());
@@ -58,6 +67,21 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                         TreeViewUtil.closeAllFoldersIcons(m_tree.getRoot());
 
                         TreeViewUtil.setOpenFolder(m_tree, m_selectedTreeViewItem.getM_file().getAbsolutePath());
+                    } else if (!isFolder) {
+                        //get library song is in
+                        TreeItem<TreeViewItem> selectedTreeItem = m_tree.getSelectionModel().getSelectedItem();
+                        while (!selectedTreeItem.getValue().isM_isRootPath()) {
+                            selectedTreeItem = selectedTreeItem.getParent();
+                        }
+                        //play song
+                        Song songToPlay = m_model.getSongInLibrary(
+                                m_selectedTreeViewItem.getM_file(), selectedTreeItem.getValue().getM_file()
+                        );
+                        if(songToPlay != null) {
+                            m_musicPlayerManager.playSongRightNow(songToPlay);
+                        } else {
+                            System.out.println("SOMETHING WRONG!!!");
+                        }
                     }
                 }
 
