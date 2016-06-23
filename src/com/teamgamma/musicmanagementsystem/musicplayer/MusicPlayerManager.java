@@ -440,7 +440,7 @@ public class MusicPlayerManager {
                 m_songHistory.remove(songIndex);
                 if (songIndex == 0 || m_songHistory.isEmpty()){
                     m_historyIndex = 0;
-                } else if (songIndex < m_songHistory.size()) {
+                } else if (songIndex < m_songHistory.size() - 1) {
                     // Move to next song oldest song if allowed
                     m_historyIndex++;
                 } else {
