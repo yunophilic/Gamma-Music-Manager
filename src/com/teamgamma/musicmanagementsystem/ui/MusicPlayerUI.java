@@ -399,11 +399,19 @@ public class MusicPlayerUI extends VBox {
             @Override
             public void updateUI() {
                 songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
+                Song currentPlayingSong = manager.getCurrentSongPlaying();
+                if (currentPlayingSong == null) {
+                    songTitle.setText("");
+                } else {
+                    songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
+                
                 TranslateTransition songTitleAnimation = new TranslateTransition(
                         new Duration(TITLE_ANIMATION_TIME_MS), songTitle);
                 songTitleAnimation.setFromX(songTitleWrapper.getWidth());
                 songTitleAnimation.setToX(0);
                 songTitleAnimation.play();
+                }
+
             }
         });
         songTitleWrapper.getChildren().addAll(songTitleHeader, songTitle);
