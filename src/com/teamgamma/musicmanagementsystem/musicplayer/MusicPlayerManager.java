@@ -196,19 +196,6 @@ public class MusicPlayerManager {
     }
 
     /**
-     * Function to get the JavaFX Media player for the Media View.
-     *
-     * @return The FX MediaPlayer if the underlying player uses it or null if it does not.
-     */
-    public MediaPlayer getMediaPlayer() {
-        if (m_musicPlayer instanceof MP3Player) {
-            return ((MP3Player) m_musicPlayer).getMusicPlayer();
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Function to add a observer to the list of observers that are notified when a new song is being played.
      *
      * @param observer
@@ -229,9 +216,12 @@ public class MusicPlayerManager {
     /**
      * Function to get the end time of the song from the player.
      *
-     * @return The end time of the song.
+     * @return The end time of the song. Or 0 if there is no song loaded.
      */
     public Duration getEndTime() {
+        if (m_currentSong == null) {
+            return new Duration(0);
+        }
         return new Duration(m_currentSong.getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
     }
 
@@ -292,6 +282,9 @@ public class MusicPlayerManager {
      * @return The current playback time.
      */
     public Duration getCurrentPlayTime() {
+        if (m_currentSong == null ) {
+            return new Duration(0);
+        }
         return  m_musicPlayer.getCurrentPlayTime();
     }
 
@@ -320,7 +313,7 @@ public class MusicPlayerManager {
     }
 
     /**
-     * Function to play the previous song in the history. Does not affect history.
+     * Function to play the previous song in the history. Does not affect history by adding currently playing song in history.
      */
     public void playPreviousSong() {
         assert (m_songHistory.size() < m_historyIndex);
@@ -340,6 +333,11 @@ public class MusicPlayerManager {
             m_historyIndex--;
             m_currentSong = m_songHistory.get(m_historyIndex);
             m_musicPlayer.playSong(m_currentSong);
+        } else {
+            // Set to inital state of the player
+            m_currentSong = null;
+            notifyNewSongObservers();
+            notifyPlaybackObservers();
         }
     }
 
@@ -374,9 +372,8 @@ public class MusicPlayerManager {
     public void notifyError() {
         // Check first to see if we can recover.
         if (m_lastException instanceof FileNotFoundException){
-            if (m_isPlayingOnHistory) {
-                removeSongFromHistory();
-            }
+            removeSongFromHistory(m_currentSong);
+            playPreviousSong();
         }
         notifyAll(m_errorObservers);
     }
@@ -424,37 +421,6 @@ public class MusicPlayerManager {
      */
     public void stopSong(){
         m_musicPlayer.stopSong();
-    }
-
-    /**
-     * Function to remove the current song from history
-     */
-    private void removeSongFromHistory() {
-        assert (m_currentSong == null);
-
-        int songHistorySize = m_songHistory.size();
-        for (int songIndex = 0; songIndex < songHistorySize; ++songIndex) {
-            if (m_songHistory.get(songIndex).getM_file().getAbsolutePath().equals(
-                    m_currentSong.getM_file().getAbsolutePath())) {
-
-                m_songHistory.remove(songIndex);
-                if (songIndex == 0 || m_songHistory.isEmpty()){
-                    m_historyIndex = 0;
-                } else if (songIndex < m_songHistory.size()) {
-                    // Move to next song oldest song if allowed
-                    m_historyIndex++;
-                } else {
-                    m_historyIndex--;
-                }
-
-                if (!m_songHistory.isEmpty()){
-                    // If possible load the previous song from the history.
-                    m_currentSong = m_songHistory.get(m_historyIndex);
-                    playPreviousSong();
-                }
-                return;
-            }
-        }
     }
 
     /**
@@ -564,6 +530,21 @@ public class MusicPlayerManager {
     public void setVolumeLevel(double volumeLevel) {
         m_volumeLevel = volumeLevel;
         setVolumeControl();
+    }
+
+    /**
+     * Function to remove a song given as the parameter from all instances in the history
+     *
+     * @param songToDelete The Song to delete.
+     */
+    public void removeSongFromHistory(Song songToDelete){
+        while (m_songHistory.contains(songToDelete)){
+            if (m_songHistory.indexOf(songToDelete) < m_historyIndex) {
+                // Decrement the index if we are removing something ahead of the current index.
+                m_historyIndex--;
+            }
+            m_songHistory.remove(songToDelete);
+        }
     }
 
 }
