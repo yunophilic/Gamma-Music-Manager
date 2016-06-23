@@ -51,7 +51,8 @@ public class Watcher {
                         m_watchKey = m_watcher.poll(m_timeout, TimeUnit.MILLISECONDS);
 
                         if (m_watchKey == null) { //WatchKey failed to grab more events
-                            Platform.runLater(() -> m_model.notifyFileObservers(Actions.NONE));
+                            File tempFile = new File(System.getProperty("\"user.dir\""));
+                            Platform.runLater(() -> m_model.notifyFileObservers(Actions.NONE, tempFile));
                             break;
                         }
                     }
@@ -60,7 +61,8 @@ public class Watcher {
                     boolean valid = m_watchKey.reset();
                     if(!valid) {
                         m_keyMaps.remove(m_watchKey);
-                        Platform.runLater(() -> m_model.notifyFileObservers(Actions.NONE));
+                        File tempFile = new File(System.getProperty("\"user.dir\""));
+                        Platform.runLater(() -> m_model.notifyFileObservers(Actions.NONE, tempFile));
                         break;
                     }
                 } catch (InterruptedException e) {
@@ -164,7 +166,7 @@ public class Watcher {
             }
 
             @Override
-            public void fileChanged(String action) {
+            public void fileChanged(String action, File file) {
                 restartWatcher();
             }
 

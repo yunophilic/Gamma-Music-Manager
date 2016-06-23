@@ -1,5 +1,7 @@
 package com.teamgamma.musicmanagementsystem.model;
 
+import java.io.File;
+
 public interface SongManagerObserver {
     // Update UI if a library is added or deleted
     void librariesChanged();
@@ -14,7 +16,7 @@ public interface SongManagerObserver {
     void songChanged();
 
     // Update UI if file location is changed (ie. copy, paste, remove)
-    void fileChanged(String action);
+    void fileChanged(String action, File file);
 
     void leftPanelOptionsChanged();
 }

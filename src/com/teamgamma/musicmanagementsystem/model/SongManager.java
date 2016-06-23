@@ -21,6 +21,7 @@ public class SongManager {
     private File m_fileToMove;
     private File m_dragDest;
     private File m_deletedFile;
+    private File m_addedFile;
     private List<Playlist> m_playlists;
 
     // For observer pattern
@@ -178,7 +179,7 @@ public class SongManager {
         updateLibraries();
 
         setM_dragDest(destDir);
-        notifyFileObservers(Actions.DROP);
+        notifyFileObservers(Actions.DROP, null);
     }
 
     /**
@@ -200,7 +201,7 @@ public class SongManager {
         updateLibraries();
 
         setM_deletedFile(fileToDelete);
-        notifyFileObservers(Actions.DELETE);
+        notifyFileObservers(Actions.DELETE, fileToDelete);
 
         // Clear file to delete buffer
         setM_deletedFile(null);
@@ -310,6 +311,14 @@ public class SongManager {
 
     public void fileDeleted(File fileToDelete) {
 
+    }
+
+    public File getM_addedFile(){
+        return m_addedFile;
+    }
+
+    public void setM_addedFile(File addedFile) {
+        m_addedFile = addedFile;
     }
 
     public File getM_dragDest() {
@@ -425,9 +434,9 @@ public class SongManager {
 
     }
 
-    public void notifyFileObservers(String action) {
+    public void notifyFileObservers(String action, File file) {
         for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.fileChanged(action);
+            observer.fileChanged(action, file);
         }
     }
 

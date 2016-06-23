@@ -77,7 +77,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     }
                     try {
                         m_model.copyToDestination(dest);
-                        m_model.notifyFileObservers(Actions.PASTE);
+                        m_model.notifyFileObservers(Actions.PASTE, null);
                     } catch (FileAlreadyExistsException ex) {
                         PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
                     } catch (IOException ex) {

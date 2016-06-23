@@ -85,9 +85,9 @@ public class DynamicTreeViewUI extends StackPane {
             }
 
             @Override
-            public void fileChanged(String action) {
+            public void fileChanged(String action, File file) {
                 System.out.println("File changed in treeview");
-                updateFiles(action);
+                updateFiles(action, file);
             }
 
             @Override
@@ -97,14 +97,14 @@ public class DynamicTreeViewUI extends StackPane {
         });
     }
 
-    private void updateFiles(String fileAction) {
+    private void updateFiles(String fileAction, File file) {
         try {
             if (fileAction != null && !fileAction.equals(Actions.NONE)) {
                 if (m_model.getM_rightFolderSelected() == null) {
                     this.getChildren().add(new Label("Choose a folder to view"));
                 } else {
-                    TreeViewUtil.updateTreeItems(fileAction, m_tree, m_model);
-                    m_model.setM_rightPanelFileAction(null);
+                    TreeViewUtil.updateTreeItems(fileAction, file, m_tree, m_model);
+                    m_model.setM_rightPanelFileAction(Actions.NONE);
                 }
             }
         } catch (IOException ex) {

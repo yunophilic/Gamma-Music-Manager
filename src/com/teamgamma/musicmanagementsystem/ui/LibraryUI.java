@@ -88,12 +88,12 @@ public class LibraryUI extends StackPane {
             }
 
             @Override
-            public void fileChanged(String action) {
+            public void fileChanged(String action, File file) {
                 System.out.println("File changed in treeview");
                 //clearTreeView();
                 //updateTreeView();
 
-                updateFiles(action);
+                updateFiles(action, file);
             }
 
             @Override
@@ -105,11 +105,11 @@ public class LibraryUI extends StackPane {
         });
     }
 
-    private void updateFiles(String fileAction) {
+    private void updateFiles(String fileAction, File file) {
         try {
             if (fileAction != null && !fileAction.equals(Actions.NONE)) {
-                TreeViewUtil.updateTreeItems(fileAction, m_tree, m_model);
-                m_model.setM_libraryFileAction(null);
+                TreeViewUtil.updateTreeItems(fileAction, file, m_tree, m_model);
+                m_model.setM_libraryFileAction(Actions.NONE);
             }
         } catch (IOException ex) {
             PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());

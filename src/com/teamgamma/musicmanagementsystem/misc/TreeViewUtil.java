@@ -148,8 +148,25 @@ public class TreeViewUtil {
         return false;
     }
 
-    public static void updateTreeItems(String fileAction, TreeView<TreeViewItem> tree, SongManager model) throws IOException{
-        if (fileAction.equals(Actions.DRAG)) {
+    /**
+     * Update items of the tree depending on the action
+     *
+     * @param fileAction
+     * @param addedOrDeletedFile Until a better implementation is found, this file is only used by the ADD and DELETE action for now (because of watcher)
+     * @param tree
+     * @param model
+     * @throws IOException
+     */
+    public static void updateTreeItems(String fileAction, File addedOrDeletedFile, TreeView<TreeViewItem> tree, SongManager model) throws IOException {
+        if (fileAction.equals(Actions.ADD)){
+            // Add new if it does not already exist (For watcher)
+            TreeItem<TreeViewItem> searchedItem = searchTreeItem(tree, addedOrDeletedFile.getAbsolutePath());
+
+            if (searchedItem == null) {
+                addNewNode(tree, model, addedOrDeletedFile.getName(), addedOrDeletedFile.getParent());
+            }
+        } else if (fileAction.equals(Actions.DRAG)) {
+            // Nothing to do for now...
 
         } else if (fileAction.equals(Actions.DROP)) {
             // Add new node to destination file node
@@ -161,10 +178,12 @@ public class TreeViewUtil {
 
             removedFile.getParent().getChildren().remove(removedFile);
         } else if (fileAction.equals(Actions.DELETE)) {
-            String deletedFilePath = model.getM_deletedFile().getAbsolutePath();
+            String deletedFilePath = addedOrDeletedFile.getAbsolutePath();
             TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
 
-            removedFile.getParent().getChildren().remove(removedFile);
+            if (removedFile != null) {
+                removedFile.getParent().getChildren().remove(removedFile);
+            }
         } else if (fileAction.equals(Actions.PASTE)) {
             addNewNode(tree, model, model.getM_fileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
         } else {
