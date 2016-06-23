@@ -8,6 +8,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
 import javax.sound.sampled.*;
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -44,6 +45,8 @@ public class MusicPlayerManager {
     // Default value is 1 in JavaFX Media Player
     private double m_volumeLevel = 1.0;
 
+    boolean m_isPlayingOnHistory = false;
+
     /**
      * Constructor
      */
@@ -73,6 +76,7 @@ public class MusicPlayerManager {
                 m_musicPlayer.playSong(m_currentSong);
             }
         } else {
+            m_isPlayingOnHistory = false;
             Song nextSong = m_playingQueue.poll();
             System.out.println("The next song is " + nextSong);
             if (null == nextSong) {
@@ -253,6 +257,7 @@ public class MusicPlayerManager {
 
         // On insertion of new song in history set the last played index to be the latest song in history list.
         m_historyIndex = m_songHistory.size() - 1;
+        m_isPlayingOnHistory = false;
         if (m_songHistory.size() > MusicPlayerConstants.MAX_SONG_HISTORY) {
             m_songHistory.remove(0);
         }
@@ -326,6 +331,7 @@ public class MusicPlayerManager {
         }
 
         if (!m_songHistory.isEmpty()) {
+            m_isPlayingOnHistory = true;
             if (m_historyIndex == 0) {
                 // Nothing in history restart current song
                 m_musicPlayer.playSong(m_currentSong);
@@ -367,9 +373,8 @@ public class MusicPlayerManager {
      */
     public void notifyError() {
         // Check first to see if we can recover.
-        if (m_lastException instanceof MediaException){
-            MediaException exception = (MediaException) m_lastException;
-            if (exception.getType() == MediaException.Type.MEDIA_UNAVAILABLE){
+        if (m_lastException instanceof FileNotFoundException){
+            if (m_isPlayingOnHistory) {
                 removeSongFromHistory();
             }
         }
@@ -411,7 +416,7 @@ public class MusicPlayerManager {
      * @return True if the player is playing off the history list, False other wise.
      */
     public boolean isPlayingSongOnFromHistoryList() {
-        return ((m_historyIndex != (m_songHistory.size() - 1)) && !m_songHistory.isEmpty());
+        return (m_isPlayingOnHistory);
     }
 
     /**
@@ -435,7 +440,7 @@ public class MusicPlayerManager {
                 m_songHistory.remove(songIndex);
                 if (songIndex == 0 || m_songHistory.isEmpty()){
                     m_historyIndex = 0;
-                } else if (songIndex < m_songHistory.size() - 1) {
+                } else if (songIndex < m_songHistory.size()) {
                     // Move to next song oldest song if allowed
                     m_historyIndex++;
                 } else {
@@ -560,4 +565,5 @@ public class MusicPlayerManager {
         m_volumeLevel = volumeLevel;
         setVolumeControl();
     }
+
 }

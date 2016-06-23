@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 /**
  * MainUI Class.
@@ -38,16 +39,21 @@ public class MainUI extends BorderPane {
 
         leftPane.setCenter(libraryUI);
         leftPane.setPrefWidth(250);
-        leftPane.setBottom(new MusicPlayerHistoryUI(m_musicPlayerManager));
         return leftPane;
     }
 
     private Node rightPane() {
         BorderPane rightPane = new BorderPane();
-        DynamicTreeViewUI dynamicTreeViewUI = new DynamicTreeViewUI(m_model, m_musicPlayerManager, m_databaseManager);
-
-        rightPane.setCenter(dynamicTreeViewUI);
         rightPane.setPrefWidth(250);
+
+        PlaylistUI playlistUI = new PlaylistUI(m_model, m_musicPlayerManager, m_databaseManager);
+        rightPane.setCenter(playlistUI);
+
+        VBox musicPlayerWrapper = new VBox();
+        musicPlayerWrapper.getChildren().add(new MusicPlayerUI(m_musicPlayerManager));
+        musicPlayerWrapper.getChildren().add(new MusicPlayerHistoryUI(m_musicPlayerManager));
+
+        rightPane.setBottom(musicPlayerWrapper);
 
         return rightPane;
     }
@@ -64,21 +70,20 @@ public class MainUI extends BorderPane {
     private Node centerPane() {
         BorderPane centerPane = new BorderPane();
 
-        centerPane.setCenter(setContentListAndPlaylist());
-        centerPane.setBottom(new MusicPlayerUI(m_musicPlayerManager));
+        centerPane.setCenter(createFileExplorer());
         return centerPane;
     }
 
-    private Node setContentListAndPlaylist() {
+    private Node createFileExplorer() {
         HBox pane = new HBox();
 
         ContentListUI contentListUI = new ContentListUI(m_model, m_musicPlayerManager, m_databaseManager);
-        PlaylistUI playlistUI = new PlaylistUI(m_model, m_musicPlayerManager, m_databaseManager);
+        DynamicTreeViewUI rightFilePane = new DynamicTreeViewUI(m_model, m_musicPlayerManager, m_databaseManager);
 
         HBox.setHgrow(contentListUI, Priority.ALWAYS);
-        HBox.setHgrow(playlistUI, Priority.ALWAYS);
+        HBox.setHgrow(rightFilePane, Priority.ALWAYS);
 
-        pane.getChildren().addAll(contentListUI, playlistUI);
+        pane.getChildren().addAll(contentListUI, rightFilePane);
 
         return pane;
     }
