@@ -16,6 +16,7 @@ ___
 This application can be built by using IntelliJ IDE on Windows. Load the project in to IntelliJ and run using Java 8. We do not officially  support Linux or Mac OSX as of right now.
 ### Dependencies 
 * Java 8
-* [jaudiotagger-2.2.3](http://www.jthink.net/jaudiotagger/) 
+* [jaudiotagger-2.2.3](http://www.jthink.net/jaudiotagger/)
+* [jpathwatch-0-95](https://jpathwatch.wordpress.com/)
 * This program uses JavaFX Media Player that depends on codecs being installed on your computer. For example, version N of the Windows operating system will require you to install Microsoft Media Feature Pack or any other officially  supported codec library for this application to run. [For more information please refer to Oracle](http://www.oracle.com/technetwork/java/javase/certconfig-2095354.html) 
 ---
