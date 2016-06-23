@@ -120,6 +120,14 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                             break;
                         } catch (FileSystemException ex) {
                             m_musicPlayerManager.stopSong();
+                            m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
+
+                            if (m_musicPlayerManager.isThereANextSong()){
+                                m_musicPlayerManager.playNextSong();
+                            } else {
+                                m_musicPlayerManager.playPreviousSong();
+                            }
+
                             if (i==1) { //if this exception still thrown after retry (for debugging)
                                 ex.printStackTrace();
                             }

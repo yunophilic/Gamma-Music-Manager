@@ -185,7 +185,11 @@ public class JlayerMP3Player implements IMusicPlayer{
                 try {
                     m_isPlaying = true;
                     m_player.play();
-                } catch (Exception e) {
+                } catch (BitstreamException bistreamError) {
+                    // Ignore since this exception would be for when we want to interrupt the music player so we can
+                    // the thread.
+                }
+                catch (Exception e) {
                     e.printStackTrace();
                     m_manager.setError(e);
                     m_manager.notifyError();

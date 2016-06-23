@@ -245,4 +245,13 @@ public class Song {
     public long getM_frames() {
         return m_frames;
     }
+
+    @Override
+    public boolean equals(Object obj){
+        if ((obj == null)|| !(obj instanceof Song)){
+            return false;
+        }
+        Song otherSong = (Song) obj;
+        return this.getM_file().getAbsolutePath().equals(otherSong.getM_file().getAbsolutePath());
+    }
 }
