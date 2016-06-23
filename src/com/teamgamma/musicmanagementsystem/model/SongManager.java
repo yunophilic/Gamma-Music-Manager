@@ -96,6 +96,17 @@ public class SongManager {
     }
 
     /**
+     * Get Song object in a library
+     * @param songFile File object representing the song
+     * @param libraryRootDir File object representing the root dir of the the library
+     * @return list of songs
+     */
+    public Song getSongInLibrary(File songFile, File libraryRootDir) {
+        Library library = getLibrary(libraryRootDir);
+        return (library != null) ? library.getSong(songFile) : null;
+    }
+
+    /**
      * Get libraries
      * @return list of libraries
      */
@@ -194,7 +205,7 @@ public class SongManager {
      * @param library
      * @return list of songs
      */
-    public List<Song> getSongs(Library library) {
+    private List<Song> getSongs(Library library) {
         return library.getM_songList();
     }
 
