@@ -157,37 +157,48 @@ public class TreeViewUtil {
      * @param model
      * @throws IOException
      */
-    public static void updateTreeItems(String fileAction, File addedOrDeletedFile, TreeView<TreeViewItem> tree, SongManager model) throws IOException {
-        if (fileAction.equals(Actions.ADD)){
-            // Add new if it does not already exist (For watcher)
-            TreeItem<TreeViewItem> searchedItem = searchTreeItem(tree, addedOrDeletedFile.getAbsolutePath());
+    public static void updateTreeItems(Actions fileAction, File addedOrDeletedFile, TreeView<TreeViewItem> tree, SongManager model) throws IOException {
+        switch(fileAction) {
+            case ADD: {
+                // Add new if it does not already exist (For watcher)
+                TreeItem<TreeViewItem> searchedItem = searchTreeItem(tree, addedOrDeletedFile.getAbsolutePath());
 
-            if (searchedItem == null) {
-                addNewNode(tree, model, addedOrDeletedFile.getName(), addedOrDeletedFile.getParent());
+                if (searchedItem == null) {
+                    addNewNode(tree, model, addedOrDeletedFile.getName(), addedOrDeletedFile.getParent());
+                }
+                break;
             }
-        } else if (fileAction.equals(Actions.DRAG)) {
-            // Nothing to do for now...
+            case DRAG: {
+                // Nothing to do for now...
+                break;
+            }
+            case DROP: {
+                // Add new node to destination file node
+                addNewNode(tree, model, model.getM_fileToMove().getName(), model.getM_dragDest().getAbsolutePath());
 
-        } else if (fileAction.equals(Actions.DROP)) {
-            // Add new node to destination file node
-            addNewNode(tree, model,model.getM_fileToMove().getName(), model.getM_dragDest().getAbsolutePath());
+                // Remove node from old folder it was in
+                String deletedFilePath = model.getM_fileToMove().getAbsolutePath();
+                TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
 
-            // Remove node from old folder it was in
-            String deletedFilePath = model.getM_fileToMove().getAbsolutePath();
-            TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
-
-            removedFile.getParent().getChildren().remove(removedFile);
-        } else if (fileAction.equals(Actions.DELETE)) {
-            String deletedFilePath = addedOrDeletedFile.getAbsolutePath();
-            TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
-
-            if (removedFile != null) {
                 removedFile.getParent().getChildren().remove(removedFile);
+                break;
             }
-        } else if (fileAction.equals(Actions.PASTE)) {
-            addNewNode(tree, model, model.getM_fileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
-        } else {
-            throw new IOException("Invalid file action!");
+            case DELETE: {
+                String deletedFilePath = addedOrDeletedFile.getAbsolutePath();
+                TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
+
+                if (removedFile != null) {
+                    removedFile.getParent().getChildren().remove(removedFile);
+                }
+                break;
+            }
+            case PASTE: {
+                addNewNode(tree, model, model.getM_fileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
+                break;
+            }
+            default: {
+                throw new IOException("Invalid file action!");
+            }
         }
     }
 

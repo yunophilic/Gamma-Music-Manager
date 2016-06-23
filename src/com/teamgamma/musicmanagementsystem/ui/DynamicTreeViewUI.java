@@ -85,7 +85,7 @@ public class DynamicTreeViewUI extends StackPane {
             }
 
             @Override
-            public void fileChanged(String action, File file) {
+            public void fileChanged(Actions action, File file) {
                 System.out.println("File changed in treeview");
                 updateFiles(action, file);
             }
@@ -97,7 +97,7 @@ public class DynamicTreeViewUI extends StackPane {
         });
     }
 
-    private void updateFiles(String fileAction, File file) {
+    private void updateFiles(Actions fileAction, File file) {
         try {
             if (fileAction != null && !fileAction.equals(Actions.NONE)) {
                 if (m_model.getM_rightFolderSelected() == null) {

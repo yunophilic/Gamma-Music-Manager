@@ -32,9 +32,9 @@ public class SongManager {
     private MenuOptions m_menuOptions;
 
     // For actions such as paste, delete
-    private String m_libraryAction;
-    private String m_libraryFileAction;
-    private String m_rightPanelFileAction;
+    private Actions m_libraryAction;
+    private Actions m_libraryFileAction;
+    private Actions m_rightPanelFileAction;
 
     public SongManager() {
         m_songManagerObservers = new ArrayList<>();
@@ -366,28 +366,28 @@ public class SongManager {
     }
 
 
-    public void setM_libraryAction(String libraryAction) {
+    public void setM_libraryAction(Actions libraryAction) {
         m_libraryAction = libraryAction;
     }
 
 
-    public String getM_libraryAction() {
+    public Actions getM_libraryAction() {
         return m_libraryAction;
     }
 
-    public void setM_libraryFileAction(String fileAction) {
+    public void setM_libraryFileAction(Actions fileAction) {
         m_libraryFileAction = fileAction;
     }
     
-    public String getM_libraryFileAction() {
+    public Actions getM_libraryFileAction() {
         return m_libraryFileAction;
     }
 
-    public void setM_rightPanelFileAction(String fileAction) {
+    public void setM_rightPanelFileAction(Actions fileAction) {
         m_rightPanelFileAction = fileAction;
     }
 
-    public String getM_rightPanelFileAction() {
+    public Actions getM_rightPanelFileAction() {
         return m_rightPanelFileAction;
     }
 
@@ -434,7 +434,7 @@ public class SongManager {
 
     }
 
-    public void notifyFileObservers(String action, File file) {
+    public void notifyFileObservers(Actions action, File file) {
         for (SongManagerObserver observer : m_songManagerObservers) {
             observer.fileChanged(action, file);
         }

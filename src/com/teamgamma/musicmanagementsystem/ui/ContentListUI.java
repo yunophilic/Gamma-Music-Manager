@@ -85,7 +85,7 @@ public class ContentListUI extends StackPane {
             }
 
             @Override
-            public void fileChanged(String action, File file) {
+            public void fileChanged(Actions action, File file) {
                 clearTable();
                 updateTable();
             }
