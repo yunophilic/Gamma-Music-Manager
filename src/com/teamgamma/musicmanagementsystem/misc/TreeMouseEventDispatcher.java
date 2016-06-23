@@ -56,31 +56,33 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
 
             if (isPrimaryMouseButton && isDoubleClick) {
                 if (!event.isConsumed()) {
-                    boolean isFolder = m_selectedTreeViewItem.getM_file().isDirectory();
+                    if (m_selectedTreeViewItem != null) {
+                        boolean isFolder = m_selectedTreeViewItem.getM_file().isDirectory();
 
-                    //Only notify center panel if this is a left panel and if this is a directory
-                    if (m_isLeftPane && isFolder) {
-                        System.out.println("Selected Item: " + m_selectedTreeViewItem);
-                        m_model.setM_selectedCenterFolder(m_selectedTreeViewItem.getM_file());
-                        m_model.notifyCenterFolderObservers();
+                        //Only notify center panel if this is a left panel and if this is a directory
+                        if (m_isLeftPane && isFolder) {
+                            System.out.println("Selected Item: " + m_selectedTreeViewItem);
+                            m_model.setM_selectedCenterFolder(m_selectedTreeViewItem.getM_file());
+                            m_model.notifyCenterFolderObservers();
 
-                        TreeViewUtil.closeAllFoldersIcons(m_tree.getRoot());
+                            TreeViewUtil.closeAllFoldersIcons(m_tree.getRoot());
 
-                        TreeViewUtil.setOpenFolder(m_tree, m_selectedTreeViewItem.getM_file().getAbsolutePath());
-                    } else if (!isFolder) {
-                        //get library song is in
-                        TreeItem<TreeViewItem> selectedTreeItem = m_tree.getSelectionModel().getSelectedItem();
-                        while (!selectedTreeItem.getValue().isM_isRootPath()) {
-                            selectedTreeItem = selectedTreeItem.getParent();
-                        }
-                        //play song
-                        Song songToPlay = m_model.getSongInLibrary(
-                                m_selectedTreeViewItem.getM_file(), selectedTreeItem.getValue().getM_file()
-                        );
-                        if(songToPlay != null) {
-                            m_musicPlayerManager.playSongRightNow(songToPlay);
-                        } else {
-                            System.out.println("SOMETHING WRONG!!!");
+                            TreeViewUtil.setOpenFolder(m_tree, m_selectedTreeViewItem.getM_file().getAbsolutePath());
+                        } else if (!isFolder) {
+                            //get library song is in
+                            TreeItem<TreeViewItem> selectedTreeItem = m_tree.getSelectionModel().getSelectedItem();
+                            while (!selectedTreeItem.getValue().isM_isRootPath()) {
+                                selectedTreeItem = selectedTreeItem.getParent();
+                            }
+                            //play song
+                            Song songToPlay = m_model.getSongInLibrary(
+                                    m_selectedTreeViewItem.getM_file(), selectedTreeItem.getValue().getM_file()
+                            );
+                            if (songToPlay != null) {
+                                m_musicPlayerManager.playSongRightNow(songToPlay);
+                            } else {
+                                System.out.println("SOMETHING WRONG!!!");
+                            }
                         }
                     }
                 }
