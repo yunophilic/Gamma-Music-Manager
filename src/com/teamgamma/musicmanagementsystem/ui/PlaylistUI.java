@@ -49,7 +49,7 @@ public class PlaylistUI extends StackPane {
         m_dropDownMenu = new ComboBox<>();
         initTopMenu(createSelectPlaylistLabel(),
                     createDropDownMenu(),
-                    createAddNewPlaylistButton(),
+                    createCreateNewPlaylistButton(),
                     createRemovePlaylistButton(),
                     createEditPlaylistButton());
         initTableView();
@@ -95,14 +95,14 @@ public class PlaylistUI extends StackPane {
         return dropDownMenu;
     }
 
-    private Button createAddNewPlaylistButton() {
-        Button addNewPlaylistButton = new Button();
-        addNewPlaylistButton.setStyle("-fx-background-color: transparent");
-        addNewPlaylistButton.setGraphic( new ImageView(ADD_PLAYLIST_BUTTON_ICON_PATH) );
-        addNewPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+    private Button createCreateNewPlaylistButton() {
+        Button createNewPlaylistButton = new Button();
+        createNewPlaylistButton.setStyle("-fx-background-color: transparent");
+        createNewPlaylistButton.setGraphic( new ImageView(ADD_PLAYLIST_BUTTON_ICON_PATH) );
+        createNewPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                String newPlaylistName = PromptUI.addNewPlaylist();
+                String newPlaylistName = PromptUI.createNewPlaylist();
                 if (newPlaylistName != null) {
                     Playlist newPlaylist = m_model.addPlaylist(newPlaylistName);
                     m_databaseManager.addPlaylist(newPlaylistName);
@@ -111,7 +111,7 @@ public class PlaylistUI extends StackPane {
                 }
             }
         });
-        return addNewPlaylistButton;
+        return createNewPlaylistButton;
     }
 
     private Button createRemovePlaylistButton() {

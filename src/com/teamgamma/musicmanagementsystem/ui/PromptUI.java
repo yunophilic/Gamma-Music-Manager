@@ -17,9 +17,7 @@ import java.util.Optional;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.StageStyle;
 
 
 /**
@@ -510,13 +508,13 @@ public class PromptUI {
     }
 
     /**
-     * Prompt to add playlist
+     * Prompt to create new playlist
      *
      * @return playlistName, otherwise null if user clicks cancel
      */
-    public static String addNewPlaylist() {
+    public static String createNewPlaylist() {
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Add Playlist");
+        dialog.setTitle("Create New Playlist");
 
         dialog.setHeaderText(null);
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
@@ -524,22 +522,22 @@ public class PromptUI {
         dialog.setContentText("New playlist:");
 
         Optional<String> result = dialog.showAndWait();
-
         if (result.isPresent()) {
-            if (result.get().isEmpty()) {
-                addPlaylistRetry();
+            String playlistName = result.get();
+            while (playlistName!=null && playlistName.isEmpty()) {
+                playlistName = createNewPlaylistRetry();
             }
-            return result.get();
+            return playlistName;
         }
         return null;
     }
 
     /**
-     * Prompt to add playlist after previous add playlist attempt has blank text box
+     * Prompt to create new playlist after previous attempt has blank text box
      *
      * @return playlistName, otherwise null if user clicks cancel
      */
-    private static String addPlaylistRetry() {
+    private static String createNewPlaylistRetry() {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Add Playlist");
 
@@ -549,11 +547,7 @@ public class PromptUI {
         dialog.setContentText("New playlist:");
 
         Optional<String> result = dialog.showAndWait();
-
         if (result.isPresent()) {
-            if (result.get().isEmpty()) {
-                addPlaylistRetry();
-            }
             return result.get();
         }
         return null;
@@ -563,7 +557,7 @@ public class PromptUI {
      * Prompt to edit playlist after previous add playlist attempt has blank text box
      *
      * @param playlistToEdit to edit
-     * @return newPlaylistName
+     * @return newPlaylistName, or null if user clicks cancel
      */
     public static String editPlaylist(Playlist playlistToEdit) {
         TextInputDialog dialog = new TextInputDialog();
@@ -575,12 +569,12 @@ public class PromptUI {
         dialog.setContentText("Rename playlist:");
 
         Optional<String> result = dialog.showAndWait();
-
         if (result.isPresent()) {
-            if (result.get().isEmpty()) {
-                editPlaylistRetry(playlistToEdit);
+            String newPlaylistName = result.get();
+            while (newPlaylistName!=null && newPlaylistName.isEmpty()) {
+                newPlaylistName = editPlaylistRetry(playlistToEdit);
             }
-            return result.get();
+            return newPlaylistName;
         }
         return null;
     }
@@ -589,7 +583,7 @@ public class PromptUI {
      * Prompt to edit playlist
      *
      * @param playlistToEdit to edit
-     * @return newPlaylistName
+     * @return newPlaylistName, or null if user clicks cancel
      */
     private static String editPlaylistRetry(Playlist playlistToEdit) {
         TextInputDialog dialog = new TextInputDialog();
@@ -601,11 +595,7 @@ public class PromptUI {
         dialog.setContentText("Rename playlist \"" + playlistToEdit.getM_playlistName() + "\":");
 
         Optional<String> result = dialog.showAndWait();
-
         if (result.isPresent()) {
-            if (result.get().isEmpty()) {
-                editPlaylistRetry(playlistToEdit);
-            }
             return result.get();
         }
         return null;
