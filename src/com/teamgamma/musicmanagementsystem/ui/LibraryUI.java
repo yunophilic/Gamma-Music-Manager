@@ -107,7 +107,7 @@ public class LibraryUI extends StackPane {
 
     private void updateFiles(Actions fileAction, File file) {
         try {
-            if (fileAction != null && !fileAction.equals(Actions.NONE)) {
+            if (fileAction != null && fileAction != Actions.NONE) {
                 TreeViewUtil.updateTreeItems(fileAction, file, m_tree, m_model);
                 m_model.setM_libraryFileAction(Actions.NONE);
             }
