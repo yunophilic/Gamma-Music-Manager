@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem.misc;
 
 import com.teamgamma.musicmanagementsystem.model.Library;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -97,6 +98,7 @@ public class TreeViewUtil {
 
     /**
      * Set all tree item icons to closed folder icon or a song icon
+     *
      * @param treeItem
      */
     public static void closeAllFoldersIcons(TreeItem<TreeViewItem> treeItem) {
@@ -106,9 +108,9 @@ public class TreeViewUtil {
         } else {
             treeItem.setGraphic(new ImageView(songImage));
         }
-        if (!treeItem.getChildren().isEmpty()){
+        if (!treeItem.getChildren().isEmpty()) {
             List<TreeItem<TreeViewItem>> childTreeItems = treeItem.getChildren();
-            for (TreeItem<TreeViewItem> child: childTreeItems) {
+            for (TreeItem<TreeViewItem> child : childTreeItems) {
                 closeAllFoldersIcons(child);
             }
         }
@@ -116,6 +118,7 @@ public class TreeViewUtil {
 
     /**
      * Set selected tree item's icon to open folder icon
+     *
      * @param m_tree
      * @param filePath
      */
@@ -130,7 +133,7 @@ public class TreeViewUtil {
     public static List<TreeViewItem> getTreeViewItems(List<TreeItem<TreeViewItem>> treeItems) {
         List<TreeViewItem> treeViewItems = new ArrayList<>();
 
-        for (TreeItem<TreeViewItem> treeItem: treeItems) {
+        for (TreeItem<TreeViewItem> treeItem : treeItems) {
             treeViewItems.add(treeItem.getValue());
         }
 
@@ -138,7 +141,7 @@ public class TreeViewUtil {
     }
 
     public static boolean isLibraryInList(List<TreeViewItem> libraryNodes, Library library) {
-        for (TreeViewItem libraryNode: libraryNodes) {
+        for (TreeViewItem libraryNode : libraryNodes) {
             String libraryNodePath = libraryNode.getM_file().getAbsolutePath();
             if (libraryNodePath.equals(library.getM_rootDirPath())) {
                 return true;
@@ -158,7 +161,7 @@ public class TreeViewUtil {
      * @throws IOException
      */
     public static void updateTreeItems(Actions fileAction, File changedFile, TreeView<TreeViewItem> tree, SongManager model) throws IOException {
-        switch(fileAction) {
+        switch (fileAction) {
             case ADD: {
                 // Add new if it does not already exist (For watcher)
                 TreeItem<TreeViewItem> searchedItem = searchTreeItem(tree, changedFile.getAbsolutePath());
@@ -222,15 +225,16 @@ public class TreeViewUtil {
         File copiedFile = new File(newFilePath);
 
         TreeItem<TreeViewItem> newFileNode = generateTreeItems(copiedFile, newParentPath, model.getM_menuOptions().getM_leftPanelShowFolder());
-
         TreeItem<TreeViewItem> parentFileNode = searchTreeItem(tree, newParentPath);
 
-        parentFileNode.getChildren().add(newFileNode);
-        parentFileNode.setExpanded(true);
+        if (newFileNode != null && parentFileNode != null) {
+            parentFileNode.getChildren().add(newFileNode);
+            parentFileNode.setExpanded(true);
+        }
     }
 
     public static boolean isLibraryNodeInList(List<Library> libraries, TreeViewItem libraryNode) {
-        for (Library library: libraries) {
+        for (Library library : libraries) {
             String libraryNodePath = libraryNode.getM_file().getAbsolutePath();
             if (libraryNodePath.equals(library.getM_rootDirPath())) {
                 return true;
