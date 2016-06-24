@@ -440,7 +440,7 @@ public class PromptUI {
     /**
      * Renames file
      */
-    public static void fileRename(File fileToRename) {
+    public static Path fileRename(File fileToRename) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Rename Media File");
 
@@ -466,11 +466,13 @@ public class PromptUI {
                 } else if (nameAlreadyExists.exists()) {
                     fileRenameDuplicate(nameAlreadyExists);
                 }
-                Files.move(source, source.resolveSibling(result.get() + extension));
+                return Files.move(source, source.resolveSibling(result.get() + extension));
             }
         } catch (IOException e) {
             failedToRename(fileToRename);
         }
+
+        return null;
     }
 
     /**

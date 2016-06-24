@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystemException;
 import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class SongManager {
     private File m_dragDest;
     private File m_deletedFile;
     private File m_addedFile;
+    private File m_renamedFile;
     private List<Playlist> m_playlists;
 
     // For observer pattern
@@ -47,6 +49,8 @@ public class SongManager {
         m_rightFolderSelected = null;
         m_copyDest = null;
         m_dragDest = null;
+
+        m_renamedFile = null;
 
         m_menuOptions = new MenuOptions();
     }
@@ -341,8 +345,24 @@ public class SongManager {
         return null;
     }
 
+
+    /**
+     * Rename a file and notify file observers
+     * @param fileToRename
+     * @param newPath
+     */
+    public void renameFile(File fileToRename, Path newPath) {
+        m_renamedFile = new File(newPath.toString());
+
+        notifyFileObservers(Actions.RENAME, fileToRename);
+    }
+
     public void fileDeleted(File fileToDelete) {
 
+    }
+
+    public File getM_renamedFile() {
+        return m_renamedFile;
     }
 
     public File getM_addedFile(){

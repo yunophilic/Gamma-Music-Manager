@@ -152,19 +152,19 @@ public class TreeViewUtil {
      * Update items of the tree depending on the action
      *
      * @param fileAction
-     * @param addedOrDeletedFile Until a better implementation is found, this file is only used by the ADD and DELETE action for now (because of watcher)
+     * @param changedFile Until a better implementation is found, this file is only used by the ADD, DELETE and RENAME action for now (because of watcher)
      * @param tree
      * @param model
      * @throws IOException
      */
-    public static void updateTreeItems(Actions fileAction, File addedOrDeletedFile, TreeView<TreeViewItem> tree, SongManager model) throws IOException {
+    public static void updateTreeItems(Actions fileAction, File changedFile, TreeView<TreeViewItem> tree, SongManager model) throws IOException {
         switch(fileAction) {
             case ADD: {
                 // Add new if it does not already exist (For watcher)
-                TreeItem<TreeViewItem> searchedItem = searchTreeItem(tree, addedOrDeletedFile.getAbsolutePath());
+                TreeItem<TreeViewItem> searchedItem = searchTreeItem(tree, changedFile.getAbsolutePath());
 
                 if (searchedItem == null) {
-                    addNewNode(tree, model, addedOrDeletedFile.getName(), addedOrDeletedFile.getParent());
+                    addNewNode(tree, model, changedFile.getName(), changedFile.getParent());
                 }
                 break;
             }
@@ -184,7 +184,7 @@ public class TreeViewUtil {
                 break;
             }
             case DELETE: {
-                String deletedFilePath = addedOrDeletedFile.getAbsolutePath();
+                String deletedFilePath = changedFile.getAbsolutePath();
                 TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
 
                 if (removedFile != null) {
@@ -196,21 +196,34 @@ public class TreeViewUtil {
                 addNewNode(tree, model, model.getM_fileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
                 break;
             }
+            case RENAME: {
+                renameNode(changedFile, tree, model);
+                break;
+            }
             default: {
                 throw new IOException("Invalid file action!");
             }
         }
     }
 
+    private static void renameNode(File changedFile, TreeView<TreeViewItem> tree, SongManager model) {
+        TreeItem<TreeViewItem> nodeToRename = searchTreeItem(tree, changedFile.getAbsolutePath());
+        File renamedFile = model.getM_renamedFile();
+
+        System.out.println("NEW FILE NAME: " + renamedFile);
+
+        TreeViewItem renamedItem = new TreeViewItem(renamedFile, model.isLibrary(renamedFile));
+
+        nodeToRename.setValue(renamedItem);
+    }
+
     private static void addNewNode(TreeView<TreeViewItem> tree, SongManager model, String fileName, String newParentPath) {
-        String newFilePath = newParentPath + '\\' + fileName;
+        String newFilePath = newParentPath + File.separator + fileName;
         File copiedFile = new File(newFilePath);
 
         TreeItem<TreeViewItem> newFileNode = generateTreeItems(copiedFile, newParentPath, model.getM_menuOptions().getM_leftPanelShowFolder());
 
-        TreeItem<TreeViewItem> parentFileNode;
-
-        parentFileNode = searchTreeItem(tree, newParentPath);
+        TreeItem<TreeViewItem> parentFileNode = searchTreeItem(tree, newParentPath);
 
         parentFileNode.getChildren().add(newFileNode);
         parentFileNode.setExpanded(true);

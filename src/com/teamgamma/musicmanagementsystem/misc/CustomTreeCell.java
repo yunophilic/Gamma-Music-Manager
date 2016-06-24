@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,10 +96,9 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
                     File fileToRename = m_selectedTreeViewItem.getM_file();
-                    PromptUI.fileRename(fileToRename);
+                    Path newPath = PromptUI.fileRename(fileToRename);
 
-                    m_model.setM_libraryFileAction(Actions.RENAME);
-                    m_model.setM_rightPanelFileAction(Actions.RENAME);
+                    m_model.renameFile(fileToRename, newPath);
                 }
             }
         });

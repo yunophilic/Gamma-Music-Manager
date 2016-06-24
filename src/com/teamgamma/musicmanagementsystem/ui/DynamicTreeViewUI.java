@@ -99,7 +99,7 @@ public class DynamicTreeViewUI extends StackPane {
 
     private void updateFiles(Actions fileAction, File file) {
         try {
-            if (fileAction != null && !fileAction.equals(Actions.NONE)) {
+            if (fileAction != null && fileAction != Actions.NONE) {
                 if (m_model.getM_rightFolderSelected() == null) {
                     this.getChildren().add(new Label("Choose a folder to view"));
                 } else {
