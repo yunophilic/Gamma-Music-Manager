@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class to monitor the file system changes
+ */
 public class Watcher {
     private int m_timeout = 2000;
     private WatchService m_watcher;
@@ -25,6 +28,11 @@ public class Watcher {
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
 
+    /**
+     * Constructor for Watcher class
+     * @param model: SongManager model
+     * @param databaseManager: DatabaseManager manager
+     */
     public Watcher(SongManager model, DatabaseManager databaseManager) {
         m_model = model;
         m_databaseManager = databaseManager;
@@ -39,32 +47,49 @@ public class Watcher {
         m_watcherThread = new Thread(() -> {
             System.out.println("**** Watching...");
             boolean isFirst = true;
+            File tempFile = null;
+            Actions action = Actions.NONE;
 
             while (true) {
                 try {
                     if (isFirst) {
                         m_watchKey = m_watcher.take();
 
-                        isFirst = false;
                         System.out.println("**** File system changed...");
-                    } else { //Try for more events with timeout
+                    } else {
+                        // Try for more events with timeout
                         m_watchKey = m_watcher.poll(m_timeout, TimeUnit.MILLISECONDS);
-
-                        if (m_watchKey == null) { //WatchKey failed to grab more events
-                            File tempFile = new File(System.getProperty("\"user.dir\""));
-                            Platform.runLater(() -> m_model.notifyFileObservers(Actions.NONE, tempFile));
-                            break;
-                        }
                     }
 
-                    printWatchEvent();
-                    boolean valid = m_watchKey.reset();
-                    if(!valid) {
-                        m_keyMaps.remove(m_watchKey);
-                        File tempFile = new File(System.getProperty("\"user.dir\""));
-                        Platform.runLater(() -> m_model.notifyFileObservers(Actions.NONE, tempFile));
+                    // WatchKey failed to grab more events
+                    if (m_watchKey == null) {
+                        Actions finalAction = action;
+                        File finalTempFile = tempFile;
+                        Platform.runLater(() -> m_model.notifyFileObservers(finalAction, finalTempFile));
                         break;
                     }
+
+                    Path dir = m_keyMaps.get(m_watchKey);
+                    for (WatchEvent<?> event : m_watchKey.pollEvents()) {
+                        WatchEvent.Kind<?> kind = event.kind();
+                        Path eventPath = (Path) event.context();
+                        System.out.println("**** " + kind + ": " + eventPath
+                                + " [ " + dir + File.separator + eventPath + " ]");
+
+                        // TODO: add more action cases (rename, modify)
+                        if(isFirst) {
+                            isFirst = false;
+                            if(kind == StandardWatchEventKind.ENTRY_CREATE) {
+                                action = Actions.ADD;
+                            } else if(kind == StandardWatchEventKind.ENTRY_DELETE) {
+                                action = Actions.DELETE;
+                            } else {
+                                action = Actions.NONE;
+                            }
+                            tempFile = new File(dir + File.separator + eventPath);
+                        }
+                    }
+                    m_watchKey.reset();
                 } catch (InterruptedException e) {
                     System.out.println("**** Watcher thread interrupted...");
                     break;
@@ -74,16 +99,6 @@ public class Watcher {
         });
 
         m_watcherThread.start();
-    }
-
-    private void printWatchEvent() {
-        Path dir = m_keyMaps.get(m_watchKey);
-        for (WatchEvent<?> event : m_watchKey.pollEvents()) {
-            WatchEvent.Kind<?> kind = event.kind();
-            Path eventPath = (Path) event.context();
-            System.out.println("**** " + kind + ": " + eventPath
-                    + " [ " + dir + File.separator + eventPath + " ]");
-        }
     }
 
     public void stopWatcher() {
@@ -152,17 +167,17 @@ public class Watcher {
 
             @Override
             public void centerFolderChanged() {
-                //Do nothing
+                // Do nothing
             }
 
             @Override
             public void rightFolderChanged() {
-                //Do nothing
+                // Do nothing
             }
 
             @Override
             public void songChanged() {
-                //Do nothing
+                // Do nothing
             }
 
             @Override
@@ -172,7 +187,7 @@ public class Watcher {
 
             @Override
             public void leftPanelOptionsChanged() {
-                //Do nothing
+                // Do nothing
             }
         });
     }
