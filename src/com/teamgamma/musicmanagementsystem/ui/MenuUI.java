@@ -109,11 +109,11 @@ public class MenuUI extends MenuBar{
     private Menu getPlaylistSubMenu() {
         Menu playlistSubMenu = new Menu("Playlist");
 
-        MenuItem addNewPlaylistMenu = new MenuItem("Create New Playlist");
-        addNewPlaylistMenu.setOnAction(new EventHandler<ActionEvent>() {
+        MenuItem createNewPlaylistMenu = new MenuItem("Create New Playlist");
+        createNewPlaylistMenu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                String newPlaylistName = PromptUI.addNewPlaylist();
+                String newPlaylistName = PromptUI.createNewPlaylist();
                 if (newPlaylistName != null) {
                     m_model.addPlaylist(newPlaylistName);
                     m_databaseManager.addPlaylist(newPlaylistName);
@@ -130,7 +130,7 @@ public class MenuUI extends MenuBar{
             }
         });
 
-        playlistSubMenu.getItems().addAll(addNewPlaylistMenu);
+        playlistSubMenu.getItems().addAll(createNewPlaylistMenu);
         return playlistSubMenu;
     }
 }
