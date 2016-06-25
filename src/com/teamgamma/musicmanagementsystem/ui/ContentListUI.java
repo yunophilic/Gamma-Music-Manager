@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -84,7 +85,7 @@ public class ContentListUI extends StackPane {
             }
 
             @Override
-            public void fileChanged() {
+            public void fileChanged(Actions action, File file) {
                 clearTable();
                 updateTable();
             }
@@ -319,7 +320,6 @@ public class ContentListUI extends StackPane {
                             ex.printStackTrace();
                         }
 
-                        m_model.notifyLibraryObservers();
                         dragEvent.consume();
                     }
                 });
@@ -365,7 +365,7 @@ public class ContentListUI extends StackPane {
                     }
                     try {
                         m_model.copyToDestination(dest);
-                        m_model.notifyFileObservers();
+                        m_model.notifyFileObservers(Actions.PASTE, null);
                     } catch (FileAlreadyExistsException ex) {
                         PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
                     } catch (IOException ex) {
@@ -407,8 +407,6 @@ public class ContentListUI extends StackPane {
                             break;
                         }
                     }
-                    m_databaseManager.removeLibrary(fileToDelete.getAbsolutePath());
-                    m_model.notifyFileObservers();
                 }
             }
         });

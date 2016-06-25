@@ -35,4 +35,27 @@ public class TreeViewItem {
     public boolean isM_isRootPath() {
         return m_isRootPath;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null) {
+            return false;
+        }
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof TreeViewItem)) {
+            return false;
+        }
+
+        TreeViewItem otherTreeViewItem = (TreeViewItem)object;
+        String thisFilePath = m_file.getAbsolutePath();
+        String otherFilePath = otherTreeViewItem.getM_file().getAbsolutePath();
+
+        if (thisFilePath.equals(otherFilePath)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

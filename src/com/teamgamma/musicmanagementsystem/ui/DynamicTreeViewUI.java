@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Library;
@@ -13,6 +14,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class DynamicTreeViewUI extends StackPane {
@@ -83,10 +85,9 @@ public class DynamicTreeViewUI extends StackPane {
             }
 
             @Override
-            public void fileChanged() {
+            public void fileChanged(Actions action, File file) {
                 System.out.println("File changed in treeview");
-                clearTreeView();
-                updateTreeView();
+                updateFiles(action, file);
             }
 
             @Override
@@ -94,6 +95,22 @@ public class DynamicTreeViewUI extends StackPane {
                 /* Do nothing */
             }
         });
+    }
+
+    private void updateFiles(Actions fileAction, File file) {
+        try {
+            if (fileAction != null && fileAction != Actions.NONE) {
+                if (m_model.getM_rightFolderSelected() == null) {
+                    this.getChildren().add(new Label("Choose a folder to view"));
+                } else {
+                    TreeViewUtil.updateTreeItems(fileAction, file, m_tree, m_model);
+                    m_model.setM_rightPanelFileAction(Actions.NONE);
+                }
+            }
+        } catch (IOException ex) {
+            PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     private void clearTreeView() {

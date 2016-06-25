@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.MenuOptions;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
@@ -44,6 +45,8 @@ public class MenuUI extends MenuBar{
                     return;
                 }
                 m_databaseManager.addLibrary(pathInput);
+
+                m_model.setM_libraryAction(Actions.ADD);
                 m_model.notifyLibraryObservers();
             }
         });

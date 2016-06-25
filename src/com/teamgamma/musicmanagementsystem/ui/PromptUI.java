@@ -395,7 +395,7 @@ public class PromptUI {
      *
      * @param duplicate file
      */
-    public static void fileRenameDuplicate(File duplicate) {
+    public static Path fileRenameDuplicate(File duplicate) {
         int numIndex = 2;
         String fileNameFull = duplicate.getName();
         int beforeExtension = fileNameFull.lastIndexOf('.');
@@ -425,15 +425,17 @@ public class PromptUI {
                 String parentDirectory = duplicate.getParent();
                 File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
                 if (result.get().isEmpty()) {
-                    fileRenameRetry(duplicate);
+                    return fileRenameRetry(duplicate);
                 } else if (nameAlreadyExists.exists()) {
-                    fileRenameDuplicate(nameAlreadyExists);
+                    return fileRenameDuplicate(nameAlreadyExists);
                 }
-                Files.move(source, source.resolveSibling(result.get()));
+                return Files.move(source, source.resolveSibling(result.get()));
             }
         } catch (IOException e) {
             failedToRename(duplicate);
         }
+
+        return null;
     }
 
     /**
@@ -442,7 +444,7 @@ public class PromptUI {
      *
      * @param duplicate folder
      */
-    public static void folderRenameDuplicate(File duplicate) {
+    public static Path folderRenameDuplicate(File duplicate) {
         int numIndex = 2;
         String folderNameFull = duplicate.getName();
         int lastCharIndex = folderNameFull.length() - 1;
@@ -467,21 +469,23 @@ public class PromptUI {
                 String parentDirectory = duplicate.getParent();
                 File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
                 if (result.get().isEmpty()) {
-                    folderRenameRetry(duplicate);
+                    return folderRenameRetry(duplicate);
                 } else if (nameAlreadyExists.exists()) {
-                    folderRenameDuplicate(nameAlreadyExists);
+                    return folderRenameDuplicate(nameAlreadyExists);
                 }
-                Files.move(source, source.resolveSibling(result.get()));
+                return Files.move(source, source.resolveSibling(result.get()));
             }
         } catch (IOException e) {
             failedToRename(duplicate);
         }
+
+        return null;
     }
 
     /**
      * Renames file or a library folder
      */
-    public static void fileRename(File fileToRename) {
+    public static Path fileRename(File fileToRename) {
         TextInputDialog dialog = new TextInputDialog();
 
         String fileNameFull = fileToRename.getName();
@@ -501,11 +505,11 @@ public class PromptUI {
                     String parentDirectory = fileToRename.getParent();
                     File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
                     if (result.get().isEmpty()) {
-                        folderRenameRetry(fileToRename);
+                        return folderRenameRetry(fileToRename);
                     } else if (nameAlreadyExists.exists()) {
-                        folderRenameDuplicate(nameAlreadyExists);
+                        return folderRenameDuplicate(nameAlreadyExists);
                     }
-                    Files.move(source, source.resolveSibling(result.get()));
+                    return Files.move(source, source.resolveSibling(result.get()));
                 }
             } catch (IOException e) {
                 failedToRename(fileToRename);
@@ -530,23 +534,24 @@ public class PromptUI {
                     String parentDirectory = fileToRename.getParent();
                     File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
                     if (result.get().isEmpty()) {
-                        fileRenameRetry(fileToRename);
+                        return fileRenameRetry(fileToRename);
                     } else if (nameAlreadyExists.exists()) {
-                        fileRenameDuplicate(nameAlreadyExists);
+                        return fileRenameDuplicate(nameAlreadyExists);
                     }
-                    Files.move(source, source.resolveSibling(result.get() + extension));
+                    return Files.move(source, source.resolveSibling(result.get() + extension));
                 }
             } catch (IOException e) {
                 failedToRename(fileToRename);
             }
         }
 
+        return null;
     }
 
     /**
      * Renames file after previous rename attempt has blank in text box
      */
-    private static void fileRenameRetry(File fileToRename) {
+    private static Path fileRenameRetry(File fileToRename) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Rename Media File");
 
@@ -568,18 +573,20 @@ public class PromptUI {
                 String parentDirectory = fileToRename.getParent();
                 File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
                 if (result.get().isEmpty()) {
-                    fileRenameRetry(fileToRename);
+                    return fileRenameRetry(fileToRename);
                 } else if (nameAlreadyExists.exists()) {
-                    fileRenameDuplicate(nameAlreadyExists);
+                    return fileRenameDuplicate(nameAlreadyExists);
                 }
-                Files.move(source, source.resolveSibling(result.get() + extension));
+                return Files.move(source, source.resolveSibling(result.get() + extension));
             }
         } catch (IOException e) {
             failedToRename(fileToRename);
         }
+
+        return null;
     }
 
-    private static void folderRenameRetry(File folderToRename) {
+    private static Path folderRenameRetry(File folderToRename) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Rename Media File");
 
@@ -598,15 +605,17 @@ public class PromptUI {
                 String parentDirectory = folderToRename.getParent();
                 File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
                 if (result.get().isEmpty()) {
-                    folderRenameRetry(folderToRename);
+                    return folderRenameRetry(folderToRename);
                 } else if (nameAlreadyExists.exists()) {
-                    folderRenameDuplicate(nameAlreadyExists);
+                    return folderRenameDuplicate(nameAlreadyExists);
                 }
-                Files.move(source, source.resolveSibling(result.get()));
+                return Files.move(source, source.resolveSibling(result.get()));
             }
         } catch (IOException e) {
             failedToRename(folderToRename);
         }
+
+        return null;
     }
 
     /**

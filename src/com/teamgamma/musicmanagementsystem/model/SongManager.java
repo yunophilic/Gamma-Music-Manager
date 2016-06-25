@@ -1,9 +1,12 @@
 package com.teamgamma.musicmanagementsystem.model;
 
+import com.teamgamma.musicmanagementsystem.misc.Actions;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystemException;
 import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +18,12 @@ public class SongManager {
     private List<PlaylistObserver> m_playlistObservers;
     private List<Library> m_libraries;
     private File m_fileToCopy;
+    private File m_copyDest;
     private File m_fileToMove;
+    private File m_dragDest;
+    private File m_deletedFile;
+    private File m_addedFile;
+    private File m_renamedFile;
     private List<Playlist> m_playlists;
 
     // For observer pattern
@@ -24,6 +32,11 @@ public class SongManager {
 
     // Menu Manager
     private MenuOptions m_menuOptions;
+
+    // For actions such as paste, delete
+    private Actions m_libraryAction;
+    private Actions m_libraryFileAction;
+    private Actions m_rightPanelFileAction;
 
     public SongManager() {
         m_songManagerObservers = new ArrayList<>();
@@ -34,6 +47,10 @@ public class SongManager {
         m_playlists = new ArrayList<>();
         m_selectedCenterFolder = null;
         m_rightFolderSelected = null;
+        m_copyDest = null;
+        m_dragDest = null;
+
+        m_renamedFile = null;
 
         m_menuOptions = new MenuOptions();
     }
@@ -115,6 +132,22 @@ public class SongManager {
     }
 
     /**
+     * Check if given file is a library
+     * @param file
+     * @return
+     */
+    public boolean isLibrary(File file) {
+        String filePath = file.getAbsolutePath();
+        for (Library library: m_libraries) {
+            String libraryPath = library.getM_rootDirPath();
+            if (libraryPath.equals(filePath)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Set file/folder to be copied
      * @param m_fileToCopy
      */
@@ -145,11 +178,13 @@ public class SongManager {
             throw new IOException("Fail to copy");
         }
 
+        m_copyDest = dest;
+
         updateLibraries();
     }
 
     /**
-     * Move file from source to destination
+     * Update UI and move file from source to destination
      * @param fileToMove
      * @param destDir
      * @throws IOException
@@ -157,6 +192,9 @@ public class SongManager {
     public void moveFile(File fileToMove, File destDir) throws IOException {
         FileManager.moveFile(fileToMove, destDir);
         updateLibraries();
+
+        setM_dragDest(destDir);
+        notifyFileObservers(Actions.DROP, null);
     }
 
     /**
@@ -176,6 +214,12 @@ public class SongManager {
             throw new FileSystemException("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
         }
         updateLibraries();
+
+        setM_deletedFile(fileToDelete);
+        notifyFileObservers(Actions.DELETE, fileToDelete);
+
+        // Clear file to delete buffer
+        setM_deletedFile(null);
     }
 
     /**
@@ -301,6 +345,46 @@ public class SongManager {
         return null;
     }
 
+
+    /**
+     * Rename a file and notify file observers
+     * @param fileToRename
+     * @param newPath
+     */
+    public void renameFile(File fileToRename, Path newPath) {
+        m_renamedFile = new File(newPath.toString());
+
+        notifyFileObservers(Actions.RENAME, fileToRename);
+    }
+
+    public void fileDeleted(File fileToDelete) {
+
+    }
+
+    public File getM_renamedFile() {
+        return m_renamedFile;
+    }
+
+    public File getM_addedFile(){
+        return m_addedFile;
+    }
+
+    public void setM_addedFile(File addedFile) {
+        m_addedFile = addedFile;
+    }
+
+    public File getM_dragDest() {
+        return m_dragDest;
+    }
+
+    public void setM_dragDest(File dest) {
+        m_dragDest = dest;
+    }
+
+    public File getM_copyDest() {
+        return m_copyDest;
+    }
+
     public File getM_rightFolderSelected() {
         return m_rightFolderSelected;
     }
@@ -332,6 +416,41 @@ public class SongManager {
     public MenuOptions getM_menuOptions(){
         return m_menuOptions;
     }
+
+
+    public void setM_libraryAction(Actions libraryAction) {
+        m_libraryAction = libraryAction;
+    }
+
+
+    public Actions getM_libraryAction() {
+        return m_libraryAction;
+    }
+
+    public void setM_libraryFileAction(Actions fileAction) {
+        m_libraryFileAction = fileAction;
+    }
+    
+    public Actions getM_libraryFileAction() {
+        return m_libraryFileAction;
+    }
+
+    public void setM_rightPanelFileAction(Actions fileAction) {
+        m_rightPanelFileAction = fileAction;
+    }
+
+    public Actions getM_rightPanelFileAction() {
+        return m_rightPanelFileAction;
+    }
+
+    public void setM_deletedFile(File deletedFile) {
+        m_deletedFile = deletedFile;
+    }
+
+    public File getM_deletedFile() {
+        return m_deletedFile;
+    }
+
 
     /**********
      * Functions for observer pattern
@@ -367,9 +486,9 @@ public class SongManager {
 
     }
 
-    public void notifyFileObservers() {
+    public void notifyFileObservers(Actions action, File file) {
         for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.fileChanged();
+            observer.fileChanged(action, file);
         }
     }
 
