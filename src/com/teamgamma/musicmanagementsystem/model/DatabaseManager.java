@@ -32,6 +32,8 @@ public class DatabaseManager {
     private PreparedStatement m_getPlaylistsStatement;
     private PreparedStatement m_getSelectedLeftTreeItemStatement;
     private PreparedStatement m_getExpandedLeftTreeItemsStatement;
+    private PreparedStatement m_addHistoryStatement;
+    private PreparedStatement m_addPlaybackQueeStatement;
 
     public DatabaseManager() {
     }
@@ -47,6 +49,12 @@ public class DatabaseManager {
 
             m_addLeftTreeItemStatement = m_connection.prepareStatement("INSERT INTO LeftTreeView (path, isExpanded) " +
                                                                         "VALUES (?, ?)");
+
+            m_addHistoryStatement = m_connection.prepareStatement("INSERT INTO History (songPath) " +
+                                                                  "VALUES (?)");
+
+            m_addPlaybackQueeStatement = m_connection.prepareStatement("INSERT INTO PlaybackQueue (songPath) " +
+                                                                  "VALUES (?)");
 
             m_deleteLibraryStatement = m_connection.prepareStatement("DELETE FROM Library WHERE libraryPath=?");
 
@@ -358,6 +366,33 @@ public class DatabaseManager {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    /**
+     * Add the path of a song to the history table when a song is played
+     *
+     * @param songPath a string path of the song
+     */
+    public void addSongToHisotry(String songPath) {
+        try {
+            m_addHistoryStatement.setString(1, songPath);
+            m_addHistoryStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Add the path of a song that is added to the playback queue
+     * @param songPath a string path of the song
+     */
+    public void addPlaybackQueue(String songPath) {
+        try {
+            m_addPlaybackQueeStatement.setString(1, songPath);
+            m_addPlaybackQueeStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
