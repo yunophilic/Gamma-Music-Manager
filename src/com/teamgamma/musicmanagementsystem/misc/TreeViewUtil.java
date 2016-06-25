@@ -41,16 +41,7 @@ public class TreeViewUtil {
             item.setGraphic(new ImageView(songImage));
         }
 
-        File[] children = file.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                if (showFolderOnly) {
-                    return f.isDirectory();
-                } else {
-                    return f.isDirectory() || f.getAbsolutePath().endsWith(".mp3");
-                }
-            }
-        });
+        File[] children = getFiles(file, showFolderOnly);
 
         if (children != null) {
             for (File child : children) {
@@ -59,6 +50,19 @@ public class TreeViewUtil {
         }
 
         return item;
+    }
+
+    private static File[] getFiles(File file, final boolean showFolderOnly) {
+        return file.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File f) {
+                    if (showFolderOnly) {
+                        return f.isDirectory();
+                    } else {
+                        return f.isDirectory() || f.getAbsolutePath().endsWith(".mp3");
+                    }
+                }
+            });
     }
 
     /**
@@ -215,9 +219,36 @@ public class TreeViewUtil {
 
         System.out.println("NEW FILE NAME: " + renamedFile);
 
-        TreeViewItem renamedItem = new TreeViewItem(renamedFile, model.isLibrary(renamedFile));
+        //TreeViewItem renamedItem = new TreeViewItem(renamedFile, model.isLibrary(renamedFile));
 
-        nodeToRename.setValue(renamedItem);
+        //TreeItem<TreeViewItem> renamedNode = generateTreeItems(renamedFile, renamedFile.getParent(), model.getM_menuOptions().getM_leftPanelShowFolder());
+        TreeItem<TreeViewItem> parentNode = nodeToRename.getParent();
+
+        System.out.println("^^^^ RENAMING NODE: " + nodeToRename);
+        System.out.println("^^^^ PARENT NODE: " + parentNode);
+        //System.out.println("^^^^ NEW NODE: " + renamedNode);
+
+        /*parentNode.getChildren().remove(nodeToRename);
+        parentNode.getChildren().add(renamedNode);*/
+
+        recursivelyRenameNodes(nodeToRename, renamedFile.getAbsolutePath(), model);
+    }
+
+    private static void recursivelyRenameNodes(TreeItem<TreeViewItem> node, String path, SongManager model) {
+        File file = new File(path);
+
+        TreeViewItem newItem = new TreeViewItem(file, model.isLibrary(file));
+        System.out.println("^^^^ NEW ITEM: " + newItem);
+        node.setValue(newItem);
+
+        List<TreeItem<TreeViewItem>> children = node.getChildren();
+
+        if (children != null) {
+            for (TreeItem<TreeViewItem> child : children) {
+                String newPath = path + File.separator + child.getValue().getM_file().getName();
+                recursivelyRenameNodes(child, newPath, model);
+            }
+        }
     }
 
     private static void addNewNode(TreeView<TreeViewItem> tree, SongManager model, String fileName, String newParentPath) {
