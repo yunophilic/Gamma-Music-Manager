@@ -290,11 +290,14 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 targetNode.getChildren().add(nodeToMove);
                 targetNode.setExpanded(true);*/
 
-                //move in the file system
-                File fileToMove = m_model.getM_fileToMove();
-                File destination = m_selectedTreeViewItem.getM_file();
                 try {
-                    m_model.moveFile(fileToMove, destination);
+                    //move in the file system
+                    File fileToMove = m_model.getM_fileToMove();
+                    File destination = m_selectedTreeViewItem.getM_file();
+
+                    if (!fileToMove.getParent().equals(destination.getAbsolutePath())) {
+                        m_model.moveFile(fileToMove, destination);
+                    }
                 } catch (FileAlreadyExistsException ex) {
                     PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
                 } catch (AccessDeniedException ex) {
