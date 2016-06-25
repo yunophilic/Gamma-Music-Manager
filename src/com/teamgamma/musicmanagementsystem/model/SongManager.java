@@ -354,6 +354,8 @@ public class SongManager {
     public void renameFile(File fileToRename, Path newPath) {
         m_renamedFile = new File(newPath.toString());
 
+        updateLibraries();
+
         notifyFileObservers(Actions.RENAME, fileToRename);
     }
 
