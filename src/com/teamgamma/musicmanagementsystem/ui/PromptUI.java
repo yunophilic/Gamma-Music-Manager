@@ -390,7 +390,7 @@ public class PromptUI {
 
 
     /**
-     * Renames file . Keeps track of "_n" suffix of file if more duplicates found, and increments n
+     * Renames folder. Keeps track of "_n" suffix of file if more duplicates found, and increments n
      * (shown as the default value for the text box)
      *
      * @param duplicate file
@@ -401,6 +401,7 @@ public class PromptUI {
         int beforeExtension = fileNameFull.lastIndexOf('.');
         String lastChar = fileNameFull.substring(beforeExtension - 1, beforeExtension);
 
+        // TODO FIX INCREMENT FOR LAST CHARACTER
         if (!Character.isLetter(lastChar.charAt(0))) {
             numIndex = Character.getNumericValue(lastChar.charAt(0)) + 1;
             fileNameFull = fileNameFull.substring(0, beforeExtension - 2) +
@@ -436,39 +437,110 @@ public class PromptUI {
     }
 
     /**
-     * Renames file
+     * Renames folder. Keeps track of "_n" suffix of file if more duplicates found, and increments n
+     * (shown as the default value for the text box)
+     *
+     * @param duplicate folder
      */
-    public static void fileRename(File fileToRename) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Rename Media File");
+    public static void folderRenameDuplicate(File duplicate) {
+        int numIndex = 2;
+        String folderNameFull = duplicate.getName();
+        int lastCharIndex = folderNameFull.length() - 1;
 
-        String fileNameFull = fileToRename.getName();
-        int beforeExtension = fileNameFull.lastIndexOf('.');
-        String fileName = fileNameFull.substring(0, beforeExtension);
-        String extension = fileNameFull.substring(beforeExtension);
+        // TODO FIX INCREMENT FOR LAST CHARACTER
+        if (!Character.isLetter(folderNameFull.charAt(lastCharIndex))) {
+            numIndex = Character.getNumericValue(lastCharIndex) + 1;
+        }
 
-        dialog.setHeaderText(fileName + ":");
+        TextInputDialog dialog = new TextInputDialog(folderNameFull + "_" + numIndex);
+        dialog.setTitle("Name Already Exists");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "rename-song.png"))));
-        dialog.setContentText("Rename the file to:");
+                "rename-folder-exists.png"))));
+        dialog.setHeaderText("The folder name \"" + duplicate.getName() + "\" already exists in the directory!");
+        dialog.setContentText("Rename the folder to:");
 
         Optional<String> result = dialog.showAndWait();
 
         try {
-            Path source = Paths.get(fileToRename.getAbsolutePath());
+            Path source = Paths.get(duplicate.getAbsolutePath());
             if (result.isPresent()) {
-                String parentDirectory = fileToRename.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
+                String parentDirectory = duplicate.getParent();
+                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
                 if (result.get().isEmpty()) {
-                    fileRenameRetry(fileToRename);
+                    folderRenameRetry(duplicate);
                 } else if (nameAlreadyExists.exists()) {
-                    fileRenameDuplicate(nameAlreadyExists);
+                    folderRenameDuplicate(nameAlreadyExists);
                 }
-                Files.move(source, source.resolveSibling(result.get() + extension));
+                Files.move(source, source.resolveSibling(result.get()));
             }
         } catch (IOException e) {
-            failedToRename(fileToRename);
+            failedToRename(duplicate);
         }
+    }
+
+    /**
+     * Renames file or a library folder
+     */
+    public static void fileRename(File fileToRename) {
+        TextInputDialog dialog = new TextInputDialog();
+
+        String fileNameFull = fileToRename.getName();
+
+        // Rename library
+        if (fileToRename.isDirectory()) {
+            dialog.setTitle("Rename Library");
+            dialog.setHeaderText(fileNameFull + ":");
+            dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                    "rename-library.png"))));
+            dialog.setContentText("Rename the library to:");
+            Optional<String> result = dialog.showAndWait();
+
+            try {
+                Path source = Paths.get(fileToRename.getAbsolutePath());
+                if (result.isPresent()) {
+                    String parentDirectory = fileToRename.getParent();
+                    File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                    if (result.get().isEmpty()) {
+                        folderRenameRetry(fileToRename);
+                    } else if (nameAlreadyExists.exists()) {
+                        folderRenameDuplicate(nameAlreadyExists);
+                    }
+                    Files.move(source, source.resolveSibling(result.get()));
+                }
+            } catch (IOException e) {
+                failedToRename(fileToRename);
+            }
+            // Rename media file
+        } else {
+            dialog.setTitle("Rename Media File");
+            int beforeExtension = fileNameFull.lastIndexOf('.');
+            String fileName = fileNameFull.substring(0, beforeExtension);
+            String extension = fileNameFull.substring(beforeExtension);
+
+            dialog.setHeaderText(fileName + ":");
+            dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                    "rename-song.png"))));
+            dialog.setContentText("Rename the file to:");
+
+            Optional<String> result = dialog.showAndWait();
+
+            try {
+                Path source = Paths.get(fileToRename.getAbsolutePath());
+                if (result.isPresent()) {
+                    String parentDirectory = fileToRename.getParent();
+                    File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
+                    if (result.get().isEmpty()) {
+                        fileRenameRetry(fileToRename);
+                    } else if (nameAlreadyExists.exists()) {
+                        fileRenameDuplicate(nameAlreadyExists);
+                    }
+                    Files.move(source, source.resolveSibling(result.get() + extension));
+                }
+            } catch (IOException e) {
+                failedToRename(fileToRename);
+            }
+        }
+
     }
 
     /**
@@ -504,6 +576,36 @@ public class PromptUI {
             }
         } catch (IOException e) {
             failedToRename(fileToRename);
+        }
+    }
+
+    private static void folderRenameRetry(File folderToRename) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Rename Media File");
+
+        String folderName = folderToRename.getName();
+
+        dialog.setHeaderText("Please enter at least one character \n to rename \"" + folderName + "\":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-library.png"))));
+        dialog.setContentText("Rename the file to:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        try {
+            Path source = Paths.get(folderToRename.getAbsolutePath());
+            if (result.isPresent()) {
+                String parentDirectory = folderToRename.getParent();
+                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                if (result.get().isEmpty()) {
+                    folderRenameRetry(folderToRename);
+                } else if (nameAlreadyExists.exists()) {
+                    folderRenameDuplicate(nameAlreadyExists);
+                }
+                Files.move(source, source.resolveSibling(result.get()));
+            }
+        } catch (IOException e) {
+            failedToRename(folderToRename);
         }
     }
 
