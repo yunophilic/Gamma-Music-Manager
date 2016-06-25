@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import javafx.scene.image.Image;
@@ -626,7 +628,7 @@ public class PromptUI {
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
             String playlistName = result.get();
-            while (playlistName!=null && playlistName.isEmpty()) {
+            while (playlistName != null && playlistName.isEmpty()) {
                 playlistName = createNewPlaylistRetry();
             }
             return playlistName;
@@ -673,7 +675,7 @@ public class PromptUI {
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
             String newPlaylistName = result.get();
-            while (newPlaylistName!=null && newPlaylistName.isEmpty()) {
+            while (newPlaylistName != null && newPlaylistName.isEmpty()) {
                 newPlaylistName = editPlaylistRetry(playlistToEdit);
             }
             return newPlaylistName;
@@ -712,11 +714,60 @@ public class PromptUI {
     public static boolean removePlaylist(Playlist playlistToRemove) {
         Dialog dialog = new Dialog();
         dialog.setTitle("Remove Playlist");
-
         dialog.setHeaderText("\"" + playlistToRemove.getM_playlistName() + "\":");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "remove-playlist.png"))));
         dialog.setContentText("Are you sure you want to remove this playlist?");
+        ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
+
+        Optional result = dialog.showAndWait();
+
+        return result.isPresent() && result.get() == okButton;
+    }
+
+    /**
+     * Prompt to add a song to a  playlist
+     *
+     * @param playlists list of playlists
+     * @param songName  song that is added to selected playlist
+     * @return selectedPlaylist the user chooses, null if user cancels
+     */
+    public static Playlist addSongToPlaylist(List<Playlist> playlists, Song songName) {
+        List<String> playlistNames = new ArrayList<>();
+        for (Playlist playlist : playlists) {
+            playlistNames.add(playlist.getM_playlistName());
+        }
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("Select a playlist", playlistNames);
+        dialog.setTitle("Add to Playlist");
+        dialog.setHeaderText("Add \"" + songName.getM_title() + "\" to playlist:");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "add-song-playlist.png"))));
+        dialog.setContentText("Select a playlist:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()) {
+            Playlist selectedPlaylist = new Playlist(result.get());
+            return selectedPlaylist;
+        }
+        return null;
+    }
+
+    /**
+     * Prompt to remove a song from a  playlist
+     *
+     * @param playlist song is being removed from
+     * @param songName song that is added to selected playlist
+     * @return true if user confirms dialog, false otherwise
+     */
+    public static boolean removeSongFromPlaylist(Playlist playlist, Song songName) {
+        Dialog dialog = new Dialog();
+        dialog.setTitle("Remove from Playlist");
+        dialog.setHeaderText("Remove \"" + songName.getM_title() + "\" from " + playlist.getM_playlistName() + ":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "remove-song-playlist.png"))));
+        dialog.setContentText("Are you sure you want to remove this song from the playlist?");
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
 
