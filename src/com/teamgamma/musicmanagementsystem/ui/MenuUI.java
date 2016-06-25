@@ -3,6 +3,7 @@ package com.teamgamma.musicmanagementsystem.ui;
 import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.MenuOptions;
+import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -27,11 +28,7 @@ public class MenuUI extends MenuBar{
     }
 
     private void setMenu() {
-        final Menu menuFile = getMenuFile();
-
-        final Menu menuOptions = getMenuOptions();
-
-        this.getMenus().addAll(menuFile, menuOptions);
+        super.getMenus().addAll(getMenuFile(), getMenuOptions(), getPlaylistSubMenu());
     }
 
     private Menu getMenuFile() {
@@ -88,7 +85,7 @@ public class MenuUI extends MenuBar{
         return leftPanelSubMenu;
     }
 
-    public Menu getCenterPanelSubMenu() {
+    private Menu getCenterPanelSubMenu() {
         Menu centerPanelSubMenu = new Menu("Center Panel");
         CheckMenuItem showFoldersOnly = new CheckMenuItem("Show files in subfolders");
 
@@ -106,9 +103,37 @@ public class MenuUI extends MenuBar{
             m_model.notifyCenterFolderObservers();
         });
 
-        m_model.notifyCenterFolderObservers();
+        //m_model.notifyCenterFolderObservers();
 
         centerPanelSubMenu.getItems().addAll(showFoldersOnly);
         return centerPanelSubMenu;
+    }
+
+    private Menu getPlaylistSubMenu() {
+        Menu playlistSubMenu = new Menu("Playlist");
+
+        MenuItem createNewPlaylistMenu = new MenuItem("Create New Playlist");
+        createNewPlaylistMenu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                String newPlaylistName = PromptUI.createNewPlaylist();
+                if (newPlaylistName != null) {
+                    m_model.addPlaylist(newPlaylistName);
+                    m_databaseManager.addPlaylist(newPlaylistName);
+                    m_model.notifyPlaylistsObservers();
+                }
+            }
+        });
+
+        MenuItem removePlaylistMenu = new MenuItem("Remove Existing Playlist");
+        removePlaylistMenu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //TODO: implement this after prompt UI is ready.
+            }
+        });
+
+        playlistSubMenu.getItems().addAll(createNewPlaylistMenu);
+        return playlistSubMenu;
     }
 }

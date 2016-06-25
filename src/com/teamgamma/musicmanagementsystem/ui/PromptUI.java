@@ -17,9 +17,7 @@ import java.util.Optional;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.StageStyle;
 
 
 /**
@@ -392,17 +390,18 @@ public class PromptUI {
 
 
     /**
-     * Renames file . Keeps track of "_n" suffix of file if more duplicates found, and increments n
+     * Renames folder. Keeps track of "_n" suffix of file if more duplicates found, and increments n
      * (shown as the default value for the text box)
      *
      * @param duplicate file
      */
-    public static void fileRenameDuplicate(File duplicate) {
+    public static Path fileRenameDuplicate(File duplicate) {
         int numIndex = 2;
         String fileNameFull = duplicate.getName();
         int beforeExtension = fileNameFull.lastIndexOf('.');
         String lastChar = fileNameFull.substring(beforeExtension - 1, beforeExtension);
 
+        // TODO FIX INCREMENT FOR LAST CHARACTER
         if (!Character.isLetter(lastChar.charAt(0))) {
             numIndex = Character.getNumericValue(lastChar.charAt(0)) + 1;
             fileNameFull = fileNameFull.substring(0, beforeExtension - 2) +
@@ -426,50 +425,124 @@ public class PromptUI {
                 String parentDirectory = duplicate.getParent();
                 File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
                 if (result.get().isEmpty()) {
-                    fileRenameRetry(duplicate);
+                    return fileRenameRetry(duplicate);
                 } else if (nameAlreadyExists.exists()) {
-                    fileRenameDuplicate(nameAlreadyExists);
+                    return fileRenameDuplicate(nameAlreadyExists);
                 }
-                Files.move(source, source.resolveSibling(result.get()));
+                return Files.move(source, source.resolveSibling(result.get()));
             }
         } catch (IOException e) {
             failedToRename(duplicate);
         }
+
+        return null;
     }
 
     /**
-     * Renames file
+     * Renames folder. Keeps track of "_n" suffix of file if more duplicates found, and increments n
+     * (shown as the default value for the text box)
+     *
+     * @param duplicate folder
      */
-    public static Path fileRename(File fileToRename) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Rename Media File");
+    public static Path folderRenameDuplicate(File duplicate) {
+        int numIndex = 2;
+        String folderNameFull = duplicate.getName();
+        int lastCharIndex = folderNameFull.length() - 1;
 
-        String fileNameFull = fileToRename.getName();
-        int beforeExtension = fileNameFull.lastIndexOf('.');
-        String fileName = fileNameFull.substring(0, beforeExtension);
-        String extension = fileNameFull.substring(beforeExtension);
+        // TODO FIX INCREMENT FOR LAST CHARACTER
+        if (!Character.isLetter(folderNameFull.charAt(lastCharIndex))) {
+            numIndex = Character.getNumericValue(lastCharIndex) + 1;
+        }
 
-        dialog.setHeaderText(fileName + ":");
+        TextInputDialog dialog = new TextInputDialog(folderNameFull + "_" + numIndex);
+        dialog.setTitle("Name Already Exists");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "rename-song.png"))));
-        dialog.setContentText("Rename the file to:");
+                "rename-folder-exists.png"))));
+        dialog.setHeaderText("The folder name \"" + duplicate.getName() + "\" already exists in the directory!");
+        dialog.setContentText("Rename the folder to:");
 
         Optional<String> result = dialog.showAndWait();
 
         try {
-            Path source = Paths.get(fileToRename.getAbsolutePath());
+            Path source = Paths.get(duplicate.getAbsolutePath());
             if (result.isPresent()) {
-                String parentDirectory = fileToRename.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
+                String parentDirectory = duplicate.getParent();
+                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
                 if (result.get().isEmpty()) {
-                    fileRenameRetry(fileToRename);
+                    return folderRenameRetry(duplicate);
                 } else if (nameAlreadyExists.exists()) {
-                    fileRenameDuplicate(nameAlreadyExists);
+                    return folderRenameDuplicate(nameAlreadyExists);
                 }
-                return Files.move(source, source.resolveSibling(result.get() + extension));
+                return Files.move(source, source.resolveSibling(result.get()));
             }
         } catch (IOException e) {
-            failedToRename(fileToRename);
+            failedToRename(duplicate);
+        }
+
+        return null;
+    }
+
+    /**
+     * Renames file or a library folder
+     */
+    public static Path fileRename(File fileToRename) {
+        TextInputDialog dialog = new TextInputDialog();
+
+        String fileNameFull = fileToRename.getName();
+
+        // Rename library
+        if (fileToRename.isDirectory()) {
+            dialog.setTitle("Rename Library");
+            dialog.setHeaderText(fileNameFull + ":");
+            dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                    "rename-library.png"))));
+            dialog.setContentText("Rename the library to:");
+            Optional<String> result = dialog.showAndWait();
+
+            try {
+                Path source = Paths.get(fileToRename.getAbsolutePath());
+                if (result.isPresent()) {
+                    String parentDirectory = fileToRename.getParent();
+                    File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                    if (result.get().isEmpty()) {
+                        return folderRenameRetry(fileToRename);
+                    } else if (nameAlreadyExists.exists()) {
+                        return folderRenameDuplicate(nameAlreadyExists);
+                    }
+                    return Files.move(source, source.resolveSibling(result.get()));
+                }
+            } catch (IOException e) {
+                failedToRename(fileToRename);
+            }
+            // Rename media file
+        } else {
+            dialog.setTitle("Rename Media File");
+            int beforeExtension = fileNameFull.lastIndexOf('.');
+            String fileName = fileNameFull.substring(0, beforeExtension);
+            String extension = fileNameFull.substring(beforeExtension);
+
+            dialog.setHeaderText(fileName + ":");
+            dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                    "rename-song.png"))));
+            dialog.setContentText("Rename the file to:");
+
+            Optional<String> result = dialog.showAndWait();
+
+            try {
+                Path source = Paths.get(fileToRename.getAbsolutePath());
+                if (result.isPresent()) {
+                    String parentDirectory = fileToRename.getParent();
+                    File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
+                    if (result.get().isEmpty()) {
+                        return fileRenameRetry(fileToRename);
+                    } else if (nameAlreadyExists.exists()) {
+                        return fileRenameDuplicate(nameAlreadyExists);
+                    }
+                    return Files.move(source, source.resolveSibling(result.get() + extension));
+                }
+            } catch (IOException e) {
+                failedToRename(fileToRename);
+            }
         }
 
         return null;
@@ -478,7 +551,7 @@ public class PromptUI {
     /**
      * Renames file after previous rename attempt has blank in text box
      */
-    private static void fileRenameRetry(File fileToRename) {
+    private static Path fileRenameRetry(File fileToRename) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Rename Media File");
 
@@ -500,25 +573,59 @@ public class PromptUI {
                 String parentDirectory = fileToRename.getParent();
                 File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
                 if (result.get().isEmpty()) {
-                    fileRenameRetry(fileToRename);
+                    return fileRenameRetry(fileToRename);
                 } else if (nameAlreadyExists.exists()) {
-                    fileRenameDuplicate(nameAlreadyExists);
+                    return fileRenameDuplicate(nameAlreadyExists);
                 }
-                Files.move(source, source.resolveSibling(result.get() + extension));
+                return Files.move(source, source.resolveSibling(result.get() + extension));
             }
         } catch (IOException e) {
             failedToRename(fileToRename);
         }
+
+        return null;
+    }
+
+    private static Path folderRenameRetry(File folderToRename) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Rename Media File");
+
+        String folderName = folderToRename.getName();
+
+        dialog.setHeaderText("Please enter at least one character \n to rename \"" + folderName + "\":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-library.png"))));
+        dialog.setContentText("Rename the file to:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        try {
+            Path source = Paths.get(folderToRename.getAbsolutePath());
+            if (result.isPresent()) {
+                String parentDirectory = folderToRename.getParent();
+                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                if (result.get().isEmpty()) {
+                    return folderRenameRetry(folderToRename);
+                } else if (nameAlreadyExists.exists()) {
+                    return folderRenameDuplicate(nameAlreadyExists);
+                }
+                return Files.move(source, source.resolveSibling(result.get()));
+            }
+        } catch (IOException e) {
+            failedToRename(folderToRename);
+        }
+
+        return null;
     }
 
     /**
-     * Prompt to add playlist
+     * Prompt to create new playlist
      *
      * @return playlistName, otherwise null if user clicks cancel
      */
-    public static String addNewPlaylist() {
+    public static String createNewPlaylist() {
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Add Playlist");
+        dialog.setTitle("Create New Playlist");
 
         dialog.setHeaderText(null);
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
@@ -526,22 +633,22 @@ public class PromptUI {
         dialog.setContentText("New playlist:");
 
         Optional<String> result = dialog.showAndWait();
-
         if (result.isPresent()) {
-            if (result.get().isEmpty()) {
-                addPlaylistRetry();
+            String playlistName = result.get();
+            while (playlistName!=null && playlistName.isEmpty()) {
+                playlistName = createNewPlaylistRetry();
             }
-            return result.get();
+            return playlistName;
         }
         return null;
     }
 
     /**
-     * Prompt to add playlist after previous add playlist attempt has blank text box
+     * Prompt to create new playlist after previous attempt has blank text box
      *
      * @return playlistName, otherwise null if user clicks cancel
      */
-    private static String addPlaylistRetry() {
+    private static String createNewPlaylistRetry() {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Add Playlist");
 
@@ -551,11 +658,7 @@ public class PromptUI {
         dialog.setContentText("New playlist:");
 
         Optional<String> result = dialog.showAndWait();
-
         if (result.isPresent()) {
-            if (result.get().isEmpty()) {
-                addPlaylistRetry();
-            }
             return result.get();
         }
         return null;
@@ -565,7 +668,7 @@ public class PromptUI {
      * Prompt to edit playlist after previous add playlist attempt has blank text box
      *
      * @param playlistToEdit to edit
-     * @return newPlaylistName
+     * @return newPlaylistName, or null if user clicks cancel
      */
     public static String editPlaylist(Playlist playlistToEdit) {
         TextInputDialog dialog = new TextInputDialog();
@@ -577,12 +680,12 @@ public class PromptUI {
         dialog.setContentText("Rename playlist:");
 
         Optional<String> result = dialog.showAndWait();
-
         if (result.isPresent()) {
-            if (result.get().isEmpty()) {
-                editPlaylistRetry(playlistToEdit);
+            String newPlaylistName = result.get();
+            while (newPlaylistName!=null && newPlaylistName.isEmpty()) {
+                newPlaylistName = editPlaylistRetry(playlistToEdit);
             }
-            return result.get();
+            return newPlaylistName;
         }
         return null;
     }
@@ -591,7 +694,7 @@ public class PromptUI {
      * Prompt to edit playlist
      *
      * @param playlistToEdit to edit
-     * @return newPlaylistName
+     * @return newPlaylistName, or null if user clicks cancel
      */
     private static String editPlaylistRetry(Playlist playlistToEdit) {
         TextInputDialog dialog = new TextInputDialog();
@@ -603,11 +706,7 @@ public class PromptUI {
         dialog.setContentText("Rename playlist \"" + playlistToEdit.getM_playlistName() + "\":");
 
         Optional<String> result = dialog.showAndWait();
-
         if (result.isPresent()) {
-            if (result.get().isEmpty()) {
-                editPlaylistRetry(playlistToEdit);
-            }
             return result.get();
         }
         return null;

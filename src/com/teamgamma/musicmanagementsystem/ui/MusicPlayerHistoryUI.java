@@ -91,7 +91,7 @@ public class MusicPlayerHistoryUI extends HBox{
         VBox allSongs = new VBox();
         allSongs.setSpacing(VERTICAL_SPACING);
 
-        int songNumber = 0;
+        int songNumber = 1;
         for (Song song : listOfSongs) {
             HBox row = rowCreation.createRow(song, songNumber);
             String baseStyle = row.getStyle();
@@ -198,18 +198,18 @@ public class MusicPlayerHistoryUI extends HBox{
     private ILabelAction createPlaybackQueueAction(){
         return new ILabelAction() {
             @Override
-            public HBox createRow(Song songForRow, int songIndex) {
+            public HBox createRow(Song songForRow, int songNumber) {
                 HBox row = new HBox();
 
-                if (songIndex == 0) {
-                    row.getChildren().add(createOldestStyleLabel(Integer.toString(songIndex)));
+                if (songNumber == 1) {
+                    row.getChildren().add(createOldestStyleLabel(Integer.toString(songNumber)));
 
                     Label fileName = createOldestStyleLabel(songForRow.getM_fileName());
                     row.getChildren().add(fileName);
                     HBox.setHgrow(fileName, Priority.ALWAYS);
 
                 } else {
-                    row.getChildren().add(new Label(Integer.toString(songIndex)));
+                    row.getChildren().add(new Label(Integer.toString(songNumber)));
 
                     Label fileName = new Label(songForRow.getM_fileName());
                     row.getChildren().add(fileName);
@@ -230,24 +230,24 @@ public class MusicPlayerHistoryUI extends HBox{
     private ILabelAction createHistoryAction(){
         return new ILabelAction() {
             @Override
-            public HBox createRow(Song songForRow, int songIndex) {
+            public HBox createRow(Song songForRow, int songNumber) {
                 HBox row = new HBox();
 
-                if (songIndex == 0) {
-                    row.getChildren().add(createOldestStyleLabel(Integer.toString(songIndex)));
+                if (songNumber == 1) {
+                    row.getChildren().add(createOldestStyleLabel(Integer.toString(songNumber)));
 
                     Label fileName = createOldestStyleLabel(songForRow.getM_fileName());
                     row.getChildren().add(fileName);
                     HBox.setHgrow(fileName, Priority.ALWAYS);
                 } else {
-                    row.getChildren().add(new Label(Integer.toString(songIndex)));
+                    row.getChildren().add(new Label(Integer.toString(songNumber)));
 
                     Label fileName = new Label(songForRow.getM_fileName());
                     row.getChildren().add(fileName);
                     HBox.setHgrow(fileName, Priority.ALWAYS);
                 }
 
-                if (m_manager.isPlayingSongOnFromHistoryList() && songIndex == m_manager.getM_historyIndex()) {
+                if (m_manager.isPlayingSongOnFromHistoryList() && songNumber == m_manager.getM_historyIndex()) {
                     row.setStyle("-fx-background-color: lightblue");
                 }
                 return row;

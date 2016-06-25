@@ -98,7 +98,9 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     File fileToRename = m_selectedTreeViewItem.getM_file();
                     Path newPath = PromptUI.fileRename(fileToRename);
 
-                    m_model.renameFile(fileToRename, newPath);
+                    if (newPath != null) {
+                        m_model.renameFile(fileToRename, newPath);
+                    }
                 }
             }
         });

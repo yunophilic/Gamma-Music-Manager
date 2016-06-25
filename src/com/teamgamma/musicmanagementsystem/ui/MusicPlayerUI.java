@@ -4,6 +4,7 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
 
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 
@@ -48,6 +49,7 @@ public class MusicPlayerUI extends VBox {
     public static final String CURRENT_SONG_PLAYING_HEADER = "Playing: ";
     public static final double FADED = 0.5;
     public static final double NOT_FADED = 1.0;
+    public static final int TITLE_ANIMATION_TIME_MS = 5000;
 
     /**
      * Constructor
@@ -377,29 +379,39 @@ public class MusicPlayerUI extends VBox {
     /**
      * Function to create the current song playing UI component.
      *
-     * @param manager The music player manager to setup the observer patttern.
-     * @return
+     * @param manager The music player manager to setup the observer pattern.
+     *
+     * @return The song header componet.
      */
-    private HBox makeSongTitleHeader(final MusicPlayerManager manager) {
-        HBox songTitleWrapper = new HBox();
+    private VBox makeSongTitleHeader(final MusicPlayerManager manager) {
+        VBox songTitleWrapper = new VBox();
 
         Font songHeaderFont = new Font(SONG_TITLE_HEADER_SIZE);
         Label songTitleHeader = new Label(CURRENT_SONG_PLAYING_HEADER);
         songTitleHeader.setFont(songHeaderFont);
 
         Label songTitle = new Label("");
+        songTitle.setMaxWidth(5000);
         songTitle.setFont(songHeaderFont);
-
+        songTitle.setWrapText(true);
         // Set up an observer that will update the name of the song when a new song is played.
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
+                songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
                 Song currentPlayingSong = manager.getCurrentSongPlaying();
                 if (currentPlayingSong == null) {
                     songTitle.setText("");
                 } else {
                     songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
+                
+                TranslateTransition songTitleAnimation = new TranslateTransition(
+                        new Duration(TITLE_ANIMATION_TIME_MS), songTitle);
+                songTitleAnimation.setFromX(songTitleWrapper.getWidth());
+                songTitleAnimation.setToX(0);
+                songTitleAnimation.play();
                 }
+
             }
         });
         songTitleWrapper.getChildren().addAll(songTitleHeader, songTitle);
