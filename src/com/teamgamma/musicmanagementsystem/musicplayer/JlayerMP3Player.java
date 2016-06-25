@@ -191,6 +191,7 @@ public class JlayerMP3Player implements IMusicPlayer{
                 } catch (ArrayIndexOutOfBoundsException arrayOutOfBounds) {
                     // Need to reset the player as we hit the 0.01% case that this exception happen as said in their
                     // documentation
+                    arrayOutOfBounds.printStackTrace();
                     m_manager.pause();
                     m_manager.resume();
                 } catch (Exception e) {
@@ -237,6 +238,7 @@ public class JlayerMP3Player implements IMusicPlayer{
                 } catch (ArrayIndexOutOfBoundsException arrayOutOfBounds) {
                     // Need to reset the player as we hit the 0.01% case that this exception happen as said in their
                     // documentation
+                    arrayOutOfBounds.printStackTrace();
                     m_manager.pause();
                     m_manager.resume();
                 } catch (Exception e) {
