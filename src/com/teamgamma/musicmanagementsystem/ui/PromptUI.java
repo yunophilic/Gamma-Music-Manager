@@ -706,6 +706,32 @@ public class PromptUI {
     }
 
     /**
+     * Prompt to add a song to a  playlist with a drop down choice box
+     *
+     * @param playlists list of playlists
+     * @return selectedPlaylist the user chooses, null if user cancels
+     */
+    public static Playlist removePlaylistSelection(List<Playlist> playlists) {
+        List<String> playlistNames = new ArrayList<>();
+        for (Playlist playlist : playlists) {
+            playlistNames.add(playlist.getM_playlistName());
+        }
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("Select a playlist", playlistNames);
+        dialog.setTitle("Remove Playlist");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "remove-playlist.png"))));
+        dialog.setContentText("Select a playlist:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()){
+            Playlist selectedPlaylist = new Playlist(result.get());
+            return selectedPlaylist;
+        }
+        return null;
+    }
+
+    /**
      * Prompt to remove playlist
      *
      * @param playlistToRemove to remove
