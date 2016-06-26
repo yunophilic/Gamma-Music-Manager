@@ -826,33 +826,7 @@ public class PromptUI {
         }
         return null;
     }
-
-    /**
-     * Prompt to add a song to a  playlist with a drop down choice box
-     *
-     * @param playlists list of playlists
-     * @return selectedPlaylist the user chooses, null if user cancels
-     */
-    public static Playlist removePlaylistSelection(List<Playlist> playlists) {
-        List<String> playlistNames = new ArrayList<>();
-        for (Playlist playlist : playlists) {
-            playlistNames.add(playlist.getM_playlistName());
-        }
-        ChoiceDialog<String> dialog = new ChoiceDialog<>("Select a playlist", playlistNames);
-        dialog.setTitle("Remove Playlist");
-        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "remove-playlist.png"))));
-        dialog.setContentText("Select a playlist:");
-
-        Optional<String> result = dialog.showAndWait();
-
-        if (result.isPresent()) {
-            Playlist selectedPlaylist = new Playlist(result.get());
-            return selectedPlaylist;
-        }
-        return null;
-    }
-
+    
     /**
      * Prompt to remove playlist
      *
@@ -875,29 +849,41 @@ public class PromptUI {
     }
 
     /**
+     * Prompt to add a song to a  playlist with a drop down choice box
+     *
+     * @param playlists list of playlists
+     * @return selected playlist the user chooses, null if user cancels
+     */
+    public static Playlist removePlaylistSelection(List<Playlist> playlists) {
+        ChoiceDialog<Playlist> dialog = new ChoiceDialog<>(playlists.get(0), playlists);
+        dialog.setTitle("Remove Playlist");
+        dialog.setGraphic(new ImageView("res" + File.separator + "remove-playlist.png"));
+        dialog.setContentText("Select a playlist:");
+
+        Optional<Playlist> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            return result.get();
+        }
+        return null;
+    }
+
+    /**
      * Prompt to add a song to a  playlist
      *
      * @param playlists list of playlists
-     * @param songName  song that is added to selected playlist
-     * @return selectedPlaylist the user chooses, null if user cancels
+     * @param songToAdd  song that is added to selected playlist
+     * @return selected playlist the user chooses, null if user cancels
      */
-    public static Playlist addSongToPlaylist(List<Playlist> playlists, Song songName) {
-        List<String> playlistNames = new ArrayList<>();
-        for (Playlist playlist : playlists) {
-            playlistNames.add(playlist.getM_playlistName());
-        }
-        ChoiceDialog<String> dialog = new ChoiceDialog<>("Select a playlist", playlistNames);
+    public static Playlist addSongToPlaylist(List<Playlist> playlists, Song songToAdd) {
+        ChoiceDialog<Playlist> dialog = new ChoiceDialog<>(playlists.get(0), playlists);
         dialog.setTitle("Add to Playlist");
-        dialog.setHeaderText("Add \"" + songName.getM_title() + "\" to playlist:");
-        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "add-song-playlist.png"))));
+        dialog.setHeaderText("Add \"" + songToAdd.getM_title() + "\" to playlist:");
+        dialog.setGraphic(new ImageView("res" + File.separator + "add-song-playlist.png"));
         dialog.setContentText("Select a playlist:");
 
-        Optional<String> result = dialog.showAndWait();
-
+        Optional<Playlist> result = dialog.showAndWait();
         if (result.isPresent()) {
-            Playlist selectedPlaylist = new Playlist(result.get());
-            return selectedPlaylist;
+            return result.get();
         }
         return null;
     }
@@ -913,14 +899,12 @@ public class PromptUI {
         Dialog dialog = new Dialog();
         dialog.setTitle("Remove from Playlist");
         dialog.setHeaderText("Remove \"" + songName.getM_title() + "\" from " + playlist.getM_playlistName() + ":");
-        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "remove-song-playlist.png"))));
+        dialog.setGraphic(new ImageView("res" + File.separator + "remove-song-playlist.png"));
         dialog.setContentText("Are you sure you want to remove this song from the playlist?");
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
 
         Optional result = dialog.showAndWait();
-
         return result.isPresent() && result.get() == okButton;
     }
 
