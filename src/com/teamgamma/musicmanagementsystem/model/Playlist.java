@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.model;
 
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+import com.teamgamma.musicmanagementsystem.model.PlaylistObserver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,9 +10,10 @@ import java.util.List;
 /**
  * Class that represents a playlist
  */
-public class Playlist {
+public class Playlist implements PlaylistObserver {
     private String m_playlistName;
     private List<Song> m_songList;
+    public int currentPlaylistSong = 0;
 
     public Playlist(String playlistName) {
         m_playlistName = playlistName;
@@ -39,8 +41,14 @@ public class Playlist {
     /**
      * Shuffle order of songs in playlist
      */
-    public void shufflePlaylist() {
+    public List<Song> shufflePlaylist() {
+
         Collections.shuffle(m_songList);
+
+        // Call observer
+        playlistsChanged();
+        return m_songList;
+
     }
 
     public List<Song> shuffleSomePlaylist() {
@@ -84,8 +92,23 @@ public class Playlist {
             m_songList.add(s);
         }
 
+        // Call observer
+        playlistsChanged();
         return m_songList;
     }
+
+    // Return one song at a time
+    public Song oneAtATime() {
+
+        // Keep track of this int in the database, call it from the player
+        //currentPlaylistSong++;
+        return m_songList.get(currentPlaylistSong);
+    }
+
+    // TODO: Do this
+    /*public int getCurrentSongPlayingIndex() {
+        MusicPlayerManager
+    }*/
 
     public List<Song> getM_songList() {
         return m_songList;
@@ -107,5 +130,15 @@ public class Playlist {
     @Override
     public String toString() {
         return m_playlistName;
+    }
+
+    @Override
+    public void playlistsChanged() {
+
+    }
+
+    @Override
+    public void songsChanged() {
+
     }
 }
