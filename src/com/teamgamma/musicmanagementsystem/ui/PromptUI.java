@@ -15,6 +15,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -425,11 +427,13 @@ public class PromptUI {
             Path source = Paths.get(duplicate.getAbsolutePath());
             if (result.isPresent()) {
                 String parentDirectory = duplicate.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                File newName = new File(parentDirectory + File.separator + result.get());
                 if (result.get().isEmpty()) {
                     return fileRenameRetry(duplicate);
-                } else if (nameAlreadyExists.exists()) {
-                    return fileRenameDuplicate(nameAlreadyExists);
+                } else if (newName.exists()) {
+                    return fileRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return fileRenameInvalidChar(duplicate);
                 }
                 return Files.move(source, source.resolveSibling(result.get()));
             }
@@ -469,11 +473,13 @@ public class PromptUI {
             Path source = Paths.get(duplicate.getAbsolutePath());
             if (result.isPresent()) {
                 String parentDirectory = duplicate.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                File newName = new File(parentDirectory + File.separator + result.get());
                 if (result.get().isEmpty()) {
                     return folderRenameRetry(duplicate);
-                } else if (nameAlreadyExists.exists()) {
-                    return folderRenameDuplicate(nameAlreadyExists);
+                } else if (newName.exists()) {
+                    return folderRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(duplicate);
                 }
                 return Files.move(source, source.resolveSibling(result.get()));
             }
@@ -486,10 +492,11 @@ public class PromptUI {
 
     /**
      * Renames file or a library folder
+     *
+     * @param fileToRename file to rename
      */
     public static Path fileRename(File fileToRename) {
         TextInputDialog dialog = new TextInputDialog();
-
         String fileNameFull = fileToRename.getName();
 
         // Rename library
@@ -505,11 +512,13 @@ public class PromptUI {
                 Path source = Paths.get(fileToRename.getAbsolutePath());
                 if (result.isPresent()) {
                     String parentDirectory = fileToRename.getParent();
-                    File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                    File newName = new File(parentDirectory + File.separator + result.get());
                     if (result.get().isEmpty()) {
                         return folderRenameRetry(fileToRename);
-                    } else if (nameAlreadyExists.exists()) {
-                        return folderRenameDuplicate(nameAlreadyExists);
+                    } else if (newName.exists()) {
+                        return folderRenameDuplicate(newName);
+                    } else if (containsIllegalChar(result.get())) {
+                        return folderRenameInvalidChar(fileToRename);
                     }
                     return Files.move(source, source.resolveSibling(result.get()));
                 }
@@ -534,17 +543,115 @@ public class PromptUI {
                 Path source = Paths.get(fileToRename.getAbsolutePath());
                 if (result.isPresent()) {
                     String parentDirectory = fileToRename.getParent();
-                    File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
+                    File newName = new File(parentDirectory + File.separator + result.get() + extension);
                     if (result.get().isEmpty()) {
                         return fileRenameRetry(fileToRename);
-                    } else if (nameAlreadyExists.exists()) {
-                        return fileRenameDuplicate(nameAlreadyExists);
+                    } else if (newName.exists()) {
+                        return fileRenameDuplicate(newName);
+                    } else if (containsIllegalChar(result.get())) {
+                        return fileRenameInvalidChar(fileToRename);
                     }
                     return Files.move(source, source.resolveSibling(result.get() + extension));
                 }
             } catch (IOException e) {
                 failedToRename(fileToRename);
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check for illegal character
+     *
+     * @param toExamine file name to examine
+     */
+    private static boolean containsIllegalChar(String toExamine) {
+        Pattern pattern = Pattern.compile("[<>:\"/\\|?*]");
+        Matcher matcher = pattern.matcher(toExamine);
+        return matcher.find();
+    }
+
+    /**
+     * Rename file after invalid character is found on previous rename attempt
+     *
+     * @param fileToRename file to rename
+     */
+    private static Path fileRenameInvalidChar(File fileToRename) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Rename Media File");
+
+        String fileNameFull = fileToRename.getName();
+        int beforeExtension = fileNameFull.lastIndexOf('.');
+        String fileName = fileNameFull.substring(0, beforeExtension);
+        String extension = fileNameFull.substring(beforeExtension);
+
+        dialog.setHeaderText("The song name \"" + fileName + "\" cannot contain any of the following characters:\n" +
+                "< > : \" / \\ | ? *");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-song.png"))));
+        dialog.setContentText("Rename the file to:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        try {
+            Path source = Paths.get(fileToRename.getAbsolutePath());
+            if (result.isPresent()) {
+                String parentDirectory = fileToRename.getParent();
+                File newName = new File(parentDirectory + File.separator + result.get() + extension);
+                if (result.get().isEmpty()) {
+                    return fileRenameRetry(fileToRename);
+                } else if (newName.exists()) {
+                    return fileRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return fileRenameInvalidChar(fileToRename);
+                }
+                return Files.move(source, source.resolveSibling(result.get() + extension));
+            }
+        } catch (IOException e) {
+            failedToRename(fileToRename);
+        }
+
+        return null;
+    }
+
+    /**
+     * Rename library after invalid character is found on previous rename attempt
+     *
+     * @param folderToRename file to rename
+     */
+    private static Path folderRenameInvalidChar(File folderToRename) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Rename Library");
+
+        String folderName = folderToRename.getName();
+
+        dialog.setHeaderText("The library name \"" + folderName + "\" cannot contain any of the following characters:\n" +
+                "< > : \" / \\ | ? *");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-library.png"))));
+        dialog.setContentText("Rename the file to:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        try {
+            Path source = Paths.get(folderToRename.getAbsolutePath());
+            if (result.isPresent()) {
+                String parentDirectory = folderToRename.getParent();
+                File newName = new File(parentDirectory + File.separator + result.get());
+                if (result.get().isEmpty()) {
+                    return folderRenameRetry(folderToRename);
+                } else if (newName.exists()) {
+                    return folderRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(folderToRename);
+                }
+                return Files.move(source, source.resolveSibling(result.get()));
+            }
+        } catch (IOException e) {
+            failedToRename(folderToRename);
         }
 
         return null;
@@ -573,11 +680,13 @@ public class PromptUI {
             Path source = Paths.get(fileToRename.getAbsolutePath());
             if (result.isPresent()) {
                 String parentDirectory = fileToRename.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
+                File newName = new File(parentDirectory + File.separator + result.get() + extension);
                 if (result.get().isEmpty()) {
                     return fileRenameRetry(fileToRename);
-                } else if (nameAlreadyExists.exists()) {
-                    return fileRenameDuplicate(nameAlreadyExists);
+                } else if (newName.exists()) {
+                    return fileRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return fileRenameInvalidChar(fileToRename);
                 }
                 return Files.move(source, source.resolveSibling(result.get() + extension));
             }
@@ -605,11 +714,15 @@ public class PromptUI {
             Path source = Paths.get(folderToRename.getAbsolutePath());
             if (result.isPresent()) {
                 String parentDirectory = folderToRename.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                File newName = new File(parentDirectory + File.separator + result.get());
                 if (result.get().isEmpty()) {
                     return folderRenameRetry(folderToRename);
-                } else if (nameAlreadyExists.exists()) {
-                    return folderRenameDuplicate(nameAlreadyExists);
+                } else if (newName.exists()) {
+                    return folderRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(folderToRename);
                 }
                 return Files.move(source, source.resolveSibling(result.get()));
             }
@@ -733,7 +846,7 @@ public class PromptUI {
 
         Optional<String> result = dialog.showAndWait();
 
-        if (result.isPresent()){
+        if (result.isPresent()) {
             Playlist selectedPlaylist = new Playlist(result.get());
             return selectedPlaylist;
         }
