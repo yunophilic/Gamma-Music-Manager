@@ -3,15 +3,12 @@ package com.teamgamma.musicmanagementsystem.musicplayer;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 
-import javafx.scene.media.MediaException;
-import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
 import javax.sound.sampled.*;
 import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Class to manage the the MusicPlayer.
@@ -110,9 +107,10 @@ public class MusicPlayerManager {
      * @param nextSong
      */
     public void placeSongOnBackOfPlaybackQueue(Song nextSong) {
-        if (m_playingQueue.isEmpty() && !isSomethingPlaying()) {
-            m_musicPlayer.playSong(nextSong);
+        if (isNoSongPlayingOrNext()) {
             m_currentSong = nextSong;
+            m_musicPlayer.playSong(nextSong);
+
         } else {
             // TODO: Make it move to front by changing prioirty.
             m_playingQueue.add(nextSong);
@@ -121,6 +119,28 @@ public class MusicPlayerManager {
 
     }
 
+    /**
+     * Function to determine if there is a song playing and there is no song that is next.
+     *
+     * @return
+     */
+    private boolean isNoSongPlayingOrNext() {
+        return m_playingQueue.isEmpty() && !isSomethingPlaying();
+    }
+
+    /**
+     * Function to add a song to the front of the playback queue.
+     *
+     * @param songToPlace The song to place in the queue
+     */
+    public void placeSongAtStartOfQueue(Song songToPlace) {
+        boolean isNoSongPlaying = isNoSongPlayingOrNext();
+        m_playingQueue.addFirst(songToPlace);
+        if (isNoSongPlaying){
+            playNextSong();
+        }
+        notifyQueingObserver();
+    }
     /**
      * Function to play a playlist.
      * TODO: Revisit after playlist implementation.
@@ -511,15 +531,7 @@ public class MusicPlayerManager {
         notifyAll(m_queuingObserver);
     }
 
-    /**
-     * Function to add a song to the front of the playback queue.
-     *
-     * @param songToPlace The song to place in the queue
-     */
-    public void placeSongAtStartOfQueue(Song songToPlace) {
-        m_playingQueue.addFirst(songToPlace);
-        notifyQueingObserver();
-    }
+
 
     /**
      * Function to check if there is something if previous song can be done.
