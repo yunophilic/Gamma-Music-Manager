@@ -247,7 +247,8 @@ public class MusicPlayerHistoryUI extends HBox{
                     HBox.setHgrow(fileName, Priority.ALWAYS);
                 }
 
-                if (m_manager.isPlayingSongOnFromHistoryList() && songNumber == m_manager.getM_historyIndex()) {
+                // Since we are starting the list from 1 the index needs to be compensated for.
+                if (m_manager.isPlayingSongOnFromHistoryList() && songNumber == m_manager.getM_historyIndex() + 1) {
                     row.setStyle("-fx-background-color: lightblue");
                 }
                 return row;

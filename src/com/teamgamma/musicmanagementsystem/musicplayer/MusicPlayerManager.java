@@ -324,12 +324,9 @@ public class MusicPlayerManager {
 
         if (!m_songHistory.isEmpty()) {
             m_isPlayingOnHistory = true;
-            if (m_historyIndex == 0) {
-                // Nothing in history restart current song
-                m_musicPlayer.playSong(m_currentSong);
-                return;
+            if (m_historyIndex != 0) {
+                m_historyIndex--;
             }
-            m_historyIndex--;
             m_currentSong = m_songHistory.get(m_historyIndex);
             m_musicPlayer.playSong(m_currentSong);
         } else {
