@@ -79,7 +79,7 @@ public class JlayerMP3Player implements IMusicPlayer{
     /**
      * Helper function to setup a new instance of a music player based on the song that is passed in.
      *
-     * @param songToPlay The song tha you want to set up the music player for.
+     * @param songToPlay The song that you want to set up the music player for.
      */
     private void setUpMusicPlayer(Song songToPlay) throws Exception{
         try {
@@ -192,8 +192,9 @@ public class JlayerMP3Player implements IMusicPlayer{
                     // Need to reset the player as we hit the 0.01% case that this exception happen as said in their
                     // documentation
                     arrayOutOfBounds.printStackTrace();
-                    m_manager.pause();
-                    m_manager.resume();
+                    //m_manager.pause();
+                    stopSong();
+                    //m_manager.resume();
                 } catch (Exception e) {
                     e.printStackTrace();
                     m_manager.setError(e);
@@ -239,8 +240,9 @@ public class JlayerMP3Player implements IMusicPlayer{
                     // Need to reset the player as we hit the 0.01% case that this exception happen as said in their
                     // documentation
                     arrayOutOfBounds.printStackTrace();
-                    m_manager.pause();
-                    m_manager.resume();
+                    //m_manager.pause();
+                    stopSong();
+                    //m_manager.resume();
                 } catch (Exception e) {
                     e.printStackTrace();
                     m_manager.setError(e);
