@@ -28,6 +28,8 @@ public class MusicPlayerHistoryUI extends HBox{
     public static final String MENU_ITEM_PLACE_SONG_ON_QUEUE = "Place Song On Queue";
     public static final String PLAYBACK_HISTORY_HEADER = "History";
     public static final String QUEUING_HEADER = "Playing Next";
+    public static final int DOUBLE_CLICK = 2;
+    public static final int FIRST_SONG = 1;
 
     private MusicPlayerManager m_manager;
 
@@ -95,14 +97,7 @@ public class MusicPlayerHistoryUI extends HBox{
         for (Song song : listOfSongs) {
             HBox row = rowCreation.createRow(song, songNumber);
             String baseStyle = row.getStyle();
-            row.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    if (event.getButton() == MouseButton.SECONDARY) {
-                        createSubmenu(song).show(row, event.getScreenX(), event.getScreenY());
-                    }
-                }
-            });
+
             row.setOnMouseEntered(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
@@ -116,6 +111,7 @@ public class MusicPlayerHistoryUI extends HBox{
                 }
             });
 
+            HBox.setHgrow(row, Priority.ALWAYS);
             row.setSpacing(HORIZONTAL_ELEMENT_SPACING);
             allSongs.getChildren().add(row);
 
@@ -201,7 +197,7 @@ public class MusicPlayerHistoryUI extends HBox{
             public HBox createRow(Song songForRow, int songNumber) {
                 HBox row = new HBox();
 
-                if (songNumber == 1) {
+                if (songNumber == FIRST_SONG) {
                     row.getChildren().add(createOldestStyleLabel(Integer.toString(songNumber)));
 
                     Label fileName = createOldestStyleLabel(songForRow.getM_fileName());
@@ -216,6 +212,14 @@ public class MusicPlayerHistoryUI extends HBox{
                     HBox.setHgrow(fileName, Priority.ALWAYS);
                 }
 
+                row.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        if (event.getButton() == MouseButton.SECONDARY) {
+                            createSubmenu(songForRow).show(row, event.getScreenX(), event.getScreenY());
+                        }
+                    }
+                });
                 return row;
             }
         };
@@ -233,7 +237,7 @@ public class MusicPlayerHistoryUI extends HBox{
             public HBox createRow(Song songForRow, int songNumber) {
                 HBox row = new HBox();
 
-                if (songNumber == 1) {
+                if (songNumber == FIRST_SONG) {
                     row.getChildren().add(createOldestStyleLabel(Integer.toString(songNumber)));
 
                     Label fileName = createOldestStyleLabel(songForRow.getM_fileName());
@@ -251,6 +255,18 @@ public class MusicPlayerHistoryUI extends HBox{
                 if (m_manager.isPlayingSongOnFromHistoryList() && songNumber == m_manager.getM_historyIndex() + 1) {
                     row.setStyle("-fx-background-color: lightblue");
                 }
+
+                row.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        if (event.getButton() == MouseButton.SECONDARY) {
+                            createSubmenu(songForRow).show(row, event.getScreenX(), event.getScreenY());
+                        }
+                        if (event.getClickCount() == DOUBLE_CLICK) {
+                            m_manager.playSongFromHistory(songNumber - 1);
+                        }
+                    }
+                });
                 return row;
             }
         };

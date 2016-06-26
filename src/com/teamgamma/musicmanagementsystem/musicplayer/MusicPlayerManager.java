@@ -574,4 +574,20 @@ public class MusicPlayerManager {
         }
     }
 
+    /**
+     * Function to play a song from the history based on the index position it is in.
+     *
+     * @param index The index of the song to play.
+     */
+    public void playSongFromHistory(int index){
+        assert(index > 0 && index < m_songHistory.size());
+
+        m_musicPlayer.stopSong();
+
+        m_isPlayingOnHistory = true;
+        m_historyIndex = index;
+        m_currentSong = m_songHistory.get(m_historyIndex);
+        m_musicPlayer.playSong(m_currentSong);
+    }
+
 }
