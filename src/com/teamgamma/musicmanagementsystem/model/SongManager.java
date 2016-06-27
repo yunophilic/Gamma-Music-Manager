@@ -17,14 +17,14 @@ public class SongManager {
     private List<SongManagerObserver> m_songManagerObservers;
     private List<PlaylistObserver> m_playlistObservers;
     private List<Library> m_libraries;
+    private List<Playlist> m_playlists;
     private File m_fileToCopy;
     private File m_copyDest;
     private File m_fileToMove;
-    private File m_dragDest;
+    private File m_moveDest;
     private File m_deletedFile;
     private File m_addedFile;
     private File m_renamedFile;
-    private List<Playlist> m_playlists;
 
     // For observer pattern
     private File m_selectedCenterFolder;
@@ -48,7 +48,7 @@ public class SongManager {
         m_selectedCenterFolder = null;
         m_rightFolderSelected = null;
         m_copyDest = null;
-        m_dragDest = null;
+        m_moveDest = null;
 
         m_renamedFile = null;
 
@@ -193,7 +193,7 @@ public class SongManager {
         FileManager.moveFile(fileToMove, destDir);
         updateLibraries();
 
-        setM_dragDest(destDir);
+        m_moveDest = destDir;
         notifyFileObservers(Actions.DROP, null);
     }
 
@@ -215,11 +215,11 @@ public class SongManager {
         }
         updateLibraries();
 
-        setM_deletedFile(fileToDelete);
+        m_deletedFile = fileToDelete;
         notifyFileObservers(Actions.DELETE, fileToDelete);
 
         // Clear file to delete buffer
-        setM_deletedFile(null);
+        m_deletedFile = null;
     }
 
     /**
@@ -281,6 +281,20 @@ public class SongManager {
         }
 
         return centerPanelSongs;
+    }
+
+    /**
+     * Check if playlistName exist
+     *
+     * @param playlistName name of playlist
+     */
+    public boolean playlistNameExist(String playlistName) {
+        for(Playlist p : m_playlists) {
+            if(p.getM_playlistName().equals(playlistName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -375,13 +389,13 @@ public class SongManager {
         m_addedFile = addedFile;
     }
 
-    public File getM_dragDest() {
-        return m_dragDest;
+    public File getM_moveDest() {
+        return m_moveDest;
     }
 
-    public void setM_dragDest(File dest) {
-        m_dragDest = dest;
-    }
+    /*public void setM_moveDest(File dest) {
+        m_moveDest = dest;
+    }*/
 
     public File getM_copyDest() {
         return m_copyDest;
@@ -445,9 +459,9 @@ public class SongManager {
         return m_rightPanelFileAction;
     }
 
-    public void setM_deletedFile(File deletedFile) {
+    /*public void setM_deletedFile(File deletedFile) {
         m_deletedFile = deletedFile;
-    }
+    }*/
 
     public File getM_deletedFile() {
         return m_deletedFile;
