@@ -258,7 +258,7 @@ public class MusicPlayerHistoryUI extends HBox{
                 if (m_manager.isPlayingSongOnFromHistoryList() && songNumber == m_manager.getM_historyIndex() + 1) {
                     row.setStyle("-fx-background-color: lightblue");
                 }
-                
+
                 ContextMenu playbackMenu = createSubmenu(m_manager, songForRow);
                 row.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
                     @Override

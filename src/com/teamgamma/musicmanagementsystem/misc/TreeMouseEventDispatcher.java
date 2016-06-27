@@ -3,6 +3,7 @@ package com.teamgamma.musicmanagementsystem.misc;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+import com.teamgamma.musicmanagementsystem.ui.MusicPlayerHistoryUI;
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;
@@ -51,8 +52,9 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
     @Override
     public Event dispatchEvent(Event event, EventDispatchChain tail) {
         if (event instanceof MouseEvent) {
-            boolean isPrimaryMouseButton = ((MouseEvent) event).getButton() == MouseButton.PRIMARY;
-            boolean isDoubleClick = ((MouseEvent) event).getClickCount() == 2;
+            MouseEvent mouseEvent = (MouseEvent) event;
+            boolean isPrimaryMouseButton = mouseEvent.getButton() == MouseButton.PRIMARY;
+            boolean isDoubleClick = mouseEvent.getClickCount() == 2;
 
             if (isPrimaryMouseButton && isDoubleClick) {
                 if (!event.isConsumed()) {
@@ -69,15 +71,8 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
 
                             TreeViewUtil.setOpenFolder(m_tree, m_selectedTreeViewItem.getM_file().getAbsolutePath());
                         } else if (!isFolder) {
-                            //get library song is in
-                            TreeItem<TreeViewItem> selectedTreeItem = m_tree.getSelectionModel().getSelectedItem();
-                            while (!selectedTreeItem.getValue().isM_isRootPath()) {
-                                selectedTreeItem = selectedTreeItem.getParent();
-                            }
-                            //play song
-                            Song songToPlay = m_model.getSongInLibrary(
-                                    m_selectedTreeViewItem.getM_file(), selectedTreeItem.getValue().getM_file()
-                            );
+                            Song songToPlay = getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+
                             if (songToPlay != null) {
                                 m_musicPlayerManager.playSongRightNow(songToPlay);
                             } else {
@@ -88,8 +83,41 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                 }
 
                 event.consume();
+            } else if (mouseEvent.isControlDown() && (mouseEvent.isPrimaryButtonDown())){
+                if (!event.isConsumed()) {
+                    Song songSelected = getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    if (songSelected != null) {
+                        MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, songSelected).show(
+                                m_tree, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                    }
+                }
+                event.consume();
             }
         }
         return m_originalDispatcher.dispatchEvent(event, tail);
+    }
+
+    /**
+     * Function to get a song that was selected if possible.
+     *
+     * @param tree  The tree view to that is being used.
+     * @param selectedItem  The selected item in the tree.
+     * @param model The model to in the song manager.
+     *
+     * @return The song that was selected or null if something was not selected yet.
+     */
+    public static Song getSongSelected(TreeView<TreeViewItem> tree, TreeViewItem selectedItem, SongManager model) {
+        //get library song is in
+        if (selectedItem != null && tree.getSelectionModel().getSelectedItem() != null) {
+            TreeItem<TreeViewItem> selectedTreeItem = tree.getSelectionModel().getSelectedItem();
+            while (!selectedTreeItem.getValue().isM_isRootPath()) {
+                selectedTreeItem = selectedTreeItem.getParent();
+            }
+            //play song
+            return model.getSongInLibrary(
+                    selectedItem.getM_file(), selectedTreeItem.getValue().getM_file()
+            );
+        }
+        return null;
     }
 }

@@ -1,8 +1,10 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
+import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+import com.teamgamma.musicmanagementsystem.ui.MusicPlayerHistoryUI;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
 import javafx.event.ActionEvent;
@@ -43,10 +45,9 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
-        m_contextMenu = new ContextMenu();
         m_tree = tree;
+        createContextMenu();
         m_isLeftPane = isLeftPane;
-        m_contextMenu.getItems().addAll(generateMenuItems());
         setDragEvents();
     }
 
@@ -209,6 +210,21 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             menuItems.add(openInRightPane);
         }
 
+        // The selected item is relative to the library root dir or relative to the tree that it is in.
+        // The problem seems to be that when you are switching libraries by just selecting another library then
+        // it doesnt update it until you select a folder to update it. 
+        if (m_selectedTreeViewItem != null) {
+            System.out.println("CREATING PLAYLIST MENU Selected item is " + m_selectedTreeViewItem.getM_file().getAbsolutePath());
+            Song songSelected = TreeMouseEventDispatcher.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+
+            if (songSelected != null) {
+                ContextMenu playlistMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, songSelected);
+                menuItems.addAll(playlistMenu.getItems());
+
+                System.out.println("Actually added it in");
+            }
+        }
+
         m_contextMenu.setOnShown(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
@@ -230,6 +246,11 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         });
 
         return menuItems;
+    }
+
+    private void createContextMenu() {
+        m_contextMenu = new ContextMenu();
+        m_contextMenu.getItems().addAll(generateMenuItems());
     }
 
     /**
@@ -346,6 +367,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         m_selectedTreeViewItem = item;
         EventDispatcher originalDispatcher = getEventDispatcher();
         setEventDispatcher(new TreeMouseEventDispatcher(originalDispatcher, m_model, m_musicPlayerManager, m_tree, m_selectedTreeViewItem, m_isLeftPane));
+        createContextMenu();
         setContextMenu(m_contextMenu);
     }
 }
