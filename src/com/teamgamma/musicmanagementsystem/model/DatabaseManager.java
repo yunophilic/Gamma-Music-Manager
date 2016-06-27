@@ -184,13 +184,15 @@ public class DatabaseManager {
             //history table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS History (" +
                                         "songPath TEXT      PRIMARY KEY               NOT NULL," +
-                                        "time     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL" +
+                                        "time     DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME'))" +
                                     ")");
 
             //playback queue table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS PlaybackQueue (" +
-                                        "songPath TEXT      PRIMARY KEY               NOT NULL," +
-                                        "time     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL" +
+                                        "songPath    TEXT    NOT NULL," +
+                                        "orderNumber INTEGER NOT NULL, " +
+                                        "time        DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME'))," +
+                                        "PRIMARY KEY (songPath)" +
                                     ")");
 
             statement.close();
