@@ -215,7 +215,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         // it doesnt update it until you select a folder to update it. 
         if (m_selectedTreeViewItem != null) {
             System.out.println("CREATING PLAYLIST MENU Selected item is " + m_selectedTreeViewItem.getM_file().getAbsolutePath());
-            Song songSelected = TreeMouseEventDispatcher.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+            Song songSelected = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
 
             if (songSelected != null) {
                 ContextMenu playlistMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, songSelected);

@@ -71,7 +71,7 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
 
                             TreeViewUtil.setOpenFolder(m_tree, m_selectedTreeViewItem.getM_file().getAbsolutePath());
                         } else if (!isFolder) {
-                            Song songToPlay = getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                            Song songToPlay = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
 
                             if (songToPlay != null) {
                                 m_musicPlayerManager.playSongRightNow(songToPlay);
@@ -85,7 +85,7 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                 event.consume();
             } else if (mouseEvent.isControlDown() && (mouseEvent.isPrimaryButtonDown())){
                 if (!event.isConsumed()) {
-                    Song songSelected = getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    Song songSelected = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
                     if (songSelected != null) {
                         MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, songSelected).show(
                                 m_tree, mouseEvent.getScreenX(), mouseEvent.getScreenY());
@@ -97,27 +97,4 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
         return m_originalDispatcher.dispatchEvent(event, tail);
     }
 
-    /**
-     * Function to get a song that was selected if possible.
-     *
-     * @param tree  The tree view to that is being used.
-     * @param selectedItem  The selected item in the tree.
-     * @param model The model to in the song manager.
-     *
-     * @return The song that was selected or null if something was not selected yet.
-     */
-    public static Song getSongSelected(TreeView<TreeViewItem> tree, TreeViewItem selectedItem, SongManager model) {
-        //get library song is in
-        if (selectedItem != null && tree.getSelectionModel().getSelectedItem() != null) {
-            TreeItem<TreeViewItem> selectedTreeItem = tree.getSelectionModel().getSelectedItem();
-            while (!selectedTreeItem.getValue().isM_isRootPath()) {
-                selectedTreeItem = selectedTreeItem.getParent();
-            }
-            //play song
-            return model.getSongInLibrary(
-                    selectedItem.getM_file(), selectedTreeItem.getValue().getM_file()
-            );
-        }
-        return null;
-    }
 }
