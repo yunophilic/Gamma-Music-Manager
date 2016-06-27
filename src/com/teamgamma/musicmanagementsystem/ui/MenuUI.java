@@ -115,6 +115,10 @@ public class MenuUI extends MenuBar{
             @Override
             public void handle(ActionEvent event) {
                 String newPlaylistName = PromptUI.createNewPlaylist();
+                if (m_model.playlistNameExist(newPlaylistName)) {
+                    PromptUI.customPromptError("Error", null, "Playlist with name \"" + newPlaylistName + "\" already exist!");
+                    return;
+                }
                 if (newPlaylistName != null) {
                     m_model.addPlaylist(newPlaylistName);
                     m_databaseManager.addPlaylist(newPlaylistName);

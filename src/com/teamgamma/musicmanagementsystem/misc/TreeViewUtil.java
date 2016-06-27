@@ -2,7 +2,6 @@ package com.teamgamma.musicmanagementsystem.misc;
 
 import com.teamgamma.musicmanagementsystem.model.Library;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
-import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -181,7 +180,7 @@ public class TreeViewUtil {
             }
             case DROP: {
                 // Add new node to destination file node
-                addNewNode(tree, model, model.getM_fileToMove().getName(), model.getM_dragDest().getAbsolutePath());
+                addNewNode(tree, model, model.getM_fileToMove().getName(), model.getM_moveDest().getAbsolutePath());
 
                 // Remove node from old folder it was in
                 String deletedFilePath = model.getM_fileToMove().getAbsolutePath();
