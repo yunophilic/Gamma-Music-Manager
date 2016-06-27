@@ -103,6 +103,10 @@ public class PlaylistUI extends StackPane {
             @Override
             public void handle(MouseEvent event) {
                 String newPlaylistName = PromptUI.createNewPlaylist();
+                if (m_model.playlistNameExist(newPlaylistName)) {
+                    PromptUI.customPromptError("Error", null, "Playlist with name \"" + newPlaylistName + "\" already exist!");
+                    return;
+                }
                 if (newPlaylistName != null) {
                     Playlist newPlaylist = m_model.addPlaylist(newPlaylistName);
                     m_databaseManager.addPlaylist(newPlaylistName);
