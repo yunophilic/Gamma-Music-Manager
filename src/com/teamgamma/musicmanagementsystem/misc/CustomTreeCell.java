@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,7 +78,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     }
                     try {
                         m_model.copyToDestination(dest);
-                        m_model.notifyFileObservers();
+                        m_model.notifyFileObservers(Actions.PASTE, null);
                     } catch (FileAlreadyExistsException ex) {
                         PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
                     } catch (IOException ex) {
@@ -95,7 +96,11 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
                     File fileToRename = m_selectedTreeViewItem.getM_file();
-                    PromptUI.fileRename(fileToRename);
+                    Path newPath = PromptUI.fileRename(fileToRename);
+
+                    if (newPath != null) {
+                        m_model.renameFile(fileToRename, newPath);
+                    }
                 }
             }
         });
@@ -138,7 +143,6 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                         }
                     }
                     m_databaseManager.removeLibrary(fileToDelete.getAbsolutePath());
-                    m_model.notifyFileObservers();
                 }
             }
         });
@@ -169,9 +173,11 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                             m_model.setM_selectedCenterFolder(null);
                         }
                     }
+
                     m_databaseManager.removeLibrary(
                             m_selectedTreeViewItem.getM_file().getAbsolutePath()
                     );
+                    m_model.setM_libraryAction(Actions.REMOVE_FROM_VIEW);
                     m_model.notifyLibraryObservers();
                 }
             }
@@ -286,11 +292,14 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 targetNode.getChildren().add(nodeToMove);
                 targetNode.setExpanded(true);*/
 
-                //move in the file system
-                File fileToMove = m_model.getM_fileToMove();
-                File destination = m_selectedTreeViewItem.getM_file();
                 try {
-                    m_model.moveFile(fileToMove, destination);
+                    //move in the file system
+                    File fileToMove = m_model.getM_fileToMove();
+                    File destination = m_selectedTreeViewItem.getM_file();
+
+                    if (!fileToMove.getParent().equals(destination.getAbsolutePath())) {
+                        m_model.moveFile(fileToMove, destination);
+                    }
                 } catch (FileAlreadyExistsException ex) {
                     PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
                 } catch (AccessDeniedException ex) {
@@ -301,7 +310,6 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     ex.printStackTrace();
                 }
 
-                m_model.notifyLibraryObservers();
                 dragEvent.consume();
             }
         });

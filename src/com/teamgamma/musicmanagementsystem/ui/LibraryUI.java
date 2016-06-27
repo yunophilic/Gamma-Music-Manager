@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Library;
@@ -14,6 +15,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -64,8 +66,10 @@ public class LibraryUI extends StackPane {
             @Override
             public void librariesChanged() {
                 System.out.println("Library changed in treeview");
-                clearTreeView();
-                updateTreeView();
+                //clearTreeView();
+                //updateTreeView();
+
+                updateLibraryTrees(m_model.getM_libraryAction());
             }
 
             @Override
@@ -84,10 +88,12 @@ public class LibraryUI extends StackPane {
             }
 
             @Override
-            public void fileChanged() {
+            public void fileChanged(Actions action, File file) {
                 System.out.println("File changed in treeview");
-                clearTreeView();
-                updateTreeView();
+                //clearTreeView();
+                //updateTreeView();
+
+                updateFiles(action, file);
             }
 
             @Override
@@ -97,6 +103,39 @@ public class LibraryUI extends StackPane {
                 updateTreeView();
             }
         });
+    }
+
+    private void updateFiles(Actions fileAction, File file) {
+        try {
+            if (fileAction != null && fileAction != Actions.NONE) {
+                TreeViewUtil.updateTreeItems(fileAction, file, m_tree, m_model);
+                m_model.setM_libraryFileAction(Actions.NONE);
+            }
+        } catch (IOException ex) {
+            PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    private void updateLibraryTrees(Actions libraryAction) {
+        List<TreeItem<TreeViewItem>> libraryNodes = m_tree.getRoot().getChildren();
+        List<TreeViewItem> libraryItems = TreeViewUtil.getTreeViewItems(libraryNodes);
+        List<Library> libraries = m_model.getM_libraries();
+
+        if (libraryAction.equals(Actions.ADD)) {
+            for (Library library : libraries) {
+                // If library is not in libraryItems, add new node
+                if (!TreeViewUtil.isLibraryInList(libraryItems, library)) {
+                    TreeItem<TreeViewItem> newLibrary = TreeViewUtil.generateTreeItems(library.getM_rootDir(), library.getM_rootDirPath(), m_model.getM_menuOptions().getM_leftPanelShowFolder());
+                    newLibrary.setExpanded(true);
+                    libraryNodes.add(newLibrary);
+                }
+            }
+        } else if (libraryAction.equals(Actions.REMOVE_FROM_VIEW) || libraryAction.equals(Actions.DELETE)) {
+            TreeItem<TreeViewItem> removedLibrary = m_tree.getSelectionModel().getSelectedItem();
+            boolean remove = removedLibrary.getParent().getChildren().remove(removedLibrary);
+        }
+
     }
 
     private void clearTreeView() {

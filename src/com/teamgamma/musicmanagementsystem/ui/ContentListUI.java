@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -84,7 +85,7 @@ public class ContentListUI extends StackPane {
             }
 
             @Override
-            public void fileChanged() {
+            public void fileChanged(Actions action, File file) {
                 clearTable();
                 updateTable();
             }
@@ -319,7 +320,6 @@ public class ContentListUI extends StackPane {
                             ex.printStackTrace();
                         }
 
-                        m_model.notifyLibraryObservers();
                         dragEvent.consume();
                     }
                 });
@@ -365,7 +365,7 @@ public class ContentListUI extends StackPane {
                     }
                     try {
                         m_model.copyToDestination(dest);
-                        m_model.notifyFileObservers();
+                        m_model.notifyFileObservers(Actions.PASTE, null);
                     } catch (FileAlreadyExistsException ex) {
                         PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
                     } catch (IOException ex) {
@@ -407,8 +407,6 @@ public class ContentListUI extends StackPane {
                             break;
                         }
                     }
-                    m_databaseManager.removeLibrary(fileToDelete.getAbsolutePath());
-                    m_model.notifyFileObservers();
                 }
             }
         });
@@ -428,36 +426,12 @@ public class ContentListUI extends StackPane {
         addToPlaylist.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                System.out.println("Adding to playlist...");
-                System.out.println(selectedSong.getM_fileName());
-                // TODO: remove this once we can create Playlists
-                //m_model.notifyPlaylistSongsObservers();
-
-                // TODO: Uncomment this section when we have create Playlist working
-                // TODO: verify if it works (this is just a rough version)
-                // TODO: get playlist name from user input (prompt)
-                /*String playlistName = "playlist";
-                boolean songAddedSuccess = m_model.addToPlaylist(selectedSong, playlistName);
-
-                if (!songAddedSuccess){
-                    // TODO: show prompt with error
-                }*/
+                Playlist selectedPlaylist = PromptUI.addSongToPlaylist(m_model.getM_playlists(), selectedSong);
+                if(selectedPlaylist != null) {
+                    selectedPlaylist.addSong(selectedSong);
+                }
             }
         });
-
-        //create playlist option
-        /*MenuItem createPlaylist = new MenuItem(ContextMenuConstants.CREATE_NEW_PLAYLIST);
-        createPlaylist.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                Playlist playlist = new Playlist("Playlist");
-                List<Playlist> playlistStorage = new ArrayList<>();
-                playlistStorage.add(playlist);
-                System.out.println("Created New Playlist");
-                m_model.notifyPlaylistSongsObservers();
-
-            }
-        });*/
 
         contextMenu.getItems().addAll(copy, paste, delete, editProperties, addToPlaylist);
         contextMenu.setOnShown(new EventHandler<WindowEvent>() {
@@ -472,7 +446,7 @@ public class ContentListUI extends StackPane {
                     paste.setStyle("-fx-text-fill: black;");
                 }
 
-                // Disable copy, edit, delete, addToPlaylist if no song is selected in table
+                // Disable copy, delete, editProperties, addToPlaylist if no song is selected in table
                 if (selectedSong == null) {
                     copy.setDisable(true);
                     copy.setStyle("-fx-text-fill: gray;");
@@ -482,8 +456,6 @@ public class ContentListUI extends StackPane {
                     editProperties.setStyle("-fx-text-fill: gray;");
                     addToPlaylist.setDisable(true);
                     addToPlaylist.setStyle("-fx-text-fill: gray;");
-                    /*createPlaylist.setDisable(true);
-                    createPlaylist.setStyle("-fx-text-fill: gray;");*/
                 }
             }
         });

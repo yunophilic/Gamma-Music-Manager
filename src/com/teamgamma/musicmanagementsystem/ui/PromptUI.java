@@ -12,7 +12,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -390,17 +394,18 @@ public class PromptUI {
 
 
     /**
-     * Renames file . Keeps track of "_n" suffix of file if more duplicates found, and increments n
+     * Renames folder. Keeps track of "_n" suffix of file if more duplicates found, and increments n
      * (shown as the default value for the text box)
      *
      * @param duplicate file
      */
-    public static void fileRenameDuplicate(File duplicate) {
+    public static Path fileRenameDuplicate(File duplicate) {
         int numIndex = 2;
         String fileNameFull = duplicate.getName();
         int beforeExtension = fileNameFull.lastIndexOf('.');
         String lastChar = fileNameFull.substring(beforeExtension - 1, beforeExtension);
 
+        // TODO FIX INCREMENT FOR LAST CHARACTER
         if (!Character.isLetter(lastChar.charAt(0))) {
             numIndex = Character.getNumericValue(lastChar.charAt(0)) + 1;
             fileNameFull = fileNameFull.substring(0, beforeExtension - 2) +
@@ -422,23 +427,157 @@ public class PromptUI {
             Path source = Paths.get(duplicate.getAbsolutePath());
             if (result.isPresent()) {
                 String parentDirectory = duplicate.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                File newName = new File(parentDirectory + File.separator + result.get());
                 if (result.get().isEmpty()) {
-                    fileRenameRetry(duplicate);
-                } else if (nameAlreadyExists.exists()) {
-                    fileRenameDuplicate(nameAlreadyExists);
+                    return fileRenameRetry(duplicate);
+                } else if (newName.exists()) {
+                    return fileRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return fileRenameInvalidChar(duplicate);
                 }
-                Files.move(source, source.resolveSibling(result.get()));
+                return Files.move(source, source.resolveSibling(result.get()));
             }
         } catch (IOException e) {
             failedToRename(duplicate);
         }
+
+        return null;
     }
 
     /**
-     * Renames file
+     * Renames folder. Keeps track of "_n" suffix of file if more duplicates found, and increments n
+     * (shown as the default value for the text box)
+     *
+     * @param duplicate folder
      */
-    public static void fileRename(File fileToRename) {
+    public static Path folderRenameDuplicate(File duplicate) {
+        int numIndex = 2;
+        String folderNameFull = duplicate.getName();
+        int lastCharIndex = folderNameFull.length() - 1;
+
+        // TODO FIX INCREMENT FOR LAST CHARACTER
+        if (!Character.isLetter(folderNameFull.charAt(lastCharIndex))) {
+            numIndex = Character.getNumericValue(lastCharIndex) + 1;
+        }
+
+        TextInputDialog dialog = new TextInputDialog(folderNameFull + "_" + numIndex);
+        dialog.setTitle("Name Already Exists");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-folder-exists.png"))));
+        dialog.setHeaderText("The folder name \"" + duplicate.getName() + "\" already exists in the directory!");
+        dialog.setContentText("Rename the folder to:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        try {
+            Path source = Paths.get(duplicate.getAbsolutePath());
+            if (result.isPresent()) {
+                String parentDirectory = duplicate.getParent();
+                File newName = new File(parentDirectory + File.separator + result.get());
+                if (result.get().isEmpty()) {
+                    return folderRenameRetry(duplicate);
+                } else if (newName.exists()) {
+                    return folderRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(duplicate);
+                }
+                return Files.move(source, source.resolveSibling(result.get()));
+            }
+        } catch (IOException e) {
+            failedToRename(duplicate);
+        }
+
+        return null;
+    }
+
+    /**
+     * Renames file or a library folder
+     *
+     * @param fileToRename file to rename
+     */
+    public static Path fileRename(File fileToRename) {
+        TextInputDialog dialog = new TextInputDialog();
+        String fileNameFull = fileToRename.getName();
+
+        // Rename library
+        if (fileToRename.isDirectory()) {
+            dialog.setTitle("Rename Library");
+            dialog.setHeaderText(fileNameFull + ":");
+            dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                    "rename-library.png"))));
+            dialog.setContentText("Rename the library to:");
+            Optional<String> result = dialog.showAndWait();
+
+            try {
+                Path source = Paths.get(fileToRename.getAbsolutePath());
+                if (result.isPresent()) {
+                    String parentDirectory = fileToRename.getParent();
+                    File newName = new File(parentDirectory + File.separator + result.get());
+                    if (result.get().isEmpty()) {
+                        return folderRenameRetry(fileToRename);
+                    } else if (newName.exists()) {
+                        return folderRenameDuplicate(newName);
+                    } else if (containsIllegalChar(result.get())) {
+                        return folderRenameInvalidChar(fileToRename);
+                    }
+                    return Files.move(source, source.resolveSibling(result.get()));
+                }
+            } catch (IOException e) {
+                failedToRename(fileToRename);
+            }
+            // Rename media file
+        } else {
+            dialog.setTitle("Rename Media File");
+            int beforeExtension = fileNameFull.lastIndexOf('.');
+            String fileName = fileNameFull.substring(0, beforeExtension);
+            String extension = fileNameFull.substring(beforeExtension);
+
+            dialog.setHeaderText(fileName + ":");
+            dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                    "rename-song.png"))));
+            dialog.setContentText("Rename the file to:");
+
+            Optional<String> result = dialog.showAndWait();
+
+            try {
+                Path source = Paths.get(fileToRename.getAbsolutePath());
+                if (result.isPresent()) {
+                    String parentDirectory = fileToRename.getParent();
+                    File newName = new File(parentDirectory + File.separator + result.get() + extension);
+                    if (result.get().isEmpty()) {
+                        return fileRenameRetry(fileToRename);
+                    } else if (newName.exists()) {
+                        return fileRenameDuplicate(newName);
+                    } else if (containsIllegalChar(result.get())) {
+                        return fileRenameInvalidChar(fileToRename);
+                    }
+                    return Files.move(source, source.resolveSibling(result.get() + extension));
+                }
+            } catch (IOException e) {
+                failedToRename(fileToRename);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check for illegal character
+     *
+     * @param toExamine file name to examine
+     */
+    private static boolean containsIllegalChar(String toExamine) {
+        Pattern pattern = Pattern.compile("[<>:\"/\\|?*]");
+        Matcher matcher = pattern.matcher(toExamine);
+        return matcher.find();
+    }
+
+    /**
+     * Rename file after invalid character is found on previous rename attempt
+     *
+     * @param fileToRename file to rename
+     */
+    private static Path fileRenameInvalidChar(File fileToRename) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Rename Media File");
 
@@ -447,7 +586,8 @@ public class PromptUI {
         String fileName = fileNameFull.substring(0, beforeExtension);
         String extension = fileNameFull.substring(beforeExtension);
 
-        dialog.setHeaderText(fileName + ":");
+        dialog.setHeaderText("The song name \"" + fileName + "\" cannot contain any of the following characters:\n" +
+                "< > : \" / \\ | ? *");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-song.png"))));
         dialog.setContentText("Rename the file to:");
@@ -458,23 +598,69 @@ public class PromptUI {
             Path source = Paths.get(fileToRename.getAbsolutePath());
             if (result.isPresent()) {
                 String parentDirectory = fileToRename.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
+                File newName = new File(parentDirectory + File.separator + result.get() + extension);
                 if (result.get().isEmpty()) {
-                    fileRenameRetry(fileToRename);
-                } else if (nameAlreadyExists.exists()) {
-                    fileRenameDuplicate(nameAlreadyExists);
+                    return fileRenameRetry(fileToRename);
+                } else if (newName.exists()) {
+                    return fileRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return fileRenameInvalidChar(fileToRename);
                 }
-                Files.move(source, source.resolveSibling(result.get() + extension));
+                return Files.move(source, source.resolveSibling(result.get() + extension));
             }
         } catch (IOException e) {
             failedToRename(fileToRename);
         }
+
+        return null;
+    }
+
+    /**
+     * Rename library after invalid character is found on previous rename attempt
+     *
+     * @param folderToRename file to rename
+     */
+    private static Path folderRenameInvalidChar(File folderToRename) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Rename Library");
+
+        String folderName = folderToRename.getName();
+
+        dialog.setHeaderText("The library name \"" + folderName + "\" cannot contain any of the following characters:\n" +
+                "< > : \" / \\ | ? *");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-library.png"))));
+        dialog.setContentText("Rename the file to:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        try {
+            Path source = Paths.get(folderToRename.getAbsolutePath());
+            if (result.isPresent()) {
+                String parentDirectory = folderToRename.getParent();
+                File newName = new File(parentDirectory + File.separator + result.get());
+                if (result.get().isEmpty()) {
+                    return folderRenameRetry(folderToRename);
+                } else if (newName.exists()) {
+                    return folderRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(folderToRename);
+                }
+                return Files.move(source, source.resolveSibling(result.get()));
+            }
+        } catch (IOException e) {
+            failedToRename(folderToRename);
+        }
+
+        return null;
     }
 
     /**
      * Renames file after previous rename attempt has blank in text box
      */
-    private static void fileRenameRetry(File fileToRename) {
+    private static Path fileRenameRetry(File fileToRename) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Rename Media File");
 
@@ -494,17 +680,57 @@ public class PromptUI {
             Path source = Paths.get(fileToRename.getAbsolutePath());
             if (result.isPresent()) {
                 String parentDirectory = fileToRename.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
+                File newName = new File(parentDirectory + File.separator + result.get() + extension);
                 if (result.get().isEmpty()) {
-                    fileRenameRetry(fileToRename);
-                } else if (nameAlreadyExists.exists()) {
-                    fileRenameDuplicate(nameAlreadyExists);
+                    return fileRenameRetry(fileToRename);
+                } else if (newName.exists()) {
+                    return fileRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return fileRenameInvalidChar(fileToRename);
                 }
-                Files.move(source, source.resolveSibling(result.get() + extension));
+                return Files.move(source, source.resolveSibling(result.get() + extension));
             }
         } catch (IOException e) {
             failedToRename(fileToRename);
         }
+
+        return null;
+    }
+
+    private static Path folderRenameRetry(File folderToRename) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Rename Media File");
+
+        String folderName = folderToRename.getName();
+
+        dialog.setHeaderText("Please enter at least one character \n to rename \"" + folderName + "\":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-library.png"))));
+        dialog.setContentText("Rename the file to:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        try {
+            Path source = Paths.get(folderToRename.getAbsolutePath());
+            if (result.isPresent()) {
+                String parentDirectory = folderToRename.getParent();
+                File newName = new File(parentDirectory + File.separator + result.get());
+                if (result.get().isEmpty()) {
+                    return folderRenameRetry(folderToRename);
+                } else if (newName.exists()) {
+                    return folderRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(folderToRename);
+                }
+                return Files.move(source, source.resolveSibling(result.get()));
+            }
+        } catch (IOException e) {
+            failedToRename(folderToRename);
+        }
+
+        return null;
     }
 
     /**
@@ -524,7 +750,7 @@ public class PromptUI {
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
             String playlistName = result.get();
-            while (playlistName!=null && playlistName.isEmpty()) {
+            while (playlistName != null && playlistName.isEmpty()) {
                 playlistName = createNewPlaylistRetry();
             }
             return playlistName;
@@ -571,7 +797,7 @@ public class PromptUI {
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
             String newPlaylistName = result.get();
-            while (newPlaylistName!=null && newPlaylistName.isEmpty()) {
+            while (newPlaylistName != null && newPlaylistName.isEmpty()) {
                 newPlaylistName = editPlaylistRetry(playlistToEdit);
             }
             return newPlaylistName;
@@ -600,7 +826,7 @@ public class PromptUI {
         }
         return null;
     }
-
+    
     /**
      * Prompt to remove playlist
      *
@@ -610,7 +836,6 @@ public class PromptUI {
     public static boolean removePlaylist(Playlist playlistToRemove) {
         Dialog dialog = new Dialog();
         dialog.setTitle("Remove Playlist");
-
         dialog.setHeaderText("\"" + playlistToRemove.getM_playlistName() + "\":");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "remove-playlist.png"))));
@@ -620,6 +845,66 @@ public class PromptUI {
 
         Optional result = dialog.showAndWait();
 
+        return result.isPresent() && result.get() == okButton;
+    }
+
+    /**
+     * Prompt to add a song to a  playlist with a drop down choice box
+     *
+     * @param playlists list of playlists
+     * @return selected playlist the user chooses, null if user cancels
+     */
+    public static Playlist removePlaylistSelection(List<Playlist> playlists) {
+        ChoiceDialog<Playlist> dialog = new ChoiceDialog<>(playlists.get(0), playlists);
+        dialog.setTitle("Remove Playlist");
+        dialog.setGraphic(new ImageView("res" + File.separator + "remove-playlist.png"));
+        dialog.setContentText("Select a playlist:");
+
+        Optional<Playlist> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            return result.get();
+        }
+        return null;
+    }
+
+    /**
+     * Prompt to add a song to a  playlist
+     *
+     * @param playlists list of playlists
+     * @param songToAdd  song that is added to selected playlist
+     * @return selected playlist the user chooses, null if user cancels
+     */
+    public static Playlist addSongToPlaylist(List<Playlist> playlists, Song songToAdd) {
+        ChoiceDialog<Playlist> dialog = new ChoiceDialog<>(playlists.get(0), playlists);
+        dialog.setTitle("Add to Playlist");
+        dialog.setHeaderText("Add \"" + songToAdd.getM_title() + "\" to playlist:");
+        dialog.setGraphic(new ImageView("res" + File.separator + "add-song-playlist.png"));
+        dialog.setContentText("Select a playlist:");
+
+        Optional<Playlist> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            return result.get();
+        }
+        return null;
+    }
+
+    /**
+     * Prompt to remove a song from a  playlist
+     *
+     * @param playlist song is being removed from
+     * @param songName song that is added to selected playlist
+     * @return true if user confirms dialog, false otherwise
+     */
+    public static boolean removeSongFromPlaylist(Playlist playlist, Song songName) {
+        Dialog dialog = new Dialog();
+        dialog.setTitle("Remove from Playlist");
+        dialog.setHeaderText("Remove \"" + songName.getM_title() + "\" from " + playlist.getM_playlistName() + ":");
+        dialog.setGraphic(new ImageView("res" + File.separator + "remove-song-playlist.png"));
+        dialog.setContentText("Are you sure you want to remove this song from the playlist?");
+        ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
+
+        Optional result = dialog.showAndWait();
         return result.isPresent() && result.get() == okButton;
     }
 
