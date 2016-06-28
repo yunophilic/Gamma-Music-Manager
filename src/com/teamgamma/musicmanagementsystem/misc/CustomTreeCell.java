@@ -298,11 +298,6 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             public void handle(DragEvent dragEvent) {
                 System.out.println("Drag dropped on " + m_selectedTreeViewItem);
 
-                if (!m_selectedTreeViewItem.getM_file().isDirectory()) {
-                    PromptUI.customPromptError("Error", null, "Cannot move to a file! Please drag to a directory!");
-                    return;
-                }
-
                 //fetch item to be moved and destination
                 /*String draggedItemPath = dragEvent.getDragboard().getString();
                 TreeItem<TreeViewItem> nodeToMove = searchTreeItem(draggedItemPath);
@@ -316,11 +311,14 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 try {
                     //move in the file system
                     File fileToMove = m_model.getM_fileToMove();
-                    File destination = m_selectedTreeViewItem.getM_file();
-
-                    if (!fileToMove.getParent().equals(destination.getAbsolutePath())) {
-                        m_model.moveFile(fileToMove, destination);
+                    File destination;
+                    if (!m_selectedTreeViewItem.getM_file().isDirectory()) {
+                        destination = m_selectedTreeViewItem.getM_file().getParentFile();
+                    } else {
+                        destination = m_selectedTreeViewItem.getM_file();
                     }
+
+                    m_model.moveFile(fileToMove, destination);
                 } catch (FileAlreadyExistsException ex) {
                     PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
                 } catch (AccessDeniedException ex) {
