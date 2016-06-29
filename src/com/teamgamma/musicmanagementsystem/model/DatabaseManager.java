@@ -1,7 +1,5 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,20 +18,26 @@ public class DatabaseManager {
     private static final String DB_FILE_PATH = DB_DIR + File.separator + "persistence.db";
 
     private Connection m_connection;
-    private PreparedStatement m_addLibraryStatement;
-    private PreparedStatement m_addPlaylistStatement;
-    private PreparedStatement m_addLeftTreeItemStatement;
-    private PreparedStatement m_deleteLibraryStatement;
-    private PreparedStatement m_deletePlaylistStatement;
-    private PreparedStatement m_renamePlaylistStatement;
-    private PreparedStatement m_clearLeftTreeViewStatement;
-    private PreparedStatement m_setSelectedLeftTreeItemStatement;
-    private PreparedStatement m_getLibrariesStatement;
-    private PreparedStatement m_getPlaylistsStatement;
-    private PreparedStatement m_getSelectedLeftTreeItemStatement;
-    private PreparedStatement m_getExpandedLeftTreeItemsStatement;
-    private PreparedStatement m_addHistoryStatement;
-    private PreparedStatement m_addPlaybackQueeStatement;
+    private PreparedStatement m_addLibrary;
+    private PreparedStatement m_addPlaylist;
+    private PreparedStatement m_addLeftTreeItem;
+    private PreparedStatement m_deleteLibrary;
+    private PreparedStatement m_deletePlaylist;
+    private PreparedStatement m_renamePlaylist;
+    private PreparedStatement m_clearLeftTreeView;
+    private PreparedStatement m_setSelectedLeftTreeItem;
+    private PreparedStatement m_getLibraries;
+    private PreparedStatement m_getPlaylists;
+    private PreparedStatement m_getSelectedLeftTreeItem;
+    private PreparedStatement m_getExpandedLeftTreeItems;
+    private PreparedStatement m_addHistory;
+    private PreparedStatement m_deleteFromHistory;
+    private PreparedStatement m_addPlaybackQueue;
+    private PreparedStatement m_incrementQueueOrder;
+    private PreparedStatement m_maxOrderNumberInQueue;
+    private PreparedStatement m_deleteFromQueue;
+    private PreparedStatement m_updateQueueOrderNumber;
+    private PreparedStatement m_getPlaybackQueue;
 
     public DatabaseManager() {
     }
@@ -43,44 +47,65 @@ public class DatabaseManager {
      */
     private void prepareStatements() {
         try {
-            m_addLibraryStatement = m_connection.prepareStatement("INSERT INTO Library VALUES (?)");
+            m_addLibrary = m_connection.prepareStatement("INSERT INTO Library VALUES (?)");
 
-            m_addPlaylistStatement = m_connection.prepareStatement("INSERT INTO Playlist VALUES (?)");
+            m_addPlaylist = m_connection.prepareStatement("INSERT INTO Playlist VALUES (?)");
 
-            m_addLeftTreeItemStatement = m_connection.prepareStatement("INSERT INTO LeftTreeView (path, isExpanded) " +
-                                                                        "VALUES (?, ?)");
+            m_addLeftTreeItem = m_connection.prepareStatement("INSERT INTO LeftTreeView (path, isExpanded) " +
+                                                              "VALUES (?, ?)");
 
-            m_addHistoryStatement = m_connection.prepareStatement("INSERT INTO History (songPath) " +
-                                                                  "VALUES (?)");
+            m_addHistory = m_connection.prepareStatement("INSERT INTO History (songPath) " +
+                                                         "VALUES (?)");
 
-            m_addPlaybackQueeStatement = m_connection.prepareStatement("INSERT INTO PlaybackQueue (songPath) " +
-                                                                  "VALUES (?)");
+            m_deleteFromHistory = m_connection.prepareStatement("DELETE FROM History " +
+                                                                "WHERE songPath = ?");
 
-            m_deleteLibraryStatement = m_connection.prepareStatement("DELETE FROM Library WHERE libraryPath=?");
+            m_addPlaybackQueue = m_connection.prepareStatement("INSERT INTO PlaybackQueue (songPath, orderNumber) " +
+                                                                  "VALUES (?, ?)");
 
-            m_deletePlaylistStatement = m_connection.prepareStatement("DELETE FROM Playlist WHERE playlistName=?");
+            m_incrementQueueOrder = m_connection.prepareStatement("UPDATE PlaybackQueue " +
+                                                                  "SET orderNumber = orderNumber + 1");
 
-            m_renamePlaylistStatement = m_connection.prepareStatement("UPDATE Playlist " +
-                                                                    "SET playlistName=? " +
-                                                                    "WHERE playlistName=?");
+            m_maxOrderNumberInQueue = m_connection.prepareStatement("SELECT max(orderNumber) " +
+                                                                    "FROM PlaybackQueue");
 
-            m_clearLeftTreeViewStatement = m_connection.prepareStatement("DELETE FROM LeftTreeView");
+            m_deleteFromQueue = m_connection.prepareStatement("DELETE FROM PlaybackQueue " +
+                                                             "WHERE songPath = ?");
 
-            m_setSelectedLeftTreeItemStatement = m_connection.prepareStatement("UPDATE LeftTreeView " +
-                                                                            "SET isSelected=1 " +
-                                                                            "WHERE path=?");
+            m_updateQueueOrderNumber =  m_connection.prepareStatement("UPDATE PlaybackQueue " +
+                                                                      "SET orderNumber = orderNumber - 1 " +
+                                                                      "WHERE orderNumber > (SELECT orderNumber " +
+                                                                                           "FROM PlaybackQueue " +
+                                                                                           "WHERE songPath = ?) ");
 
-            m_getLibrariesStatement = m_connection.prepareStatement("SELECT * FROM Library");
+            m_getPlaybackQueue = m_connection.prepareStatement("SELECT * FROM PlaybackQueue " +
+                                                               "ORDER BY OrderNumber DESC");
 
-            m_getPlaylistsStatement = m_connection.prepareStatement("SELECT * FROM Playlist");
+            m_deleteLibrary = m_connection.prepareStatement("DELETE FROM Library WHERE libraryPath=?");
 
-            m_getSelectedLeftTreeItemStatement = m_connection.prepareStatement("SELECT * " +
-                                                                            "FROM LeftTreeView " +
-                                                                            "WHERE isSelected=1");
+            m_deletePlaylist = m_connection.prepareStatement("DELETE FROM Playlist WHERE playlistName=?");
 
-            m_getExpandedLeftTreeItemsStatement = m_connection.prepareStatement("SELECT * " +
-                                                                            "FROM LeftTreeView " +
-                                                                            "WHERE isExpanded=1");
+            m_renamePlaylist = m_connection.prepareStatement("UPDATE Playlist " +
+                                                             "SET playlistName=? " +
+                                                             "WHERE playlistName=?");
+
+            m_clearLeftTreeView = m_connection.prepareStatement("DELETE FROM LeftTreeView");
+
+            m_setSelectedLeftTreeItem = m_connection.prepareStatement("UPDATE LeftTreeView " +
+                                                                      "SET isSelected=1 " +
+                                                                      "WHERE path=?");
+
+            m_getLibraries = m_connection.prepareStatement("SELECT * FROM Library");
+
+            m_getPlaylists = m_connection.prepareStatement("SELECT * FROM Playlist");
+
+            m_getSelectedLeftTreeItem = m_connection.prepareStatement("SELECT * " +
+                                                                      "FROM LeftTreeView " +
+                                                                      "WHERE isSelected=1");
+
+            m_getExpandedLeftTreeItems = m_connection.prepareStatement("SELECT * " +
+                                                                       "FROM LeftTreeView " +
+                                                                       "WHERE isExpanded=1");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -208,8 +233,8 @@ public class DatabaseManager {
      */
     public void addLibrary(String libraryPath) {
         try {
-            m_addLibraryStatement.setString(1, libraryPath);
-            m_addLibraryStatement.executeUpdate();
+            m_addLibrary.setString(1, libraryPath);
+            m_addLibrary.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -223,8 +248,8 @@ public class DatabaseManager {
      */
     public boolean removeLibrary(String libraryPath) {
         try {
-            m_deleteLibraryStatement.setString(1, libraryPath);
-            m_deleteLibraryStatement.executeUpdate();
+            m_deleteLibrary.setString(1, libraryPath);
+            m_deleteLibrary.executeUpdate();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -239,8 +264,8 @@ public class DatabaseManager {
      */
     public void addPlaylist(String playlistName) {
         try {
-            m_addPlaylistStatement.setString(1, playlistName);
-            m_addPlaylistStatement.executeUpdate();
+            m_addPlaylist.setString(1, playlistName);
+            m_addPlaylist.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -253,8 +278,8 @@ public class DatabaseManager {
      */
     public void removePlaylist(String playlistName) {
         try {
-            m_deletePlaylistStatement.setString(1, playlistName);
-            m_deletePlaylistStatement.executeUpdate();
+            m_deletePlaylist.setString(1, playlistName);
+            m_deletePlaylist.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -262,9 +287,9 @@ public class DatabaseManager {
 
     public void renamePlaylist(String oldPlaylistName, String newPlaylistName) {
         try {
-            m_renamePlaylistStatement.setString(1, newPlaylistName);
-            m_renamePlaylistStatement.setString(2, oldPlaylistName);
-            m_renamePlaylistStatement.executeUpdate();
+            m_renamePlaylist.setString(1, newPlaylistName);
+            m_renamePlaylist.setString(2, oldPlaylistName);
+            m_renamePlaylist.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -278,7 +303,7 @@ public class DatabaseManager {
     public List<String> getLibraries() {
         try {
             List<String> libraryPathList = new ArrayList<>();
-            ResultSet resultSet = m_getLibrariesStatement.executeQuery();
+            ResultSet resultSet = m_getLibraries.executeQuery();
             while(resultSet.next()) {
                 libraryPathList.add(resultSet.getString("libraryPath"));
             }
@@ -298,7 +323,7 @@ public class DatabaseManager {
     public List<String> getPlaylists() {
         try {
             List<String> playlistNameList = new ArrayList<>();
-            ResultSet resultSet = m_getPlaylistsStatement.executeQuery();
+            ResultSet resultSet = m_getPlaylists.executeQuery();
             while (resultSet.next()) {
                 playlistNameList.add(resultSet.getString("playlistName"));
             }
@@ -314,11 +339,11 @@ public class DatabaseManager {
      */
     public void saveLeftTreeViewState(Map<String, Boolean> pathExpandedMap) {
         try {
-            m_clearLeftTreeViewStatement.execute();
+            m_clearLeftTreeView.execute();
             for (Map.Entry<String, Boolean> entry : pathExpandedMap.entrySet()) {
-                m_addLeftTreeItemStatement.setString(1, entry.getKey());
-                m_addLeftTreeItemStatement.setBoolean(2, entry.getValue());
-                m_addLeftTreeItemStatement.executeUpdate();
+                m_addLeftTreeItem.setString(1, entry.getKey());
+                m_addLeftTreeItem.setBoolean(2, entry.getValue());
+                m_addLeftTreeItem.executeUpdate();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -330,8 +355,8 @@ public class DatabaseManager {
      */
     public void saveSelectedLeftTreeItem(String centerFolderPath) {
         try {
-            m_setSelectedLeftTreeItemStatement.setString(1, centerFolderPath);
-            m_setSelectedLeftTreeItemStatement.executeUpdate();
+            m_setSelectedLeftTreeItem.setString(1, centerFolderPath);
+            m_setSelectedLeftTreeItem.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -344,7 +369,7 @@ public class DatabaseManager {
      */
     public String getSelectedLeftTreeItem() {
         try {
-            ResultSet resultSet = m_getSelectedLeftTreeItemStatement.executeQuery();
+            ResultSet resultSet = m_getSelectedLeftTreeItem.executeQuery();
             return resultSet.getString("path");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -360,7 +385,7 @@ public class DatabaseManager {
     public List<String> getExpandedLeftTreeViewItems() {
         try {
             List<String> items = new ArrayList<>();
-            ResultSet resultSet = m_getExpandedLeftTreeItemsStatement.executeQuery();
+            ResultSet resultSet = m_getExpandedLeftTreeItems.executeQuery();
             while (resultSet.next()) {
                 items.add(resultSet.getString("path"));
             }
@@ -376,25 +401,136 @@ public class DatabaseManager {
      *
      * @param songPath a string path of the song
      */
-    public void addSongToHisotry(String songPath) {
+    public void addToHisotry(String songPath) {
         try {
-            m_addHistoryStatement.setString(1, songPath);
-            m_addHistoryStatement.executeUpdate();
+            m_addHistory.setString(1, songPath);
+            m_addHistory.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * Add the path of a song that is added to the playback queue
-     * @param songPath a string path of the song
+     * Delete an entry from the history table
+     * @param songPath the path of the song to be deleted
      */
-    public void addPlaybackQueue(String songPath) {
+    public void deleteFromHistory(String songPath) {
         try {
-            m_addPlaybackQueeStatement.setString(1, songPath);
-            m_addPlaybackQueeStatement.executeUpdate();
+            m_deleteFromHistory.setString(1, songPath);
+            m_deleteFromHistory.executeUpdate();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Add the path of a song that is added to the head of the playback queue
+     * @param songPath new added song's path
+     */
+    public void addToPlaybackQueueHead(String songPath) {
+        try {
+            incrementPlaybackQueueOrder();
+            m_addPlaybackQueue.setString(1, songPath);
+            m_addPlaybackQueue.setInt(2, 1);
+            m_addPlaybackQueue.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Helper Function for addPlaybackQueueHead()
+     * Increment the order number of each song in the playback queue table before a song is inserted at the head
+     */
+    public void incrementPlaybackQueueOrder() {
+        try {
+            m_incrementQueueOrder.execute();
+            System.out.println("Playback Queue order numbers updated");
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Add the path of a song that is added to the tail of the playback queue
+     * @param songPath new added song's path
+     */
+    public void addToPlaybackQueueTail(String songPath) {
+        try {
+            int newSongOrderNumber = getMaxOrderNumberOfPlaybackQueue() + 1;
+            m_addPlaybackQueue.setString(1, songPath);
+            m_addPlaybackQueue.setInt(2, newSongOrderNumber);
+            m_addPlaybackQueue.executeUpdate();
+        }
+        catch (SQLException e) {
+
+        }
+    }
+
+    /**
+     * Helper Function for addPlaylistQueueTail()
+     * Get the largest value of the order number in PlaybackQueue table
+     * @return int
+     */
+    public int getMaxOrderNumberOfPlaybackQueue() {
+        try {
+            ResultSet resultSet = m_maxOrderNumberInQueue.executeQuery();
+            int maxOrderNumber = resultSet.getInt(1);
+            return maxOrderNumber;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * Remove the specified song from the PlaybackQueue table
+     * @param songPath the path of the song to be deleted
+     */
+    public void deleteFromPlaybackQueue(String songPath) {
+        try {
+            updateQueueOrderNumber(songPath);
+            m_deleteFromQueue.setString(1, songPath);
+            m_deleteFromQueue.executeUpdate();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Decrement the order numbers of the songs that have greater order number than the song to be deleted
+     * @param songPath the path of the song which to be deleted
+     */
+    public void updateQueueOrderNumber(String songPath) {
+        try {
+            m_updateQueueOrderNumber.setString(1, songPath);
+            m_updateQueueOrderNumber.executeUpdate();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get a list of song paths that are in the Playback Queue
+     * @return List
+     */
+    public List<String> getPlaybackQueue() {
+        try {
+            List<String> songPathList = new ArrayList<>();
+            ResultSet resultSet = m_getPlaybackQueue.executeQuery();
+            while (resultSet.next()) {
+                songPathList.add(resultSet.getString("songPath"));
+            }
+            return songPathList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }
