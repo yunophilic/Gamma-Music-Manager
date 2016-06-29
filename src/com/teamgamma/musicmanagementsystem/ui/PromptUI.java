@@ -404,7 +404,7 @@ public class PromptUI {
         String fileNameFull = duplicate.getName();
         int beforeExtension = fileNameFull.lastIndexOf('.');
         String lastChar = fileNameFull.substring(beforeExtension - 1, beforeExtension);
-
+        String extension = fileNameFull.substring(beforeExtension);
         // TODO FIX INCREMENT FOR LAST CHARACTER
         if (!Character.isLetter(lastChar.charAt(0))) {
             numIndex = Character.getNumericValue(lastChar.charAt(0)) + 1;
@@ -414,7 +414,7 @@ public class PromptUI {
         }
 
         TextInputDialog dialog = new TextInputDialog(fileNameFull.substring(0,
-                beforeExtension) + "_" + numIndex + fileNameFull.substring(beforeExtension));
+                beforeExtension) + "_" + numIndex);
         dialog.setTitle("Name Already Exists");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-file-exists.png"))));
@@ -427,7 +427,7 @@ public class PromptUI {
             Path source = Paths.get(duplicate.getAbsolutePath());
             if (result.isPresent()) {
                 String parentDirectory = duplicate.getParent();
-                File newName = new File(parentDirectory + File.separator + result.get());
+                File newName = new File(parentDirectory + File.separator + result.get() + extension);
                 if (result.get().isEmpty()) {
                     return fileRenameRetry(duplicate);
                 } else if (newName.exists()) {
@@ -435,7 +435,7 @@ public class PromptUI {
                 } else if (containsIllegalChar(result.get())) {
                     return fileRenameInvalidChar(duplicate);
                 }
-                return Files.move(source, source.resolveSibling(result.get()));
+                return Files.move(source, source.resolveSibling(result.get() + extension));
             }
         } catch (IOException e) {
             failedToRename(duplicate);
@@ -496,11 +496,10 @@ public class PromptUI {
      * @param fileToRename file to rename
      */
     public static Path fileRename(File fileToRename) {
-        TextInputDialog dialog = new TextInputDialog();
-        String fileNameFull = fileToRename.getName();
-
         // Rename library
         if (fileToRename.isDirectory()) {
+            String fileNameFull = fileToRename.getName();
+            TextInputDialog dialog = new TextInputDialog(fileNameFull);
             dialog.setTitle("Rename Library");
             dialog.setHeaderText(fileNameFull + ":");
             dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
@@ -527,12 +526,14 @@ public class PromptUI {
             }
             // Rename media file
         } else {
-            dialog.setTitle("Rename Media File");
+            String fileNameFull = fileToRename.getName();
             int beforeExtension = fileNameFull.lastIndexOf('.');
             String fileName = fileNameFull.substring(0, beforeExtension);
             String extension = fileNameFull.substring(beforeExtension);
 
-            dialog.setHeaderText(fileName + ":");
+            TextInputDialog dialog = new TextInputDialog(fileName);
+            dialog.setTitle("Rename Media File");
+            dialog.setHeaderText(fileNameFull + ":");
             dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                     "rename-song.png"))));
             dialog.setContentText("Rename the file to:");
@@ -578,15 +579,14 @@ public class PromptUI {
      * @param fileToRename file to rename
      */
     private static Path fileRenameInvalidChar(File fileToRename) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Rename Media File");
-
         String fileNameFull = fileToRename.getName();
         int beforeExtension = fileNameFull.lastIndexOf('.');
         String fileName = fileNameFull.substring(0, beforeExtension);
         String extension = fileNameFull.substring(beforeExtension);
 
-        dialog.setHeaderText("The song name \"" + fileName + "\" cannot contain any of the following characters:\n" +
+        TextInputDialog dialog = new TextInputDialog(fileName);
+        dialog.setTitle("Rename Media File");
+        dialog.setHeaderText("The song name \"" + fileNameFull + "\" cannot contain any of the following characters:\n" +
                 "< > : \" / \\ | ? *");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-song.png"))));
@@ -621,11 +621,10 @@ public class PromptUI {
      * @param folderToRename file to rename
      */
     private static Path folderRenameInvalidChar(File folderToRename) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Rename Library");
-
         String folderName = folderToRename.getName();
 
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Rename Library");
         dialog.setHeaderText("The library name \"" + folderName + "\" cannot contain any of the following characters:\n" +
                 "< > : \" / \\ | ? *");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
@@ -661,14 +660,13 @@ public class PromptUI {
      * Renames file after previous rename attempt has blank in text box
      */
     private static Path fileRenameRetry(File fileToRename) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Rename Media File");
-
         String fileNameFull = fileToRename.getName();
         int beforeExtension = fileNameFull.lastIndexOf('.');
         String fileName = fileNameFull.substring(0, beforeExtension);
         String extension = fileNameFull.substring(beforeExtension);
 
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Rename Media File");
         dialog.setHeaderText("Please enter at least one character \n to rename \"" + fileName + "\":");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-song.png"))));
@@ -698,11 +696,10 @@ public class PromptUI {
     }
 
     private static Path folderRenameRetry(File folderToRename) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Rename Media File");
-
         String folderName = folderToRename.getName();
 
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Rename Media File");
         dialog.setHeaderText("Please enter at least one character \n to rename \"" + folderName + "\":");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-library.png"))));
