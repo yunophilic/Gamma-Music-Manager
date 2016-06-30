@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
@@ -25,9 +26,6 @@ public class MusicPlayerHistoryUI extends HBox{
     public static final int MAX_HEIGHT = 400;
     public static final int PREF_HEIGHT = 175;
 
-    public static final String MENU_ITEM_PLAY_SONG = "Play Song";
-    public static final String MENU_ITEM_PLAY_SONG_NEXT = "Play Song Next";
-    public static final String MENU_ITEM_PLACE_SONG_ON_QUEUE = "Place Song On Queue";
     public static final String PLAYBACK_HISTORY_HEADER = "History";
     public static final String QUEUING_HEADER = "Playing Next";
     public static final int DOUBLE_CLICK = 2;
@@ -152,7 +150,7 @@ public class MusicPlayerHistoryUI extends HBox{
         ContextMenu playbackMenu = new ContextMenu();
         playbackMenu.setAutoHide(true);
 
-        MenuItem playSong = new MenuItem(MENU_ITEM_PLAY_SONG);
+        MenuItem playSong = new MenuItem(ContextMenuConstants.MENU_ITEM_PLAY_SONG);
         playSong.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -160,7 +158,7 @@ public class MusicPlayerHistoryUI extends HBox{
             }
         });
 
-        MenuItem placeSongAtStartOfQueue = new MenuItem(MENU_ITEM_PLAY_SONG_NEXT);
+        MenuItem placeSongAtStartOfQueue = new MenuItem(ContextMenuConstants.MENU_ITEM_PLAY_SONG_NEXT);
         placeSongAtStartOfQueue.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -168,7 +166,7 @@ public class MusicPlayerHistoryUI extends HBox{
             }
         });
 
-        MenuItem placeSongOnBackOfQueue = new MenuItem(MENU_ITEM_PLACE_SONG_ON_QUEUE);
+        MenuItem placeSongOnBackOfQueue = new MenuItem(ContextMenuConstants.MENU_ITEM_PLACE_SONG_ON_QUEUE);
         placeSongOnBackOfQueue.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
