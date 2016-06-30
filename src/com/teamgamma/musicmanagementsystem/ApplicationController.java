@@ -75,7 +75,7 @@ public class ApplicationController extends Application {
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "gamma-main-logo.png")));
+                "gamma-logo.png")));
         primaryStage.show();
     }
 
