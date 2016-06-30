@@ -1,17 +1,17 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.FileManager;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 
+import com.teamgamma.musicmanagementsystem.model.SongManager;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +22,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Modality;
 
 
 /**
@@ -390,6 +391,27 @@ public class PromptUI {
         if (result.isPresent() && result.get() == deleteReference) {
             mediaFile.delete();
         }
+    }
+
+    /**
+     * Corrupted or invalid .mp3 file. Leaves user no choice but to delete the file
+     *
+     * @param corruptedFile detected in the system
+     * @return true if file has been deleted
+     */
+    public static boolean invalidMediaFile(File corruptedFile) {
+        Dialog dialog = new Dialog();
+        dialog.setTitle("Invalid media file");
+        dialog.setHeaderText("\"" + corruptedFile.getName() + "\":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "missing-song.png"))));
+        dialog.setContentText("The program has detected that this file is either corrupted or an invalid MP3 file.");
+        ButtonType okButton = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton);
+
+        dialog.showAndWait();
+
+        return corruptedFile.delete();
     }
 
 
