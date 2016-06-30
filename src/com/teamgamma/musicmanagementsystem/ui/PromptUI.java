@@ -422,21 +422,21 @@ public class PromptUI {
      * @param duplicate file
      */
     public static Path fileRenameDuplicate(File duplicate) {
-        int numIndex = 2;
         String fileNameFull = duplicate.getName();
         int beforeExtension = fileNameFull.lastIndexOf('.');
-        String lastChar = fileNameFull.substring(beforeExtension - 1, beforeExtension);
+        String fileNameFullNoExtension = fileNameFull.substring(0, beforeExtension);
         String extension = fileNameFull.substring(beforeExtension);
-        // TODO FIX INCREMENT FOR LAST CHARACTER
-        if (!Character.isLetter(lastChar.charAt(0))) {
-            numIndex = Character.getNumericValue(lastChar.charAt(0)) + 1;
-            fileNameFull = fileNameFull.substring(0, beforeExtension - 2) +
-                    fileNameFull.substring(beforeExtension);
-            beforeExtension -= 2;
+
+        int numIndex = 2;
+        File duplicateWithIndex = new File(duplicate.getParent() + File.separator + fileNameFullNoExtension + " (" +
+                numIndex + ")" + extension);
+        while (duplicateWithIndex.exists()) {
+            duplicateWithIndex = new File(duplicate.getParent() + File.separator + fileNameFullNoExtension + " (" +
+                    numIndex + ")" + extension);
+            numIndex++;
         }
 
-        TextInputDialog dialog = new TextInputDialog(fileNameFull.substring(0,
-                beforeExtension) + "_" + numIndex);
+        TextInputDialog dialog = new TextInputDialog(duplicateWithIndex.getName().substring(0, beforeExtension + 4));
         dialog.setTitle("Name Already Exists");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-file-exists.png"))));
@@ -473,16 +473,17 @@ public class PromptUI {
      * @param duplicate folder
      */
     public static Path folderRenameDuplicate(File duplicate) {
+        String folderName = duplicate.getName();
         int numIndex = 2;
-        String folderNameFull = duplicate.getName();
-        int lastCharIndex = folderNameFull.length() - 1;
-
-        // TODO FIX INCREMENT FOR LAST CHARACTER
-        if (!Character.isLetter(folderNameFull.charAt(lastCharIndex))) {
-            numIndex = Character.getNumericValue(lastCharIndex) + 1;
+        File duplicateWithIndex = new File(duplicate.getParent() + File.separator + folderName + " (" +
+                numIndex + ")");
+        while (duplicateWithIndex.exists()) {
+            duplicateWithIndex = new File(duplicate.getParent() + File.separator + folderName + " (" +
+                    numIndex + ")");
+            numIndex++;
         }
 
-        TextInputDialog dialog = new TextInputDialog(folderNameFull + "_" + numIndex);
+        TextInputDialog dialog = new TextInputDialog(duplicateWithIndex.getName());
         dialog.setTitle("Name Already Exists");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-folder-exists.png"))));
@@ -508,7 +509,6 @@ public class PromptUI {
         } catch (IOException e) {
             failedToRename(duplicate);
         }
-
         return null;
     }
 
@@ -845,7 +845,7 @@ public class PromptUI {
         }
         return null;
     }
-    
+
     /**
      * Prompt to remove playlist
      *
@@ -890,7 +890,7 @@ public class PromptUI {
      * Prompt to add a song to a  playlist
      *
      * @param playlists list of playlists
-     * @param songToAdd  song that is added to selected playlist
+     * @param songToAdd song that is added to selected playlist
      * @return selected playlist the user chooses, null if user cancels
      */
     public static Playlist addSongToPlaylist(List<Playlist> playlists, Song songToAdd) {
