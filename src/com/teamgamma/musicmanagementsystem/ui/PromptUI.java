@@ -128,12 +128,12 @@ public class PromptUI {
         dialog.setHeaderText(null);
         // TEMPORARY
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "gamma-logo.png"), 88, 20, false, false)));
+                "gamma-logo-welcome.png"), 100, 100, false, false)));
 
-        dialog.setContentText("Welcome to the Music Management System. Before " +
+        dialog.setContentText("\nWelcome to the Gamma Music Manager. Before " +
                 "beginning, please select a media library.");
         ButtonType browse = new ButtonType("Browse");
-        dialog.getDialogPane().getButtonTypes().addAll(browse, ButtonType.CANCEL);
+        dialog.getDialogPane().getButtonTypes().addAll(browse);
         Optional<ButtonType> result = dialog.showAndWait();
 
         if (result.isPresent() && result.get() == browse) {
