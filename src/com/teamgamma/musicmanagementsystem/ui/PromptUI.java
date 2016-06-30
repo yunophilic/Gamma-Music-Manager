@@ -351,46 +351,45 @@ public class PromptUI {
     // ---------------------- Confirmation Prompts
 
     /**
-     * Delete folder and contents
+     * Delete library and contents
      *
      * @param folder to delete
+     * @return true if user clicks OK
      */
-    public static void deleteFolder(File folder) {
-        Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("Confirm Delete");
-        alert.setHeaderText("Delete folder and all contents:");
-        alert.setContentText("Are you sure you want do delete the folder " + folder.getName() + "?");
+    public static boolean deleteLibrary(File folder) {
+        Dialog dialog = new Dialog();
+        dialog.setTitle("Delete Library");
+        dialog.setHeaderText("\"" + folder.getName() + "\":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "delete-library.png"))));
+        dialog.setContentText("Are you sure you want to permanently delete this folder and all of its contents?");
+        ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
 
-        ButtonType deleteReference = new ButtonType("Yes");
-        ButtonType cancel = new ButtonType("No");
+        Optional result = dialog.showAndWait();
 
-        alert.getButtonTypes().setAll(deleteReference, cancel);
-        Optional<ButtonType> result = alert.showAndWait();
-
-        if (result.isPresent() && result.get() == deleteReference) {
-            folder.delete();
-        }
+        return result.isPresent() && result.get() == okButton;
     }
 
     /**
      * Delete song
      *
      * @param mediaFile to delete
+     * @return true if user clicks OK
      */
-    public static void deleteSong(File mediaFile) {
-        Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("Confirm Delete");
-        alert.setHeaderText(null);
-        alert.setContentText("Are you sure you want do delete " + mediaFile.getName() + "?");
-        ButtonType deleteReference = new ButtonType("Yes");
-        ButtonType cancel = new ButtonType("No");
+    public static boolean deleteSong(File mediaFile) {
+        Dialog dialog = new Dialog();
+        dialog.setTitle("Delete Media File");
+        dialog.setHeaderText("\"" + mediaFile.getName() + "\":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "delete-song.png"))));
+        dialog.setContentText("Are you sure you want to permanently delete this song?");
+        ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
 
-        alert.getButtonTypes().setAll(deleteReference, cancel);
-        Optional<ButtonType> result = alert.showAndWait();
+        Optional result = dialog.showAndWait();
 
-        if (result.isPresent() && result.get() == deleteReference) {
-            mediaFile.delete();
-        }
+        return result.isPresent() && result.get() == okButton;
     }
 
     /**

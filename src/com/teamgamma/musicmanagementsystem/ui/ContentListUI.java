@@ -385,11 +385,14 @@ public class ContentListUI extends StackPane {
                 if (selectedSong != null) {
                     File fileToDelete = selectedSong.getM_file();
                     //confirmation dialog
-                    if (!PromptUI.customPromptConfirmation(
-                            "Deleting " + (fileToDelete.isDirectory() ? "folder" : "file"),
-                            null,
-                            "Are you sure you want to permanently delete \"" + fileToDelete.getName() + "\"?")) {
-                        return;
+                    if (fileToDelete.isDirectory()) {
+                        if (!PromptUI.deleteLibrary(fileToDelete)) {
+                            return;
+                        }
+                    } else {
+                        if (!PromptUI.deleteSong(fileToDelete)) {
+                            return;
+                        }
                     }
                     //try to actually delete (retry if FileSystemException happens)
                     for(int i=0; i<2; i++) {
