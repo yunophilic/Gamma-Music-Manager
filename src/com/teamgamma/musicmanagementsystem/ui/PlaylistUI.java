@@ -37,8 +37,11 @@ public class PlaylistUI extends StackPane {
     private static final int SELECT_PLAYLIST_LABEL_PREF_HEIGHT = 30;
     private static final Insets TABLE_VIEW_MARGIN = new Insets(30, 0, 0, 0);
     private static final String ADD_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "add-playlist-button.png";
+    private static final String ADD_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "add-playlist-button-highlight.png";
     private static final String REMOVE_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "remove-playlist-button.png";
+    private static final String REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON_PATH = "res" + File.separator + "remove-playlist-button-highlight.png";
     private static final String EDIT_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "edit-playlist-button.png";
+    private static final String EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "edit-playlist-button-highlight.png";
 
 
     public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
@@ -48,10 +51,10 @@ public class PlaylistUI extends StackPane {
         m_databaseManager = databaseManager;
         m_dropDownMenu = new ComboBox<>();
         initTopMenu(createSelectPlaylistLabel(),
-                    createDropDownMenu(),
-                    createCreateNewPlaylistButton(),
-                    createRemovePlaylistButton(),
-                    createEditPlaylistButton());
+                createDropDownMenu(),
+                createCreateNewPlaylistButton(),
+                createRemovePlaylistButton(),
+                createEditPlaylistButton());
         initTableView();
         setCssStyle();
         registerAsPlaylistObserver();
@@ -89,7 +92,7 @@ public class PlaylistUI extends StackPane {
         dropDownMenu.setMinWidth(DROP_DOWN_MENU_MIN_WIDTH);
         dropDownMenu.setMaxWidth(DROP_DOWN_MENU_MAX_WIDTH);
         dropDownMenu.setPrefSize(DROP_DOWN_MENU_PREF_WIDTH, DROP_DOWN_MENU_PREF_HEIGHT);
-        if(!options.isEmpty()) {
+        if (!options.isEmpty()) {
             dropDownMenu.setValue(options.get(0));
         }
         return dropDownMenu;
@@ -97,8 +100,21 @@ public class PlaylistUI extends StackPane {
 
     private Button createCreateNewPlaylistButton() {
         Button createNewPlaylistButton = new Button();
+        createNewPlaylistButton.setTooltip(new Tooltip("Add Playlist"));
         createNewPlaylistButton.setStyle("-fx-background-color: transparent");
-        createNewPlaylistButton.setGraphic( new ImageView(ADD_PLAYLIST_BUTTON_ICON_PATH) );
+        createNewPlaylistButton.setGraphic(new ImageView(ADD_PLAYLIST_BUTTON_ICON_PATH));
+        createNewPlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                createNewPlaylistButton.setGraphic(new ImageView(ADD_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH));
+            }
+        });
+        createNewPlaylistButton.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                createNewPlaylistButton.setGraphic(new ImageView(ADD_PLAYLIST_BUTTON_ICON_PATH));
+            }
+        });
         createNewPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -120,8 +136,21 @@ public class PlaylistUI extends StackPane {
 
     private Button createRemovePlaylistButton() {
         Button removePlaylistButton = new Button();
+        removePlaylistButton.setTooltip(new Tooltip("Remove Playlist"));
         removePlaylistButton.setStyle("-fx-background-color: transparent");
-        removePlaylistButton.setGraphic( new ImageView(REMOVE_PLAYLIST_BUTTON_ICON_PATH) );
+        removePlaylistButton.setGraphic(new ImageView(REMOVE_PLAYLIST_BUTTON_ICON_PATH));
+        removePlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                removePlaylistButton.setGraphic(new ImageView(REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON_PATH));
+            }
+        });
+        removePlaylistButton.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                removePlaylistButton.setGraphic(new ImageView(REMOVE_PLAYLIST_BUTTON_ICON_PATH));
+            }
+        });
         removePlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -148,8 +177,21 @@ public class PlaylistUI extends StackPane {
 
     private Button createEditPlaylistButton() {
         Button editPlaylistButton = new Button();
+        editPlaylistButton.setTooltip(new Tooltip("Rename Playlist"));
         editPlaylistButton.setStyle("-fx-background-color: transparent");
-        editPlaylistButton.setGraphic( new ImageView(EDIT_PLAYLIST_BUTTON_ICON_PATH) );
+        editPlaylistButton.setGraphic(new ImageView(EDIT_PLAYLIST_BUTTON_ICON_PATH));
+        editPlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                editPlaylistButton.setGraphic(new ImageView(EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH));
+            }
+        });
+        editPlaylistButton.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                editPlaylistButton.setGraphic(new ImageView(EDIT_PLAYLIST_BUTTON_ICON_PATH));
+            }
+        });
         editPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -226,7 +268,6 @@ public class PlaylistUI extends StackPane {
         m_table.setPlaceholder(new Label("This pane was notified of changes to playlist"));
         super.getChildren().add(m_table);
     }
-
 
 
     private void setCssStyle() {
