@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.musicplayer;
 
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 
@@ -44,6 +45,8 @@ public class MusicPlayerManager {
 
     boolean m_isPlayingOnHistory = false;
 
+    private DatabaseManager m_databaseManager;
+
     /**
      * Constructor
      */
@@ -57,6 +60,7 @@ public class MusicPlayerManager {
         m_errorObservers = new ArrayList<MusicPlayerObserver>();
         m_queuingObserver = new ArrayList<MusicPlayerObserver>();
         m_musicPlayer = new JlayerMP3Player(this);
+        m_databaseManager = new DatabaseManager();
     }
 
     /**
@@ -114,6 +118,7 @@ public class MusicPlayerManager {
         } else {
             // TODO: Make it move to front by changing prioirty.
             m_playingQueue.add(nextSong);
+            m_databaseManager.addToPlaybackQueueTail(nextSong.getM_file().getAbsolutePath());
         }
         notifyQueingObserver();
 

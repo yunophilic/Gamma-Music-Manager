@@ -191,15 +191,14 @@ public class DatabaseManager {
 
             //left tree view table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS LeftTreeView (" +
-                                        "path       TEXT    PRIMARY KEY NOT NULL," +
-                                        "isExpanded INTEGER             NOT NULL," +
-                                        "isSelected INTEGER             NOT NULL DEFAULT 0" +
+                                        "expandedPaths TEXT NOT NULL, " +
+                                        "PRIMARY KEY (expandedPaths)" +
                                     ")");
 
             //right tree view table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS RightTreeView (" +
-                                        "path       TEXT    PRIMARY KEY NOT NULL," +
-                                        "isExpanded INTEGER             NOT NULL" +
+                                        "expandedPaths TEXT NOT NULL, " +
+                                        "PRIMARY KEY (expandedPaths)" +
                                     ")");
 
             //Playlist table, store all the playlist names
