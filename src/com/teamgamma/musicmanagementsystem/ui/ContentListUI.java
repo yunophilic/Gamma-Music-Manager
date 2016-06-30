@@ -434,6 +434,13 @@ public class ContentListUI extends StackPane {
         });
 
         contextMenu.getItems().addAll(copy, paste, delete, editProperties, addToPlaylist);
+
+        // Add playback menu items
+        if (selectedSong != null) {
+            ContextMenu playlistMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, selectedSong);
+            contextMenu.getItems().addAll(playlistMenu.getItems());
+        }
+
         contextMenu.setOnShown(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
