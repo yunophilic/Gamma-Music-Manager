@@ -268,7 +268,9 @@ public class PlaylistUI extends VBox {
         playlistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                m_musicPlayerManager.playPlaylist(m_model.getM_selectedPlaylist());
+                if (m_model.getM_selectedPlaylist() != null) {
+                    m_musicPlayerManager.playPlaylist(m_model.getM_selectedPlaylist());
+                }
             }
         });
 

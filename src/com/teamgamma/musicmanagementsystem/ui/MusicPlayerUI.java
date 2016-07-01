@@ -204,7 +204,12 @@ public class MusicPlayerUI extends VBox {
         playbackControls.getChildren().add(playPauseButton);
 
         Button skipButton = createIconButton(NEXT_SONG_ICON_PATH);
-        skipButton.setOpacity(FADED);
+        if (manager.isThereANextSong()){
+            skipButton.setOpacity(NOT_FADED);
+        } else {
+            skipButton.setOpacity(FADED);
+        }
+
         skipButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -215,6 +220,8 @@ public class MusicPlayerUI extends VBox {
 
         Tooltip nextSongTip = new Tooltip(NEXT_SONG_TOOLTIP_DEFAULT);
         skipButton.setTooltip(nextSongTip);
+        setToolTipToNextSong(manager, nextSongTip);
+
         manager.registerQueingObserver(createNextSongToolTipObserver(manager, nextSongTip));
         manager.registerNewSongObserver(createNextSongToolTipObserver(manager, nextSongTip));
         playbackControls.getChildren().add(skipButton);
@@ -236,15 +243,19 @@ public class MusicPlayerUI extends VBox {
         return new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                Song nextSong = manager.getNextSong();
-                if (nextSong != null ) {
-                    String songTitle = getSongDisplayName(nextSong);
-                    nextSongTip.setText(songTitle);
-                } else {
-                    nextSongTip.setText(NEXT_SONG_TOOLTIP_DEFAULT);
-                }
+                setToolTipToNextSong(manager, nextSongTip);
             }
         };
+    }
+
+    private void setToolTipToNextSong(MusicPlayerManager manager, Tooltip nextSongTip) {
+        Song nextSong = manager.getNextSong();
+        if (nextSong != null ) {
+            String songTitle = getSongDisplayName(nextSong);
+            nextSongTip.setText(songTitle);
+        } else {
+            nextSongTip.setText(NEXT_SONG_TOOLTIP_DEFAULT);
+        }
     }
 
     /**

@@ -53,32 +53,19 @@ public class Playlist implements PlaylistObserver {
 
     public List<Song> shufflePlaylistFromCurrentSong() {
         List<Song> copyList = new ArrayList<>();
-        MusicPlayerManager copier = new MusicPlayerManager();
-        boolean currentSong = false;
-        int counter = 0;
-        int tracker = 0;
-        int playlistSize = 0;
 
-        // Find point to shuffle from
-        for(Song s: m_songList) {
-            if (s != copier.getCurrentSongPlaying()) {
-                counter += 1;
-            }
-            // FOUND POINT TO SHUFFLE
-            else {
-                currentSong = true;
-                tracker = counter;
-                break;
-            }
-        }
+        boolean currentSong = false;
+        int counter = m_currentSongIndex;
+        int tracker = 0;
 
         // Add all songs from index point to end of playlist to copyList (Excludes played songs)
-        for (counter = counter; counter < m_songList.size(); counter++) {
+        for (; counter < m_songList.size(); counter++) {
             copyList.add(m_songList.get(counter));
         }
 
         // Shuffle
         Collections.shuffle(copyList);
+        int playlistSize = 0;
         playlistSize = m_songList.size();
 
         // Get rid of the songs from the index point onwards (Because original playlist is not shuffled)

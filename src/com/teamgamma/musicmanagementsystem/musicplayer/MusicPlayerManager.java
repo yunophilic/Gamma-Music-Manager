@@ -52,7 +52,11 @@ public class MusicPlayerManager {
      * Constructor
      */
     public MusicPlayerManager(DatabaseManager databaseManager) {
+        m_databaseManager = databaseManager;
+
         m_playingQueue = new ConcurrentLinkedDeque<Song>();
+        reterievePlaybackQueueFromDB();
+
         m_songHistory = new ArrayList<Song>();
 
         m_newSongObservers = new ArrayList<MusicPlayerObserver>();
@@ -61,7 +65,7 @@ public class MusicPlayerManager {
         m_errorObservers = new ArrayList<MusicPlayerObserver>();
         m_queuingObserver = new ArrayList<MusicPlayerObserver>();
         m_musicPlayer = new JlayerMP3Player(this);
-        m_databaseManager = databaseManager;
+
     }
 
     /**
@@ -522,13 +526,24 @@ public class MusicPlayerManager {
      * @return The songs that are in the playing queue.
      */
     public Collection<Song> getPlayingQueue() {
+        return m_playingQueue;
+    }
+
+    /**
+     * Helper fucntion to reterieve what ever is in the playback queue in the DB and set it to be what is in the playback queue.
+     */
+    private void reterievePlaybackQueueFromDB() {
         List<String> queuedSongs = m_databaseManager.getPlaybackQueue();
+        if (queuedSongs == null) {
+            // Nothing in the DB.
+            return;
+        }
         Deque<Song> queueFromDB = new ConcurrentLinkedDeque<Song>();
         for (int i = 0; i < queuedSongs.size(); i++) {
             Song song = new Song(queuedSongs.get(i));
             queueFromDB.add(song);
         }
-        return queueFromDB;
+        m_playingQueue = queueFromDB;
     }
 
     /**
