@@ -22,7 +22,9 @@ public class MainUI extends BorderPane {
     private LibraryUI m_libraryUI;
     private DynamicTreeViewUI m_rightFilePane;
 
-    public MainUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager, List<String> libraryExpandedPaths) {
+    public MainUI(
+            SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager,
+            List<String> libraryExpandedPaths, List<String> dynamicTreeViewExpandedPaths) {
         super();
 
         m_model = model;
@@ -31,7 +33,7 @@ public class MainUI extends BorderPane {
 
         this.setLeft(leftPane(libraryExpandedPaths));
         this.setRight(rightPane());
-        this.setCenter(centerPane());
+        this.setCenter(centerPane(dynamicTreeViewExpandedPaths));
         this.setTop(topPane());
         this.setBottom(bottomPane());
     }
@@ -68,18 +70,18 @@ public class MainUI extends BorderPane {
         return new BorderPane();
     }
 
-    private Node centerPane() {
+    private Node centerPane(List<String> dynamicTreeViewExpandedPaths) {
         BorderPane centerPane = new BorderPane();
 
-        centerPane.setCenter(createFileExplorer());
+        centerPane.setCenter(createFileExplorer(dynamicTreeViewExpandedPaths));
         return centerPane;
     }
 
-    private Node createFileExplorer() {
+    private Node createFileExplorer(List<String> dynamicTreeViewExpandedPaths) {
         HBox pane = new HBox();
 
         ContentListUI contentListUI = new ContentListUI(m_model, m_musicPlayerManager, m_databaseManager);
-        m_rightFilePane = new DynamicTreeViewUI(m_model, m_musicPlayerManager, m_databaseManager);
+        m_rightFilePane = new DynamicTreeViewUI(m_model, m_musicPlayerManager, m_databaseManager, dynamicTreeViewExpandedPaths);
 
         HBox.setHgrow(contentListUI, Priority.ALWAYS);
         HBox.setHgrow(m_rightFilePane, Priority.ALWAYS);

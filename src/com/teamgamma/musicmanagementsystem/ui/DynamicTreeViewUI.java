@@ -23,7 +23,8 @@ public class DynamicTreeViewUI extends StackPane {
     private DatabaseManager m_databaseManager;
     private TreeView<TreeViewItem> m_tree;
 
-    public DynamicTreeViewUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
+    public DynamicTreeViewUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager,
+                             List<String> dynamicTreeViewExpandedPaths) {
         super();
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
@@ -31,17 +32,17 @@ public class DynamicTreeViewUI extends StackPane {
         setPaneStyle();
         registerAsObserver();
 
-        updateTreeView();
+        updateTreeView(dynamicTreeViewExpandedPaths);
     }
 
-    private void updateTreeView() {
+    private void updateTreeView(List<String> dynamicTreeViewExpandedPaths) {
         System.out.println("updating treeview...");
         List<Library> libraries = m_model.getM_libraries();
 
         if (m_model.getM_rightFolderSelected() == null) {
             this.getChildren().add(new Label("Choose a folder to view"));
         } else {
-            m_tree = createTrees(libraries);
+            m_tree = createTrees(libraries, dynamicTreeViewExpandedPaths);
             this.getChildren().add(m_tree);
             setTreeCellFactory();
         }
@@ -64,7 +65,7 @@ public class DynamicTreeViewUI extends StackPane {
             @Override
             public void librariesChanged() {
                 clearTreeView();
-                updateTreeView();
+                updateTreeView(null);
             }
 
             @Override
@@ -76,7 +77,7 @@ public class DynamicTreeViewUI extends StackPane {
             public void rightFolderChanged() {
                 System.out.println("File changed in treeview");
                 clearTreeView();
-                updateTreeView();
+                updateTreeView(null);
             }
 
             @Override
@@ -124,13 +125,13 @@ public class DynamicTreeViewUI extends StackPane {
      *
      * @return TreeView<String>
      */
-    private TreeView<TreeViewItem> createTrees(List<Library> libraries) {
+    private TreeView<TreeViewItem> createTrees(List<Library> libraries, List<String> dynamicTreeViewExpandedPaths) {
         if (!libraries.isEmpty()) {
             File dummyRootFile = new File(libraries.get(0).getM_rootDirPath());
             TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
 
             TreeItem<TreeViewItem> rootItem = TreeViewUtil.generateTreeItems(
-                    m_model.getM_rightFolderSelected(), m_model.getM_rightFolderSelected().getAbsolutePath(), false, null
+                    m_model.getM_rightFolderSelected(), m_model.getM_rightFolderSelected().getAbsolutePath(), false, dynamicTreeViewExpandedPaths
             );
 
             rootItem.setExpanded(true);

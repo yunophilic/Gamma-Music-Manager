@@ -40,7 +40,7 @@ public class TreeViewUtil {
         if (treeItemFile.isDirectory()) {
             item.setGraphic(new ImageView(folderImage));
 
-            if (expandedPaths != null) {
+            if (expandedPaths != null && !expandedPaths.isEmpty()) {
                 if (expandedPaths.contains(item.getValue().getM_file().getAbsolutePath())) {
                     item.setExpanded(true);
                 }
