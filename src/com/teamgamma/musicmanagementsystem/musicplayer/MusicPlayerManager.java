@@ -50,7 +50,7 @@ public class MusicPlayerManager {
     /**
      * Constructor
      */
-    public MusicPlayerManager() {
+    public MusicPlayerManager(DatabaseManager databaseManager) {
         m_playingQueue = new ConcurrentLinkedDeque<Song>();
         m_songHistory = new ArrayList<Song>();
 
@@ -60,7 +60,7 @@ public class MusicPlayerManager {
         m_errorObservers = new ArrayList<MusicPlayerObserver>();
         m_queuingObserver = new ArrayList<MusicPlayerObserver>();
         m_musicPlayer = new JlayerMP3Player(this);
-        m_databaseManager = new DatabaseManager();
+        m_databaseManager = databaseManager;
     }
 
     /**
@@ -141,6 +141,7 @@ public class MusicPlayerManager {
     public void placeSongAtStartOfQueue(Song songToPlace) {
         boolean isNoSongPlaying = isNoSongPlayingOrNext();
         m_playingQueue.addFirst(songToPlace);
+        m_databaseManager.addToPlaybackQueueHead(songToPlace.getM_file().getAbsolutePath());
         if (isNoSongPlaying){
             playNextSong();
         }
@@ -518,6 +519,12 @@ public class MusicPlayerManager {
      * @return The songs that are in the playing queue.
      */
     public Collection<Song> getPlayingQueue() {
+        List<String> queuedSongs = m_databaseManager.getPlaybackQueue();
+        for (int i = 0; i < queuedSongs.size(); i++) {
+            System.out.println();
+            System.out.println("This song is in queue:      " + queuedSongs.get(i));
+            System.out.println();
+        }
         return m_playingQueue;
     }
 

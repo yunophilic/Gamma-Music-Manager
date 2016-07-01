@@ -51,7 +51,7 @@ public class Playlist implements PlaylistObserver {
 
     }
 
-    public List<Song> shuffleSomePlaylist() {
+    /*public List<Song> shuffleSomePlaylist() {
         List<Song> copyList = new ArrayList<>();
         MusicPlayerManager copier = new MusicPlayerManager();
         boolean currentSong = false;
@@ -95,7 +95,7 @@ public class Playlist implements PlaylistObserver {
         // Call observer
         playlistsChanged();
         return m_songList;
-    }
+    }*/
 
     // Return one song at a time
     public Song oneAtATime() {
