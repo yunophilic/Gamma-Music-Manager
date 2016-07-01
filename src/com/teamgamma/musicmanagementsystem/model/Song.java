@@ -29,7 +29,10 @@ public class Song {
 
     public Song(String pathToFile) {
         m_file = new File(pathToFile);
-        m_fileName = m_file.getName();
+        String fileNameFull = m_file.getName();
+        int beforeExtension = fileNameFull.lastIndexOf('.');
+        String fileName = fileNameFull.substring(0, beforeExtension);
+        m_fileName = fileName;
         try {
             AudioFile file = AudioFileIO.read(m_file);
             Tag tag = file.getTag();
