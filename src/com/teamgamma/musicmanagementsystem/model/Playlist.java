@@ -1,7 +1,6 @@
 package com.teamgamma.musicmanagementsystem.model;
 
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import com.teamgamma.musicmanagementsystem.model.PlaylistObserver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +12,7 @@ import java.util.List;
 public class Playlist implements PlaylistObserver {
     private String m_playlistName;
     private List<Song> m_songList;
-    public int currentPlaylistSong = 0;
+    public int m_currentSongIndex = 0;
 
     public Playlist(String playlistName) {
         m_playlistName = playlistName;
@@ -41,17 +40,18 @@ public class Playlist implements PlaylistObserver {
     /**
      * Shuffle order of songs in playlist
      */
-    public List<Song> shufflePlaylist() {
-
+    public List<Song> shuffleWholePlaylist() {
         Collections.shuffle(m_songList);
+        m_currentSongIndex = 0;
 
         // Call observer
         playlistsChanged();
+
         return m_songList;
 
     }
 
-    public List<Song> shuffleSomePlaylist() {
+    public List<Song> shufflePlaylistFromCurrentSong() {
         List<Song> copyList = new ArrayList<>();
         MusicPlayerManager copier = new MusicPlayerManager();
         boolean currentSong = false;
@@ -97,12 +97,46 @@ public class Playlist implements PlaylistObserver {
         return m_songList;
     }
 
+    /**
+     * Function to get the next song in the playlist.
+     *
+     * @return The next song in the playlist
+     */
+    public Song getNextSong(){
+        if (!m_songList.isEmpty() && (m_songList.size() - 1 == m_currentSongIndex)) {
+            return m_songList.get(0);
+        } else {
+            return  m_songList.get(m_currentSongIndex + 1);
+        }
+    }
+
+    /**
+     * Function to move to the next song in the playlist.
+     * @return  The song that is to be played next.
+     */
+    public Song moveToNextSong(){
+        if (!m_songList.isEmpty() && (m_songList.size() - 1 == m_currentSongIndex)) {
+            m_currentSongIndex = 0;
+        } else {
+            m_currentSongIndex++;
+        }
+        return m_songList.get(m_currentSongIndex);
+    }
+
+    /**
+     * Function to get the current song in the playlist.
+
+     * @return The current song in the playlist.
+     */
+    public Song getCurrentSong(){
+        return m_songList.get(m_currentSongIndex);
+    }
+
     // Return one song at a time
     public Song oneAtATime() {
-
         // Keep track of this int in the database, call it from the player
-        //currentPlaylistSong++;
-        return m_songList.get(currentPlaylistSong);
+        //m_currentSongIndex++;
+        return m_songList.get(m_currentSongIndex);
     }
 
     // TODO: Do this

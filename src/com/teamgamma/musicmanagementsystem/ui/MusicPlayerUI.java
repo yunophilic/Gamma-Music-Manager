@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
@@ -97,6 +98,17 @@ public class MusicPlayerUI extends VBox {
                     }
                 });
 
+            }
+        });
+        VBox wholePlayer = this;
+        manager.registerNewSongObserver(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                if (manager.isPlayingFromPlaylist()){
+                    wholePlayer.setStyle("-fx-background-color: lightsalmon");
+                } else {
+                    wholePlayer.setStyle("-fx-background-color: transparent");
+                }
             }
         });
         setCssStyle();

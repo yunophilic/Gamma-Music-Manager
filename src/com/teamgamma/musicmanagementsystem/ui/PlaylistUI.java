@@ -64,10 +64,12 @@ public class PlaylistUI extends VBox {
                     createCreateNewPlaylistButton(),
                     createRemovePlaylistButton(),
                     createEditPlaylistButton(),
-                    createShufflePlaylistButton());
+                    createShuffleWholePlaylistButton());
         initTableView();
         setCssStyle();
         registerAsPlaylistObserver();
+
+        this.getChildren().add(createPlayPlaylistButton());
     }
 
     /**
@@ -238,7 +240,7 @@ public class PlaylistUI extends VBox {
         return editPlaylistButton;
     }
 
-    private Button createShufflePlaylistButton() {
+    private Button createShuffleWholePlaylistButton() {
         Button shufflePlaylistButton = new Button();
         shufflePlaylistButton.setTooltip(new Tooltip("Shuffle Playlist"));
         shufflePlaylistButton.setStyle("-fx-background-color: transparent");
@@ -251,11 +253,26 @@ public class PlaylistUI extends VBox {
                     PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
                     return;
                 }
-                selectedPlaylist.shufflePlaylist();
+                selectedPlaylist.shuffleWholePlaylist();
                 m_model.notifyPlaylistSongsObservers();
+
+                // Restart the playlist after shuffle.
+                m_musicPlayerManager.playPlaylist(selectedPlaylist);
             }
         });
         return shufflePlaylistButton;
+    }
+
+    private Button createPlayPlaylistButton() {
+        Button playlistButton = new Button("Play Playlist");
+        playlistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                m_musicPlayerManager.playPlaylist(m_model.getM_selectedPlaylist());
+            }
+        });
+
+        return playlistButton;
     }
 
     private void initTopMenu(Label selectPlaylistLabel,
