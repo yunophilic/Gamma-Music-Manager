@@ -523,14 +523,10 @@ public class MusicPlayerManager {
         List<String> queuedSongs = m_databaseManager.getPlaybackQueue();
         Deque<Song> queueFromDB = new ConcurrentLinkedDeque<Song>();
         for (int i = 0; i < queuedSongs.size(); i++) {
-//            System.out.println();
-//            System.out.println("This song is in queue:      " + queuedSongs.get(i));
-//            System.out.println();
             Song song = new Song(queuedSongs.get(i));
             queueFromDB.add(song);
         }
         return queueFromDB;
-        //return m_playingQueue;
     }
 
     /**
