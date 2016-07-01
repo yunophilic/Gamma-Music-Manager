@@ -8,6 +8,7 @@ import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -15,12 +16,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
 import javafx.scene.text.Font;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
+import javax.tools.Tool;
 import java.io.File;
 
 /**
@@ -32,7 +36,11 @@ public class MusicPlayerUI extends VBox {
     public static final int SECONDS_IN_MINUTE = 60;
     public static final double SEEK_BAR_Y_SCALE = 3;
     public static final int HEADER_FONT_SIZE = 20;
-    public static final int SONG_TITLE_HEADER_SIZE = 15;
+    public static final int SONG_TITLE_HEADER_SIZE = 13;
+    public static final double FADED = 0.5;
+    public static final double NOT_FADED = 1.0;
+    public static final int TITLE_ANIMATION_TIME_MS = 5000;
+    public static final double VOLUME_BUTTON_SCALE = 0.75;
 
     public static final String PREVIOUS_ICON_PATH = "res\\ic_skip_previous_black_48dp_1x.png";
     public static final String PLAY_ICON_PATH = "res\\ic_play_arrow_black_48dp_1x.png";
@@ -45,11 +53,9 @@ public class MusicPlayerUI extends VBox {
     public static final String ADD_TO_PLAYLIST_ICON_PATH = "res/ic_playlist_add_black_48dp_1x.png";
     public static final String SONG_REPEAT_ICON_PATH = "res\\ic_repeat_one_black_48dp_1x.png";
 
+    public static final String PREVIOUS_SONG_TOOLTIP_DEFUALT = "No Previous Song";
+    public static final String NEXT_SONG_TOOLTIP_DEFAULT = "No Next Song";
     public static final String DEFAULT_TIME_STRING = "0:00";
-    public static final String CURRENT_SONG_PLAYING_HEADER = "Playing: ";
-    public static final double FADED = 0.5;
-    public static final double NOT_FADED = 1.0;
-    public static final int TITLE_ANIMATION_TIME_MS = 5000;
 
     /**
      * Constructor
@@ -60,16 +66,15 @@ public class MusicPlayerUI extends VBox {
         super();
 
         VBox topWrapper = new VBox();
-
+        topWrapper.setSpacing(0);
         topWrapper.getChildren().add(makeSongTitleHeader(manager));
 
         // For testing purposes
         //HBox musicFileBox = createFilePathBox(manager);
         //topWrapper.getChildren().add(musicFileBox);
 
-        topWrapper.getChildren().addAll(createProgressBarBox(manager), createCurrentTimeBox(manager));
+        topWrapper.getChildren().addAll(createProgressBarBox(manager));
         this.getChildren().add(topWrapper);
-
         HBox playbackControls = createPlayBackControlBox(manager);
         this.getChildren().add(playbackControls);
 
@@ -128,25 +133,33 @@ public class MusicPlayerUI extends VBox {
         HBox playbackControls = new HBox();
         playbackControls.setAlignment(Pos.CENTER);
 
-        Button previousSong = createIconButton(PREVIOUS_ICON_PATH);
-        previousSong.setOpacity(FADED);
-        previousSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        Button previousSongButton = createIconButton(PREVIOUS_ICON_PATH);
+        previousSongButton.setOpacity(FADED);
+        previousSongButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 manager.playPreviousSong();
             }
         });
-        createMouseOverUIChange(previousSong);
-        previousSong.setAlignment(Pos.CENTER_LEFT);
-        playbackControls.getChildren().add(previousSong);
+        createMouseOverUIChange(previousSongButton);
+        previousSongButton.setAlignment(Pos.CENTER_LEFT);
+        Tooltip previousSongToolTip = new Tooltip(PREVIOUS_SONG_TOOLTIP_DEFUALT);
+        manager.registerNewSongObserver(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                previousSongToolTip.setText(getSongDisplayName(manager.getPreviousSong()));
+            }
+        });
+        previousSongButton.setTooltip(previousSongToolTip);
+        playbackControls.getChildren().add(previousSongButton);
 
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
                 if (manager.isNothingPrevious()) {
-                    previousSong.setOpacity(FADED);
+                    previousSongButton.setOpacity(FADED);
                 } else {
-                    previousSong.setOpacity(NOT_FADED);
+                    previousSongButton.setOpacity(NOT_FADED);
                 }
             }
         });
@@ -198,11 +211,54 @@ public class MusicPlayerUI extends VBox {
             }
         });
         createMouseOverUIChange(skipButton);
+
+        Tooltip nextSongTip = new Tooltip(NEXT_SONG_TOOLTIP_DEFAULT);
+        skipButton.setTooltip(nextSongTip);
+        manager.registerQueingObserver(createNextSongToolTipObserver(manager, nextSongTip));
+        manager.registerNewSongObserver(createNextSongToolTipObserver(manager, nextSongTip));
         playbackControls.getChildren().add(skipButton);
 
         manager.registerQueingObserver(createNextSongButtonFadedAction(manager, skipButton));
         manager.registerNewSongObserver(createNextSongButtonFadedAction(manager, skipButton));
         return playbackControls;
+    }
+
+    /**
+     * Helper function to create the next song observer for the tool tip.
+     *
+     * @param manager   The MusicPlayerManager to use.
+     * @param nextSongTip   The tooltip to use.
+     *
+     * @return An observer that will update the tooltip using the manager for next song.
+     */
+    private MusicPlayerObserver createNextSongToolTipObserver(final MusicPlayerManager manager, final Tooltip nextSongTip) {
+        return new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                Song nextSong = manager.getNextSong();
+                if (nextSong != null ) {
+                    String songTitle = getSongDisplayName(nextSong);
+                    nextSongTip.setText(songTitle);
+                } else {
+                    nextSongTip.setText(NEXT_SONG_TOOLTIP_DEFAULT);
+                }
+            }
+        };
+    }
+
+    /**
+     * Helper function to get the song name to display. If the metadata is empty then we will use file name.
+     *
+     * @param nextSong  The song to get the title for
+     *
+     * @return  Either the song of the title if its there or the filename.
+     */
+    private String getSongDisplayName(Song nextSong) {
+        String songTitle = nextSong.getM_title();
+        if (songTitle.isEmpty()) {
+            songTitle = nextSong.getM_fileName();
+        }
+        return songTitle;
     }
 
     /**
@@ -256,15 +312,20 @@ public class MusicPlayerUI extends VBox {
         HBox otherControlBox = new HBox();
 
         Button volumeDownIcon = createIconButton(VOLUME_MUTE_ICON_PATH);
-        volumeDownIcon.setScaleShape(true);
+        volumeDownIcon.setScaleY(VOLUME_BUTTON_SCALE);
+        volumeDownIcon.setScaleX(VOLUME_BUTTON_SCALE);
 
         Button volumeUpIcon = createIconButton(VOLUME_UP_ICON_PATH);
-        volumeUpIcon.setScaleShape(false);
+        volumeUpIcon.setScaleY(VOLUME_BUTTON_SCALE);
+        volumeUpIcon.setScaleX(VOLUME_BUTTON_SCALE);
 
         Slider volumeControlSider = createSliderVolumeControl(manager);
         otherControlBox.getChildren().addAll(volumeDownIcon,  volumeControlSider, volumeUpIcon);
         HBox.setHgrow(volumeControlSider, Priority.ALWAYS);
         otherControlBox.setAlignment(Pos.CENTER);
+        otherControlBox.setSpacing(0);
+
+        otherControlBox.setMargin(volumeControlSider, new Insets(0));
         return otherControlBox;
     }
 
@@ -317,7 +378,6 @@ public class MusicPlayerUI extends VBox {
             @Override
             public void handle(MouseEvent event) {
                 double sliderVal = playbackSlider.getValue();
-                System.out.println("Slider seek slider value is " + sliderVal);
                 manager.seekSongTo(sliderVal);
 
             }
@@ -325,9 +385,12 @@ public class MusicPlayerUI extends VBox {
         // The labels here are for spacing and are there for no other purpose.
         playbackSliderWrapper.getChildren().addAll(new Label("0:0"), playbackSlider, new Label("0:0"));
         playbackSliderWrapper.setOpacity(0.0);
+
         // Make the slider always bigger than the progress bar to make it so the user only can click on the slider.
         playbackSliderWrapper.setScaleY(SEEK_BAR_Y_SCALE);
 
+        Tooltip playbackTimeToolTip = new Tooltip(convertDurationToTimeString(manager.getCurrentPlayTime()));
+        playbackSlider.setTooltip(playbackTimeToolTip);
         // Setup the observer pattern stuff for UI updates to the current play time.
         manager.registerPlaybackObserver(new MusicPlayerObserver() {
             @Override
@@ -340,11 +403,18 @@ public class MusicPlayerUI extends VBox {
                     public void run() {
                         songPlaybar.setProgress(progress);
                         playbackSlider.setValue(progress);
+                        playbackTimeToolTip.setText(convertDurationToTimeString(manager.getCurrentPlayTime()));
                     }
                 });
             }
         });
 
+        musicPlayerProgress.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+
+            }
+        });
 
         musicPlayerProgress.getChildren().addAll(progressWrapper, playbackSliderWrapper);
         return musicPlayerProgress;
@@ -381,24 +451,20 @@ public class MusicPlayerUI extends VBox {
      *
      * @param manager The music player manager to setup the observer pattern.
      *
-     * @return The song header componet.
+     * @return The song header component.
      */
     private VBox makeSongTitleHeader(final MusicPlayerManager manager) {
         VBox songTitleWrapper = new VBox();
 
         Font songHeaderFont = new Font(SONG_TITLE_HEADER_SIZE);
-        Label songTitleHeader = new Label(CURRENT_SONG_PLAYING_HEADER);
-        songTitleHeader.setFont(songHeaderFont);
-
         Label songTitle = new Label("");
-        songTitle.setMaxWidth(5000);
         songTitle.setFont(songHeaderFont);
         songTitle.setWrapText(true);
+
         // Set up an observer that will update the name of the song when a new song is played.
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
                 Song currentPlayingSong = manager.getCurrentSongPlaying();
                 if (currentPlayingSong == null) {
                     songTitle.setText("");
@@ -411,10 +477,9 @@ public class MusicPlayerUI extends VBox {
                 songTitleAnimation.setToX(0);
                 songTitleAnimation.play();
                 }
-
             }
         });
-        songTitleWrapper.getChildren().addAll(songTitleHeader, songTitle);
+        songTitleWrapper.getChildren().addAll(songTitle);
 
         return songTitleWrapper;
     }
@@ -510,7 +575,7 @@ public class MusicPlayerUI extends VBox {
      * @return A slider to control volume.
      */
     private Slider createSliderVolumeControl(MusicPlayerManager manager) {
-        Slider volumeSlider = new Slider(0,1,1);
+        Slider volumeSlider = new Slider(0, 1, 1);
 
         volumeSlider.setOnDragDone(new EventHandler<DragEvent>() {
             @Override
@@ -524,7 +589,7 @@ public class MusicPlayerUI extends VBox {
                 manager.setVolumeLevel(volumeSlider.getValue());
             }
         });
-        return volumeSlider;
 
+        return volumeSlider;
     }
 }

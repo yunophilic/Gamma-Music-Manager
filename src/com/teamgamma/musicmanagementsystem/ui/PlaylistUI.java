@@ -15,13 +15,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 
 import java.io.File;
 
 /**
  * UI class for list of songs in center of application
  */
-public class PlaylistUI extends StackPane {
+public class PlaylistUI extends VBox {
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
@@ -226,13 +227,15 @@ public class PlaylistUI extends StackPane {
         m_dropDownMenu = dropDownMenu;
 
         HBox topMenu = new HBox();
-        topMenu.getChildren().addAll(selectPlaylistLabel, m_dropDownMenu, addPlaylistButton, removePlaylistButton, editPlaylistButton);
-        HBox.setHgrow(selectPlaylistLabel, Priority.NEVER);
+        topMenu.getChildren().addAll(m_dropDownMenu, addPlaylistButton, removePlaylistButton, editPlaylistButton);
         HBox.setHgrow(m_dropDownMenu, Priority.ALWAYS);
         HBox.setHgrow(addPlaylistButton, Priority.NEVER);
         HBox.setHgrow(removePlaylistButton, Priority.NEVER);
 
-        super.getChildren().add(topMenu);
+        VBox menuWrapper = new VBox();
+        menuWrapper.getChildren().addAll(selectPlaylistLabel, topMenu);
+        VBox.setVgrow(topMenu, Priority.ALWAYS);
+        super.getChildren().add(menuWrapper);
     }
 
     private void initTableView() {
