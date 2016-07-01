@@ -314,17 +314,32 @@ public class MusicPlayerUI extends VBox {
         Button volumeDownIcon = createIconButton(VOLUME_MUTE_ICON_PATH);
         volumeDownIcon.setScaleY(VOLUME_BUTTON_SCALE);
         volumeDownIcon.setScaleX(VOLUME_BUTTON_SCALE);
+        createMouseOverUIChange(volumeDownIcon);
 
         Button volumeUpIcon = createIconButton(VOLUME_UP_ICON_PATH);
         volumeUpIcon.setScaleY(VOLUME_BUTTON_SCALE);
         volumeUpIcon.setScaleX(VOLUME_BUTTON_SCALE);
+        createMouseOverUIChange(volumeUpIcon);
 
         Slider volumeControlSider = createSliderVolumeControl(manager);
         otherControlBox.getChildren().addAll(volumeDownIcon,  volumeControlSider, volumeUpIcon);
         HBox.setHgrow(volumeControlSider, Priority.ALWAYS);
         otherControlBox.setAlignment(Pos.CENTER);
         otherControlBox.setSpacing(0);
-
+        volumeDownIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                volumeControlSider.adjustValue(0);
+                manager.setVolumeLevel(0);
+            }
+        });
+        volumeUpIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                volumeControlSider.adjustValue(1);
+                manager.setVolumeLevel(1);
+            }
+        });
         otherControlBox.setMargin(volumeControlSider, new Insets(0));
         return otherControlBox;
     }
