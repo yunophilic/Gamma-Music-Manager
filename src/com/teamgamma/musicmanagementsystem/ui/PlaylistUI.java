@@ -40,18 +40,18 @@ public class PlaylistUI extends VBox {
     private static final int DROP_DOWN_MENU_PREF_HEIGHT = 30;
     private static final int SELECT_PLAYLIST_LABEL_PREF_WIDTH = 80;
     private static final int SELECT_PLAYLIST_LABEL_PREF_HEIGHT = 30;
+    private static final int FILE_COLUMN_MIN_WIDTH = 80;
+    private static final int COLUMN_MIN_WIDTH = 60;
+    private static final int RATING_COLUMN_MIN_WIDTH = 20;
+    private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
     private static final Insets TABLE_VIEW_MARGIN = new Insets(30, 0, 0, 0);
     private static final String ADD_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "add-playlist-button.png";
     private static final String ADD_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "add-playlist-button-highlight.png";
     private static final String REMOVE_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "remove-playlist-button.png";
     private static final String REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON_PATH = "res" + File.separator + "remove-playlist-button-highlight.png";
     private static final String EDIT_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "edit-playlist-button.png";
-    private static final int FILE_COLUMN_MIN_WIDTH = 80;
-    private static final int COLUMN_MIN_WIDTH = 60;
-    private static final int RATING_COLUMN_MIN_WIDTH = 20;
-    private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
     private static final String EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "edit-playlist-button-highlight.png";
-
+    private static final String SHUFFLE_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "shuffle-playlist-button.png";
 
     public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
@@ -63,7 +63,8 @@ public class PlaylistUI extends VBox {
                     createDropDownMenu(),
                     createCreateNewPlaylistButton(),
                     createRemovePlaylistButton(),
-                    createEditPlaylistButton());
+                    createEditPlaylistButton(),
+                    createShufflePlaylistButton());
         initTableView();
         setCssStyle();
         registerAsPlaylistObserver();
@@ -178,7 +179,7 @@ public class PlaylistUI extends VBox {
                     return;
                 }
                 int selectedDropDownIndex = m_dropDownMenu.getSelectionModel().getSelectedIndex();
-                Playlist selectedPlaylist = m_dropDownMenu.getValue();
+                Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
                 if (selectedPlaylist == null) {
                     PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
                     return;
@@ -219,7 +220,7 @@ public class PlaylistUI extends VBox {
                     return;
                 }
                 int selectedDropDownIndex = m_dropDownMenu.getSelectionModel().getSelectedIndex();
-                Playlist selectedPlaylist = m_dropDownMenu.getValue();
+                Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
                 if (selectedPlaylist == null) {
                     PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
                     return;
@@ -237,18 +238,40 @@ public class PlaylistUI extends VBox {
         return editPlaylistButton;
     }
 
+    private Button createShufflePlaylistButton() {
+        Button shufflePlaylistButton = new Button();
+        shufflePlaylistButton.setTooltip(new Tooltip("Shuffle Playlist"));
+        shufflePlaylistButton.setStyle("-fx-background-color: transparent");
+        shufflePlaylistButton.setGraphic(new ImageView(SHUFFLE_PLAYLIST_BUTTON_ICON_PATH));
+        shufflePlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+                if (selectedPlaylist == null) {
+                    PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
+                    return;
+                }
+                selectedPlaylist.shufflePlaylist();
+                m_model.notifyPlaylistSongsObservers();
+            }
+        });
+        return shufflePlaylistButton;
+    }
+
     private void initTopMenu(Label selectPlaylistLabel,
                              ComboBox<Playlist> dropDownMenu,
                              Button addPlaylistButton,
                              Button removePlaylistButton,
-                             Button editPlaylistButton) {
+                             Button editPlaylistButton,
+                             Button shufflePlaylistButton) {
         m_dropDownMenu = dropDownMenu;
 
         HBox topMenu = new HBox();
-        topMenu.getChildren().addAll(m_dropDownMenu, addPlaylistButton, removePlaylistButton, editPlaylistButton);
+        topMenu.getChildren().addAll(m_dropDownMenu, addPlaylistButton, removePlaylistButton, editPlaylistButton, shufflePlaylistButton);
         HBox.setHgrow(m_dropDownMenu, Priority.ALWAYS);
         HBox.setHgrow(addPlaylistButton, Priority.NEVER);
         HBox.setHgrow(removePlaylistButton, Priority.NEVER);
+        HBox.setHgrow(shufflePlaylistButton, Priority.NEVER);
 
         VBox menuWrapper = new VBox();
         menuWrapper.getChildren().addAll(selectPlaylistLabel, topMenu);
