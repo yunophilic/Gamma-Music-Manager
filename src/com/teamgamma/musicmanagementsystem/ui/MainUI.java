@@ -33,27 +33,25 @@ public class MainUI extends BorderPane {
     }
 
     private Node leftPane() {
-        BorderPane leftPane = new BorderPane();
-
         LibraryUI libraryUI = new LibraryUI(m_model, m_musicPlayerManager, m_databaseManager);
 
+        BorderPane leftPane = new BorderPane();
         leftPane.setCenter(libraryUI);
         leftPane.setPrefWidth(250);
         return leftPane;
     }
 
     private Node rightPane() {
-        BorderPane rightPane = new BorderPane();
-        rightPane.setPrefWidth(250);
-
         PlaylistUI playlistUI = new PlaylistUI(m_model, m_musicPlayerManager, m_databaseManager);
-        rightPane.setCenter(playlistUI);
 
         VBox musicPlayerWrapper = new VBox();
         musicPlayerWrapper.getChildren().add(new MusicPlayerUI(m_musicPlayerManager));
         musicPlayerWrapper.getChildren().add(new MusicPlayerHistoryUI(m_musicPlayerManager));
 
+        BorderPane rightPane = new BorderPane();
+        rightPane.setCenter(playlistUI);
         rightPane.setBottom(musicPlayerWrapper);
+        rightPane.setPrefWidth(350);
 
         return rightPane;
     }
@@ -63,8 +61,7 @@ public class MainUI extends BorderPane {
     }
 
     private Node bottomPane() {
-        BorderPane musicPlayerWrapper = new BorderPane();
-        return musicPlayerWrapper;
+        return new BorderPane();
     }
 
     private Node centerPane() {

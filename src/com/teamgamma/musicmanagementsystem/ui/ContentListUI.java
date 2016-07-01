@@ -172,6 +172,7 @@ public class ContentListUI extends StackPane {
             TableColumn<Song, String> genreCol,
             TableColumn<Song, Integer> ratingCol) {
         m_table.setTableMenuButtonVisible(true);
+
         // fileName and artist default columns for centerListUI
         fileNameCol.setVisible(true);
         artistCol.setVisible(true);
@@ -455,6 +456,7 @@ public class ContentListUI extends StackPane {
                 Playlist selectedPlaylist = PromptUI.addSongToPlaylist(m_model.getM_playlists(), selectedSong);
                 if(selectedPlaylist != null) {
                     selectedPlaylist.addSong(selectedSong);
+                    m_model.notifyPlaylistSongsObservers();
                 }
             }
         });
