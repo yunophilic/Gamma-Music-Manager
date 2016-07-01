@@ -602,4 +602,31 @@ public class MusicPlayerManager {
         m_musicPlayer.playSong(m_currentSong);
     }
 
+    /**
+     * Function to get the next song that will be played if you hit play next song.
+     *
+     * @return  The next song to be played.
+     */
+    public Song getNextSong() {
+        if (m_isPlayingOnHistory && m_historyIndex < m_songHistory.size() - 1) {
+            return m_songHistory.get(m_historyIndex + 1);
+        }
+        if (!m_playingQueue.isEmpty()) {
+            return m_playingQueue.getFirst();
+        }
+
+        return null;
+    }
+
+    /**
+     * Function to get the previous song in the player.
+     *
+     * @return The previous song in the player or the current song that is playing if there is no other song.
+     */
+    public Song getPreviousSong() {
+        if (m_historyIndex == 0){
+            return m_currentSong;
+        }
+        return m_songHistory.get(m_historyIndex - 1);
+    }
 }
