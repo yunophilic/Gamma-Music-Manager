@@ -10,8 +10,10 @@ import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -30,7 +32,7 @@ public class ApplicationController extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Music Management System");
+        primaryStage.setTitle("Gamma Music Manager");
 
         SongManager songManager = new SongManager();
         m_databaseManager = new DatabaseManager();
@@ -70,9 +72,10 @@ public class ApplicationController extends Application {
         });
 
         primaryStage.setScene(new Scene(rootUI, 1200, 650));
-
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
+        primaryStage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         primaryStage.show();
     }
 
