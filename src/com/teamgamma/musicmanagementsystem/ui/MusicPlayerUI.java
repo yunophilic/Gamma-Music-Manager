@@ -100,17 +100,6 @@ public class MusicPlayerUI extends VBox {
 
             }
         });
-        VBox wholePlayer = this;
-        manager.registerNewSongObserver(new MusicPlayerObserver() {
-            @Override
-            public void updateUI() {
-                if (manager.isPlayingFromPlaylist()){
-                    wholePlayer.setStyle("-fx-background-color: lightsalmon");
-                } else {
-                    wholePlayer.setStyle("-fx-background-color: transparent");
-                }
-            }
-        });
         setCssStyle();
     }
 

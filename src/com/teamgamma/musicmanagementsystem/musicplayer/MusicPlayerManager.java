@@ -25,7 +25,7 @@ public class MusicPlayerManager {
 
     private Song m_currentSong = null;
 
-    private boolean m_repeatSong = false;
+    private boolean m_repeatPlaylist = false;
 
     private int m_historyIndex = 0;
 
@@ -45,7 +45,6 @@ public class MusicPlayerManager {
 
     private Playlist m_currentPlayList;
 
-    private boolean m_isPlayingFromPlaylist = false;
     /**
      * Constructor
      */
@@ -67,20 +66,17 @@ public class MusicPlayerManager {
     public void playNextSong() {
         System.out.println("Play next song");
 
-        if (isPlayingSongOnFromHistoryList() && m_historyIndex < m_songHistory.size() - 1) {
-            if (m_repeatSong) {
-                m_musicPlayer.playSong(m_currentSong);
-            } else {
-                m_historyIndex++;
-                m_currentSong = m_songHistory.get(m_historyIndex);
-                m_musicPlayer.playSong(m_currentSong);
-            }
+        if (isThereNextSongOnHistory()) {
+            m_historyIndex++;
+            m_currentSong = m_songHistory.get(m_historyIndex);
+            m_musicPlayer.playSong(m_currentSong);
         } else if (!m_playingQueue.isEmpty()){
             m_isPlayingOnHistory = false;
             Song nextSong = m_playingQueue.poll();
             playSongRightNow(nextSong);
 
-        } else if (m_isPlayingFromPlaylist) {
+        } else if (isThereNextSongOnPlaylist()) {
+            m_isPlayingOnHistory = false;
             playNextSongFromPlaylist();
         }
     }
@@ -113,13 +109,11 @@ public class MusicPlayerManager {
         if (isNoSongPlayingOrNext()) {
             m_currentSong = nextSong;
             m_musicPlayer.playSong(nextSong);
-
         } else {
-            // TODO: Make it move to front by changing prioirty.
             m_playingQueue.add(nextSong);
         }
-        notifyQueingObserver();
 
+        notifyQueingObserver();
     }
 
     /**
@@ -146,11 +140,17 @@ public class MusicPlayerManager {
     }
     /**
      * Function to play a playlist.
-     * TODO: Revisit after playlist implementation.
+     *
+     * @param playlistToPlay The playlist that we want to play.
      */
     public void playPlaylist(Playlist playlistToPlay) {
+        if (playlistToPlay.getM_songList().isEmpty()){
+            m_lastException = new Exception("Cannot play playlist " + playlistToPlay.getM_playlistName() +
+                    " because there is no songs in there");
+            notifyError();
+            return;
+        }
         m_currentPlayList = playlistToPlay;
-        m_isPlayingFromPlaylist = true;
         m_currentSong = m_currentPlayList.getCurrentSong();
 
         m_isPlayingOnHistory = false;
@@ -164,7 +164,7 @@ public class MusicPlayerManager {
      * @param repeatSong
      */
     public void setRepeat(boolean repeatSong) {
-        m_repeatSong = repeatSong;
+        m_repeatPlaylist = repeatSong;
         if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.repeatSong(repeatSong);
         }
@@ -338,7 +338,7 @@ public class MusicPlayerManager {
      */
     public void playPreviousSong() {
         assert (m_songHistory.size() < m_historyIndex);
-        if (m_repeatSong) {
+        if (m_repeatPlaylist) {
             // Just restart current song.
             m_musicPlayer.playSong(m_currentSong);
             return;
@@ -346,7 +346,6 @@ public class MusicPlayerManager {
 
         if (!m_songHistory.isEmpty()) {
             m_isPlayingOnHistory = true;
-            m_isPlayingFromPlaylist = false;
             if (m_historyIndex != 0) {
                 m_historyIndex--;
             }
@@ -551,9 +550,9 @@ public class MusicPlayerManager {
      * @return True if there is, False other wise.
      */
     public boolean isThereANextSong(){
-        return (m_isPlayingFromPlaylist ||
+        return (isThereNextSongOnPlaylist() ||
                 !m_playingQueue.isEmpty() ||
-                (isPlayingSongOnFromHistoryList() && (m_historyIndex < (m_songHistory.size() - 1))));
+                (isThereNextSongOnHistory()));
     }
 
     /**
@@ -612,16 +611,42 @@ public class MusicPlayerManager {
      * @return  The next song to be played.
      */
     public Song getNextSong() {
-        if (m_isPlayingOnHistory && m_historyIndex < m_songHistory.size() - 1) {
+        if (isThereNextSongOnHistory()) {
             return m_songHistory.get(m_historyIndex + 1);
         }
         if (!m_playingQueue.isEmpty()) {
             return m_playingQueue.getFirst();
-        } else if (m_isPlayingFromPlaylist){
+        } else if (isThereNextSongOnPlaylist()){
             return m_currentPlayList.getNextSong();
         }
 
         return null;
+    }
+
+    /**
+     * Function to tell you if there is a song to be played next on the current playlist.
+     *
+     * @return If there is a song next on the playlist.
+     */
+    private boolean isThereNextSongOnPlaylist() {
+        if (m_currentPlayList != null) {
+            if (!m_repeatPlaylist && m_currentPlayList.isLastSongInPlaylist()){
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    /**
+     * Function to tell you if there is a song next on the song history list.
+     *
+     * @return If there is a song that can be played next from the history list.
+     */
+    private boolean isThereNextSongOnHistory() {
+        return m_isPlayingOnHistory && m_historyIndex < m_songHistory.size() - 1;
     }
 
     /**
@@ -637,9 +662,5 @@ public class MusicPlayerManager {
             return m_songHistory.get(m_historyIndex);
         }
         return m_songHistory.get(m_historyIndex - 1);
-    }
-
-    public boolean isPlayingFromPlaylist(){
-        return m_isPlayingFromPlaylist;
     }
 }

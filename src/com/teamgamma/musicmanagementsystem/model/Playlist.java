@@ -139,6 +139,10 @@ public class Playlist implements PlaylistObserver {
         return m_songList.get(m_currentSongIndex);
     }
 
+    public boolean isLastSongInPlaylist(){
+        return (m_currentSongIndex == (m_songList.size() - 1));
+    }
+
     // TODO: Do this
     /*public int getCurrentSongPlayingIndex() {
         MusicPlayerManager
