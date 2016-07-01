@@ -9,7 +9,9 @@ Code for rating scale conversions in Song.java taken from https://github.com/soc
 
 Alert and dialog boxes referred from http://code.makery.ch/blog/javafx-dialogs-official/
 
-Link: https://jpathwatch.wordpress.com/
+Jpathwatch is used to monitor the file system changes. Link: https://jpathwatch.wordpress.com/
+
+
 
 The Resources sheet in the List of Features spreadsheet also has a number of links that we used as reference.
 
