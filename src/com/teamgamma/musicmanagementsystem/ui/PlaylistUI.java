@@ -52,6 +52,7 @@ public class PlaylistUI extends VBox {
     private static final String EDIT_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "edit-playlist-button.png";
     private static final String EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "edit-playlist-button-highlight.png";
     private static final String SHUFFLE_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "shuffle-playlist-button.png";
+    private static final String SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "shuffle-playlist-button-highlight.png";
 
     public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
@@ -243,6 +244,18 @@ public class PlaylistUI extends VBox {
         shufflePlaylistButton.setTooltip(new Tooltip("Shuffle Playlist"));
         shufflePlaylistButton.setStyle("-fx-background-color: transparent");
         shufflePlaylistButton.setGraphic(new ImageView(SHUFFLE_PLAYLIST_BUTTON_ICON_PATH));
+        shufflePlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                shufflePlaylistButton.setGraphic(new ImageView(SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH));
+            }
+        });
+        shufflePlaylistButton.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                shufflePlaylistButton.setGraphic(new ImageView(SHUFFLE_PLAYLIST_BUTTON_ICON_PATH));
+            }
+        });
         shufflePlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -262,8 +275,8 @@ public class PlaylistUI extends VBox {
                              ComboBox<Playlist> dropDownMenu,
                              Button addPlaylistButton,
                              Button removePlaylistButton,
-                             Button editPlaylistButton,
-                             Button shufflePlaylistButton) {
+                             Button shufflePlaylistButton,
+                             Button editPlaylistButton) {
         m_dropDownMenu = dropDownMenu;
 
         HBox topMenu = new HBox();
