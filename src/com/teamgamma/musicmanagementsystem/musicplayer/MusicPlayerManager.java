@@ -26,7 +26,7 @@ public class MusicPlayerManager {
 
     private Song m_currentSong = null;
 
-    private boolean m_repeatSong = false;
+    private boolean m_repeatPlaylist = false;
 
     private int m_historyIndex = 0;
 
@@ -40,10 +40,11 @@ public class MusicPlayerManager {
 
     private Exception m_lastException;
 
-    // Default value is 1 in JavaFX Media Player
     private double m_volumeLevel = 1.0;
 
-    boolean m_isPlayingOnHistory = false;
+    private boolean m_isPlayingOnHistory = false;
+
+    private Playlist m_currentPlayList;
 
     private DatabaseManager m_databaseManager;
 
@@ -51,7 +52,11 @@ public class MusicPlayerManager {
      * Constructor
      */
     public MusicPlayerManager(DatabaseManager databaseManager) {
+        m_databaseManager = databaseManager;
+
         m_playingQueue = new ConcurrentLinkedDeque<Song>();
+        reterievePlaybackQueueFromDB();
+
         m_songHistory = new ArrayList<Song>();
 
         m_newSongObservers = new ArrayList<MusicPlayerObserver>();
@@ -60,7 +65,7 @@ public class MusicPlayerManager {
         m_errorObservers = new ArrayList<MusicPlayerObserver>();
         m_queuingObserver = new ArrayList<MusicPlayerObserver>();
         m_musicPlayer = new JlayerMP3Player(this);
-        m_databaseManager = databaseManager;
+
     }
 
     /**
@@ -68,29 +73,27 @@ public class MusicPlayerManager {
      */
     public void playNextSong() {
         System.out.println("Play next song");
-        if (isPlayingSongOnFromHistoryList() && m_historyIndex < m_songHistory.size() - 1) {
-            if (m_repeatSong) {
-                m_musicPlayer.playSong(m_currentSong);
-            } else {
-                m_historyIndex++;
-                m_currentSong = m_songHistory.get(m_historyIndex);
-                m_musicPlayer.playSong(m_currentSong);
-            }
-        } else {
+
+        if (isThereNextSongOnHistory()) {
+            m_historyIndex++;
+            m_currentSong = m_songHistory.get(m_historyIndex);
+            m_musicPlayer.playSong(m_currentSong);
+        } else if (!m_playingQueue.isEmpty()){
             m_isPlayingOnHistory = false;
             Song nextSong = m_playingQueue.poll();
-            System.out.println("The next song is " + nextSong);
-            if (null == nextSong) {
-                // No more songs to play.
-                if (m_repeatSong) {
-                    m_musicPlayer.playSong(m_currentSong);
-                }
-            } else {
-                playSongRightNow(nextSong);
-            }
+            playSongRightNow(nextSong);
+
+        } else if (isThereNextSongOnPlaylist()) {
+            m_isPlayingOnHistory = false;
+            playNextSongFromPlaylist();
         }
     }
+    private void playNextSongFromPlaylist() {
+        // Get the current song in the playlist
+        m_currentSong = m_currentPlayList.moveToNextSong();
+        playSongRightNow(m_currentSong);
 
+    }
     /**
      * Function to play song immidiatly with out going to the queue.
      *
@@ -115,14 +118,12 @@ public class MusicPlayerManager {
         if (isNoSongPlayingOrNext()) {
             m_currentSong = nextSong;
             m_musicPlayer.playSong(nextSong);
-
         } else {
-            // TODO: Make it move to front by changing prioirty.
             m_playingQueue.add(nextSong);
             m_databaseManager.addToPlaybackQueueTail(nextSong.getM_file().getAbsolutePath());
         }
-        notifyQueingObserver();
 
+        notifyQueingObserver();
     }
 
     /**
@@ -150,17 +151,22 @@ public class MusicPlayerManager {
     }
     /**
      * Function to play a playlist.
-     * TODO: Revisit after playlist implementation.
+     *
+     * @param playlistToPlay The playlist that we want to play.
      */
-    public void playPlaylist() {
-        // Method should add in playlist to queue.
-        Playlist player = new Playlist("Playlist 1");
-        player.shufflePlaylist();
-        for (Song s : player.getM_songList()) {
-            // Add every song in playlist to queue (Is this what you mean?)
-            m_playingQueue.add(s);
-            // Function to play song s
+    public void playPlaylist(Playlist playlistToPlay) {
+        if (playlistToPlay.getM_songList().isEmpty()){
+            m_lastException = new Exception("Cannot play playlist " + playlistToPlay.getM_playlistName() +
+                    " because there is no songs in there");
+            notifyError();
+            return;
         }
+        m_currentPlayList = playlistToPlay;
+        m_currentSong = m_currentPlayList.getCurrentSong();
+
+        m_isPlayingOnHistory = false;
+
+        playSongRightNow(m_currentSong);
     }
 
     /**
@@ -169,7 +175,7 @@ public class MusicPlayerManager {
      * @param repeatSong
      */
     public void setRepeat(boolean repeatSong) {
-        m_repeatSong = repeatSong;
+        m_repeatPlaylist = repeatSong;
         if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.repeatSong(repeatSong);
         }
@@ -343,7 +349,7 @@ public class MusicPlayerManager {
      */
     public void playPreviousSong() {
         assert (m_songHistory.size() < m_historyIndex);
-        if (m_repeatSong) {
+        if (m_repeatPlaylist) {
             // Just restart current song.
             m_musicPlayer.playSong(m_currentSong);
             return;
@@ -520,13 +526,24 @@ public class MusicPlayerManager {
      * @return The songs that are in the playing queue.
      */
     public Collection<Song> getPlayingQueue() {
+        return m_playingQueue;
+    }
+
+    /**
+     * Helper fucntion to reterieve what ever is in the playback queue in the DB and set it to be what is in the playback queue.
+     */
+    private void reterievePlaybackQueueFromDB() {
         List<String> queuedSongs = m_databaseManager.getPlaybackQueue();
+        if (queuedSongs == null) {
+            // Nothing in the DB.
+            return;
+        }
         Deque<Song> queueFromDB = new ConcurrentLinkedDeque<Song>();
         for (int i = 0; i < queuedSongs.size(); i++) {
             Song song = new Song(queuedSongs.get(i));
             queueFromDB.add(song);
         }
-        return queueFromDB;
+        m_playingQueue = queueFromDB;
     }
 
     /**
@@ -561,8 +578,9 @@ public class MusicPlayerManager {
      * @return True if there is, False other wise.
      */
     public boolean isThereANextSong(){
-        return (!m_playingQueue.isEmpty() ||
-                (isPlayingSongOnFromHistoryList() && (m_historyIndex < (m_songHistory.size() - 1))));
+        return (isThereNextSongOnPlaylist() ||
+                !m_playingQueue.isEmpty() ||
+                (isThereNextSongOnHistory()));
     }
 
     /**
@@ -621,14 +639,42 @@ public class MusicPlayerManager {
      * @return  The next song to be played.
      */
     public Song getNextSong() {
-        if (m_isPlayingOnHistory && m_historyIndex < m_songHistory.size() - 1) {
+        if (isThereNextSongOnHistory()) {
             return m_songHistory.get(m_historyIndex + 1);
         }
         if (!m_playingQueue.isEmpty()) {
             return m_playingQueue.getFirst();
+        } else if (isThereNextSongOnPlaylist()){
+            return m_currentPlayList.getNextSong();
         }
 
         return null;
+    }
+
+    /**
+     * Function to tell you if there is a song to be played next on the current playlist.
+     *
+     * @return If there is a song next on the playlist.
+     */
+    private boolean isThereNextSongOnPlaylist() {
+        if (m_currentPlayList != null) {
+            if (!m_repeatPlaylist && m_currentPlayList.isLastSongInPlaylist()){
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    /**
+     * Function to tell you if there is a song next on the song history list.
+     *
+     * @return If there is a song that can be played next from the history list.
+     */
+    private boolean isThereNextSongOnHistory() {
+        return m_isPlayingOnHistory && m_historyIndex < m_songHistory.size() - 1;
     }
 
     /**
