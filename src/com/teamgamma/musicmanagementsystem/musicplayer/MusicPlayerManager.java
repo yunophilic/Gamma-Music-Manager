@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.musicplayer;
 
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 
@@ -44,10 +45,12 @@ public class MusicPlayerManager {
 
     boolean m_isPlayingOnHistory = false;
 
+    private DatabaseManager m_databaseManager;
+
     /**
      * Constructor
      */
-    public MusicPlayerManager() {
+    public MusicPlayerManager(DatabaseManager databaseManager) {
         m_playingQueue = new ConcurrentLinkedDeque<Song>();
         m_songHistory = new ArrayList<Song>();
 
@@ -57,6 +60,7 @@ public class MusicPlayerManager {
         m_errorObservers = new ArrayList<MusicPlayerObserver>();
         m_queuingObserver = new ArrayList<MusicPlayerObserver>();
         m_musicPlayer = new JlayerMP3Player(this);
+        m_databaseManager = databaseManager;
     }
 
     /**
@@ -96,6 +100,7 @@ public class MusicPlayerManager {
         m_currentSong = songToPlay;
         m_musicPlayer.playSong(songToPlay);
         updateHistory();
+        m_databaseManager.deleteFromPlaybackQueue(songToPlay.getM_file().getAbsolutePath());
 
         notifyQueingObserver();
     }
@@ -114,6 +119,7 @@ public class MusicPlayerManager {
         } else {
             // TODO: Make it move to front by changing prioirty.
             m_playingQueue.add(nextSong);
+            m_databaseManager.addToPlaybackQueueTail(nextSong.getM_file().getAbsolutePath());
         }
         notifyQueingObserver();
 
@@ -136,6 +142,7 @@ public class MusicPlayerManager {
     public void placeSongAtStartOfQueue(Song songToPlace) {
         boolean isNoSongPlaying = isNoSongPlayingOrNext();
         m_playingQueue.addFirst(songToPlace);
+        m_databaseManager.addToPlaybackQueueHead(songToPlace.getM_file().getAbsolutePath());
         if (isNoSongPlaying){
             playNextSong();
         }
@@ -513,7 +520,13 @@ public class MusicPlayerManager {
      * @return The songs that are in the playing queue.
      */
     public Collection<Song> getPlayingQueue() {
-        return m_playingQueue;
+        List<String> queuedSongs = m_databaseManager.getPlaybackQueue();
+        Deque<Song> queueFromDB = new ConcurrentLinkedDeque<Song>();
+        for (int i = 0; i < queuedSongs.size(); i++) {
+            Song song = new Song(queuedSongs.get(i));
+            queueFromDB.add(song);
+        }
+        return queueFromDB;
     }
 
     /**

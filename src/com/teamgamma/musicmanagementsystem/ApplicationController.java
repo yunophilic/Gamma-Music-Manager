@@ -60,7 +60,7 @@ public class ApplicationController extends Application {
             songManager.addPlaylist(playlistName);
         }
 
-        MusicPlayerManager musicPlayerManager = new MusicPlayerManager();
+        MusicPlayerManager musicPlayerManager = new MusicPlayerManager(m_databaseManager);
         MainUI rootUI = new MainUI(songManager, musicPlayerManager, m_databaseManager);
         Watcher watcher = new Watcher(songManager, m_databaseManager);
         watcher.startWatcher();
