@@ -40,6 +40,7 @@ public class ContentListUI extends StackPane {
     private ContextMenu m_contextMenu;
     private TableView<Song> m_table;
 
+    private ContextMenu m_playbackContextMenu;
     // constants
     public static final int FILE_COLUMN_MIN_WIDTH = 80;
     public static final int COLUMN_MIN_WIDTH = 60;
@@ -174,7 +175,6 @@ public class ContentListUI extends StackPane {
         fileNameCol.setCellValueFactory(new PropertyValueFactory<>("m_fileName"));
 
         titleCol.setCellValueFactory(new PropertyValueFactory<>("m_title"));
-
         titleCol.setCellFactory(TextFieldTableCell.forTableColumn());
         titleCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Song, String>>() {
             @Override
@@ -256,10 +256,20 @@ public class ContentListUI extends StackPane {
                             m_musicPlayerManager.playSongRightNow(selectedSong);
                         } else if (event.getButton() == MouseButton.PRIMARY) {
                             m_contextMenu.hide();
+                            if (m_playbackContextMenu != null) {
+                                m_playbackContextMenu.hide();
+                            }
                         } else if (event.getButton() == MouseButton.SECONDARY) {
                             m_contextMenu.hide();
                             m_contextMenu = generateContextMenu(row.getItem());
                             m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
+                        }
+                        System.out.println("Selected song is " + selectedSong);
+                        if (selectedSong != null && event.isControlDown() && event.getButton() == MouseButton.PRIMARY){
+                            System.out.println("The condition for the playback Conext menu is true");
+                                m_playbackContextMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, selectedSong);
+                                m_playbackContextMenu.show(m_table, event.getScreenX(), event.getScreenY());
+
                         }
                     }
                 });

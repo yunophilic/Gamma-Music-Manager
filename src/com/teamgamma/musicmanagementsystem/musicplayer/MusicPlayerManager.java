@@ -627,6 +627,9 @@ public class MusicPlayerManager {
         if (m_historyIndex == 0){
             return m_currentSong;
         }
+        if (m_historyIndex == m_songHistory.size() - 1){
+            return m_songHistory.get(m_historyIndex);
+        }
         return m_songHistory.get(m_historyIndex - 1);
     }
 }

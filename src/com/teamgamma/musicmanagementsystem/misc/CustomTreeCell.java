@@ -412,4 +412,5 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         createContextMenu();
         setContextMenu(m_contextMenu);
     }
+
 }
