@@ -19,6 +19,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
 import javafx.util.Callback;
+import javafx.scene.layout.VBox;
 
 import java.io.File;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.List;
 /**
  * UI class for list of songs in center of application
  */
-public class PlaylistUI extends StackPane {
+public class PlaylistUI extends VBox {
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
@@ -110,9 +111,9 @@ public class PlaylistUI extends StackPane {
         dropDownMenu.setMinWidth(DROP_DOWN_MENU_MIN_WIDTH);
         dropDownMenu.setMaxWidth(DROP_DOWN_MENU_MAX_WIDTH);
         dropDownMenu.setPrefSize(DROP_DOWN_MENU_PREF_WIDTH, DROP_DOWN_MENU_PREF_HEIGHT);
-        /*if (!options.isEmpty()) {
+        if (!options.isEmpty()) {
             dropDownMenu.setValue(options.get(0));
-        }*/
+        }
         return dropDownMenu;
     }
 
@@ -244,13 +245,15 @@ public class PlaylistUI extends StackPane {
         m_dropDownMenu = dropDownMenu;
 
         HBox topMenu = new HBox();
-        topMenu.getChildren().addAll(selectPlaylistLabel, m_dropDownMenu, addPlaylistButton, removePlaylistButton, editPlaylistButton);
-        HBox.setHgrow(selectPlaylistLabel, Priority.NEVER);
+        topMenu.getChildren().addAll(m_dropDownMenu, addPlaylistButton, removePlaylistButton, editPlaylistButton);
         HBox.setHgrow(m_dropDownMenu, Priority.ALWAYS);
         HBox.setHgrow(addPlaylistButton, Priority.NEVER);
         HBox.setHgrow(removePlaylistButton, Priority.NEVER);
 
-        super.getChildren().add(topMenu);
+        VBox menuWrapper = new VBox();
+        menuWrapper.getChildren().addAll(selectPlaylistLabel, topMenu);
+        VBox.setVgrow(topMenu, Priority.ALWAYS);
+        super.getChildren().add(menuWrapper);
     }
 
     private void initTableView() {
