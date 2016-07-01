@@ -18,10 +18,12 @@ public class SongManager {
     private List<PlaylistObserver> m_playlistObservers;
     private List<Library> m_libraries;
     private List<Playlist> m_playlists;
+
     private File m_fileToCopy;
     private File m_copyDest;
     private File m_fileToMove;
     private File m_moveDest;
+
     private File m_deletedFile;
     private File m_addedFile;
     private File m_renamedFile;
@@ -29,6 +31,8 @@ public class SongManager {
     // For observer pattern
     private File m_selectedCenterFolder;
     private File m_rightFolderSelected;
+
+    private Playlist m_selectedPlaylist;
 
     // Menu Manager
     private MenuOptions m_menuOptions;
@@ -42,15 +46,20 @@ public class SongManager {
         m_songManagerObservers = new ArrayList<>();
         m_playlistObservers = new ArrayList<>();
         m_libraries = new ArrayList<>();
-        m_fileToCopy = null;
-        m_fileToMove = null;
         m_playlists = new ArrayList<>();
-        m_selectedCenterFolder = null;
-        m_rightFolderSelected = null;
+
+        m_fileToCopy = null;
         m_copyDest = null;
+        m_fileToMove = null;
         m_moveDest = null;
 
+        m_deletedFile = null;
+        m_addedFile = null;
         m_renamedFile = null;
+
+        m_selectedCenterFolder = null;
+        m_rightFolderSelected = null;
+        m_selectedPlaylist = null;
 
         m_menuOptions = new MenuOptions();
     }
@@ -331,7 +340,6 @@ public class SongManager {
         Playlist playlist = findPlaylist(playlistName);
         if (playlist != null) {
             boolean isAdded = playlist.addSong(selectedSong);
-
             if (isAdded) {
                 // Notify playlist observers of changes
                 notifyPlaylistSongsObservers();
@@ -415,6 +423,14 @@ public class SongManager {
 
     public void setM_selectedCenterFolder(File m_newFolderSelected) {
         this.m_selectedCenterFolder = m_newFolderSelected;
+    }
+
+    public Playlist getM_selectedPlaylist() {
+        return m_selectedPlaylist;
+    }
+
+    public void setM_selectedPlaylist(Playlist m_selectedPlaylist) {
+        this.m_selectedPlaylist = m_selectedPlaylist;
     }
 
     public File getM_fileToCopy() {

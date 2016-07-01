@@ -113,11 +113,14 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 if (m_selectedTreeViewItem != null) {
                     File fileToDelete = m_selectedTreeViewItem.getM_file();
                     //confirmation dialog
-                    if (!PromptUI.customPromptConfirmation(
-                            "Deleting " + (fileToDelete.isDirectory() ? "folder" : "file"),
-                            null,
-                            "Are you sure you want to permanently delete \"" + fileToDelete.getName() + "\"?")) {
-                        return;
+                    if (fileToDelete.isDirectory()) {
+                        if (!PromptUI.deleteLibrary(fileToDelete)) {
+                            return;
+                        }
+                    } else {
+                        if (!PromptUI.deleteSong(fileToDelete)) {
+                            return;
+                        }
                     }
                     //try to actually delete (retry if FileSystemException happens)
                     for(int i=0; i<2; i++) {
@@ -210,20 +213,48 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             menuItems.add(openInRightPane);
         }
 
-        // The selected item is relative to the library root dir or relative to the tree that it is in.
-        // The problem seems to be that when you are switching libraries by just selecting another library then
-        // it doesnt update it until you select a folder to update it. 
-        if (m_selectedTreeViewItem != null) {
-            System.out.println("CREATING PLAYLIST MENU Selected item is " + m_selectedTreeViewItem.getM_file().getAbsolutePath());
-            Song songSelected = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
-
-            if (songSelected != null) {
-                ContextMenu playlistMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, songSelected);
-                menuItems.addAll(playlistMenu.getItems());
-
-                System.out.println("Actually added it in");
+        MenuItem playSong = new MenuItem(ContextMenuConstants.MENU_ITEM_PLAY_SONG);
+        playSong.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (m_selectedTreeViewItem != null) {
+                    Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    if (song != null) {
+                        m_musicPlayerManager.playSongRightNow(song);
+                    }
+                }
             }
-        }
+        });
+
+        MenuItem placeSongAtStartOfQueue = new MenuItem(ContextMenuConstants.MENU_ITEM_PLAY_SONG_NEXT);
+        placeSongAtStartOfQueue.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (m_selectedTreeViewItem != null) {
+                    Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    if (song != null) {
+                        m_musicPlayerManager.placeSongAtStartOfQueue(song);
+                    }
+                }
+            }
+        });
+
+        MenuItem placeSongOnBackOfQueue = new MenuItem(ContextMenuConstants.MENU_ITEM_PLACE_SONG_ON_QUEUE);
+        placeSongOnBackOfQueue.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (m_selectedTreeViewItem != null) {
+                    Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    if (song != null) {
+                        m_musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
+                    }
+                }
+            }
+        });
+
+        menuItems.add(playSong);
+        menuItems.add(placeSongAtStartOfQueue);
+        menuItems.add(placeSongOnBackOfQueue);
 
         m_contextMenu.setOnShown(new EventHandler<WindowEvent>() {
             @Override
@@ -241,6 +272,19 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 if (m_selectedTreeViewItem == null || !m_selectedTreeViewItem.isM_isRootPath()) {
                     removeLibrary.setDisable(true);
                     removeLibrary.setVisible(false);
+                }
+
+                // Do not show song options if this is not a song
+                Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                if (m_selectedTreeViewItem == null || song == null) {
+                    playSong.setDisable(true);
+                    playSong.setVisible(false);
+
+                    placeSongAtStartOfQueue.setDisable(true);
+                    placeSongAtStartOfQueue.setVisible(false);
+
+                    placeSongOnBackOfQueue.setDisable(true);
+                    placeSongOnBackOfQueue.setVisible(false);
                 }
             }
         });
@@ -368,4 +412,5 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         createContextMenu();
         setContextMenu(m_contextMenu);
     }
+
 }
