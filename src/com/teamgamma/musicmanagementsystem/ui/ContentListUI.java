@@ -38,13 +38,13 @@ public class ContentListUI extends StackPane {
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private ContextMenu m_contextMenu;
+    private ContextMenu m_playbackContextMenu;
     private TableView<Song> m_table;
 
-    private ContextMenu m_playbackContextMenu;
-    // constants
-    public static final int FILE_COLUMN_MIN_WIDTH = 80;
-    public static final int COLUMN_MIN_WIDTH = 60;
-    public static final int RATING_COLUMN_MIN_WIDTH = 20;
+    //constants
+    private static final int FILE_COLUMN_MIN_WIDTH = 80;
+    private static final int COLUMN_MIN_WIDTH = 60;
+    private static final int RATING_COLUMN_MIN_WIDTH = 20;
 
     public ContentListUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
