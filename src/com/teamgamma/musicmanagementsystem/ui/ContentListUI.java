@@ -432,6 +432,7 @@ public class ContentListUI extends StackPane {
                 Playlist selectedPlaylist = PromptUI.addSongToPlaylist(m_model.getM_playlists(), selectedSong);
                 if(selectedPlaylist != null) {
                     selectedPlaylist.addSong(selectedSong);
+                    m_model.notifyPlaylistSongsObservers();
                 }
             }
         });

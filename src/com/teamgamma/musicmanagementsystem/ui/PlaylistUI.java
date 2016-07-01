@@ -3,6 +3,8 @@ package com.teamgamma.musicmanagementsystem.ui;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -16,6 +18,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
+import javafx.util.Callback;
 
 import java.io.File;
 import java.util.List;
@@ -56,10 +59,10 @@ public class PlaylistUI extends StackPane {
         m_databaseManager = databaseManager;
         m_dropDownMenu = new ComboBox<>();
         initTopMenu(createSelectPlaylistLabel(),
-                createDropDownMenu(),
-                createCreateNewPlaylistButton(),
-                createRemovePlaylistButton(),
-                createEditPlaylistButton());
+                    createDropDownMenu(),
+                    createCreateNewPlaylistButton(),
+                    createRemovePlaylistButton(),
+                    createEditPlaylistButton());
         initTableView();
         setCssStyle();
         registerAsPlaylistObserver();
@@ -95,12 +98,21 @@ public class PlaylistUI extends StackPane {
         ObservableList<Playlist> options = FXCollections.observableList(m_model.getM_playlists());
         ComboBox<Playlist> dropDownMenu = new ComboBox<>();
         dropDownMenu.getItems().addAll(options);
+
+        dropDownMenu.valueProperty().addListener(new ChangeListener<Playlist>() {
+            @Override
+            public void changed(ObservableValue<? extends Playlist> observable, Playlist oldValue, Playlist newValue) {
+                m_model.setM_selectedPlaylist(newValue);
+                m_model.notifyPlaylistSongsObservers();
+            }
+        });
+
         dropDownMenu.setMinWidth(DROP_DOWN_MENU_MIN_WIDTH);
         dropDownMenu.setMaxWidth(DROP_DOWN_MENU_MAX_WIDTH);
         dropDownMenu.setPrefSize(DROP_DOWN_MENU_PREF_WIDTH, DROP_DOWN_MENU_PREF_HEIGHT);
-        if (!options.isEmpty()) {
+        /*if (!options.isEmpty()) {
             dropDownMenu.setValue(options.get(0));
-        }
+        }*/
         return dropDownMenu;
     }
 
@@ -272,19 +284,22 @@ public class PlaylistUI extends StackPane {
     private void clearTable() {
         System.out.println("Clearing playlist panel...");
         m_table.getItems().clear();
-        super.getChildren().clear();
     }
 
     private void updateTable() {
         System.out.println("Updating playlist panel...");
-        m_table = new TableView<>();
-        List<Song> songs = m_dropDownMenu.getValue().getM_songList();
-        if (songs.isEmpty()) {
-            System.out.println("Playlist empty");
+        Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+        if (selectedPlaylist != null) {
+            List<Song> songs = selectedPlaylist.getM_songList();
+
+            if (songs.isEmpty()) {
+                System.out.println("Playlist empty");
+            } else {
+                m_table.setItems(FXCollections.observableArrayList(songs));
+            }
+        } else {
+            m_table.setPlaceholder(new Label("Select a playlist"));
         }
-        m_table.setItems(FXCollections.observableArrayList(songs));
-        m_table.setPlaceholder(new Label("This pane was notified of changes to playlist"));
-        super.getChildren().add(m_table);
     }
 
 
