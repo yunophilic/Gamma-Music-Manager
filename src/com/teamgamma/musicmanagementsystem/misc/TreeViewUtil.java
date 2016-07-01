@@ -3,6 +3,7 @@ package com.teamgamma.musicmanagementsystem.misc;
 import com.teamgamma.musicmanagementsystem.model.Library;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -303,5 +304,46 @@ public class TreeViewUtil {
             );
         }
         return null;
+    }
+
+    /**
+     * Get list of paths in tree that are expanded
+     * @param m_tree
+     * @return Arraylist of paths as String
+     */
+    public static List<String> getExpandedPaths(TreeView<TreeViewItem> m_tree) {
+        List<String> expandedPaths = getExpandedPathsRecursively(m_tree.getRoot());
+
+        return expandedPaths;
+    }
+
+    /**
+     * Recursively get list of paths that are expanded
+     * @param currentItem
+     * @return Arraylist of paths as String
+     */
+    private static List<String> getExpandedPathsRecursively(TreeItem<TreeViewItem> currentItem) {
+        List<String> expandedPaths = new ArrayList<>();
+        List<TreeItem<TreeViewItem>> children = currentItem.getChildren();
+
+        // Base case
+        if (children.isEmpty()) {
+            return expandedPaths;
+        }
+
+        // Add to list if this path is expanded
+        if (currentItem.isExpanded()) {
+            File file = currentItem.getValue().getM_file();
+            expandedPaths.add(file.getAbsolutePath());
+        }
+
+        // Recursive case
+        for (TreeItem<TreeViewItem> child : children) {
+            List<String> childExpandedPaths = getExpandedPathsRecursively(child);
+
+            expandedPaths.addAll(childExpandedPaths);
+        }
+
+        return expandedPaths;
     }
 }

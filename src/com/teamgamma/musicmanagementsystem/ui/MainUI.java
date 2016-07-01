@@ -10,6 +10,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+import java.util.List;
+
 /**
  * MainUI Class.
  */
@@ -17,6 +19,8 @@ public class MainUI extends BorderPane {
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
+    private LibraryUI m_libraryUI;
+    private DynamicTreeViewUI m_rightFilePane;
 
     public MainUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
@@ -33,10 +37,10 @@ public class MainUI extends BorderPane {
     }
 
     private Node leftPane() {
-        LibraryUI libraryUI = new LibraryUI(m_model, m_musicPlayerManager, m_databaseManager);
+        m_libraryUI = new LibraryUI(m_model, m_musicPlayerManager, m_databaseManager);
 
         BorderPane leftPane = new BorderPane();
-        leftPane.setCenter(libraryUI);
+        leftPane.setCenter(m_libraryUI);
         leftPane.setPrefWidth(250);
         return leftPane;
     }
@@ -75,13 +79,21 @@ public class MainUI extends BorderPane {
         HBox pane = new HBox();
 
         ContentListUI contentListUI = new ContentListUI(m_model, m_musicPlayerManager, m_databaseManager);
-        DynamicTreeViewUI rightFilePane = new DynamicTreeViewUI(m_model, m_musicPlayerManager, m_databaseManager);
+        m_rightFilePane = new DynamicTreeViewUI(m_model, m_musicPlayerManager, m_databaseManager);
 
         HBox.setHgrow(contentListUI, Priority.ALWAYS);
-        HBox.setHgrow(rightFilePane, Priority.ALWAYS);
+        HBox.setHgrow(m_rightFilePane, Priority.ALWAYS);
 
-        pane.getChildren().addAll(contentListUI, rightFilePane);
+        pane.getChildren().addAll(contentListUI, m_rightFilePane);
 
         return pane;
+    }
+
+    public List<String> getLibraryUIExpandedPaths() {
+        return m_libraryUI.getExpandedPaths();
+    }
+
+    public List<String> getDynamicTreeViewUIExpandedPaths() {
+        return m_rightFilePane.getExpandedPaths();
     }
 }

@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
+import com.teamgamma.musicmanagementsystem.model.Library;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
@@ -25,6 +26,7 @@ public class ApplicationController extends Application {
     private static final double MIN_WINDOW_HEIGHT = 400;
 
     private DatabaseManager m_databaseManager;
+    private MainUI m_rootUI;
 
     public static void main(String[] args) {
         launch(args);
@@ -61,7 +63,7 @@ public class ApplicationController extends Application {
         }
 
         MusicPlayerManager musicPlayerManager = new MusicPlayerManager(m_databaseManager);
-        MainUI rootUI = new MainUI(songManager, musicPlayerManager, m_databaseManager);
+        m_rootUI = new MainUI(songManager, musicPlayerManager, m_databaseManager);
         Watcher watcher = new Watcher(songManager, m_databaseManager);
         watcher.startWatcher();
 
@@ -71,7 +73,7 @@ public class ApplicationController extends Application {
             musicPlayerManager.stopSong();
         });
 
-        primaryStage.setScene(new Scene(rootUI, 1200, 650));
+        primaryStage.setScene(new Scene(m_rootUI, 1200, 650));
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
@@ -81,6 +83,22 @@ public class ApplicationController extends Application {
 
     @Override
     public void stop() {
+        List<String> libraryUIExpandedPaths = m_rootUI.getLibraryUIExpandedPaths();
+        if (libraryUIExpandedPaths != null) {
+            // TODO: save to database
+            for (String path : libraryUIExpandedPaths) {
+                System.out.println("LIBRARY EXPANDED PATH: " + path);
+            }
+        }
+
+        List<String> dynamicTreeViewUIExpandedPaths = m_rootUI.getDynamicTreeViewUIExpandedPaths();
+        if (dynamicTreeViewUIExpandedPaths != null) {
+            // TODO: save to database
+            for (String path : dynamicTreeViewUIExpandedPaths) {
+                System.out.println("DYNAMIC TREEVIEW EXPANDED PATH: " + path);
+            }
+        }
+
         m_databaseManager.closeConnection();
     }
 }

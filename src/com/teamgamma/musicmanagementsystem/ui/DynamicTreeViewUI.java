@@ -157,4 +157,12 @@ public class DynamicTreeViewUI extends StackPane {
         final String cssDefault = "-fx-border-color: black;\n";
         this.setStyle(cssDefault);
     }
+
+    public List<String> getExpandedPaths() {
+        if (m_tree != null) {
+            return TreeViewUtil.getExpandedPaths(m_tree);
+        } else {
+            return null;
+        }
+    }
 }
