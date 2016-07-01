@@ -11,6 +11,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.shape.Path;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -77,6 +80,10 @@ public class ApplicationController extends Application {
         primaryStage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         primaryStage.show();
+
+        Media sound = new Media(new File("src" + File.separator + "res" + File.separator +"start-sound.mp3").toURI().toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(sound);
+        mediaPlayer.play();
     }
 
     @Override
