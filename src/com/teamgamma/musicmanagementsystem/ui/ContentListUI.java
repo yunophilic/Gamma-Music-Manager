@@ -37,23 +37,22 @@ public class ContentListUI extends StackPane {
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
-    private TableView<Song> m_table;
     private ContextMenu m_contextMenu;
-
     private ContextMenu m_playbackContextMenu;
-    // constants
-    public static final int FILENAME_COLUMN_MIN_WIDTH = 80;
-    public static final int COLUMN_MIN_WIDTH = 60;
-    public static final int RATING_COLUMN_MIN_WIDTH = 20;
+    private TableView<Song> m_table;
+
+    //constants
+    private static final int FILE_COLUMN_MIN_WIDTH = 80;
+    private static final int COLUMN_MIN_WIDTH = 60;
+    private static final int RATING_COLUMN_MIN_WIDTH = 20;
 
     public ContentListUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
-        m_table = new TableView<>();
         m_contextMenu = new ContextMenu();
-        updateTable();
+        initTableView();
         setCssStyle();
         registerAsCenterFolderObserver();
     }
@@ -98,31 +97,19 @@ public class ContentListUI extends StackPane {
         });
     }
 
-    private void setEmptyText(
-            TableColumn fileNameCol,
-            TableColumn titleCol,
-            TableColumn artistCol,
-            TableColumn albumCol,
-            TableColumn genreCol,
-            TableColumn ratingCol) {
-        m_table.getColumns().addAll(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
-        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        m_table.setPlaceholder(new Label("Choose a folder to view its contents"));
-        this.getChildren().add(m_table);
-
-    }
-
-    private void clearTable() {
-        System.out.println("Clearing list...");
-        m_table.getItems().clear();
-        this.getChildren().clear();
-    }
-
-    private void updateTable() {
+    private void initTableView() {
         m_table = new TableView<>();
-        TableColumn<Song, File> fileNameCol = new TableColumn<>("File Name");
-        fileNameCol.setMinWidth(FILENAME_COLUMN_MIN_WIDTH);
+        setTableColumns();
+        setTableRowMouseEvents();
+        super.getChildren().add(m_table);
+        updateTable();
+    }
+
+    private void setTableColumns() {
+        TableColumn<Song, File> filePathCol = new TableColumn<>("File Path");
+        filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
+        TableColumn<Song, String> fileNameCol = new TableColumn<>("File Name");
+        fileNameCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
         TableColumn<Song, String> titleCol = new TableColumn<>("Title");
         titleCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, String> artistCol = new TableColumn<>("Artist");
@@ -133,69 +120,61 @@ public class ContentListUI extends StackPane {
         genreCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, Integer> ratingCol = new TableColumn<>("Rating");
         ratingCol.setMinWidth(RATING_COLUMN_MIN_WIDTH);
+        setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
+        showOrHideTableColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
+    }
 
-        if (m_model.getM_selectedCenterFolder() == null) {
-            setEmptyText(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
-        } else {
-            System.out.println("Updating m_table...");
-            m_table = new TableView<>();
-            m_table.setEditable(true);
+    private void clearTable() {
+        System.out.println("Clearing song explorer table...");
+        m_table.getItems().clear();
+    }
 
-            setTableRowMouseEvents();
-            setTableColumnAttributes(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
-
+    private void updateTable() {
+        System.out.println("Updating song explorer table...");
+        if (m_model.getM_selectedCenterFolder() != null) {
             List<Song> songs = m_model.getCenterPanelSongs();
-
-            if (songs.isEmpty()){
+            if (songs.isEmpty()) {
                 m_table.setPlaceholder(new Label("No songs in folder"));
             } else {
                 m_table.setItems(FXCollections.observableArrayList(songs));
             }
-            this.getChildren().add(m_table);
-
-            // Scrolls through list
-            ScrollPane scrollpane = new ScrollPane();
-            scrollpane.setFitToWidth(true);
-            scrollpane.setFitToHeight(true);
-            scrollpane.setPrefSize(500, 500);
-            scrollpane.setContent(m_table);
+        } else {
+            m_table.setPlaceholder(new Label("Choose a folder to view its contents"));
         }
-
-        showOrHideTableColumns(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
     }
 
-    private void showOrHideTableColumns(
-            TableColumn<Song, File> fileNameCol,
-            TableColumn<Song, String> titleCol,
-            TableColumn<Song, String> artistCol,
-            TableColumn<Song, String> albumCol,
-            TableColumn<Song, String> genreCol,
-            TableColumn<Song, Integer> ratingCol) {
+    private void showOrHideTableColumns(TableColumn<Song, File> filePathCol,
+                                        TableColumn<Song, String> fileNameCol,
+                                        TableColumn<Song, String> titleCol,
+                                        TableColumn<Song, String> artistCol,
+                                        TableColumn<Song, String> albumCol,
+                                        TableColumn<Song, String> genreCol,
+                                        TableColumn<Song, Integer> ratingCol) {
         m_table.setTableMenuButtonVisible(true);
 
-        // fileName and artist default columns for centerListUI
+        //default columns
         fileNameCol.setVisible(true);
         artistCol.setVisible(true);
 
+        filePathCol.setVisible(false);
         titleCol.setVisible(false);
         albumCol.setVisible(false);
         genreCol.setVisible(false);
         ratingCol.setVisible(false);
     }
 
-    private void setTableColumnAttributes(TableColumn<Song, File> fileNameCol,
+    private void setTableColumnAttributes(TableColumn<Song, File> filePathCol,
+                                          TableColumn<Song, String> fileNameCol,
                                           TableColumn<Song, String> titleCol,
                                           TableColumn<Song, String> artistCol,
                                           TableColumn<Song, String> albumCol,
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, Integer> ratingCol) {
-
-
+        filePathCol.setCellValueFactory(new PropertyValueFactory<>("m_file"));
 
         fileNameCol.setCellValueFactory(new PropertyValueFactory<>("m_fileName"));
 
         titleCol.setCellValueFactory(new PropertyValueFactory<>("m_title"));
-
         titleCol.setCellFactory(TextFieldTableCell.forTableColumn());
         titleCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Song, String>>() {
             @Override
@@ -253,6 +232,7 @@ public class ContentListUI extends StackPane {
                 }
         );
 
+        m_table.getColumns().add(filePathCol);
         m_table.getColumns().add(fileNameCol);
         m_table.getColumns().add(titleCol);
         m_table.getColumns().add(artistCol);
