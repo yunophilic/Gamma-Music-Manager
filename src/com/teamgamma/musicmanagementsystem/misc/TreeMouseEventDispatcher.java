@@ -7,6 +7,7 @@ import com.teamgamma.musicmanagementsystem.ui.MusicPlayerHistoryUI;
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -28,6 +29,9 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
     private TreeViewItem m_selectedTreeViewItem;
     private TreeView<TreeViewItem> m_tree;
     private boolean m_isLeftPane;
+
+    // Static private member for making the control click menu be just a single instance.
+    private static ContextMenu m_playbackContextMenuInstance;
 
     public TreeMouseEventDispatcher(EventDispatcher originalDispatcher,
                                     SongManager model,
@@ -87,8 +91,11 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                 if (!event.isConsumed()) {
                     Song songSelected = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
                     if (songSelected != null) {
-                        MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, songSelected).show(
-                                m_tree, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        if (m_playbackContextMenuInstance != null) {
+                            m_playbackContextMenuInstance.hide();
+                        }
+                        m_playbackContextMenuInstance = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, songSelected);
+                        m_playbackContextMenuInstance.show(m_tree, mouseEvent.getScreenX(), mouseEvent.getScreenY());
                     }
                 }
                 event.consume();
