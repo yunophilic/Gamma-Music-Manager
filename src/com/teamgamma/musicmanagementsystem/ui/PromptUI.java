@@ -985,7 +985,7 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         dialog.setTitle("Add to Playlist");
-        dialog.setHeaderText("Add \"" + songToAdd.getM_title() + "\" to playlist:");
+        dialog.setHeaderText("Add \"" + songToAdd.getM_fileName() + "\" to playlist:");
         dialog.setGraphic(new ImageView("res" + File.separator + "add-song-playlist.png"));
         dialog.setContentText("Select a playlist:");
 
@@ -1009,7 +1009,7 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         dialog.setTitle("Remove from Playlist");
-        dialog.setHeaderText("Remove \"" + songName.getM_title() + "\" from " + playlist.getM_playlistName() + ":");
+        dialog.setHeaderText("Remove \"" + songName.getM_fileName() + "\" from " + playlist.getM_playlistName() + ":");
         dialog.setGraphic(new ImageView("res" + File.separator + "remove-song-playlist.png"));
         dialog.setContentText("Are you sure you want to remove this song from the playlist?");
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
