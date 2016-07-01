@@ -1,8 +1,10 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
+import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+import com.teamgamma.musicmanagementsystem.ui.MusicPlayerHistoryUI;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
 import javafx.event.ActionEvent;
@@ -43,10 +45,9 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
-        m_contextMenu = new ContextMenu();
         m_tree = tree;
+        createContextMenu();
         m_isLeftPane = isLeftPane;
-        m_contextMenu.getItems().addAll(generateMenuItems());
         setDragEvents();
     }
 
@@ -112,11 +113,14 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 if (m_selectedTreeViewItem != null) {
                     File fileToDelete = m_selectedTreeViewItem.getM_file();
                     //confirmation dialog
-                    if (!PromptUI.customPromptConfirmation(
-                            "Deleting " + (fileToDelete.isDirectory() ? "folder" : "file"),
-                            null,
-                            "Are you sure you want to permanently delete \"" + fileToDelete.getName() + "\"?")) {
-                        return;
+                    if (fileToDelete.isDirectory()) {
+                        if (!PromptUI.deleteLibrary(fileToDelete)) {
+                            return;
+                        }
+                    } else {
+                        if (!PromptUI.deleteSong(fileToDelete)) {
+                            return;
+                        }
                     }
                     //try to actually delete (retry if FileSystemException happens)
                     for(int i=0; i<2; i++) {
@@ -209,6 +213,49 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             menuItems.add(openInRightPane);
         }
 
+        MenuItem playSong = new MenuItem(ContextMenuConstants.MENU_ITEM_PLAY_SONG);
+        playSong.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (m_selectedTreeViewItem != null) {
+                    Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    if (song != null) {
+                        m_musicPlayerManager.playSongRightNow(song);
+                    }
+                }
+            }
+        });
+
+        MenuItem placeSongAtStartOfQueue = new MenuItem(ContextMenuConstants.MENU_ITEM_PLAY_SONG_NEXT);
+        placeSongAtStartOfQueue.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (m_selectedTreeViewItem != null) {
+                    Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    if (song != null) {
+                        m_musicPlayerManager.placeSongAtStartOfQueue(song);
+                    }
+                }
+            }
+        });
+
+        MenuItem placeSongOnBackOfQueue = new MenuItem(ContextMenuConstants.MENU_ITEM_PLACE_SONG_ON_QUEUE);
+        placeSongOnBackOfQueue.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (m_selectedTreeViewItem != null) {
+                    Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    if (song != null) {
+                        m_musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
+                    }
+                }
+            }
+        });
+
+        menuItems.add(playSong);
+        menuItems.add(placeSongAtStartOfQueue);
+        menuItems.add(placeSongOnBackOfQueue);
+
         m_contextMenu.setOnShown(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
@@ -226,10 +273,28 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     removeLibrary.setDisable(true);
                     removeLibrary.setVisible(false);
                 }
+
+                // Do not show song options if this is not a song
+                Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                if (m_selectedTreeViewItem == null || song == null) {
+                    playSong.setDisable(true);
+                    playSong.setVisible(false);
+
+                    placeSongAtStartOfQueue.setDisable(true);
+                    placeSongAtStartOfQueue.setVisible(false);
+
+                    placeSongOnBackOfQueue.setDisable(true);
+                    placeSongOnBackOfQueue.setVisible(false);
+                }
             }
         });
 
         return menuItems;
+    }
+
+    private void createContextMenu() {
+        m_contextMenu = new ContextMenu();
+        m_contextMenu.getItems().addAll(generateMenuItems());
     }
 
     /**
@@ -277,11 +342,6 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             public void handle(DragEvent dragEvent) {
                 System.out.println("Drag dropped on " + m_selectedTreeViewItem);
 
-                if (!m_selectedTreeViewItem.getM_file().isDirectory()) {
-                    PromptUI.customPromptError("Error", null, "Cannot move to a file! Please drag to a directory!");
-                    return;
-                }
-
                 //fetch item to be moved and destination
                 /*String draggedItemPath = dragEvent.getDragboard().getString();
                 TreeItem<TreeViewItem> nodeToMove = searchTreeItem(draggedItemPath);
@@ -295,11 +355,14 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 try {
                     //move in the file system
                     File fileToMove = m_model.getM_fileToMove();
-                    File destination = m_selectedTreeViewItem.getM_file();
-
-                    if (!fileToMove.getParent().equals(destination.getAbsolutePath())) {
-                        m_model.moveFile(fileToMove, destination);
+                    File destination;
+                    if (!m_selectedTreeViewItem.getM_file().isDirectory()) {
+                        destination = m_selectedTreeViewItem.getM_file().getParentFile();
+                    } else {
+                        destination = m_selectedTreeViewItem.getM_file();
                     }
+
+                    m_model.moveFile(fileToMove, destination);
                 } catch (FileAlreadyExistsException ex) {
                     PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
                 } catch (AccessDeniedException ex) {
@@ -346,6 +409,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         m_selectedTreeViewItem = item;
         EventDispatcher originalDispatcher = getEventDispatcher();
         setEventDispatcher(new TreeMouseEventDispatcher(originalDispatcher, m_model, m_musicPlayerManager, m_tree, m_selectedTreeViewItem, m_isLeftPane));
+        createContextMenu();
         setContextMenu(m_contextMenu);
     }
 }

@@ -1,25 +1,29 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.FileManager;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 
+import com.teamgamma.musicmanagementsystem.model.SongManager;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 
 /**
@@ -38,6 +42,9 @@ public class PromptUI {
      */
     public static void customPromptInformation(String title, String headerText, String bodyMessage) {
         Alert alert = new Alert(AlertType.INFORMATION);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         alert.setTitle(title);
         alert.setHeaderText(headerText);
         alert.setContentText(bodyMessage);
@@ -55,6 +62,9 @@ public class PromptUI {
      */
     public static boolean customPromptConfirmation(String title, String headerText, String bodyMessage) {
         Alert alert = new Alert(AlertType.CONFIRMATION);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         alert.setTitle(title);
         alert.setHeaderText(headerText);
         alert.setContentText(bodyMessage);
@@ -72,6 +82,9 @@ public class PromptUI {
      */
     public static void customPromptWarning(String title, String headerText, String bodyMessage) {
         Alert alert = new Alert(AlertType.WARNING);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         alert.setTitle(title);
         alert.setHeaderText(headerText);
         alert.setContentText(bodyMessage);
@@ -88,6 +101,9 @@ public class PromptUI {
      */
     public static void customPromptError(String title, String headerText, String bodyMessage) {
         Alert alert = new Alert(AlertType.ERROR);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         alert.setTitle(title);
         alert.setHeaderText(headerText);
         alert.setContentText(bodyMessage);
@@ -104,18 +120,20 @@ public class PromptUI {
      * @return set directory for master panel
      */
     public static String initialWelcome() {
-
         Dialog dialog = new Dialog<>();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         dialog.setTitle("Welcome!");
         dialog.setHeaderText(null);
         // TEMPORARY
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "gamma-logo.png"), 88, 20, false, false)));
+                "gamma-logo-welcome.png"), 100, 100, false, false)));
 
-        dialog.setContentText("Welcome to the Music Management System. Before " +
+        dialog.setContentText("\nWelcome to the Gamma Music Manager. Before " +
                 "beginning, please select a media library.");
         ButtonType browse = new ButtonType("Browse");
-        dialog.getDialogPane().getButtonTypes().addAll(browse, ButtonType.CANCEL);
+        dialog.getDialogPane().getButtonTypes().addAll(browse);
         Optional<ButtonType> result = dialog.showAndWait();
 
         if (result.isPresent() && result.get() == browse) {
@@ -138,6 +156,9 @@ public class PromptUI {
      */
     public static boolean fileNotFoundCopy(File missingFile) {
         Alert alert = new Alert(AlertType.ERROR);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         alert.setTitle("File Not Found");
         alert.setHeaderText("An error occured while copying \"" + missingFile.getName() + "\":");
         alert.setContentText("The file " + missingFile.getAbsolutePath() + " is not found. Delete " +
@@ -161,6 +182,9 @@ public class PromptUI {
      */
     public static boolean fileNotFoundMove(File missingFile) {
         Alert alert = new Alert(AlertType.ERROR);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         alert.setTitle("File Not Found");
         alert.setHeaderText("An error occured while moving \"" + missingFile.getName() + "\":");
         alert.setContentText("The file " + missingFile.getAbsolutePath() + " is not found. Delete " +
@@ -184,6 +208,9 @@ public class PromptUI {
      */
     public static void invalidPasteDestination(File copiedFile, File destinationFile) {
         Alert alert = new Alert(AlertType.ERROR);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         alert.setTitle("Copy Error");
         alert.setHeaderText("An error occured while pasting \"" + copiedFile.getName() + "\":");
         alert.setContentText("The file cannot be pasted into the media file " +
@@ -200,6 +227,9 @@ public class PromptUI {
      */
     public static void failedToRename(File file) {
         Alert alert = new Alert(AlertType.ERROR);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         alert.setTitle("Rename Error");
         alert.setHeaderText(null);
         alert.setContentText("The file \"" + file + "\" could not be renamed.");
@@ -211,6 +241,9 @@ public class PromptUI {
      */
     public static void unexpectedCrash() {
         Alert alert = new Alert(AlertType.ERROR);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         alert.setTitle("Unexpected Crash");
         alert.setHeaderText(null);
         alert.setContentText("Something has caused the program to crash unexpectedly.");
@@ -229,6 +262,9 @@ public class PromptUI {
      */
     public static int fileAlreadyExists(File duplicate) {
         Alert alert = new Alert(AlertType.INFORMATION);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         alert.setTitle("File Name Exists");
         alert.setHeaderText(null);
         alert.setContentText("The file " + duplicate.getAbsolutePath() + " already exists in the folder.");
@@ -276,6 +312,9 @@ public class PromptUI {
      */
     public static void editMetadata(Song song) {
         Dialog<ButtonType> dialog = new Dialog<>();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         dialog.setTitle("Edit Song Info");
         dialog.setHeaderText(song.getM_title() + "\n" +
                 song.getM_artist() + "\n" +
@@ -348,46 +387,75 @@ public class PromptUI {
     // ---------------------- Confirmation Prompts
 
     /**
-     * Delete folder and contents
+     * Delete library and contents
      *
      * @param folder to delete
+     * @return true if user clicks OK
      */
-    public static void deleteFolder(File folder) {
-        Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("Confirm Delete");
-        alert.setHeaderText("Delete folder and all contents:");
-        alert.setContentText("Are you sure you want do delete the folder " + folder.getName() + "?");
+    public static boolean deleteLibrary(File folder) {
+        Dialog dialog = new Dialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
+        dialog.setTitle("Delete Library");
+        dialog.setHeaderText("\"" + folder.getName() + "\":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "delete-library.png"))));
+        dialog.setContentText("Are you sure you want to permanently delete this folder and all of its contents?");
+        ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
 
-        ButtonType deleteReference = new ButtonType("Yes");
-        ButtonType cancel = new ButtonType("No");
+        Optional result = dialog.showAndWait();
 
-        alert.getButtonTypes().setAll(deleteReference, cancel);
-        Optional<ButtonType> result = alert.showAndWait();
-
-        if (result.isPresent() && result.get() == deleteReference) {
-            folder.delete();
-        }
+        return result.isPresent() && result.get() == okButton;
     }
 
     /**
      * Delete song
      *
      * @param mediaFile to delete
+     * @return true if user clicks OK
      */
-    public static void deleteSong(File mediaFile) {
-        Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("Confirm Delete");
-        alert.setHeaderText(null);
-        alert.setContentText("Are you sure you want do delete " + mediaFile.getName() + "?");
-        ButtonType deleteReference = new ButtonType("Yes");
-        ButtonType cancel = new ButtonType("No");
+    public static boolean deleteSong(File mediaFile) {
+        Dialog dialog = new Dialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
+        dialog.setTitle("Delete Media File");
+        dialog.setHeaderText("\"" + mediaFile.getName() + "\":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "delete-song.png"))));
+        dialog.setContentText("Are you sure you want to permanently delete this song?");
+        ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
 
-        alert.getButtonTypes().setAll(deleteReference, cancel);
-        Optional<ButtonType> result = alert.showAndWait();
+        Optional result = dialog.showAndWait();
 
-        if (result.isPresent() && result.get() == deleteReference) {
-            mediaFile.delete();
-        }
+        return result.isPresent() && result.get() == okButton;
+    }
+
+    /**
+     * Corrupted or invalid .mp3 file. Leaves user no choice but to delete the file
+     *
+     * @param corruptedFile detected in the system
+     * @return true if file has been deleted
+     */
+    public static boolean invalidMediaFile(File corruptedFile) {
+        Dialog dialog = new Dialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
+        dialog.setTitle("Invalid media file");
+        dialog.setHeaderText("\"" + corruptedFile.getName() + "\":");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "missing-song.png"))));
+        dialog.setContentText("The program has detected that this file is either corrupted or an invalid MP3 file.");
+        ButtonType okButton = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton);
+
+        dialog.showAndWait();
+
+        return corruptedFile.delete();
     }
 
 
@@ -398,21 +466,24 @@ public class PromptUI {
      * @param duplicate file
      */
     public static Path fileRenameDuplicate(File duplicate) {
-        int numIndex = 2;
         String fileNameFull = duplicate.getName();
         int beforeExtension = fileNameFull.lastIndexOf('.');
-        String lastChar = fileNameFull.substring(beforeExtension - 1, beforeExtension);
+        String fileNameFullNoExtension = fileNameFull.substring(0, beforeExtension);
+        String extension = fileNameFull.substring(beforeExtension);
 
-        // TODO FIX INCREMENT FOR LAST CHARACTER
-        if (!Character.isLetter(lastChar.charAt(0))) {
-            numIndex = Character.getNumericValue(lastChar.charAt(0)) + 1;
-            fileNameFull = fileNameFull.substring(0, beforeExtension - 2) +
-                    fileNameFull.substring(beforeExtension);
-            beforeExtension -= 2;
+        int numIndex = 2;
+        File duplicateWithIndex = new File(duplicate.getParent() + File.separator + fileNameFullNoExtension + " (" +
+                numIndex + ")" + extension);
+        while (duplicateWithIndex.exists()) {
+            duplicateWithIndex = new File(duplicate.getParent() + File.separator + fileNameFullNoExtension + " (" +
+                    numIndex + ")" + extension);
+            numIndex++;
         }
 
-        TextInputDialog dialog = new TextInputDialog(fileNameFull.substring(0,
-                beforeExtension) + "_" + numIndex + fileNameFull.substring(beforeExtension));
+        TextInputDialog dialog = new TextInputDialog(duplicateWithIndex.getName().substring(0, beforeExtension + 4));
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         dialog.setTitle("Name Already Exists");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-file-exists.png"))));
@@ -425,13 +496,15 @@ public class PromptUI {
             Path source = Paths.get(duplicate.getAbsolutePath());
             if (result.isPresent()) {
                 String parentDirectory = duplicate.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                File newName = new File(parentDirectory + File.separator + result.get() + extension);
                 if (result.get().isEmpty()) {
                     return fileRenameRetry(duplicate);
-                } else if (nameAlreadyExists.exists()) {
-                    return fileRenameDuplicate(nameAlreadyExists);
+                } else if (newName.exists()) {
+                    return fileRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return fileRenameInvalidChar(duplicate);
                 }
-                return Files.move(source, source.resolveSibling(result.get()));
+                return Files.move(source, source.resolveSibling(result.get() + extension));
             }
         } catch (IOException e) {
             failedToRename(duplicate);
@@ -447,16 +520,20 @@ public class PromptUI {
      * @param duplicate folder
      */
     public static Path folderRenameDuplicate(File duplicate) {
+        String folderName = duplicate.getName();
         int numIndex = 2;
-        String folderNameFull = duplicate.getName();
-        int lastCharIndex = folderNameFull.length() - 1;
-
-        // TODO FIX INCREMENT FOR LAST CHARACTER
-        if (!Character.isLetter(folderNameFull.charAt(lastCharIndex))) {
-            numIndex = Character.getNumericValue(lastCharIndex) + 1;
+        File duplicateWithIndex = new File(duplicate.getParent() + File.separator + folderName + " (" +
+                numIndex + ")");
+        while (duplicateWithIndex.exists()) {
+            duplicateWithIndex = new File(duplicate.getParent() + File.separator + folderName + " (" +
+                    numIndex + ")");
+            numIndex++;
         }
 
-        TextInputDialog dialog = new TextInputDialog(folderNameFull + "_" + numIndex);
+        TextInputDialog dialog = new TextInputDialog(duplicateWithIndex.getName());
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         dialog.setTitle("Name Already Exists");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-folder-exists.png"))));
@@ -469,31 +546,35 @@ public class PromptUI {
             Path source = Paths.get(duplicate.getAbsolutePath());
             if (result.isPresent()) {
                 String parentDirectory = duplicate.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                File newName = new File(parentDirectory + File.separator + result.get());
                 if (result.get().isEmpty()) {
                     return folderRenameRetry(duplicate);
-                } else if (nameAlreadyExists.exists()) {
-                    return folderRenameDuplicate(nameAlreadyExists);
+                } else if (newName.exists()) {
+                    return folderRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(duplicate);
                 }
                 return Files.move(source, source.resolveSibling(result.get()));
             }
         } catch (IOException e) {
             failedToRename(duplicate);
         }
-
         return null;
     }
 
     /**
      * Renames file or a library folder
+     *
+     * @param fileToRename file to rename
      */
     public static Path fileRename(File fileToRename) {
-        TextInputDialog dialog = new TextInputDialog();
-
-        String fileNameFull = fileToRename.getName();
-
         // Rename library
         if (fileToRename.isDirectory()) {
+            String fileNameFull = fileToRename.getName();
+            TextInputDialog dialog = new TextInputDialog(fileNameFull);
+            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+            stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                    "gamma-logo.png")));
             dialog.setTitle("Rename Library");
             dialog.setHeaderText(fileNameFull + ":");
             dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
@@ -505,11 +586,13 @@ public class PromptUI {
                 Path source = Paths.get(fileToRename.getAbsolutePath());
                 if (result.isPresent()) {
                     String parentDirectory = fileToRename.getParent();
-                    File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                    File newName = new File(parentDirectory + File.separator + result.get());
                     if (result.get().isEmpty()) {
                         return folderRenameRetry(fileToRename);
-                    } else if (nameAlreadyExists.exists()) {
-                        return folderRenameDuplicate(nameAlreadyExists);
+                    } else if (newName.exists()) {
+                        return folderRenameDuplicate(newName);
+                    } else if (containsIllegalChar(result.get())) {
+                        return folderRenameInvalidChar(fileToRename);
                     }
                     return Files.move(source, source.resolveSibling(result.get()));
                 }
@@ -518,12 +601,17 @@ public class PromptUI {
             }
             // Rename media file
         } else {
-            dialog.setTitle("Rename Media File");
+            String fileNameFull = fileToRename.getName();
             int beforeExtension = fileNameFull.lastIndexOf('.');
             String fileName = fileNameFull.substring(0, beforeExtension);
             String extension = fileNameFull.substring(beforeExtension);
 
-            dialog.setHeaderText(fileName + ":");
+            TextInputDialog dialog = new TextInputDialog(fileName);
+            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+            stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                    "gamma-logo.png")));
+            dialog.setTitle("Rename Media File");
+            dialog.setHeaderText(fileNameFull + ":");
             dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                     "rename-song.png"))));
             dialog.setContentText("Rename the file to:");
@@ -534,11 +622,13 @@ public class PromptUI {
                 Path source = Paths.get(fileToRename.getAbsolutePath());
                 if (result.isPresent()) {
                     String parentDirectory = fileToRename.getParent();
-                    File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
+                    File newName = new File(parentDirectory + File.separator + result.get() + extension);
                     if (result.get().isEmpty()) {
                         return fileRenameRetry(fileToRename);
-                    } else if (nameAlreadyExists.exists()) {
-                        return fileRenameDuplicate(nameAlreadyExists);
+                    } else if (newName.exists()) {
+                        return fileRenameDuplicate(newName);
+                    } else if (containsIllegalChar(result.get())) {
+                        return fileRenameInvalidChar(fileToRename);
                     }
                     return Files.move(source, source.resolveSibling(result.get() + extension));
                 }
@@ -551,17 +641,119 @@ public class PromptUI {
     }
 
     /**
-     * Renames file after previous rename attempt has blank in text box
+     * Check for illegal character
+     *
+     * @param toExamine file name to examine
      */
-    private static Path fileRenameRetry(File fileToRename) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Rename Media File");
+    private static boolean containsIllegalChar(String toExamine) {
+        Pattern pattern = Pattern.compile("[<>:\"/\\|?*]");
+        Matcher matcher = pattern.matcher(toExamine);
+        return matcher.find();
+    }
 
+    /**
+     * Rename file after invalid character is found on previous rename attempt
+     *
+     * @param fileToRename file to rename
+     */
+    private static Path fileRenameInvalidChar(File fileToRename) {
         String fileNameFull = fileToRename.getName();
         int beforeExtension = fileNameFull.lastIndexOf('.');
         String fileName = fileNameFull.substring(0, beforeExtension);
         String extension = fileNameFull.substring(beforeExtension);
 
+        TextInputDialog dialog = new TextInputDialog(fileName);
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
+        dialog.setTitle("Rename Media File");
+        dialog.setHeaderText("The song name \"" + fileNameFull + "\" cannot contain any of the following characters:\n" +
+                "< > : \" / \\ | ? *");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-song.png"))));
+        dialog.setContentText("Rename the file to:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        try {
+            Path source = Paths.get(fileToRename.getAbsolutePath());
+            if (result.isPresent()) {
+                String parentDirectory = fileToRename.getParent();
+                File newName = new File(parentDirectory + File.separator + result.get() + extension);
+                if (result.get().isEmpty()) {
+                    return fileRenameRetry(fileToRename);
+                } else if (newName.exists()) {
+                    return fileRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return fileRenameInvalidChar(fileToRename);
+                }
+                return Files.move(source, source.resolveSibling(result.get() + extension));
+            }
+        } catch (IOException e) {
+            failedToRename(fileToRename);
+        }
+
+        return null;
+    }
+
+    /**
+     * Rename library after invalid character is found on previous rename attempt
+     *
+     * @param folderToRename file to rename
+     */
+    private static Path folderRenameInvalidChar(File folderToRename) {
+        String folderName = folderToRename.getName();
+
+        TextInputDialog dialog = new TextInputDialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
+        dialog.setTitle("Rename Library");
+        dialog.setHeaderText("The library name \"" + folderName + "\" cannot contain any of the following characters:\n" +
+                "< > : \" / \\ | ? *");
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "rename-library.png"))));
+        dialog.setContentText("Rename the file to:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        try {
+            Path source = Paths.get(folderToRename.getAbsolutePath());
+            if (result.isPresent()) {
+                String parentDirectory = folderToRename.getParent();
+                File newName = new File(parentDirectory + File.separator + result.get());
+                if (result.get().isEmpty()) {
+                    return folderRenameRetry(folderToRename);
+                } else if (newName.exists()) {
+                    return folderRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(folderToRename);
+                }
+                return Files.move(source, source.resolveSibling(result.get()));
+            }
+        } catch (IOException e) {
+            failedToRename(folderToRename);
+        }
+
+        return null;
+    }
+
+    /**
+     * Renames file after previous rename attempt has blank in text box
+     */
+    private static Path fileRenameRetry(File fileToRename) {
+        String fileNameFull = fileToRename.getName();
+        int beforeExtension = fileNameFull.lastIndexOf('.');
+        String fileName = fileNameFull.substring(0, beforeExtension);
+        String extension = fileNameFull.substring(beforeExtension);
+
+        TextInputDialog dialog = new TextInputDialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
+        dialog.setTitle("Rename Media File");
         dialog.setHeaderText("Please enter at least one character \n to rename \"" + fileName + "\":");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-song.png"))));
@@ -573,11 +765,13 @@ public class PromptUI {
             Path source = Paths.get(fileToRename.getAbsolutePath());
             if (result.isPresent()) {
                 String parentDirectory = fileToRename.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get() + extension);
+                File newName = new File(parentDirectory + File.separator + result.get() + extension);
                 if (result.get().isEmpty()) {
                     return fileRenameRetry(fileToRename);
-                } else if (nameAlreadyExists.exists()) {
-                    return fileRenameDuplicate(nameAlreadyExists);
+                } else if (newName.exists()) {
+                    return fileRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return fileRenameInvalidChar(fileToRename);
                 }
                 return Files.move(source, source.resolveSibling(result.get() + extension));
             }
@@ -589,11 +783,13 @@ public class PromptUI {
     }
 
     private static Path folderRenameRetry(File folderToRename) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Rename Media File");
-
         String folderName = folderToRename.getName();
 
+        TextInputDialog dialog = new TextInputDialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
+        dialog.setTitle("Rename Media File");
         dialog.setHeaderText("Please enter at least one character \n to rename \"" + folderName + "\":");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-library.png"))));
@@ -605,11 +801,15 @@ public class PromptUI {
             Path source = Paths.get(folderToRename.getAbsolutePath());
             if (result.isPresent()) {
                 String parentDirectory = folderToRename.getParent();
-                File nameAlreadyExists = new File(parentDirectory + File.separator + result.get());
+                File newName = new File(parentDirectory + File.separator + result.get());
                 if (result.get().isEmpty()) {
                     return folderRenameRetry(folderToRename);
-                } else if (nameAlreadyExists.exists()) {
-                    return folderRenameDuplicate(nameAlreadyExists);
+                } else if (newName.exists()) {
+                    return folderRenameDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return folderRenameInvalidChar(folderToRename);
                 }
                 return Files.move(source, source.resolveSibling(result.get()));
             }
@@ -627,6 +827,9 @@ public class PromptUI {
      */
     public static String createNewPlaylist() {
         TextInputDialog dialog = new TextInputDialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         dialog.setTitle("Create New Playlist");
 
         dialog.setHeaderText(null);
@@ -652,6 +855,9 @@ public class PromptUI {
      */
     private static String createNewPlaylistRetry() {
         TextInputDialog dialog = new TextInputDialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         dialog.setTitle("Add Playlist");
 
         dialog.setHeaderText("Please enter at least one character for the playlist name:");
@@ -674,6 +880,9 @@ public class PromptUI {
      */
     public static String editPlaylist(Playlist playlistToEdit) {
         TextInputDialog dialog = new TextInputDialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         dialog.setTitle("Edit Playlist");
 
         dialog.setHeaderText("Rename \"" + playlistToEdit.getM_playlistName() + "\":");
@@ -700,6 +909,9 @@ public class PromptUI {
      */
     private static String editPlaylistRetry(Playlist playlistToEdit) {
         TextInputDialog dialog = new TextInputDialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         dialog.setTitle("Edit Playlist");
 
         dialog.setHeaderText("Please enter at least one character for the playlist name:");
@@ -715,32 +927,6 @@ public class PromptUI {
     }
 
     /**
-     * Prompt to add a song to a  playlist with a drop down choice box
-     *
-     * @param playlists list of playlists
-     * @return selectedPlaylist the user chooses, null if user cancels
-     */
-    public static Playlist removePlaylistSelection(List<Playlist> playlists) {
-        List<String> playlistNames = new ArrayList<>();
-        for (Playlist playlist : playlists) {
-            playlistNames.add(playlist.getM_playlistName());
-        }
-        ChoiceDialog<String> dialog = new ChoiceDialog<>("Select a playlist", playlistNames);
-        dialog.setTitle("Remove Playlist");
-        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "remove-playlist.png"))));
-        dialog.setContentText("Select a playlist:");
-
-        Optional<String> result = dialog.showAndWait();
-
-        if (result.isPresent()){
-            Playlist selectedPlaylist = new Playlist(result.get());
-            return selectedPlaylist;
-        }
-        return null;
-    }
-
-    /**
      * Prompt to remove playlist
      *
      * @param playlistToRemove to remove
@@ -748,6 +934,9 @@ public class PromptUI {
      */
     public static boolean removePlaylist(Playlist playlistToRemove) {
         Dialog dialog = new Dialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         dialog.setTitle("Remove Playlist");
         dialog.setHeaderText("\"" + playlistToRemove.getM_playlistName() + "\":");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
@@ -762,29 +951,47 @@ public class PromptUI {
     }
 
     /**
+     * Prompt to add a song to a  playlist with a drop down choice box
+     *
+     * @param playlists list of playlists
+     * @return selected playlist the user chooses, null if user cancels
+     */
+    public static Playlist removePlaylistSelection(List<Playlist> playlists) {
+        ChoiceDialog<Playlist> dialog = new ChoiceDialog<>(playlists.get(0), playlists);
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
+        dialog.setTitle("Remove Playlist");
+        dialog.setGraphic(new ImageView("res" + File.separator + "remove-playlist.png"));
+        dialog.setContentText("Select a playlist:");
+
+        Optional<Playlist> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            return result.get();
+        }
+        return null;
+    }
+
+    /**
      * Prompt to add a song to a  playlist
      *
      * @param playlists list of playlists
-     * @param songName  song that is added to selected playlist
-     * @return selectedPlaylist the user chooses, null if user cancels
+     * @param songToAdd song that is added to selected playlist
+     * @return selected playlist the user chooses, null if user cancels
      */
-    public static Playlist addSongToPlaylist(List<Playlist> playlists, Song songName) {
-        List<String> playlistNames = new ArrayList<>();
-        for (Playlist playlist : playlists) {
-            playlistNames.add(playlist.getM_playlistName());
-        }
-        ChoiceDialog<String> dialog = new ChoiceDialog<>("Select a playlist", playlistNames);
+    public static Playlist addSongToPlaylist(List<Playlist> playlists, Song songToAdd) {
+        ChoiceDialog<Playlist> dialog = new ChoiceDialog<>(playlists.get(0), playlists);
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         dialog.setTitle("Add to Playlist");
-        dialog.setHeaderText("Add \"" + songName.getM_title() + "\" to playlist:");
-        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "add-song-playlist.png"))));
+        dialog.setHeaderText("Add \"" + songToAdd.getM_title() + "\" to playlist:");
+        dialog.setGraphic(new ImageView("res" + File.separator + "add-song-playlist.png"));
         dialog.setContentText("Select a playlist:");
 
-        Optional<String> result = dialog.showAndWait();
-
+        Optional<Playlist> result = dialog.showAndWait();
         if (result.isPresent()) {
-            Playlist selectedPlaylist = new Playlist(result.get());
-            return selectedPlaylist;
+            return result.get();
         }
         return null;
     }
@@ -798,16 +1005,17 @@ public class PromptUI {
      */
     public static boolean removeSongFromPlaylist(Playlist playlist, Song songName) {
         Dialog dialog = new Dialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
         dialog.setTitle("Remove from Playlist");
         dialog.setHeaderText("Remove \"" + songName.getM_title() + "\" from " + playlist.getM_playlistName() + ":");
-        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "remove-song-playlist.png"))));
+        dialog.setGraphic(new ImageView("res" + File.separator + "remove-song-playlist.png"));
         dialog.setContentText("Are you sure you want to remove this song from the playlist?");
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
 
         Optional result = dialog.showAndWait();
-
         return result.isPresent() && result.get() == okButton;
     }
 

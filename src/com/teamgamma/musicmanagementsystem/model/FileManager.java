@@ -75,6 +75,10 @@ public class FileManager {
      * @throws IOException
      */
     public static boolean moveFile(File fileToMove, File destDir) throws IOException {
+        if (fileToMove.getParent().equals(destDir.getAbsolutePath())) {
+            throw new IOException("Source and destination folders are the same!");
+        }
+
         Path sourceFilePath = fileToMove.toPath();
         Path destDirPath = destDir.toPath();
         Path destFilePath = destDirPath.resolve(sourceFilePath.getFileName());

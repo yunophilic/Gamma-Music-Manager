@@ -1,8 +1,8 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
 import com.teamgamma.musicmanagementsystem.model.Library;
+import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
-import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -181,7 +181,7 @@ public class TreeViewUtil {
             }
             case DROP: {
                 // Add new node to destination file node
-                addNewNode(tree, model, model.getM_fileToMove().getName(), model.getM_dragDest().getAbsolutePath());
+                addNewNode(tree, model, model.getM_fileToMove().getName(), model.getM_moveDest().getAbsolutePath());
 
                 // Remove node from old folder it was in
                 String deletedFilePath = model.getM_fileToMove().getAbsolutePath();
@@ -279,5 +279,29 @@ public class TreeViewUtil {
         TreeItem<TreeViewItem> root = tree.getRoot();
 
         root.getChildren().remove(libraryNode);
+    }
+
+    /**
+     * Function to get a song that was selected if possible.
+     *
+     * @param tree  The tree view to that is being used.
+     * @param selectedItem  The selected item in the tree.
+     * @param model The model to in the song manager.
+     *
+     * @return The song that was selected or null if something was not selected yet.
+     */
+    public static Song getSongSelected(TreeView<TreeViewItem> tree, TreeViewItem selectedItem, SongManager model) {
+        //get library song is in
+        if (selectedItem != null && tree.getSelectionModel().getSelectedItem() != null) {
+            TreeItem<TreeViewItem> selectedTreeItem = tree.getSelectionModel().getSelectedItem();
+            while (!selectedTreeItem.getValue().isM_isRootPath()) {
+                selectedTreeItem = selectedTreeItem.getParent();
+            }
+            //play song
+            return model.getSongInLibrary(
+                    selectedItem.getM_file(), selectedTreeItem.getValue().getM_file()
+            );
+        }
+        return null;
     }
 }

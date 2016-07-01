@@ -103,8 +103,6 @@ public class MenuUI extends MenuBar{
             m_model.notifyCenterFolderObservers();
         });
 
-        //m_model.notifyCenterFolderObservers();
-
         centerPanelSubMenu.getItems().addAll(showFoldersOnly);
         return centerPanelSubMenu;
     }
@@ -117,6 +115,10 @@ public class MenuUI extends MenuBar{
             @Override
             public void handle(ActionEvent event) {
                 String newPlaylistName = PromptUI.createNewPlaylist();
+                if (m_model.playlistNameExist(newPlaylistName)) {
+                    PromptUI.customPromptError("Error", null, "Playlist with name \"" + newPlaylistName + "\" already exist!");
+                    return;
+                }
                 if (newPlaylistName != null) {
                     m_model.addPlaylist(newPlaylistName);
                     m_databaseManager.addPlaylist(newPlaylistName);
@@ -129,11 +131,16 @@ public class MenuUI extends MenuBar{
         removePlaylistMenu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                //TODO: implement this after prompt UI is ready.
+                Playlist playlistToRemove = PromptUI.removePlaylistSelection(m_model.getM_playlists());
+                if (playlistToRemove != null) {
+                    m_model.removePlaylist(playlistToRemove);
+                    m_databaseManager.removePlaylist(playlistToRemove.getM_playlistName());
+                    m_model.notifyPlaylistsObservers();
+                }
             }
         });
 
-        playlistSubMenu.getItems().addAll(createNewPlaylistMenu);
+        playlistSubMenu.getItems().addAll(createNewPlaylistMenu, removePlaylistMenu);
         return playlistSubMenu;
     }
 }
