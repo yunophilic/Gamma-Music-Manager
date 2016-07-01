@@ -18,7 +18,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
-import javafx.util.Callback;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
@@ -47,9 +46,10 @@ public class PlaylistUI extends VBox {
     private static final String REMOVE_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "remove-playlist-button.png";
     private static final String REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON_PATH = "res" + File.separator + "remove-playlist-button-highlight.png";
     private static final String EDIT_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "edit-playlist-button.png";
-    private static final int FILENAME_COLUMN_MIN_WIDTH = 80;
+    private static final int FILE_COLUMN_MIN_WIDTH = 80;
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
+    private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
     private static final String EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "edit-playlist-button-highlight.png";
 
 
@@ -259,15 +259,16 @@ public class PlaylistUI extends VBox {
     private void initTableView() {
         m_table = new TableView<>();
         setTableColumns();
-        //List<Song> songs = m_dropDownMenu.getValue().getM_songList();
-        //m_table.setItems(FXCollections.observableArrayList(songs));
         super.getChildren().add(m_table);
         StackPane.setMargin(m_table, TABLE_VIEW_MARGIN);
+        updateTable();
     }
 
     private void setTableColumns() {
-        TableColumn<Song, File> fileNameCol = new TableColumn<>("File Name");
-        fileNameCol.setMinWidth(FILENAME_COLUMN_MIN_WIDTH);
+        TableColumn<Song, File> filePathCol = new TableColumn<>("File Path");
+        filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
+        TableColumn<Song, String> fileNameCol = new TableColumn<>("File Name");
+        fileNameCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
         TableColumn<Song, String> titleCol = new TableColumn<>("Title");
         titleCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, String> artistCol = new TableColumn<>("Artist");
@@ -279,9 +280,9 @@ public class PlaylistUI extends VBox {
         TableColumn<Song, Integer> ratingCol = new TableColumn<>("Rating");
         ratingCol.setMinWidth(RATING_COLUMN_MIN_WIDTH);
         TableColumn<Song, Double> lengthCol = new TableColumn<>("Length");
-        lengthCol.setMinWidth(COLUMN_MIN_WIDTH);
-        setTableColumnAttributes(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
-        showOrHideTableColumns(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
+        lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
+        setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
+        showOrHideTableColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
     }
 
     private void clearTable() {
@@ -296,7 +297,7 @@ public class PlaylistUI extends VBox {
             List<Song> songs = selectedPlaylist.getM_songList();
 
             if (songs.isEmpty()) {
-                System.out.println("Playlist empty");
+                m_table.setPlaceholder(new Label("Playlist empty"));
             } else {
                 m_table.setItems(FXCollections.observableArrayList(songs));
             }
@@ -305,17 +306,8 @@ public class PlaylistUI extends VBox {
         }
     }
 
-
-    private void setEmptyText(TableColumn fileNameCol, TableColumn titleCol, TableColumn artistCol, TableColumn albumCol, TableColumn genreCol, TableColumn ratingCol) {
-        m_table.getColumns().addAll(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
-        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        m_table.setPlaceholder(new Label("Choose a folder to view its contents"));
-        this.getChildren().add(m_table);
-
-    }
-
-    private void showOrHideTableColumns(TableColumn<Song, File> fileNameCol,
+    private void showOrHideTableColumns(TableColumn<Song, File> filePathCol,
+                                        TableColumn<Song, String> fileNameCol,
                                         TableColumn<Song, String> titleCol,
                                         TableColumn<Song, String> artistCol,
                                         TableColumn<Song, String> albumCol,
@@ -323,10 +315,13 @@ public class PlaylistUI extends VBox {
                                         TableColumn<Song, Integer> ratingCol,
                                         TableColumn<Song, Double> lengthCol) {
         m_table.setTableMenuButtonVisible(true);
+
+        //default columns
         fileNameCol.setVisible(true);
         artistCol.setVisible(true);
         lengthCol.setVisible(true);
 
+        filePathCol.setVisible(false);
         titleCol.setVisible(false);
         albumCol.setVisible(false);
         genreCol.setVisible(false);
@@ -334,28 +329,39 @@ public class PlaylistUI extends VBox {
     }
 
 
-    private void setTableColumnAttributes(TableColumn<Song, File> fileNameCol,
+    private void setTableColumnAttributes(TableColumn<Song, File> filePathCol,
+                                          TableColumn<Song, String> fileNameCol,
                                           TableColumn<Song, String> titleCol,
                                           TableColumn<Song, String> artistCol,
                                           TableColumn<Song, String> albumCol,
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, Integer> ratingCol,
                                           TableColumn<Song, Double> lengthCol) {
+        filePathCol.setCellValueFactory(new PropertyValueFactory<>("m_file"));
+        filePathCol.setSortable(false);
+
         fileNameCol.setCellValueFactory(new PropertyValueFactory<>("m_fileName"));
         fileNameCol.setSortable(false);
+
         titleCol.setCellValueFactory(new PropertyValueFactory<>("m_title"));
         titleCol.setSortable(false);
+
         artistCol.setCellValueFactory(new PropertyValueFactory<>("m_artist"));
         artistCol.setSortable(false);
+
         albumCol.setCellValueFactory(new PropertyValueFactory<>("m_album"));
         albumCol.setSortable(false);
+
         genreCol.setCellValueFactory(new PropertyValueFactory<>("m_genre"));
         genreCol.setSortable(false);
+
         ratingCol.setCellValueFactory(new PropertyValueFactory<>("m_rating"));
         ratingCol.setSortable(false);
+
         lengthCol.setCellValueFactory(new PropertyValueFactory<>("m_length"));
         lengthCol.setSortable(false);
 
+        m_table.getColumns().add(filePathCol);
         m_table.getColumns().add(fileNameCol);
         m_table.getColumns().add(titleCol);
         m_table.getColumns().add(artistCol);

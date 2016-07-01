@@ -159,6 +159,7 @@ public class ContentListUI extends StackPane {
 
     private void showOrHideTableColumns(TableColumn<Song, File> fileNameCol, TableColumn<Song, String> titleCol, TableColumn<Song, String> artistCol, TableColumn<Song, String> albumCol, TableColumn<Song, String> genreCol, TableColumn<Song, Integer> ratingCol) {
         m_table.setTableMenuButtonVisible(true);
+
         // fileName and artist default columns for centerListUI
         fileNameCol.setVisible(true);
         artistCol.setVisible(true);
