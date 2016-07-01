@@ -519,12 +519,6 @@ public class MusicPlayerManager {
      * @return The songs that are in the playing queue.
      */
     public Collection<Song> getPlayingQueue() {
-        List<String> queuedSongs = m_databaseManager.getPlaybackQueue();
-        for (int i = 0; i < queuedSongs.size(); i++) {
-            System.out.println();
-            System.out.println("This song is in queue:      " + queuedSongs.get(i));
-            System.out.println();
-        }
         return m_playingQueue;
     }
 

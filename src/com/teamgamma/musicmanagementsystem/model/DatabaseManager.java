@@ -108,7 +108,7 @@ public class DatabaseManager {
                                                                                            "WHERE songPath = ?) ");
 
             m_getPlaybackQueue = m_connection.prepareStatement("SELECT * FROM PlaybackQueue " +
-                                                               "ORDER BY OrderNumber DESC");
+                                                               "ORDER BY OrderNumber ASC");
 
             m_addToPlaylistSongs = m_connection.prepareStatement("INSERT INTO PlaylistSongs (songPath, " +
                                                                                             "playlistName, " +
