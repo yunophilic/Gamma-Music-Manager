@@ -22,22 +22,22 @@ public class MainUI extends BorderPane {
     private LibraryUI m_libraryUI;
     private DynamicTreeViewUI m_rightFilePane;
 
-    public MainUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
+    public MainUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager, List<String> libraryExpandedPaths) {
         super();
 
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
 
-        this.setLeft(leftPane());
+        this.setLeft(leftPane(libraryExpandedPaths));
         this.setRight(rightPane());
         this.setCenter(centerPane());
         this.setTop(topPane());
         this.setBottom(bottomPane());
     }
 
-    private Node leftPane() {
-        m_libraryUI = new LibraryUI(m_model, m_musicPlayerManager, m_databaseManager);
+    private Node leftPane(List<String> libraryExpandedPaths) {
+        m_libraryUI = new LibraryUI(m_model, m_musicPlayerManager, m_databaseManager, libraryExpandedPaths);
 
         BorderPane leftPane = new BorderPane();
         leftPane.setCenter(m_libraryUI);

@@ -15,6 +15,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,7 +64,17 @@ public class ApplicationController extends Application {
         }
 
         MusicPlayerManager musicPlayerManager = new MusicPlayerManager(m_databaseManager);
-        m_rootUI = new MainUI(songManager, musicPlayerManager, m_databaseManager);
+
+        // Get previous expanded states
+        List<String> libraryUIExpandedPaths = new ArrayList<>();
+        // TODO: get previous expanded states from database
+        libraryUIExpandedPaths.add("G:\\SFU\\Homework\\CMPT373\\prj");
+        libraryUIExpandedPaths.add("G:\\SFU\\Homework\\CMPT373\\prj\\library-sample\\my library");
+        libraryUIExpandedPaths.add("G:\\SFU\\Homework\\CMPT373\\prj\\library-sample\\my library\\external library");
+        libraryUIExpandedPaths.add("G:\\SFU\\Homework\\CMPT373\\prj\\library-sample\\my library\\external library\\fallen");
+
+        m_rootUI = new MainUI(songManager, musicPlayerManager, m_databaseManager, libraryUIExpandedPaths);
+
         Watcher watcher = new Watcher(songManager, m_databaseManager);
         watcher.startWatcher();
 

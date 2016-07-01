@@ -24,11 +24,12 @@ public class TreeViewUtil {
     private static final Image songImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "music-file-icon.png"));
 
     /**
-     * Recursively create tree items from the files in a directory and return a reference to the root item
+     * Recursively create tree items from the files in a directory and return a reference to the root item,
+     * Set nodes in expandedPaths to expanded state
      *
      * @return TreeItem<String> to the root item
      */
-    public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath, boolean showFolderOnly) {
+    public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath, boolean showFolderOnly, List<String> expandedPaths) {
         System.out.println(file + ", " + dirPath);
         TreeItem<TreeViewItem> item = new TreeItem<>(
                 (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
@@ -38,6 +39,12 @@ public class TreeViewUtil {
         System.out.println("$$$" + treeItemFile + ", " + treeItemFile.isDirectory());
         if (treeItemFile.isDirectory()) {
             item.setGraphic(new ImageView(folderImage));
+
+            if (expandedPaths != null) {
+                if (expandedPaths.contains(item.getValue().getM_file().getAbsolutePath())) {
+                    item.setExpanded(true);
+                }
+            }
         } else {
             item.setGraphic(new ImageView(songImage));
         }
@@ -46,7 +53,7 @@ public class TreeViewUtil {
 
         if (children != null) {
             for (File child : children) {
-                item.getChildren().add(generateTreeItems(child, dirPath, showFolderOnly)); //recursion here
+                item.getChildren().add(generateTreeItems(child, dirPath, showFolderOnly, expandedPaths)); //recursion here
             }
         }
 
@@ -256,7 +263,7 @@ public class TreeViewUtil {
         String newFilePath = newParentPath + File.separator + fileName;
         File copiedFile = new File(newFilePath);
 
-        TreeItem<TreeViewItem> newFileNode = generateTreeItems(copiedFile, newParentPath, model.getM_menuOptions().getM_leftPanelShowFolder());
+        TreeItem<TreeViewItem> newFileNode = generateTreeItems(copiedFile, newParentPath, model.getM_menuOptions().getM_leftPanelShowFolder(), null);
         TreeItem<TreeViewItem> parentFileNode = searchTreeItem(tree, newParentPath);
 
         if (newFileNode != null && parentFileNode != null) {
