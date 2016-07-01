@@ -32,6 +32,7 @@ public class DatabaseManager {
     private PreparedStatement m_getExpandedLeftTreeItems;
     private PreparedStatement m_addHistory;
     private PreparedStatement m_deleteFromHistory;
+    private PreparedStatement m_getHistory;
     private PreparedStatement m_addToPlaybackQueue;
     private PreparedStatement m_incrementQueueOrder;
     private PreparedStatement m_maxOrderNumberInQueue;
@@ -88,6 +89,10 @@ public class DatabaseManager {
 
             m_deleteFromHistory = m_connection.prepareStatement("DELETE FROM History " +
                                                                 "WHERE songPath = ?");
+
+            m_getHistory = m_connection.prepareStatement("SELECT * " +
+                                                         "FROM History " +
+                                                         "ORDER BY time");
 
             m_addToPlaybackQueue = m_connection.prepareStatement("INSERT INTO PlaybackQueue (songPath, orderNumber) " +
                                                                   "VALUES (?, ?)");
@@ -451,6 +456,25 @@ public class DatabaseManager {
         catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Get a list of songs in the table History
+     * @return
+     */
+    public List<String> getHistory() {
+        try {
+            List<String> songPathList = new ArrayList<>();
+            ResultSet resultSet = m_getHistory.executeQuery();
+            while (resultSet.next()) {
+                songPathList.add(resultSet.getString("songPath"));
+            }
+            return songPathList;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

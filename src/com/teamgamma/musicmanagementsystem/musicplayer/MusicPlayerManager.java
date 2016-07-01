@@ -100,6 +100,7 @@ public class MusicPlayerManager {
         m_currentSong = songToPlay;
         m_musicPlayer.playSong(songToPlay);
         updateHistory();
+        m_databaseManager.deleteFromPlaybackQueue(songToPlay.getM_file().getAbsolutePath());
 
         notifyQueingObserver();
     }
@@ -519,7 +520,17 @@ public class MusicPlayerManager {
      * @return The songs that are in the playing queue.
      */
     public Collection<Song> getPlayingQueue() {
-        return m_playingQueue;
+        List<String> queuedSongs = m_databaseManager.getPlaybackQueue();
+        Deque<Song> queueFromDB = new ConcurrentLinkedDeque<Song>();
+        for (int i = 0; i < queuedSongs.size(); i++) {
+//            System.out.println();
+//            System.out.println("This song is in queue:      " + queuedSongs.get(i));
+//            System.out.println();
+            Song song = new Song(queuedSongs.get(i));
+            queueFromDB.add(song);
+        }
+        return queueFromDB;
+        //return m_playingQueue;
     }
 
     /**
