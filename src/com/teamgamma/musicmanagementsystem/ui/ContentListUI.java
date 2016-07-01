@@ -40,6 +40,7 @@ public class ContentListUI extends StackPane {
     private TableView<Song> m_table;
     private ContextMenu m_contextMenu;
 
+    private ContextMenu m_playbackContextMenu;
     // constants
     public static final int FILENAME_COLUMN_MIN_WIDTH = 80;
     public static final int COLUMN_MIN_WIDTH = 60;
@@ -97,7 +98,13 @@ public class ContentListUI extends StackPane {
         });
     }
 
-    private void setEmptyText(TableColumn fileNameCol, TableColumn titleCol, TableColumn artistCol, TableColumn albumCol, TableColumn genreCol, TableColumn ratingCol) {
+    private void setEmptyText(
+            TableColumn fileNameCol,
+            TableColumn titleCol,
+            TableColumn artistCol,
+            TableColumn albumCol,
+            TableColumn genreCol,
+            TableColumn ratingCol) {
         m_table.getColumns().addAll(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
         m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
@@ -157,7 +164,13 @@ public class ContentListUI extends StackPane {
         showOrHideTableColumns(fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
     }
 
-    private void showOrHideTableColumns(TableColumn<Song, File> fileNameCol, TableColumn<Song, String> titleCol, TableColumn<Song, String> artistCol, TableColumn<Song, String> albumCol, TableColumn<Song, String> genreCol, TableColumn<Song, Integer> ratingCol) {
+    private void showOrHideTableColumns(
+            TableColumn<Song, File> fileNameCol,
+            TableColumn<Song, String> titleCol,
+            TableColumn<Song, String> artistCol,
+            TableColumn<Song, String> albumCol,
+            TableColumn<Song, String> genreCol,
+            TableColumn<Song, Integer> ratingCol) {
         m_table.setTableMenuButtonVisible(true);
         // fileName and artist default columns for centerListUI
         fileNameCol.setVisible(true);
@@ -262,10 +275,20 @@ public class ContentListUI extends StackPane {
                             m_musicPlayerManager.playSongRightNow(selectedSong);
                         } else if (event.getButton() == MouseButton.PRIMARY) {
                             m_contextMenu.hide();
+                            if (m_playbackContextMenu != null) {
+                                m_playbackContextMenu.hide();
+                            }
                         } else if (event.getButton() == MouseButton.SECONDARY) {
                             m_contextMenu.hide();
                             m_contextMenu = generateContextMenu(row.getItem());
                             m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
+                        }
+                        System.out.println("Selected song is " + selectedSong);
+                        if (selectedSong != null && event.isControlDown() && event.getButton() == MouseButton.PRIMARY){
+                            System.out.println("The condition for the playback Conext menu is true");
+                                m_playbackContextMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, selectedSong);
+                                m_playbackContextMenu.show(m_table, event.getScreenX(), event.getScreenY());
+
                         }
                     }
                 });
