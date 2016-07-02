@@ -19,6 +19,8 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class to wrap all components together.
@@ -37,6 +39,9 @@ public class ApplicationController extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        //disable jaudiotagger logging
+        Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
+
         primaryStage.setTitle("Gamma Music Manager");
 
         m_songManager = new SongManager();
