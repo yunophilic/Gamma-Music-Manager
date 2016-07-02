@@ -218,6 +218,9 @@ public class DatabaseManager {
         try {
             Statement statement = m_connection.createStatement();
 
+            //turn on foreign key support
+            statement.executeUpdate("PRAGMA foreign_keys = ON");
+
             //Library table, store all the library paths
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS Library (" +
                                         "libraryPath TEXT PRIMARY KEY NOT NULL" +
@@ -708,9 +711,9 @@ public class DatabaseManager {
      * @param playlistName
      * @return
      */
-    public List<String> getPlaylist(String playlistName) {
+    public List<String> getSongsInPlaylist(String playlistName) {
         try {
-            List<String> songPaths = new ArrayList<String>();
+            List<String> songPaths = new ArrayList<>();
             m_getSongsInPlaylist.setString(1, playlistName);
             ResultSet resultSet = m_getSongsInPlaylist.executeQuery();
             while (resultSet.next()) {
@@ -725,10 +728,10 @@ public class DatabaseManager {
     }
 
     /**
-     * Shuffle one of the playlist entirely and retrieve it
+     * Save playlist songs and their order
      * @param playlist playlist where the songs are to be saved
      */
-    public void updatePlaylistSongs(Playlist playlist) {
+    public void savePlaylistSongs(Playlist playlist) {
         try {
             String playlistName = playlist.getM_playlistName();
             List<Song> songs = playlist.getM_songList();
@@ -743,10 +746,3 @@ public class DatabaseManager {
         }
     }
 }
-
-
-
-
-
-
-

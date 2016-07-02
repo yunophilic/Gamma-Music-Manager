@@ -1,6 +1,8 @@
 package com.teamgamma.musicmanagementsystem;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
+import com.teamgamma.musicmanagementsystem.model.Playlist;
+import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
@@ -13,7 +15,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.shape.Path;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -27,6 +28,7 @@ public class ApplicationController extends Application {
     private static final double MIN_WINDOW_WIDTH = 800;
     private static final double MIN_WINDOW_HEIGHT = 400;
 
+    private SongManager m_songManager;
     private DatabaseManager m_databaseManager;
 
     public static void main(String[] args) {
@@ -37,7 +39,7 @@ public class ApplicationController extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Gamma Music Manager");
 
-        SongManager songManager = new SongManager();
+        m_songManager = new SongManager();
         m_databaseManager = new DatabaseManager();
         if (!m_databaseManager.isDatabaseFileExist()) {
             System.out.println("No libraries are existent");
@@ -46,26 +48,32 @@ public class ApplicationController extends Application {
             m_databaseManager.setupDatabase();
             String firstLibrary = PromptUI.initialWelcome();
             if (firstLibrary != null) {
-                songManager.addLibrary(firstLibrary);
+                m_songManager.addLibrary(firstLibrary);
                 m_databaseManager.addLibrary(firstLibrary);
             }
         } else {
             m_databaseManager.setupDatabase();
         }
-        List<String> libraryPathList = m_databaseManager.getLibraries();
+
         System.out.println("loading libraries...");
+        List<String> libraryPathList = m_databaseManager.getLibraries();
         for (String libraryPath : libraryPathList) {
-            songManager.addLibrary(libraryPath);
+            m_songManager.addLibrary(libraryPath);
         }
-        List<String> playlistNameList = m_databaseManager.getPlaylists();
+
         System.out.println("loading playlists...");
+        List<String> playlistNameList = m_databaseManager.getPlaylists();
         for (String playlistName : playlistNameList) {
-            songManager.addPlaylist(playlistName);
+            Playlist playlist = m_songManager.addPlaylist(playlistName);
+            List<String> songPaths = m_databaseManager.getSongsInPlaylist(playlist.getM_playlistName());
+            for(String songPath : songPaths) {
+                playlist.addSong(new Song(songPath));
+            }
         }
 
         MusicPlayerManager musicPlayerManager = new MusicPlayerManager(m_databaseManager);
-        MainUI rootUI = new MainUI(songManager, musicPlayerManager, m_databaseManager);
-        Watcher watcher = new Watcher(songManager, m_databaseManager);
+        MainUI rootUI = new MainUI(m_songManager, musicPlayerManager, m_databaseManager);
+        Watcher watcher = new Watcher(m_songManager, m_databaseManager);
         watcher.startWatcher();
 
         primaryStage.setOnCloseRequest(e -> {
@@ -77,17 +85,23 @@ public class ApplicationController extends Application {
         primaryStage.setScene(new Scene(rootUI, 1200, 650));
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
-        primaryStage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "gamma-logo.png")));
+        primaryStage.getIcons().add(
+                new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"))
+        );
         primaryStage.show();
 
-        Media sound = new Media(new File("src" + File.separator + "res" + File.separator +"start-sound.mp3").toURI().toString());
+        Media sound = new Media(
+                new File("src" + File.separator + "res" + File.separator +"start-sound.mp3").toURI().toString()
+        );
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         mediaPlayer.play();
     }
 
     @Override
     public void stop() {
+        for (Playlist playlist : m_songManager.getM_playlists()) {
+            m_databaseManager.savePlaylistSongs(playlist);
+        }
         m_databaseManager.closeConnection();
     }
 }
