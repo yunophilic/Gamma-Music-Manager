@@ -110,6 +110,7 @@ public class ApplicationController extends Application {
         // Get previous expanded states
         // TODO: get previous expanded states from database
         List<String> libraryUIExpandedPaths = new ArrayList<>();
+        libraryUIExpandedPaths = m_databaseManager.getExpandedLeftTreeViewItems();
         // For testing:
         /*libraryUIExpandedPaths.add("G:\\SFU\\Homework\\CMPT373\\prj");
         libraryUIExpandedPaths.add("G:\\SFU\\Homework\\CMPT373\\prj\\library-sample\\my library");
@@ -118,6 +119,7 @@ public class ApplicationController extends Application {
 
         // TODO: get previous expanded states from database
         List<String> rightPanelExpandedPaths = new ArrayList<>();
+        rightPanelExpandedPaths = m_databaseManager.getExpandedRightTreeViewItems();
         // For testing:
         /*rightPanelExpandedPaths.add("G:\\SFU\\Homework\\CMPT373\\prj\\library-sample\\my library");
         rightPanelExpandedPaths.add("G:\\SFU\\Homework\\CMPT373\\prj\\library-sample\\external library\\EGOIST");
@@ -141,6 +143,7 @@ public class ApplicationController extends Application {
         List<String> libraryUIExpandedPaths = m_rootUI.getLibraryUIExpandedPaths();
         if (libraryUIExpandedPaths != null) {
             // TODO: save to database
+            m_databaseManager.saveLeftTreeViewState(libraryUIExpandedPaths);
             for (String path : libraryUIExpandedPaths) {
                 System.out.println("LIBRARY EXPANDED PATH: " + path);
             }
@@ -149,6 +152,7 @@ public class ApplicationController extends Application {
         List<String> dynamicTreeViewUIExpandedPaths = m_rootUI.getDynamicTreeViewUIExpandedPaths();
         if (dynamicTreeViewUIExpandedPaths != null) {
             // TODO: save to database
+            m_databaseManager.saveRightTreeViewState(dynamicTreeViewUIExpandedPaths);
             for (String path : dynamicTreeViewUIExpandedPaths) {
                 System.out.println("DYNAMIC TREEVIEW EXPANDED PATH: " + path);
             }
@@ -156,5 +160,6 @@ public class ApplicationController extends Application {
 
         // TODO: save to database
         File rightPanelFolder = m_songManager.getM_rightFolderSelected();
+        m_databaseManager.addRightFolder(rightPanelFolder.getAbsolutePath());
     }
 }
