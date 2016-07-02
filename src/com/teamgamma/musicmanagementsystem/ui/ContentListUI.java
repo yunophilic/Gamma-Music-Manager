@@ -45,7 +45,7 @@ public class ContentListUI extends StackPane {
     private static final int FILE_COLUMN_MIN_WIDTH = 80;
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
-    private String style = "";
+    //private String style = "";
 
     public ContentListUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
@@ -277,7 +277,7 @@ public class ContentListUI extends StackPane {
                 row.setOnMouseEntered(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {
-                        style = row.getStyle();
+                        //style = row.getStyle();
                         row.setStyle("-fx-background-color: #BFDCF5;");
                     }
                 });
@@ -285,7 +285,7 @@ public class ContentListUI extends StackPane {
                 row.setOnMouseExited(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {
-                        row.setStyle(style);
+                        row.setStyle(null);
                     }
                 });
 

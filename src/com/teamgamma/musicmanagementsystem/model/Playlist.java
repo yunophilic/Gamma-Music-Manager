@@ -102,6 +102,10 @@ public class Playlist implements PlaylistObserver {
         return m_songList.get(m_currentSongIndex);
     }
 
+    public void moveToSpecifiedSong(Song song) {
+        m_currentSongIndex = m_songList.indexOf(song);
+    }
+
     /**
      * Function to get the current song in the playlist.
 
