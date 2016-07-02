@@ -162,7 +162,7 @@ public class MusicPlayerManager {
             return;
         }
         m_currentPlayList = playlistToPlay;
-        m_currentSong = m_currentPlayList.getCurrentSong();
+        m_currentSong = m_currentPlayList.isSongPlaying() ? m_currentPlayList.getCurrentSong() : m_currentPlayList.moveToNextSong();
 
         m_isPlayingOnHistory = false;
 
@@ -582,7 +582,7 @@ public class MusicPlayerManager {
      */
     public int getM_historyIndex() {
         return m_historyIndex;
-    };
+    }
 
     /**
      * Function to set the Volume of the music player.
