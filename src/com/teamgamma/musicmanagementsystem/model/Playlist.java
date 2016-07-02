@@ -10,12 +10,12 @@ import java.util.List;
 public class Playlist implements PlaylistObserver {
     private String m_playlistName;
     private List<Song> m_songList;
-    private int m_currentSongIndex;
+    private int m_currentSongIndex; //-1 means no song is playing!
 
     public Playlist(String playlistName) {
         m_playlistName = playlistName;
         m_songList = new ArrayList<>();
-        m_currentSongIndex = 0;
+        m_currentSongIndex = -1;
     }
 
     /**
@@ -41,7 +41,7 @@ public class Playlist implements PlaylistObserver {
      */
     public List<Song> shuffleAllSongs() {
         Collections.shuffle(m_songList);
-        m_currentSongIndex = 0;
+        m_currentSongIndex = -1;
 
         // Call observer
         playlistsChanged();
@@ -109,6 +109,10 @@ public class Playlist implements PlaylistObserver {
      */
     public Song getCurrentSong(){
         return m_songList.get(m_currentSongIndex);
+    }
+
+    public boolean isSongPlaying() {
+        return m_currentSongIndex>-1;
     }
 
     // Return one song at a time
