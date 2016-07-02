@@ -65,7 +65,7 @@ public class PlaylistUI extends VBox {
                     createCreateNewPlaylistButton(),
                     createRemovePlaylistButton(),
                     createEditPlaylistButton(),
-                    createShuffleWholePlaylistButton());
+                    createShufflePlaylistButton());
         initTableView();
         setCssStyle();
         registerAsPlaylistObserver();
@@ -241,7 +241,7 @@ public class PlaylistUI extends VBox {
         return editPlaylistButton;
     }
 
-    private Button createShuffleWholePlaylistButton() {
+    private Button createShufflePlaylistButton() {
         Button shufflePlaylistButton = new Button();
         shufflePlaylistButton.setTooltip(new Tooltip("Shuffle Playlist"));
         shufflePlaylistButton.setStyle("-fx-background-color: transparent");
@@ -266,11 +266,8 @@ public class PlaylistUI extends VBox {
                     PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
                     return;
                 }
-                selectedPlaylist.shuffleWholePlaylist();
+                selectedPlaylist.shuffleUnplayedSongs();
                 m_model.notifyPlaylistSongsObservers();
-
-                // Restart the playlist after shuffle.
-                m_musicPlayerManager.playPlaylist(selectedPlaylist);
             }
         });
         return shufflePlaylistButton;

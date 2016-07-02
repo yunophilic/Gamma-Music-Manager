@@ -1,7 +1,5 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,11 +10,12 @@ import java.util.List;
 public class Playlist implements PlaylistObserver {
     private String m_playlistName;
     private List<Song> m_songList;
-    public int m_currentSongIndex = 0;
+    private int m_currentSongIndex; //-1 means no song is playing!
 
     public Playlist(String playlistName) {
         m_playlistName = playlistName;
         m_songList = new ArrayList<>();
+        m_currentSongIndex = -1;
     }
 
     /**
@@ -40,9 +39,9 @@ public class Playlist implements PlaylistObserver {
     /**
      * Shuffle order of songs in playlist
      */
-    public List<Song> shuffleWholePlaylist() {
+    public List<Song> shuffleAllSongs() {
         Collections.shuffle(m_songList);
-        m_currentSongIndex = 0;
+        m_currentSongIndex = -1;
 
         // Call observer
         playlistsChanged();
@@ -51,33 +50,26 @@ public class Playlist implements PlaylistObserver {
 
     }
 
-    public List<Song> shufflePlaylistFromCurrentSong() {
-        List<Song> copyList = new ArrayList<>();
-
-        boolean currentSong = false;
-        int counter = m_currentSongIndex;
-        int tracker = 0;
-
-        // Add all songs from index point to end of playlist to copyList (Excludes played songs)
-        for (; counter < m_songList.size(); counter++) {
-            copyList.add(m_songList.get(counter));
+    public List<Song> shuffleUnplayedSongs() {
+        // copy played songs...
+        List<Song> playedSongs = new ArrayList<>();
+        for (int i = 0; i < m_currentSongIndex+1; i++) {
+            playedSongs.add(m_songList.get(i));
         }
 
-        // Shuffle
-        Collections.shuffle(copyList);
-        int playlistSize = 0;
-        playlistSize = m_songList.size();
-
-        // Get rid of the songs from the index point onwards (Because original playlist is not shuffled)
-        while (tracker != playlistSize) {
-            m_songList.remove(tracker);
-            tracker++;
+        // copy unplayed songs...
+        List<Song> unplayedSongs = new ArrayList<>();
+        for (int i = m_currentSongIndex+1; i < m_songList.size(); i++) {
+            unplayedSongs.add(m_songList.get(i));
         }
 
-        // Add the shuffled copylist to original playlist
-        for (Song s: copyList) {
-            m_songList.add(s);
-        }
+        // Shuffle copy of unplayed songs...
+        Collections.shuffle(unplayedSongs);
+
+        // Clear and re-add both played and unplayed songs
+        m_songList.clear();
+        m_songList.addAll(playedSongs);
+        m_songList.addAll(unplayedSongs);
 
         // Call observer
         playlistsChanged();
@@ -117,6 +109,10 @@ public class Playlist implements PlaylistObserver {
      */
     public Song getCurrentSong(){
         return m_songList.get(m_currentSongIndex);
+    }
+
+    public boolean isSongPlaying() {
+        return m_currentSongIndex>-1;
     }
 
     // Return one song at a time
