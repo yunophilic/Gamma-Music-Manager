@@ -298,6 +298,7 @@ public class ContentListUI extends StackPane {
 
                         //update model
                         m_model.setM_fileToMove(selectedItem.getM_file());
+                        m_model.setM_songToAddToPlaylist(selectedItem);
 
                         //update drag board
                         Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
