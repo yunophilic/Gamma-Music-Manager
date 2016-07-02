@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -16,6 +15,9 @@ import java.util.Map;
 public class DatabaseManager {
     private static final String DB_DIR = System.getProperty("user.dir") + File.separator + "db";
     private static final String DB_FILE_PATH = DB_DIR + File.separator + "persistence.db";
+
+    public static final String LEFT_TREE_VIEW_TABLE = "LeftTreeView";
+    public static final String RIGHT_TREE_VIEW_TABLE = "RightTreeView";
 
     private Connection m_connection;
     private PreparedStatement m_addLibrary;
@@ -27,9 +29,10 @@ public class DatabaseManager {
     private PreparedStatement m_renamePlaylist;
     private PreparedStatement m_addLeftTreeItem;
     private PreparedStatement m_clearLeftTreeView;
-    private PreparedStatement m_setSelectedLeftTreeItem;
-    private PreparedStatement m_getSelectedLeftTreeItem;
     private PreparedStatement m_getExpandedLeftTreeItems;
+    private PreparedStatement m_addRightTreeItem;
+    private PreparedStatement m_clearRightTreeView;
+    private PreparedStatement m_getExpandedRightTreeItems;
     private PreparedStatement m_addHistory;
     private PreparedStatement m_deleteFromHistory;
     private PreparedStatement m_getHistory;
@@ -40,10 +43,12 @@ public class DatabaseManager {
     private PreparedStatement m_updateQueueOrderNumber;
     private PreparedStatement m_getPlaybackQueue;
     private PreparedStatement m_addToPlaylistSongs;
-    private PreparedStatement m_nextOrderNumber;
+    private PreparedStatement m_maxOrderNumberPlaylistSongs;
     private PreparedStatement m_updatePlaylistOrder;
     private PreparedStatement m_getDeleteSongOrderNumber;
     private PreparedStatement m_deleteFromPlaylistSongs;
+    private PreparedStatement m_getSongsInPlaylist;
+    private PreparedStatement m_deleteForShuffle;
 
     public DatabaseManager() {
     }
@@ -70,18 +75,19 @@ public class DatabaseManager {
                                                              "WHERE playlistName=?");
 
             m_addLeftTreeItem = m_connection.prepareStatement("INSERT INTO LeftTreeView (expandedPath) " +
-                                                              "VALUES (?)");
+                                                          "VALUES (?)");
 
             m_clearLeftTreeView = m_connection.prepareStatement("DELETE FROM LeftTreeView");
 
-//            m_setSelectedLeftTreeItem = m_connection.prepareStatement("UPDATE LeftTreeView " +
-//                                                                      "SET isSelected=1 " +
-//                                                                      "WHERE expandedPath=?");
-
-            m_getSelectedLeftTreeItem = m_connection.prepareStatement("SELECT * " +
-                                                                      "FROM LeftTreeView ");
-
             m_getExpandedLeftTreeItems = m_connection.prepareStatement("SELECT * " +
+                                                                   "FROM LeftTreeView ");
+
+            m_addRightTreeItem = m_connection.prepareStatement("INSERT INTO LeftTreeView (expandedPath) " +
+                                                              "VALUES (?)");
+
+            m_clearRightTreeView = m_connection.prepareStatement("DELETE FROM LeftTreeView");
+
+            m_getExpandedRightTreeItems = m_connection.prepareStatement("SELECT * " +
                                                                        "FROM LeftTreeView ");
 
             m_addHistory = m_connection.prepareStatement("INSERT INTO History (songPath) " +
@@ -121,9 +127,9 @@ public class DatabaseManager {
                                                                                             "isLastPlayed)" +
                                                                  "VALUES (?, ?, ?, ?)");
 
-            m_nextOrderNumber = m_connection.prepareStatement("SELECT max(orderNumber) " +
-                                                              "FROM PlaylistSongs " +
-                                                              "WHERE playlistName = ?");
+            m_maxOrderNumberPlaylistSongs = m_connection.prepareStatement("SELECT max(orderNumber) AS 'maxOrderNumber' " +
+                                                                          "FROM PlaylistSongs " +
+                                                                          "WHERE playlistName = ?");
 
             m_updatePlaylistOrder = m_connection.prepareStatement("UPDATE PlaylistSongs " +
                                                                   "SET orderNumber = orderNumber - 1 " +
@@ -137,6 +143,14 @@ public class DatabaseManager {
             m_deleteFromPlaylistSongs = m_connection.prepareStatement("DELETE FROM PlaylistSongs " +
                                                                       "WHERE playlistName = ? AND songPath = ? " +
                                                                                              "AND orderNumber = ?");
+
+            m_getSongsInPlaylist = m_connection.prepareStatement("SELECT songPath " +
+                                                                 "FROM PlaylistSongs " +
+                                                                 "WHERE PlaylistName = ? " +
+                                                                 "ORDER BY orderNumber ASC");
+
+            m_deleteForShuffle = m_connection.prepareStatement("DELETE FROM PlaylistSongs " +
+                                                               "WHERE playlistName = ?");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -203,6 +217,9 @@ public class DatabaseManager {
     private void createTables() {
         try {
             Statement statement = m_connection.createStatement();
+
+            //turn on foreign key support
+            statement.executeUpdate("PRAGMA foreign_keys = ON");
 
             //Library table, store all the library paths
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS Library (" +
@@ -331,7 +348,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Fetch playlist names
+     * Fetch all playlist names
      *
      * @return  List of playlist names String
      */
@@ -372,11 +389,11 @@ public class DatabaseManager {
     /**
      * Save state of the left tree view
      */
-    public void saveLeftTreeViewState(Map<String, Boolean> pathExpandedMap) {
+    public void saveLeftTreeViewState(List<String> expandedPaths) {
         try {
             m_clearLeftTreeView.execute();
-            for (Map.Entry<String, Boolean> entry : pathExpandedMap.entrySet()) {
-                m_addLeftTreeItem.setString(1, entry.getKey());
+            for (String expandedPath : expandedPaths) {
+                m_addLeftTreeItem.setString(1, expandedPath);
                 m_addLeftTreeItem.executeUpdate();
             }
         } catch (SQLException e) {
@@ -385,34 +402,22 @@ public class DatabaseManager {
     }
 
     /**
-     * Save selected left tree item
+     * Save state of the right tree view
      */
-    public void saveSelectedLeftTreeItem(String centerFolderPath) {
+    public void saveRightTreeViewState(List<String> expandedPaths) {
         try {
-            m_setSelectedLeftTreeItem.setString(1, centerFolderPath);
-            m_setSelectedLeftTreeItem.executeUpdate();
+            m_clearRightTreeView.execute();
+            for (String expandedPath : expandedPaths) {
+                m_addRightTreeItem.setString(1, expandedPath);
+                m_addRightTreeItem.executeUpdate();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * Get the path of the tree view item in the center table
-     *
-     * @return List of paths of expanded tree view items
-     */
-    public String getSelectedLeftTreeItem() {
-        try {
-            ResultSet resultSet = m_getSelectedLeftTreeItem.executeQuery();
-            return resultSet.getString("path");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * Get the path of the tree view items that are expanded
+     * Get the path of the left tree view items that are expanded
      *
      * @return List of paths of expanded tree view items
      */
@@ -421,7 +426,26 @@ public class DatabaseManager {
             List<String> items = new ArrayList<>();
             ResultSet resultSet = m_getExpandedLeftTreeItems.executeQuery();
             while (resultSet.next()) {
-                items.add(resultSet.getString("path"));
+                items.add(resultSet.getString("expandedPath"));
+            }
+            return items;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Get the path of the right tree view items that are expanded
+     *
+     * @return List of paths of expanded tree view items
+     */
+    public List<String> getExpandedRigthTreeViewItems() {
+        try {
+            List<String> items = new ArrayList<>();
+            ResultSet resultSet = m_getExpandedRightTreeItems.executeQuery();
+            while (resultSet.next()) {
+                items.add(resultSet.getString("expandedPath"));
             }
             return items;
         } catch (SQLException e) {
@@ -530,8 +554,7 @@ public class DatabaseManager {
     public int getMaxOrderNumberOfPlaybackQueue() {
         try {
             ResultSet resultSet = m_maxOrderNumberInQueue.executeQuery();
-            int maxOrderNumber = resultSet.getInt(1);
-            return maxOrderNumber;
+            return resultSet.getInt(1);
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -613,9 +636,9 @@ public class DatabaseManager {
      */
     public int getNextOrderNumber(String playlistName) {
         try {
-            m_nextOrderNumber.setString(1, playlistName);
-            ResultSet resultSet = m_nextOrderNumber.executeQuery();
-            int nextOrderNumber = resultSet.getInt("orderNumber");
+            m_maxOrderNumberPlaylistSongs.setString(1, playlistName);
+            ResultSet resultSet = m_maxOrderNumberPlaylistSongs.executeQuery();
+            int nextOrderNumber = resultSet.getInt("maxOrderNumber");
             return nextOrderNumber + 1;
         }
         catch (SQLException e) {
@@ -677,6 +700,46 @@ public class DatabaseManager {
             m_updatePlaylistOrder.setString(1, playlistName);
             m_updatePlaylistOrder.setInt(2, orderNumber);
             m_updatePlaylistOrder.executeUpdate();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get a list of song paths of the specified playlist
+     * @param playlistName
+     * @return
+     */
+    public List<String> getSongsInPlaylist(String playlistName) {
+        try {
+            List<String> songPaths = new ArrayList<>();
+            m_getSongsInPlaylist.setString(1, playlistName);
+            ResultSet resultSet = m_getSongsInPlaylist.executeQuery();
+            while (resultSet.next()) {
+                songPaths.add(resultSet.getString("songPath"));
+            }
+            return songPaths;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Save playlist songs and their order
+     * @param playlist playlist where the songs are to be saved
+     */
+    public void savePlaylistSongs(Playlist playlist) {
+        try {
+            String playlistName = playlist.getM_playlistName();
+            List<Song> songs = playlist.getM_songList();
+            m_deleteForShuffle.setString(1, playlistName);
+            m_deleteForShuffle.executeUpdate();
+            for (Song song : songs) {
+                addToPlaylistSongs(playlistName, song.getM_file().getAbsolutePath());
+            }
         }
         catch (SQLException e) {
             e.printStackTrace();
