@@ -298,6 +298,7 @@ public class ContentListUI extends StackPane {
 
                         //update model
                         m_model.setM_fileToMove(selectedItem.getM_file());
+                        m_model.setM_songToAddToPlaylist(selectedItem);
 
                         //update drag board
                         Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
@@ -448,10 +449,14 @@ public class ContentListUI extends StackPane {
         addToPlaylist.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Playlist selectedPlaylist = PromptUI.addSongToPlaylist(m_model.getM_playlists(), selectedSong);
+                List<Playlist> playlists = m_model.getM_playlists();
+                if(playlists.isEmpty()) {
+                    PromptUI.customPromptError("Error", null, "No playlist exist!");
+                    return;
+                }
+                Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSong);
                 if(selectedPlaylist != null) {
-                    selectedPlaylist.addSong(selectedSong);
-                    m_model.notifyPlaylistSongsObservers();
+                    m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
                 }
             }
         });
@@ -476,7 +481,7 @@ public class ContentListUI extends StackPane {
                     paste.setStyle("-fx-text-fill: black;");
                 }
 
-                // Disable copy, delete, editProperties, addToPlaylist if no song is selected in table
+                // Disable copy, delete, editProperties, addSongToPlaylist if no song is selected in table
                 if (selectedSong == null) {
                     copy.setDisable(true);
                     copy.setStyle("-fx-text-fill: gray;");
