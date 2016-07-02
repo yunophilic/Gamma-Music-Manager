@@ -44,6 +44,7 @@ public class DatabaseManager {
     private PreparedStatement m_updatePlaylistOrder;
     private PreparedStatement m_getDeleteSongOrderNumber;
     private PreparedStatement m_deleteFromPlaylistSongs;
+    private PreparedStatement m_getSongsInPlaylist;
 
     public DatabaseManager() {
     }
@@ -137,6 +138,11 @@ public class DatabaseManager {
             m_deleteFromPlaylistSongs = m_connection.prepareStatement("DELETE FROM PlaylistSongs " +
                                                                       "WHERE playlistName = ? AND songPath = ? " +
                                                                                              "AND orderNumber = ?");
+
+            m_getSongsInPlaylist = m_connection.prepareStatement("SELECT songPath " +
+                                                                 "FROM PlaylistSongs " +
+                                                                 "WHERE PlaylistName = ? " +
+                                                                 "ORDER BY orderNumber ASC");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -681,5 +687,26 @@ public class DatabaseManager {
         catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Get a list of song paths of the specified playlist
+     * @param playlistName
+     * @return
+     */
+    public List<String> getSongsInPlaylist(String playlistName) {
+        try {
+            List<String> songPaths = new ArrayList<String>();
+            m_getSongsInPlaylist.setString(1, playlistName);
+            ResultSet resultSet = m_getSongsInPlaylist.executeQuery();
+            while (resultSet.next()) {
+                songPaths.add(resultSet.getString("songPath"));
+            }
+            return songPaths;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
