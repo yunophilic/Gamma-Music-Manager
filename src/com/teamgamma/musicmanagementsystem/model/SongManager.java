@@ -338,7 +338,7 @@ public class SongManager {
      * @param playlistName String
      * @return true if song added successfully, false otherwise
      */
-    public boolean addToPlaylist(Song selectedSong, String playlistName) {
+    public boolean addSongToPlaylist(Song selectedSong, String playlistName) {
         // Find playlist and add song to it if found
         Playlist playlist = findPlaylist(playlistName);
         if (playlist != null) {
@@ -362,7 +362,7 @@ public class SongManager {
      * @param playlistToAdd Playlist
      * @return true if song added successfully, false otherwise
      */
-    public boolean addToPlaylist(Song selectedSong, Playlist playlistToAdd) {
+    public boolean addSongToPlaylist(Song selectedSong, Playlist playlistToAdd) {
         if (playlistToAdd.addSong(selectedSong)) {
             // Notify playlist observers of changes
             notifyPlaylistSongsObservers();

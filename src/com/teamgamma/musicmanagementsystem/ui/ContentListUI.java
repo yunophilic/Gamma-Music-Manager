@@ -456,8 +456,7 @@ public class ContentListUI extends StackPane {
                 }
                 Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSong);
                 if(selectedPlaylist != null) {
-                    selectedPlaylist.addSong(selectedSong);
-                    m_model.notifyPlaylistSongsObservers();
+                    m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
                 }
             }
         });
@@ -482,7 +481,7 @@ public class ContentListUI extends StackPane {
                     paste.setStyle("-fx-text-fill: black;");
                 }
 
-                // Disable copy, delete, editProperties, addToPlaylist if no song is selected in table
+                // Disable copy, delete, editProperties, addSongToPlaylist if no song is selected in table
                 if (selectedSong == null) {
                     copy.setDisable(true);
                     copy.setStyle("-fx-text-fill: gray;");

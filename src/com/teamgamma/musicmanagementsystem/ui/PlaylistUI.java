@@ -441,7 +441,7 @@ public class PlaylistUI extends VBox {
             @Override
             public void handle(DragEvent dragEvent) {
                 System.out.println("Drag dropped on playlist");
-                m_model.addToPlaylist(m_model.getM_songToAddToPlaylist(), m_model.getM_selectedPlaylist());
+                m_model.addSongToPlaylist(m_model.getM_songToAddToPlaylist(), m_model.getM_selectedPlaylist());
                 dragEvent.consume();
             }
         });
