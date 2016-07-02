@@ -71,6 +71,7 @@ public class PlaylistUI extends VBox {
         registerAsPlaylistObserver();
 
         this.getChildren().add(createPlayPlaylistButton());
+        this.getChildren().add(createPlaylistRepeatButton());
     }
 
     /**
@@ -288,6 +289,22 @@ public class PlaylistUI extends VBox {
         });
 
         return playlistButton;
+    }
+
+    private ToggleButton createPlaylistRepeatButton() {
+        ToggleButton playlistRepeat = new ToggleButton("Repeat Playlist");
+        playlistRepeat.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (playlistRepeat.isSelected()){
+                    m_musicPlayerManager.setRepeat(true);
+                } else {
+                    m_musicPlayerManager.setRepeat(false);
+                }
+            }
+        });
+
+        return playlistRepeat;
     }
 
     private void initTopMenu(Label selectPlaylistLabel,

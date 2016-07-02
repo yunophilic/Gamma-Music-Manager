@@ -79,7 +79,6 @@ public class MusicPlayerUI extends VBox {
         HBox playbackControls = createPlayBackControlBox(manager);
         this.getChildren().add(playbackControls);
 
-        //  Removed for now until volume is working.
         HBox otherControlBox = createOtherOptionsBox(manager);
         this.getChildren().add(otherControlBox);
 
