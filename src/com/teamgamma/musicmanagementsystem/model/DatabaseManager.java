@@ -27,9 +27,12 @@ public class DatabaseManager {
     private PreparedStatement m_deletePlaylist;
     private PreparedStatement m_getPlaylists;
     private PreparedStatement m_renamePlaylist;
-    private PreparedStatement m_addTreeItem;
-    private PreparedStatement m_clearTreeView;
-    private PreparedStatement m_getExpandedTreeItems;
+    private PreparedStatement m_addLeftTreeItem;
+    private PreparedStatement m_clearLeftTreeView;
+    private PreparedStatement m_getExpandedLeftTreeItems;
+    private PreparedStatement m_addRightTreeItem;
+    private PreparedStatement m_clearRightTreeView;
+    private PreparedStatement m_getExpandedRightTreeItems;
     private PreparedStatement m_addHistory;
     private PreparedStatement m_deleteFromHistory;
     private PreparedStatement m_getHistory;
@@ -71,13 +74,21 @@ public class DatabaseManager {
                                                              "SET playlistName=? " +
                                                              "WHERE playlistName=?");
 
-            m_addTreeItem = m_connection.prepareStatement("INSERT INTO ? (expandedPath) " +
+            m_addLeftTreeItem = m_connection.prepareStatement("INSERT INTO LeftTreeView (expandedPath) " +
                                                           "VALUES (?)");
 
-            m_clearTreeView = m_connection.prepareStatement("DELETE FROM ?");
+            m_clearLeftTreeView = m_connection.prepareStatement("DELETE FROM LeftTreeView");
 
-            m_getExpandedTreeItems = m_connection.prepareStatement("SELECT * " +
-                                                                   "FROM ? ");
+            m_getExpandedLeftTreeItems = m_connection.prepareStatement("SELECT * " +
+                                                                   "FROM LeftTreeView ");
+
+            m_addRightTreeItem = m_connection.prepareStatement("INSERT INTO LeftTreeView (expandedPath) " +
+                                                              "VALUES (?)");
+
+            m_clearRightTreeView = m_connection.prepareStatement("DELETE FROM LeftTreeView");
+
+            m_getExpandedRightTreeItems = m_connection.prepareStatement("SELECT * " +
+                                                                       "FROM LeftTreeView ");
 
             m_addHistory = m_connection.prepareStatement("INSERT INTO History (songPath) " +
                                                          "VALUES (?)");
@@ -377,12 +388,12 @@ public class DatabaseManager {
      */
     public void saveLeftTreeViewState(List<String> expandedPaths) {
         try {
-            m_clearTreeView.setString(1, LEFT_TREE_VIEW_TABLE);
-            m_clearTreeView.execute();
+            m_clearLeftTreeView.setString(1, LEFT_TREE_VIEW_TABLE);
+            m_clearLeftTreeView.execute();
             for (int i = 0; i < expandedPaths.size(); i++) {
-                m_addTreeItem.setString(1, LEFT_TREE_VIEW_TABLE);
-                m_addTreeItem.setString(2, expandedPaths.get(i));
-                m_addTreeItem.executeUpdate();
+                m_addLeftTreeItem.setString(1, LEFT_TREE_VIEW_TABLE);
+                m_addLeftTreeItem.setString(2, expandedPaths.get(i));
+                m_addLeftTreeItem.executeUpdate();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -394,12 +405,10 @@ public class DatabaseManager {
      */
     public void saveRightTreeViewState(List<String> expandedPaths) {
         try {
-            m_clearTreeView.setString(1, RIGHT_TREE_VIEW_TABLE);
-            m_clearTreeView.execute();
+            m_clearRightTreeView.execute();
             for (int i = 0; i < expandedPaths.size(); i++) {
-                m_addTreeItem.setString(1, RIGHT_TREE_VIEW_TABLE);
-                m_addTreeItem.setString(2, expandedPaths.get(i));
-                m_addTreeItem.executeUpdate();
+                m_addRightTreeItem.setString(1, expandedPaths.get(i));
+                m_addRightTreeItem.executeUpdate();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -414,8 +423,7 @@ public class DatabaseManager {
     public List<String> getExpandedLeftTreeViewItems() {
         try {
             List<String> items = new ArrayList<>();
-            m_getExpandedTreeItems.setString(1, LEFT_TREE_VIEW_TABLE);
-            ResultSet resultSet = m_getExpandedTreeItems.executeQuery();
+            ResultSet resultSet = m_getExpandedLeftTreeItems.executeQuery();
             while (resultSet.next()) {
                 items.add(resultSet.getString("expandedPath"));
             }
@@ -434,8 +442,7 @@ public class DatabaseManager {
     public List<String> getExpandedRigthTreeViewItems() {
         try {
             List<String> items = new ArrayList<>();
-            m_getExpandedTreeItems.setString(1, RIGHT_TREE_VIEW_TABLE);
-            ResultSet resultSet = m_getExpandedTreeItems.executeQuery();
+            ResultSet resultSet = m_getExpandedRightTreeItems.executeQuery();
             while (resultSet.next()) {
                 items.add(resultSet.getString("expandedPath"));
             }
