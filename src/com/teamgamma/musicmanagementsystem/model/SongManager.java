@@ -28,10 +28,11 @@ public class SongManager {
     private File m_addedFile;
     private File m_renamedFile;
 
+    private Song m_songToAddToPlaylist;
+
     // For observer pattern
     private File m_selectedCenterFolder;
     private File m_rightFolderSelected;
-
     private Playlist m_selectedPlaylist;
 
     // Menu Manager
@@ -56,6 +57,8 @@ public class SongManager {
         m_deletedFile = null;
         m_addedFile = null;
         m_renamedFile = null;
+
+        m_songToAddToPlaylist = null;
 
         m_selectedCenterFolder = null;
         m_rightFolderSelected = null;
@@ -331,11 +334,11 @@ public class SongManager {
     /**
      * Add song to playlist
      *
-     * @param selectedSong
-     * @param playlistName
+     * @param selectedSong Song
+     * @param playlistName String
      * @return true if song added successfully, false otherwise
      */
-    public boolean addToPlaylist(Song selectedSong, String playlistName) {
+    public boolean addSongToPlaylist(Song selectedSong, String playlistName) {
         // Find playlist and add song to it if found
         Playlist playlist = findPlaylist(playlistName);
         if (playlist != null) {
@@ -347,6 +350,23 @@ public class SongManager {
             } else {
                 return false;
             }
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Add song to playlist
+     *
+     * @param selectedSong Song
+     * @param playlistToAdd Playlist
+     * @return true if song added successfully, false otherwise
+     */
+    public boolean addSongToPlaylist(Song selectedSong, Playlist playlistToAdd) {
+        if (playlistToAdd.addSong(selectedSong)) {
+            // Notify playlist observers of changes
+            notifyPlaylistSongsObservers();
+            return true;
         } else {
             return false;
         }
@@ -383,6 +403,14 @@ public class SongManager {
 
     public void fileDeleted(File fileToDelete) {
 
+    }
+
+    public Song getM_songToAddToPlaylist() {
+        return m_songToAddToPlaylist;
+    }
+
+    public void setM_songToAddToPlaylist(Song m_songToAddToPlaylist) {
+        this.m_songToAddToPlaylist = m_songToAddToPlaylist;
     }
 
     public File getM_renamedFile() {
