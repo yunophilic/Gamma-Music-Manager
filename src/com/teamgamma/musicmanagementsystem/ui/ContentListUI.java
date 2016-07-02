@@ -448,7 +448,12 @@ public class ContentListUI extends StackPane {
         addToPlaylist.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Playlist selectedPlaylist = PromptUI.addSongToPlaylist(m_model.getM_playlists(), selectedSong);
+                List<Playlist> playlists = m_model.getM_playlists();
+                if(playlists.isEmpty()) {
+                    PromptUI.customPromptError("Error", null, "No playlist exist!");
+                    return;
+                }
+                Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSong);
                 if(selectedPlaylist != null) {
                     selectedPlaylist.addSong(selectedSong);
                     m_model.notifyPlaylistSongsObservers();
