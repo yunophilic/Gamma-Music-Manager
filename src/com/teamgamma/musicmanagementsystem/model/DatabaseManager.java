@@ -45,6 +45,7 @@ public class DatabaseManager {
     private PreparedStatement m_getDeleteSongOrderNumber;
     private PreparedStatement m_deleteFromPlaylistSongs;
     private PreparedStatement m_getSongsInPlaylist;
+    private PreparedStatement m_deleteForShuffle;
 
     public DatabaseManager() {
     }
@@ -143,6 +144,9 @@ public class DatabaseManager {
                                                                  "FROM PlaylistSongs " +
                                                                  "WHERE PlaylistName = ? " +
                                                                  "ORDER BY orderNumber ASC");
+
+            m_deleteForShuffle = m_connection.prepareStatement("DELETE FROM PlaylistSongs " +
+                                                               "WHERE playlistName = ?");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -337,7 +341,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Fetch playlist names
+     * Fetch all playlist names
      *
      * @return  List of playlist names String
      */
@@ -694,7 +698,7 @@ public class DatabaseManager {
      * @param playlistName
      * @return
      */
-    public List<String> getSongsInPlaylist(String playlistName) {
+    public List<String> getPlaylist(String playlistName) {
         try {
             List<String> songPaths = new ArrayList<String>();
             m_getSongsInPlaylist.setString(1, playlistName);
@@ -709,4 +713,32 @@ public class DatabaseManager {
         }
         return null;
     }
+
+    /**
+     * Shuffle one of the playlist entirely and retrieve it
+     * @param playlistName
+     * @param songs
+     */
+    public List<String> shufflePlaylist(String playlistName, List<Song> songs) {
+        try {
+            m_deleteForShuffle.setString(1, playlistName);
+            m_deleteForShuffle.executeUpdate();
+            for (int i = 0; i < songs.size(); i++) {
+                addToPlaylistSongs(playlistName, songs.get(i).getM_file().getAbsolutePath());
+            }
+            List<String> songPaths = getPlaylist(playlistName);
+            return songPaths;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
+
+
+
+
+
+
+
