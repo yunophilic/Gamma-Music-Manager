@@ -267,7 +267,7 @@ public class PlaylistUI extends VBox {
                     PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
                     return;
                 }
-                selectedPlaylist.shuffleWholePlaylist();
+                selectedPlaylist.shuffleAllSongs();
                 m_model.notifyPlaylistSongsObservers();
 
                 // Restart the playlist after shuffle.
