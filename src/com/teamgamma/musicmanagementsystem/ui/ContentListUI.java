@@ -377,7 +377,7 @@ public class ContentListUI extends StackPane {
         paste.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                if (selectedSong != null) {
+                //if (selectedSong != null) {
                     File dest = m_model.getM_selectedCenterFolder();
                     if (!dest.isDirectory()) {
                         PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
@@ -393,7 +393,7 @@ public class ContentListUI extends StackPane {
                     } catch (Exception ex) {
                         PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
                     }
-                }
+                //}
             }
         });
 
@@ -419,8 +419,16 @@ public class ContentListUI extends StackPane {
                         try {
                             m_model.deleteFile(fileToDelete);
                             break;
-                        } catch (FileSystemException ex) {
+                        } catch (IOException ex) {
                             m_musicPlayerManager.stopSong();
+                            m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
+
+                            if (m_musicPlayerManager.isThereANextSong()){
+                                m_musicPlayerManager.playNextSong();
+                            } else if (!m_musicPlayerManager.getHistory().isEmpty()){
+                                m_musicPlayerManager.playPreviousSong();
+                            }
+
                             if (i==1) { //if this exception still thrown after retry (for debugging)
                                 ex.printStackTrace();
                             }
@@ -461,10 +469,24 @@ public class ContentListUI extends StackPane {
             }
         });
 
-        contextMenu.getItems().addAll(copy, paste, delete, editProperties, addToPlaylist);
+        //add to current playlist option
+        MenuItem addToCurrentPlaylist = new MenuItem(ContextMenuConstants.ADD_TO_CURRENT_PLAYLIST);
+        addToCurrentPlaylist.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+                if(selectedPlaylist != null) {
+                    m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
+                }
+            }
+        });
 
-        // Add playback menu items
+        // Add file operation menu items
+        contextMenu.getItems().addAll(copy, paste, delete);
+
+        // Add playlist and playback menu items only if song is selected
         if (selectedSong != null) {
+            contextMenu.getItems().addAll(editProperties, addToPlaylist, addToCurrentPlaylist);
             ContextMenu playlistMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, selectedSong);
             contextMenu.getItems().addAll(playlistMenu.getItems());
         }
@@ -487,10 +509,10 @@ public class ContentListUI extends StackPane {
                     copy.setStyle("-fx-text-fill: gray;");
                     delete.setDisable(true);
                     delete.setStyle("-fx-text-fill: gray;");
-                    editProperties.setDisable(true);
+                    /*editProperties.setDisable(true);
                     editProperties.setStyle("-fx-text-fill: gray;");
                     addToPlaylist.setDisable(true);
-                    addToPlaylist.setStyle("-fx-text-fill: gray;");
+                    addToPlaylist.setStyle("-fx-text-fill: gray;");*/
                 }
             }
         });

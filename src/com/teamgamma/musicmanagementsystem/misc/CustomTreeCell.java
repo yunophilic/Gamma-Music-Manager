@@ -127,13 +127,13 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                         try {
                             m_model.deleteFile(fileToDelete);
                             break;
-                        } catch (FileSystemException ex) {
+                        } catch (IOException ex) {
                             m_musicPlayerManager.stopSong();
                             m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
 
                             if (m_musicPlayerManager.isThereANextSong()){
                                 m_musicPlayerManager.playNextSong();
-                            } else {
+                            } else if (!m_musicPlayerManager.getHistory().isEmpty()){
                                 m_musicPlayerManager.playPreviousSong();
                             }
 

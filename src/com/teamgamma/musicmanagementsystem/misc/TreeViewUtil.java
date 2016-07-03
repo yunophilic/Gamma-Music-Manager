@@ -1,9 +1,10 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
+import com.teamgamma.musicmanagementsystem.model.FileManager;
 import com.teamgamma.musicmanagementsystem.model.Library;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
-import javafx.collections.ObservableList;
+
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -67,7 +68,7 @@ public class TreeViewUtil {
                     if (showFolderOnly) {
                         return f.isDirectory();
                     } else {
-                        return f.isDirectory() || f.getAbsolutePath().endsWith(".mp3");
+                        return f.isDirectory() || FileManager.isAccept(f);
                     }
                 }
             });

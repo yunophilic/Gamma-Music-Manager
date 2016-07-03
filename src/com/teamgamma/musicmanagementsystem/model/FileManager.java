@@ -1,13 +1,8 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
-
-import javafx.scene.control.TreeItem;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import com.sun.jna.platform.FileUtils;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -19,6 +14,8 @@ import java.util.List;
  * Class to manage files in the program.
  */
 public class FileManager {
+    private static final String[] extensions = new String[]{".mp3"}; //edit this if later support more file types.
+
     /**
      * Generate list of Song objects based on path
      *
@@ -53,8 +50,7 @@ public class FileManager {
         if (files != null) {
             for (File file : files) {
                 if (file.isFile()) {
-                    String[] extensions = new String[]{".mp3"};
-                    if (isAccept(file, extensions)) {
+                    if (isAccept(file)) {
                         musicFiles.add(file);
                     }
                 } else {
@@ -87,14 +83,21 @@ public class FileManager {
     }
 
     /**
-     * Remove file from file system
+     * Move to trash if trash exist in OS, else remove from file system
      *
      * @param fileToRemove: file to be removed
      * @return true if file is removed successfully
-     * @throws Exception
+     * @throws IOException
      */
-    public static boolean removeFile(File fileToRemove) throws Exception {
-        return deleteFolderOrFile(fileToRemove);
+    public static boolean removeFile(File fileToRemove) throws IOException {
+        FileUtils fileUtils = FileUtils.getInstance();
+        if (fileUtils.hasTrash()) {
+            fileUtils.moveToTrash( new File[]{fileToRemove} );
+            return true;
+        }
+        else {
+            return deleteFolderOrFile(fileToRemove);
+        }
     }
 
     private static boolean deleteFolderOrFile(File path) {
@@ -168,11 +171,10 @@ public class FileManager {
     /**
      * File filter for finding music files
      *
-     * @param file
-     * @param extensions
+     * @param file file to check
      * @return true if file is accepted, false otherwise
      */
-    private static boolean isAccept(File file, String[] extensions) {
+    public static boolean isAccept(File file) {
         for (String extension : extensions) {
             if (file.getName().endsWith(extension)) {
                 return true;
