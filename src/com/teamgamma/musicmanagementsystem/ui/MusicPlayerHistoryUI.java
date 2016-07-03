@@ -1,9 +1,11 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
+import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
@@ -48,15 +50,25 @@ public class MusicPlayerHistoryUI extends HBox{
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                playbackHistory.setContent(createUIList(manager.getHistory(), createHistoryAction()));
-
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        playbackHistory.setContent(createUIList(manager.getHistory(), createHistoryAction()));
+                    }
+                });
             }
         });
 
         manager.registerQueingObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                queuingList.setContent(createUIList(manager.getPlayingQueue(), createPlaybackQueueAction()));
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        queuingList.setContent(createUIList(manager.getPlayingQueue(), createPlaybackQueueAction()));
+                    }
+                });
+
             }
         });
     }

@@ -365,9 +365,14 @@ public class MusicPlayerUI extends VBox {
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                String endTimeString = convertDurationToTimeString(manager.getEndTime());
-                songEndTimeProgressBar.setText(endTimeString);
-                songEndTimeSeekBar.setText(endTimeString);
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        String endTimeString = convertDurationToTimeString(manager.getEndTime());
+                        songEndTimeProgressBar.setText(endTimeString);
+                        songEndTimeSeekBar.setText(endTimeString);
+                    }
+                });
             }
         });
 
@@ -474,18 +479,24 @@ public class MusicPlayerUI extends VBox {
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                Song currentPlayingSong = manager.getCurrentSongPlaying();
-                if (currentPlayingSong == null) {
-                    songTitle.setText("");
-                } else {
-                    songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
-                
-                TranslateTransition songTitleAnimation = new TranslateTransition(
-                        new Duration(TITLE_ANIMATION_TIME_MS), songTitle);
-                songTitleAnimation.setFromX(songTitleWrapper.getWidth());
-                songTitleAnimation.setToX(0);
-                songTitleAnimation.play();
-                }
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Song currentPlayingSong = manager.getCurrentSongPlaying();
+                        if (currentPlayingSong == null) {
+                            songTitle.setText("");
+                        } else {
+                            songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
+
+                            TranslateTransition songTitleAnimation = new TranslateTransition(
+                                    new Duration(TITLE_ANIMATION_TIME_MS), songTitle);
+                            songTitleAnimation.setFromX(songTitleWrapper.getWidth());
+                            songTitleAnimation.setToX(0);
+                            songTitleAnimation.play();
+                        }
+                    }
+                });
+
             }
         });
         songTitleWrapper.getChildren().addAll(songTitle);
