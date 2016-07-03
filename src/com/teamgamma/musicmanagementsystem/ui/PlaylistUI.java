@@ -12,6 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -63,6 +64,8 @@ public class PlaylistUI extends VBox {
     private static final String EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "edit-playlist-button-highlight.png";
     private static final String SHUFFLE_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "shuffle-playlist-button.png";
     private static final String SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "shuffle-playlist-button-highlight.png";
+    private static final String PLAY_PLAYLIST_ICON = "res" + File.separator + "ic_play_circle_filled_black_48dp_1x.png";
+    private static final String REPEAT_PLAYLIST_ICON = "res" + File.separator + "ic_repeat_black_48dp_1x.png";
 
     public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
@@ -81,9 +84,8 @@ public class PlaylistUI extends VBox {
         initTableView();
         setCssStyle();
         registerAsPlaylistObserver();
-
-        this.getChildren().add(createPlayPlaylistButton());
-        this.getChildren().add(createPlaylistRepeatButton());
+        this.setSpacing(0);
+        this.getChildren().add(createPlaylistPlaybackOptions());
     }
 
     /**
@@ -287,7 +289,7 @@ public class PlaylistUI extends VBox {
     }
 
     private Button createPlayPlaylistButton() {
-        Button playlistButton = new Button("Play Playlist");
+        Button playlistButton = UserInterfaceUtils.createIconButton(PLAY_PLAYLIST_ICON);
         playlistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -296,12 +298,18 @@ public class PlaylistUI extends VBox {
                 }
             }
         });
+        UserInterfaceUtils.createMouseOverUIChange(playlistButton);
+        playlistButton.setTooltip(new Tooltip("Play Playlist"));
 
+        playlistButton.setScaleY(0.75);
+        playlistButton.setScaleX(0.75);
+        playlistButton.setPadding(new Insets(0));
         return playlistButton;
     }
 
     private ToggleButton createPlaylistRepeatButton() {
-        ToggleButton playlistRepeat = new ToggleButton("Repeat Playlist");
+        ToggleButton playlistRepeat = new ToggleButton();
+        playlistRepeat.setStyle("-fx-background-color: transparent");
         playlistRepeat.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -313,9 +321,24 @@ public class PlaylistUI extends VBox {
             }
         });
 
+        playlistRepeat.setGraphic(new ImageView(REPEAT_PLAYLIST_ICON));
+        playlistRepeat.setTooltip(new Tooltip("Repeat Playlist Mode"));
+        UserInterfaceUtils.createMouseOverUIChange(playlistRepeat);
+
+        playlistRepeat.setScaleY(0.75);
+        playlistRepeat.setScaleX(0.75);
+        playlistRepeat.setPadding(new Insets(0));
         return playlistRepeat;
     }
 
+    private HBox createPlaylistPlaybackOptions() {
+        HBox wrapper = new HBox();
+        wrapper.getChildren().add(createPlayPlaylistButton());
+        wrapper.getChildren().add(createPlaylistRepeatButton());
+        wrapper.setPadding(new Insets(0));
+        wrapper.setAlignment(Pos.CENTER);
+        return wrapper;
+    }
     private void initTopMenu(Label selectPlaylistLabel,
                              ComboBox<Playlist> dropDownMenu,
                              Button addPlaylistButton,
@@ -518,19 +541,7 @@ public class PlaylistUI extends VBox {
                     }
                 });
 
-                row.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        row.setStyle("-fx-background-color: #BFDCF5;");
-                    }
-                });
-
-                row.setOnMouseExited(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        row.setStyle(null);
-                    }
-                });
+                UserInterfaceUtils.createMouseOverUIChange(row);
 
                 return row;
             }
