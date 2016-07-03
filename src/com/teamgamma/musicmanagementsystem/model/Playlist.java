@@ -111,14 +111,30 @@ public class Playlist implements PlaylistObserver {
 
      * @return The current song in the playlist.
      */
-    public Song getCurrentSong(){
+    public Song getCurrentSong() {
         return m_songList.get(m_currentSongIndex);
     }
 
     public boolean isSongPlaying() {
         return m_currentSongIndex>-1;
+	}
+
+    public Song getPreviousSong() {
+        if (!m_songList.isEmpty() && m_currentSongIndex != 0){
+            return m_songList.get(m_currentSongIndex - 1);
+        } else {
+            return m_songList.get(m_songList.size() - 1);
+        }
     }
 
+    public Song moveToPreviousSong() {
+        if (!m_songList.isEmpty() && m_currentSongIndex != 0){
+            m_currentSongIndex--;
+        } else {
+            m_currentSongIndex = m_songList.size() - 1;
+        }
+        return m_songList.get(m_currentSongIndex);
+    }
     // Return one song at a time
     public Song oneAtATime() {
         // Keep track of this int in the database, call it from the player

@@ -79,7 +79,6 @@ public class MusicPlayerUI extends VBox {
         HBox playbackControls = createPlayBackControlBox(manager);
         this.getChildren().add(playbackControls);
 
-        //  Removed for now until volume is working.
         HBox otherControlBox = createOtherOptionsBox(manager);
         this.getChildren().add(otherControlBox);
 
@@ -113,7 +112,7 @@ public class MusicPlayerUI extends VBox {
         HBox musicFileBox = new HBox();
         Label songPathHeader = new Label("Song Path");
         TextField songPath = new TextField("Enter Path To Song");
-        Button addSong = createIconButton(ADD_TO_PLAYLIST_ICON_PATH);
+        Button addSong = UserInterfaceUtils.createIconButton(ADD_TO_PLAYLIST_ICON_PATH);
         addSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -134,7 +133,7 @@ public class MusicPlayerUI extends VBox {
         HBox playbackControls = new HBox();
         playbackControls.setAlignment(Pos.CENTER);
 
-        Button previousSongButton = createIconButton(PREVIOUS_ICON_PATH);
+        Button previousSongButton = UserInterfaceUtils.createIconButton(PREVIOUS_ICON_PATH);
         previousSongButton.setOpacity(FADED);
         previousSongButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -142,7 +141,7 @@ public class MusicPlayerUI extends VBox {
                 manager.playPreviousSong();
             }
         });
-        createMouseOverUIChange(previousSongButton);
+        UserInterfaceUtils.createMouseOverUIChange(previousSongButton);
         previousSongButton.setAlignment(Pos.CENTER_LEFT);
         Tooltip previousSongToolTip = new Tooltip(PREVIOUS_SONG_TOOLTIP_DEFUALT);
         manager.registerNewSongObserver(new MusicPlayerObserver() {
@@ -167,7 +166,7 @@ public class MusicPlayerUI extends VBox {
 
         ToggleButton playPauseButton = new ToggleButton();
         playPauseButton.setStyle("-fx-background-color: transparent");
-        playPauseButton.setGraphic(createImageViewForImage(PLAY_ICON_PATH));
+        playPauseButton.setGraphic(UserInterfaceUtils.createImageViewForImage(PLAY_ICON_PATH));
         playPauseButton.setSelected(false);
         playPauseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -181,7 +180,7 @@ public class MusicPlayerUI extends VBox {
             }
         });
 
-        createMouseOverUIChange(playPauseButton);
+        UserInterfaceUtils.createMouseOverUIChange(playPauseButton);
         manager.registerChangeStateObservers(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
@@ -189,10 +188,10 @@ public class MusicPlayerUI extends VBox {
                     @Override
                     public void run() {
                         if (!manager.isSomethingPlaying()) {
-                            playPauseButton.setGraphic(createImageViewForImage(PLAY_ICON_PATH));
+                            playPauseButton.setGraphic(UserInterfaceUtils.createImageViewForImage(PLAY_ICON_PATH));
                             playPauseButton.setSelected(true);
                         } else {
-                            playPauseButton.setGraphic(createImageViewForImage(PAUSE_ICON_PATH));
+                            playPauseButton.setGraphic(UserInterfaceUtils.createImageViewForImage(PAUSE_ICON_PATH));
                             playPauseButton.setSelected(false);
                         }
                     }
@@ -203,7 +202,7 @@ public class MusicPlayerUI extends VBox {
         playPauseButton.setAlignment(Pos.CENTER);
         playbackControls.getChildren().add(playPauseButton);
 
-        Button skipButton = createIconButton(NEXT_SONG_ICON_PATH);
+        Button skipButton = UserInterfaceUtils.createIconButton(NEXT_SONG_ICON_PATH);
         if (manager.isThereANextSong()){
             skipButton.setOpacity(NOT_FADED);
         } else {
@@ -216,7 +215,7 @@ public class MusicPlayerUI extends VBox {
                 manager.playNextSong();
             }
         });
-        createMouseOverUIChange(skipButton);
+        UserInterfaceUtils.createMouseOverUIChange(skipButton);
 
         Tooltip nextSongTip = new Tooltip(NEXT_SONG_TOOLTIP_DEFAULT);
         skipButton.setTooltip(nextSongTip);
@@ -273,25 +272,7 @@ public class MusicPlayerUI extends VBox {
         return songTitle;
     }
 
-    /**
-     * Function to create a UI indication when mousing over something.
-     *
-     * @param element  The element to apply UI effect on.
-     */
-    private void createMouseOverUIChange(final Node element) {
-        element.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                element.setStyle("-fx-background-color: #BFDCF5;");
-            }
-        });
-        element.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                element.setStyle("-fx-background-color: transparent");
-            }
-        });
-    }
+
 
     /**
      * Helper function to create the observer that will be used to fade the next button or not.
@@ -323,15 +304,15 @@ public class MusicPlayerUI extends VBox {
     private HBox createOtherOptionsBox(final MusicPlayerManager manager) {
         HBox otherControlBox = new HBox();
 
-        Button volumeDownIcon = createIconButton(VOLUME_MUTE_ICON_PATH);
+        Button volumeDownIcon = UserInterfaceUtils.createIconButton(VOLUME_MUTE_ICON_PATH);
         volumeDownIcon.setScaleY(VOLUME_BUTTON_SCALE);
         volumeDownIcon.setScaleX(VOLUME_BUTTON_SCALE);
-        createMouseOverUIChange(volumeDownIcon);
+        UserInterfaceUtils.createMouseOverUIChange(volumeDownIcon);
 
-        Button volumeUpIcon = createIconButton(VOLUME_UP_ICON_PATH);
+        Button volumeUpIcon = UserInterfaceUtils.createIconButton(VOLUME_UP_ICON_PATH);
         volumeUpIcon.setScaleY(VOLUME_BUTTON_SCALE);
         volumeUpIcon.setScaleX(VOLUME_BUTTON_SCALE);
-        createMouseOverUIChange(volumeUpIcon);
+        UserInterfaceUtils.createMouseOverUIChange(volumeUpIcon);
 
         Slider volumeControlSider = createSliderVolumeControl(manager);
         otherControlBox.getChildren().addAll(volumeDownIcon,  volumeControlSider, volumeUpIcon);
@@ -384,9 +365,14 @@ public class MusicPlayerUI extends VBox {
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                String endTimeString = convertDurationToTimeString(manager.getEndTime());
-                songEndTimeProgressBar.setText(endTimeString);
-                songEndTimeSeekBar.setText(endTimeString);
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        String endTimeString = convertDurationToTimeString(manager.getEndTime());
+                        songEndTimeProgressBar.setText(endTimeString);
+                        songEndTimeSeekBar.setText(endTimeString);
+                    }
+                });
             }
         });
 
@@ -493,18 +479,24 @@ public class MusicPlayerUI extends VBox {
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                Song currentPlayingSong = manager.getCurrentSongPlaying();
-                if (currentPlayingSong == null) {
-                    songTitle.setText("");
-                } else {
-                    songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
-                
-                TranslateTransition songTitleAnimation = new TranslateTransition(
-                        new Duration(TITLE_ANIMATION_TIME_MS), songTitle);
-                songTitleAnimation.setFromX(songTitleWrapper.getWidth());
-                songTitleAnimation.setToX(0);
-                songTitleAnimation.play();
-                }
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Song currentPlayingSong = manager.getCurrentSongPlaying();
+                        if (currentPlayingSong == null) {
+                            songTitle.setText("");
+                        } else {
+                            songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
+
+                            TranslateTransition songTitleAnimation = new TranslateTransition(
+                                    new Duration(TITLE_ANIMATION_TIME_MS), songTitle);
+                            songTitleAnimation.setFromX(songTitleWrapper.getWidth());
+                            songTitleAnimation.setToX(0);
+                            songTitleAnimation.play();
+                        }
+                    }
+                });
+
             }
         });
         songTitleWrapper.getChildren().addAll(songTitle);
@@ -512,33 +504,7 @@ public class MusicPlayerUI extends VBox {
         return songTitleWrapper;
     }
 
-    /**
-     * Helper function to convert a path to a image to a actual image you can use.
-     *
-     * @param imagePath The path to a image.
-     * @return A ImageView that contains the image that is passed in.
-     */
-    private ImageView createImageViewForImage(String imagePath) {
-        // Replace path separator to correct OS.
-        imagePath = imagePath.replace("\\", File.separator);
-        imagePath = imagePath.replace("/", File.separator);
 
-        // Idea for background image from http://stackoverflow.com/questions/29984228/javafx-button-background-image
-        return new ImageView(new Image(getClass().getClassLoader().getResourceAsStream(imagePath)));
-    }
-
-    /**
-     * Helper function to create a button that displays the image passed in.
-     *
-     * @param pathToIcon The path to the image to use.
-     * @return The button with the image being used.
-     */
-    private Button createIconButton(String pathToIcon) {
-        Button button = new Button();
-        button.setStyle("-fx-background-color: transparent");
-        button.setGraphic(createImageViewForImage(pathToIcon));
-        return button;
-    }
 
     /**
      * Helper function to create a Heading Label for text.

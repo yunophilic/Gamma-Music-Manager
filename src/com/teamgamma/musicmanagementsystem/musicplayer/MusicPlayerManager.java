@@ -349,12 +349,6 @@ public class MusicPlayerManager {
      */
     public void playPreviousSong() {
         assert (m_songHistory.size() < m_historyIndex);
-        if (m_repeatPlaylist) {
-            // Just restart current song.
-            m_musicPlayer.playSong(m_currentSong);
-            return;
-        }
-
         if (!m_songHistory.isEmpty()) {
             m_isPlayingOnHistory = true;
             if (m_historyIndex != 0) {
@@ -560,8 +554,6 @@ public class MusicPlayerManager {
     public void notifyQueingObserver() {
         notifyAll(m_queuingObserver);
     }
-
-
 
     /**
      * Function to check if there is something if previous song can be done.

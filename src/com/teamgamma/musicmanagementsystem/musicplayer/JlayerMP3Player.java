@@ -50,6 +50,7 @@ public class JlayerMP3Player implements IMusicPlayer{
 
     private FileInputStream m_fs;
 
+    private boolean m_isUserInterrupted = false;
     /**
      * Constructor
      *
@@ -61,7 +62,9 @@ public class JlayerMP3Player implements IMusicPlayer{
 
     @Override
     public void playSong(Song songToPlay) {
-        stopSong();
+        if (m_isPlaying) {
+            stopSongAndWait();
+        }
         try {
             setUpMusicPlayer(songToPlay);
         } catch (Exception e) {
@@ -83,6 +86,7 @@ public class JlayerMP3Player implements IMusicPlayer{
      */
     private void setUpMusicPlayer(Song songToPlay) throws Exception{
         try {
+            m_isUserInterrupted = false;
             m_fs = new FileInputStream(songToPlay.getM_file());
             m_bufferedStream = new BufferedInputStream(m_fs);
             m_audioDevice = FactoryRegistry.systemRegistry().createAudioDevice();
@@ -113,7 +117,7 @@ public class JlayerMP3Player implements IMusicPlayer{
                 try {
                     m_lock.lock();
                     m_isPlaying = false;
-                    if (m_currentUIThread != null) {
+                    if (m_currentUIThread != null && m_currentUIThread.isAlive()) {
                         // Spawn a new thread to join it so we do not get any UI hangs.
                         createTerminationThread(m_currentUIThread).start();
                     }
@@ -147,7 +151,16 @@ public class JlayerMP3Player implements IMusicPlayer{
                     m_onFinishAction.run();
                 }
 
+//                Double songLength = m_currentSong.getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND;
+//                double totalTimedPlayed = (double) m_CurrentPlaybackTimeInMiliseconds;
+//                int returnVal = songLength.compareTo(totalTimedPlayed);
+//                if (songLength.compareTo(totalTimedPlayed) == 0) {
+//                    m_manager.playNextSong();
+//                }
                 m_manager.notifyChangeStateObservers();
+                if (!m_isUserInterrupted){
+                    m_manager.playNextSong();
+                }
             }
         };
     }
@@ -166,6 +179,7 @@ public class JlayerMP3Player implements IMusicPlayer{
                 try {
                     threadToTerminate.interrupt();
                     threadToTerminate.join();
+
                 } catch (InterruptedException e) {
                     m_manager.setError(e);
                     m_manager.notifyError();
@@ -185,27 +199,43 @@ public class JlayerMP3Player implements IMusicPlayer{
                 try {
                     m_isPlaying = true;
                     m_player.play();
+
+                    // If we got here then the player must have finished playing the song.
+
                 } catch (BitstreamException bistreamError) {
                     // Ignore since this exception would be for when we want to interrupt the music player so we can
                     // the thread.
+                    return;
                 } catch (ArrayIndexOutOfBoundsException arrayOutOfBounds) {
                     // Need to reset the player as we hit the 0.01% case that this exception happen as said in their
                     // documentation
-                    arrayOutOfBounds.printStackTrace();
+
+                    System.out.println("Caught the array Index out of bounds");
                     //m_manager.pause();
-                    stopSong();
+                    System.out.println("\n\n\n\n\nCaught the array Index out of bounds\n\n\n\n\n");
+                    try {
+                        stopSong();
+                    } catch (Exception e ){
+                        assert (false);
+                    };
+
+                    arrayOutOfBounds.printStackTrace();
+                    return;
                     //m_manager.resume();
                 } catch (Exception e) {
                     e.printStackTrace();
                     m_manager.setError(e);
                     m_manager.notifyError();
+                    return;
                 }
+
             }
         });
     }
 
     @Override
     public void pauseSong() {
+        m_isUserInterrupted = true;
         m_player.stop();
         m_isPlaying = false;
     }
@@ -233,20 +263,33 @@ public class JlayerMP3Player implements IMusicPlayer{
                 try {
                     // Using integer max as specified in source of the AdvancePlayer play()
                     m_player.play((int) convertMilisecondsToFrame(m_CurrentPlaybackTimeInMiliseconds), Integer.MAX_VALUE);
+
+                    // If we got here then the player must have finished playing the song.
+
                 } catch (BitstreamException bistreamError) {
                     // Ignore since this exception would be for when we want to interrupt the music player so we can
                     // the thread.
+                    return;
                 } catch (ArrayIndexOutOfBoundsException arrayOutOfBounds) {
                     // Need to reset the player as we hit the 0.01% case that this exception happen as said in their
                     // documentation
-                    arrayOutOfBounds.printStackTrace();
+
                     //m_manager.pause();
-                    stopSong();
+                 //   stopSong();
                     //m_manager.resume();
+                    System.out.println("\n\n\n\n\nCaught the array Index out of bounds\n\n\n\n\n");
+                    try {
+                        stopSong();
+                    } catch (Exception e ){
+                        assert (false);
+                    }
+                    arrayOutOfBounds.printStackTrace();
+                    return;
                 } catch (Exception e) {
                     e.printStackTrace();
                     m_manager.setError(e);
                     m_manager.notifyError();
+                    return;
                 }
             }
         });
@@ -289,6 +332,7 @@ public class JlayerMP3Player implements IMusicPlayer{
 
     @Override
     public void seekToTime(double percent) {
+        m_isUserInterrupted = true;
         stopSong();
         m_CurrentPlaybackTimeInMiliseconds = (int) Math.round(percent * m_currentSong.getM_length() *
                 MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
@@ -304,27 +348,78 @@ public class JlayerMP3Player implements IMusicPlayer{
 
     @Override
     public void stopSong() {
-        if (isReadyToUse()) {
-            m_isReady = false;
+        try {
+            m_lock.lock();
+            if (isReadyToUse()) {
+                m_isReady = false;
 
-            // This should kill the UI threads if they are not waiting.
-            m_isPlaying = false;
+                // This should kill the UI threads if they are not waiting.
+                m_isPlaying = false;
 
-            // This should kill the current playback thread.
-            if (m_currentPlaybackThread != null && m_currentPlaybackThread.isAlive()){
+                // This should kill the current playback thread.
+                if (m_currentPlaybackThread != null && m_currentPlaybackThread.isAlive()){
 
-                m_player.stop();
-                m_player.close();
-                try {
-                    m_fs.close();
-                    m_bufferedStream.close();
-                } catch (Exception e) {
-                    m_manager.setError(e);
-                    m_manager.notifyError();
+                    if (m_isUserInterrupted){
+                        m_player.stop();
+                        m_player.close();
+                    }
+                    try {
+                        m_fs.close();
+                        m_bufferedStream.close();
+                    } catch (Exception e) {
+                        System.out.println("\nERROR IN STOP SONG\n");
+                        m_manager.setError(e);
+                        m_manager.notifyError();
+                    }
+
+                    createTerminationThread(m_currentPlaybackThread).start();
                 }
-
-                createTerminationThread(m_currentPlaybackThread).start();
             }
+        } finally {
+            m_lock.unlock();
+        }
+    }
+
+    /**
+     * Function to stop the song and wait until all the threads associated with it are also stopped.
+     */
+    private void stopSongAndWait(){
+        try {
+            m_lock.lock();
+            if (isReadyToUse()) {
+                m_isReady = false;
+
+                // This should kill the UI threads if they are not waiting.
+                m_isPlaying = false;
+
+                // This should kill the current playback thread.
+                if (m_currentPlaybackThread != null && m_currentPlaybackThread.isAlive()) {
+
+                    if (m_isUserInterrupted) {
+                        m_player.stop();
+                        m_player.close();
+                    }
+                    try {
+                        m_fs.close();
+                        m_bufferedStream.close();
+                    } catch (Exception e) {
+                        System.out.println("\nERROR IN STOP SONG\n");
+                        m_manager.setError(e);
+                        m_manager.notifyError();
+                    }
+
+                    try {
+                        m_currentPlaybackThread.interrupt();
+                        m_currentPlaybackThread.join();
+//                        m_currentUIThread.interrupt();
+//                        m_currentUIThread.join();
+                    } catch (Exception e) {
+
+                    }
+                }
+            }
+        } finally {
+            m_lock.unlock();
         }
     }
 
