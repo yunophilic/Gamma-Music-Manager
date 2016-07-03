@@ -469,10 +469,24 @@ public class ContentListUI extends StackPane {
             }
         });
 
-        contextMenu.getItems().addAll(copy, paste, delete, editProperties, addToPlaylist);
+        //add to current playlist option
+        MenuItem addToCurrentPlaylist = new MenuItem(ContextMenuConstants.ADD_TO_CURRENT_PLAYLIST);
+        addToCurrentPlaylist.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+                if(selectedPlaylist != null) {
+                    m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
+                }
+            }
+        });
 
-        // Add playback menu items
+        // Add file operation menu items
+        contextMenu.getItems().addAll(copy, paste, delete);
+
+        // Add playlist and playback menu items only if song is selected
         if (selectedSong != null) {
+            contextMenu.getItems().addAll(editProperties, addToPlaylist, addToCurrentPlaylist);
             ContextMenu playlistMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, selectedSong);
             contextMenu.getItems().addAll(playlistMenu.getItems());
         }
@@ -495,10 +509,10 @@ public class ContentListUI extends StackPane {
                     copy.setStyle("-fx-text-fill: gray;");
                     delete.setDisable(true);
                     delete.setStyle("-fx-text-fill: gray;");
-                    editProperties.setDisable(true);
+                    /*editProperties.setDisable(true);
                     editProperties.setStyle("-fx-text-fill: gray;");
                     addToPlaylist.setDisable(true);
-                    addToPlaylist.setStyle("-fx-text-fill: gray;");
+                    addToPlaylist.setStyle("-fx-text-fill: gray;");*/
                 }
             }
         });

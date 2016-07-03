@@ -14,6 +14,8 @@ import java.util.List;
  * Class to manage files in the program.
  */
 public class FileManager {
+    private static final String[] extensions = new String[]{".mp3"}; //edit this if later support more file types.
+
     /**
      * Generate list of Song objects based on path
      *
@@ -48,8 +50,7 @@ public class FileManager {
         if (files != null) {
             for (File file : files) {
                 if (file.isFile()) {
-                    String[] extensions = new String[]{".mp3"};
-                    if (isAccept(file, extensions)) {
+                    if (isAccept(file)) {
                         musicFiles.add(file);
                     }
                 } else {
@@ -82,7 +83,7 @@ public class FileManager {
     }
 
     /**
-     * Remove file from file system
+     * Move to trash if trash exist in OS, else remove from file system
      *
      * @param fileToRemove: file to be removed
      * @return true if file is removed successfully
@@ -170,11 +171,10 @@ public class FileManager {
     /**
      * File filter for finding music files
      *
-     * @param file
-     * @param extensions
+     * @param file file to check
      * @return true if file is accepted, false otherwise
      */
-    private static boolean isAccept(File file, String[] extensions) {
+    public static boolean isAccept(File file) {
         for (String extension : extensions) {
             if (file.getName().endsWith(extension)) {
                 return true;
