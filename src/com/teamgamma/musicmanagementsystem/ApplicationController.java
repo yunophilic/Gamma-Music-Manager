@@ -101,9 +101,13 @@ public class ApplicationController extends Application {
         watcher.startWatcher();
 
         primaryStage.setOnCloseRequest(e -> {
-            watcher.stopWatcher();
             Platform.exit();
+
+            watcher.stopWatcher();
             musicPlayerManager.stopSong();
+            savePlaylistSongs();
+            saveFileTreeState();
+            m_databaseManager.closeConnection();
         });
 
         primaryStage.setScene(new Scene(m_rootUI, 1200, 650));
@@ -121,6 +125,12 @@ public class ApplicationController extends Application {
         mediaPlayer.play();
     }
 
+    private void savePlaylistSongs() {
+        for (Playlist playlist : m_songManager.getM_playlists()) {
+            m_databaseManager.savePlaylistSongs(playlist);
+        }
+    }
+
     /**
      * Create root UI
      * @param songManager
@@ -136,16 +146,6 @@ public class ApplicationController extends Application {
 
         // Create main UI
         m_rootUI = new MainUI(songManager, musicPlayerManager, m_databaseManager, libraryUIExpandedPaths, rightPanelExpandedPaths);
-    }
-
-    @Override
-    public void stop() {
-        for (Playlist playlist : m_songManager.getM_playlists()) {
-            m_databaseManager.savePlaylistSongs(playlist);
-        }
-        saveFileTreeState();
-
-        m_databaseManager.closeConnection();
     }
 
     /**
