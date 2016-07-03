@@ -3,6 +3,7 @@ package com.teamgamma.musicmanagementsystem.misc;
 import com.teamgamma.musicmanagementsystem.model.Library;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -23,11 +24,12 @@ public class TreeViewUtil {
     private static final Image songImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "music-file-icon.png"));
 
     /**
-     * Recursively create tree items from the files in a directory and return a reference to the root item
+     * Recursively create tree items from the files in a directory and return a reference to the root item,
+     * Set nodes in expandedPaths to expanded state
      *
      * @return TreeItem<String> to the root item
      */
-    public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath, boolean showFolderOnly) {
+    public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath, boolean showFolderOnly, List<String> expandedPaths) {
         System.out.println(file + ", " + dirPath);
         TreeItem<TreeViewItem> item = new TreeItem<>(
                 (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
@@ -37,6 +39,12 @@ public class TreeViewUtil {
         System.out.println("$$$" + treeItemFile + ", " + treeItemFile.isDirectory());
         if (treeItemFile.isDirectory()) {
             item.setGraphic(new ImageView(folderImage));
+
+            if (expandedPaths != null && !expandedPaths.isEmpty()) {
+                if (expandedPaths.contains(item.getValue().getM_file().getAbsolutePath())) {
+                    item.setExpanded(true);
+                }
+            }
         } else {
             item.setGraphic(new ImageView(songImage));
         }
@@ -45,7 +53,7 @@ public class TreeViewUtil {
 
         if (children != null) {
             for (File child : children) {
-                item.getChildren().add(generateTreeItems(child, dirPath, showFolderOnly)); //recursion here
+                item.getChildren().add(generateTreeItems(child, dirPath, showFolderOnly, expandedPaths)); //recursion here
             }
         }
 
@@ -255,7 +263,7 @@ public class TreeViewUtil {
         String newFilePath = newParentPath + File.separator + fileName;
         File copiedFile = new File(newFilePath);
 
-        TreeItem<TreeViewItem> newFileNode = generateTreeItems(copiedFile, newParentPath, model.getM_menuOptions().getM_leftPanelShowFolder());
+        TreeItem<TreeViewItem> newFileNode = generateTreeItems(copiedFile, newParentPath, model.getM_menuOptions().getM_leftPanelShowFolder(), null);
         TreeItem<TreeViewItem> parentFileNode = searchTreeItem(tree, newParentPath);
 
         if (newFileNode != null && parentFileNode != null) {
@@ -303,5 +311,46 @@ public class TreeViewUtil {
             );
         }
         return null;
+    }
+
+    /**
+     * Get list of paths in tree that are expanded
+     * @param m_tree
+     * @return Arraylist of paths as String
+     */
+    public static List<String> getExpandedPaths(TreeView<TreeViewItem> m_tree) {
+        List<String> expandedPaths = getExpandedPathsRecursively(m_tree.getRoot());
+
+        return expandedPaths;
+    }
+
+    /**
+     * Recursively get list of paths that are expanded
+     * @param currentItem
+     * @return Arraylist of paths as String
+     */
+    private static List<String> getExpandedPathsRecursively(TreeItem<TreeViewItem> currentItem) {
+        List<String> expandedPaths = new ArrayList<>();
+        List<TreeItem<TreeViewItem>> children = currentItem.getChildren();
+
+        // Base case
+        if (children.isEmpty()) {
+            return expandedPaths;
+        }
+
+        // Add to list if this path is expanded
+        if (currentItem.isExpanded()) {
+            File file = currentItem.getValue().getM_file();
+            expandedPaths.add(file.getAbsolutePath());
+        }
+
+        // Recursive case
+        for (TreeItem<TreeViewItem> child : children) {
+            List<String> childExpandedPaths = getExpandedPathsRecursively(child);
+
+            expandedPaths.addAll(childExpandedPaths);
+        }
+
+        return expandedPaths;
     }
 }
