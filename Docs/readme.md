@@ -1,4 +1,4 @@
-This Folder is for archiving Docuementation and other resources we have.
+This Folder is for archiving documentation and other resources we have.
 
 List of Features is our backlog for this project. 
 
