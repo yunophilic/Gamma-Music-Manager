@@ -82,9 +82,12 @@ public class ApplicationController extends Application {
         }
 
         // Get previously selected right panel folder from file
-        String previousRightFolderPath = FilePersistentStorage.getRightFolder();
-        System.out.println("PREVIOUS RIGHT FOLDER PATH: " + previousRightFolderPath);
-        File previousRightPanelFolder = new File(previousRightFolderPath);
+        File previousRightPanelFolder = null;
+        if (FilePersistentStorage.isRightFolderStateFileExist()) {
+            String previousRightFolderPath = FilePersistentStorage.getRightFolder();
+            System.out.println("PREVIOUS RIGHT FOLDER PATH: " + previousRightFolderPath);
+            previousRightPanelFolder = new File(previousRightFolderPath);
+        }
         m_songManager.setM_rightFolderSelected(previousRightPanelFolder);
 
         MusicPlayerManager musicPlayerManager = new MusicPlayerManager(m_databaseManager);
