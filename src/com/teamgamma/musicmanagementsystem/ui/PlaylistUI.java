@@ -540,8 +540,19 @@ public class PlaylistUI extends VBox {
                         }
                     }
                 });
-
-                UserInterfaceUtils.createMouseOverUIChange(row);
+                row.setOnMouseEntered(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        row.setStyle("-fx-background-color: #BFDCF5;");
+                    }
+                });
+                row.setOnMouseExited(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        // Default to what JavaFX has defined.
+                        row.setStyle(null);
+                    }
+                });
 
                 return row;
             }
