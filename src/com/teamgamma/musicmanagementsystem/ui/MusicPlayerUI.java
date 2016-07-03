@@ -368,7 +368,7 @@ public class MusicPlayerUI extends VBox {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        String endTimeString = convertDurationToTimeString(manager.getEndTime());
+                        String endTimeString = UserInterfaceUtils.convertDurationToTimeString(manager.getEndTime());
                         songEndTimeProgressBar.setText(endTimeString);
                         songEndTimeSeekBar.setText(endTimeString);
                     }
@@ -403,7 +403,7 @@ public class MusicPlayerUI extends VBox {
         // Make the slider always bigger than the progress bar to make it so the user only can click on the slider.
         playbackSliderWrapper.setScaleY(SEEK_BAR_Y_SCALE);
 
-        Tooltip playbackTimeToolTip = new Tooltip(convertDurationToTimeString(manager.getCurrentPlayTime()));
+        Tooltip playbackTimeToolTip = new Tooltip(UserInterfaceUtils.convertDurationToTimeString(manager.getCurrentPlayTime()));
         playbackSlider.setTooltip(playbackTimeToolTip);
         // Setup the observer pattern stuff for UI updates to the current play time.
         manager.registerPlaybackObserver(new MusicPlayerObserver() {
@@ -417,7 +417,7 @@ public class MusicPlayerUI extends VBox {
                     public void run() {
                         songPlaybar.setProgress(progress);
                         playbackSlider.setValue(progress);
-                        playbackTimeToolTip.setText(convertDurationToTimeString(manager.getCurrentPlayTime()));
+                        playbackTimeToolTip.setText(UserInterfaceUtils.convertDurationToTimeString(manager.getCurrentPlayTime()));
                     }
                 });
             }
@@ -432,32 +432,6 @@ public class MusicPlayerUI extends VBox {
 
         musicPlayerProgress.getChildren().addAll(progressWrapper, playbackSliderWrapper);
         return musicPlayerProgress;
-    }
-
-    /**
-     * Helper function to convert the duration obejct to a human readable format. The format is like the following MM:SS
-     *
-     * @param duration The duration to convert.
-     * @return A human readable string of the duration.
-     */
-    private String convertDurationToTimeString(Duration duration) {
-        String timeString = "";
-
-        double seconds = duration.toSeconds();
-        int minutes = 0;
-        while ((seconds - SECONDS_IN_MINUTE) >= 0) {
-            minutes++;
-            seconds -= SECONDS_IN_MINUTE;
-        }
-        timeString = minutes + ":";
-
-        long leftOverSeconds = (int) seconds;
-        if (leftOverSeconds < 10) {
-            // Add on so it looks like 0:05 rather than 0:5
-            timeString += "0";
-        }
-        timeString += leftOverSeconds;
-        return timeString;
     }
 
     /**
@@ -538,7 +512,7 @@ public class MusicPlayerUI extends VBox {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        songEndTimeText.setText(convertDurationToTimeString(manager.getEndTime()));
+                        songEndTimeText.setText(UserInterfaceUtils.convertDurationToTimeString(manager.getEndTime()));
                     }
                 });
 
@@ -553,7 +527,7 @@ public class MusicPlayerUI extends VBox {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        currentTimeLabel.setText(convertDurationToTimeString(manager.getCurrentPlayTime()));
+                        currentTimeLabel.setText(UserInterfaceUtils.convertDurationToTimeString(manager.getCurrentPlayTime()));
                     }
                 });
             }
