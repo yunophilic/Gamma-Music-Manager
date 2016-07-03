@@ -358,11 +358,8 @@ public class JlayerMP3Player implements IMusicPlayer{
 
                 // This should kill the current playback thread.
                 if (m_currentPlaybackThread != null && m_currentPlaybackThread.isAlive()){
-
-                    if (m_isUserInterrupted){
-                        m_player.stop();
-                        m_player.close();
-                    }
+                    m_player.stop();
+                    m_player.close();
                     try {
                         m_fs.close();
                         m_bufferedStream.close();
