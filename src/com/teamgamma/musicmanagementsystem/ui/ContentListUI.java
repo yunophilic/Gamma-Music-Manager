@@ -377,7 +377,7 @@ public class ContentListUI extends StackPane {
         paste.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                if (selectedSong != null) {
+                //if (selectedSong != null) {
                     File dest = m_model.getM_selectedCenterFolder();
                     if (!dest.isDirectory()) {
                         PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
@@ -393,7 +393,7 @@ public class ContentListUI extends StackPane {
                     } catch (Exception ex) {
                         PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
                     }
-                }
+                //}
             }
         });
 
