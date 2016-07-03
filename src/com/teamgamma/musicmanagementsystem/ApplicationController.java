@@ -2,7 +2,6 @@ package com.teamgamma.musicmanagementsystem;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
-import com.teamgamma.musicmanagementsystem.model.Library;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
@@ -13,11 +12,14 @@ import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.shape.Path;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -33,6 +35,7 @@ public class ApplicationController extends Application {
 
     private static final double MIN_WINDOW_WIDTH = 800;
     private static final double MIN_WINDOW_HEIGHT = 400;
+    private static final String APP_TITLE = "Gamma Music Manager";
 
     private DatabaseManager m_databaseManager;
     private MainUI m_rootUI;
@@ -47,7 +50,7 @@ public class ApplicationController extends Application {
         //disable jaudiotagger logging
         Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
 
-        primaryStage.setTitle("Gamma Music Manager");
+        primaryStage.setTitle(APP_TITLE);
 
         m_songManager = new SongManager();
         m_databaseManager = new DatabaseManager();
@@ -101,13 +104,7 @@ public class ApplicationController extends Application {
         watcher.startWatcher();
 
         primaryStage.setOnCloseRequest(e -> {
-            Platform.exit();
-
-            watcher.stopWatcher();
-            musicPlayerManager.stopSong();
-            savePlaylistSongs();
-            saveFileTreeState();
-            m_databaseManager.closeConnection();
+            closeApp(musicPlayerManager, watcher);
         });
 
         primaryStage.setScene(new Scene(m_rootUI, 1200, 650));
@@ -123,6 +120,42 @@ public class ApplicationController extends Application {
         );
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         mediaPlayer.play();
+    }
+
+    /**
+     * Save session states in new thread and show a progress bar
+     * @param musicPlayerManager
+     * @param watcher
+     */
+    private void closeApp(final MusicPlayerManager musicPlayerManager, final Watcher watcher) {
+        ProgressBar progressBar = new ProgressBar();
+        BorderPane closingWindow = new BorderPane();
+        closingWindow.setCenter(progressBar);
+        closingWindow.setTop(new Label("Saving current session..."));
+
+        Stage closingStage = new Stage();
+        closingStage.setTitle(APP_TITLE);
+        closingStage.setScene(new Scene(closingWindow, 400, 80));
+        closingStage.show();
+
+        Task closeTask = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                watcher.stopWatcher();
+                musicPlayerManager.stopSong();
+                savePlaylistSongs();
+                saveFileTreeState();
+                m_databaseManager.closeConnection();
+
+                Platform.exit();
+
+                return null;
+            }
+        };
+
+        progressBar.progressProperty().bind(closeTask.progressProperty());
+
+        new Thread(closeTask).start();
     }
 
     private void savePlaylistSongs() {
