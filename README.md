@@ -1,6 +1,7 @@
 # CMPT 373 Team Gamma - Music Management System
 
-This is our Music Management application written in Java 8. This program will allow you to play your MP3 files, manage where they are located and edit their metadata. 
+This is our Music Management application written in Java 8. This program allows you to play your MP3 files, manage where they are located and edit their metadata.
+We currently do not support Linux or Mac OSX.
 
 ___
 
@@ -12,11 +13,11 @@ ___
 * **library-sample:** Contains some sample music files used for testing. 
 
 ---
-## Build Instructions 
-* This application can be built by using IntelliJ IDE on Windows. Load the project in to IntelliJ and run using Java 8. We currently do not officially support Linux or Mac OSX.
+## Build Instructions
 * Clone this repository
 * Download all dependencies (below)
-* Run application on IntelliJ
+* Load project into IntelliJ IDE
+* Run application
 
 ### Dependencies 
 * [Java SE Development Kit 8u92](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
