@@ -419,8 +419,16 @@ public class ContentListUI extends StackPane {
                         try {
                             m_model.deleteFile(fileToDelete);
                             break;
-                        } catch (FileSystemException ex) {
+                        } catch (IOException ex) {
                             m_musicPlayerManager.stopSong();
+                            m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
+
+                            if (m_musicPlayerManager.isThereANextSong()){
+                                m_musicPlayerManager.playNextSong();
+                            } else if (!m_musicPlayerManager.getHistory().isEmpty()){
+                                m_musicPlayerManager.playPreviousSong();
+                            }
+
                             if (i==1) { //if this exception still thrown after retry (for debugging)
                                 ex.printStackTrace();
                             }
