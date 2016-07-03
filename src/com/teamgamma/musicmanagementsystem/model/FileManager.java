@@ -1,13 +1,8 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
-
-import javafx.scene.control.TreeItem;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import com.sun.jna.platform.FileUtils;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -91,10 +86,17 @@ public class FileManager {
      *
      * @param fileToRemove: file to be removed
      * @return true if file is removed successfully
-     * @throws Exception
+     * @throws IOException
      */
-    public static boolean removeFile(File fileToRemove) throws Exception {
-        return deleteFolderOrFile(fileToRemove);
+    public static boolean removeFile(File fileToRemove) throws IOException {
+        FileUtils fileUtils = FileUtils.getInstance();
+        if (fileUtils.hasTrash()) {
+            fileUtils.moveToTrash( new File[]{fileToRemove} );
+            return true;
+        }
+        else {
+            return deleteFolderOrFile(fileToRemove);
+        }
     }
 
     private static boolean deleteFolderOrFile(File path) {
