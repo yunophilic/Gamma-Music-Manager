@@ -13,6 +13,7 @@ import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -20,6 +21,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -111,7 +113,7 @@ public class ApplicationController extends Application {
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.getIcons().add(
-                new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"))
+                getLogoIcon()
         );
         primaryStage.show();
 
@@ -122,26 +124,40 @@ public class ApplicationController extends Application {
         mediaPlayer.play();
     }
 
+    private Image getLogoIcon() {
+        return new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"));
+    }
+
     /**
      * Save session states in new thread and show a progress bar
      * @param musicPlayerManager
      * @param watcher
      */
     private void closeApp(final MusicPlayerManager musicPlayerManager, final Watcher watcher) {
+        final int CLOSING_WINDOW_WIDTH = 400;
+        final int CLOSING_WINDOW_HEIGHT = 80;
+        watcher.stopWatcher();
+
         ProgressBar progressBar = new ProgressBar();
         BorderPane closingWindow = new BorderPane();
         closingWindow.setCenter(progressBar);
-        closingWindow.setTop(new Label("Saving current session..."));
+
+        Label text = new Label("Saving current session...");
+        text.setFont(new Font(16));
+        text.setPadding(new Insets(10, CLOSING_WINDOW_WIDTH/4, 10, CLOSING_WINDOW_WIDTH/4));
+        closingWindow.setTop(text);
 
         Stage closingStage = new Stage();
         closingStage.setTitle(APP_TITLE);
-        closingStage.setScene(new Scene(closingWindow, 400, 80));
+        closingStage.getIcons().add(
+                getLogoIcon()
+        );
+        closingStage.setScene(new Scene(closingWindow, CLOSING_WINDOW_WIDTH, CLOSING_WINDOW_HEIGHT));
         closingStage.show();
 
         Task closeTask = new Task() {
             @Override
             protected Object call() throws Exception {
-                watcher.stopWatcher();
                 musicPlayerManager.stopSong();
                 savePlaylistSongs();
                 saveFileTreeState();
