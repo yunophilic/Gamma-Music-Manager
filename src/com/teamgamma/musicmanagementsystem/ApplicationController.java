@@ -86,7 +86,9 @@ public class ApplicationController extends Application {
         if (FilePersistentStorage.isRightFolderStateFileExist()) {
             String previousRightFolderPath = FilePersistentStorage.getRightFolder();
             System.out.println("PREVIOUS RIGHT FOLDER PATH: " + previousRightFolderPath);
-            previousRightPanelFolder = new File(previousRightFolderPath);
+            if (!previousRightFolderPath.isEmpty()) {
+                previousRightPanelFolder = new File(previousRightFolderPath);
+            }
         }
         m_songManager.setM_rightFolderSelected(previousRightPanelFolder);
 
@@ -180,10 +182,15 @@ public class ApplicationController extends Application {
 
     private void saveRightPanelFolderPath() {
         File rightPanelFolder = m_songManager.getM_rightFolderSelected();
+        System.out.println("SAVING RIGHT FOLDER: " + rightPanelFolder);
         if (!FilePersistentStorage.isRightFolderStateFileExist()) {
             FilePersistentStorage.createRightFolderFile();
         }
 
-        FilePersistentStorage.updateRightFolder(rightPanelFolder.getAbsolutePath());
+        if (rightPanelFolder != null) {
+            FilePersistentStorage.updateRightFolder(rightPanelFolder.getAbsolutePath());
+        } else {
+            FilePersistentStorage.updateRightFolder("");
+        }
     }
 }
