@@ -131,24 +131,33 @@ public class LibraryUI extends StackPane {
      * @param libraryAction
      */
     private void updateLibraryTrees(Actions libraryAction) {
-        List<TreeItem<TreeViewItem>> libraryNodes = m_tree.getRoot().getChildren();
-        List<TreeViewItem> libraryItems = TreeViewUtil.getTreeViewItems(libraryNodes);
-        List<Library> libraries = m_model.getM_libraries();
-
         if (libraryAction.equals(Actions.ADD)) {
-            for (Library library : libraries) {
-                // If library is not in libraryItems, add new node
-                if (!TreeViewUtil.isLibraryInList(libraryItems, library)) {
-                    TreeItem<TreeViewItem> newLibrary = TreeViewUtil.generateTreeItems(
-                            library.getM_rootDir(), library.getM_rootDirPath(), m_model.getM_menuOptions().getM_leftPanelShowFolder(), null
-                    );
-                    newLibrary.setExpanded(true);
-                    libraryNodes.add(newLibrary);
+            // If this is not the first library added, add it without resetting the state of the other libraries
+            // Else, simply reset the tree to show the library
+            if (m_model.getM_libraries().size() > 1){
+                List<TreeItem<TreeViewItem>> libraryNodes = m_tree.getRoot().getChildren();
+                List<TreeViewItem> libraryItems = TreeViewUtil.getTreeViewItems(libraryNodes);
+                List<Library> libraries = m_model.getM_libraries();
+
+                for (Library library : libraries) {
+                    // If library is not in libraryItems, add new node
+                    if (!TreeViewUtil.isLibraryInList(libraryItems, library)) {
+                        TreeItem<TreeViewItem> newLibrary = TreeViewUtil.generateTreeItems(library.getM_rootDir(), library.getM_rootDirPath(), m_model.getM_menuOptions().getM_leftPanelShowFolder(), null);
+                        newLibrary.setExpanded(true);
+                        libraryNodes.add(newLibrary);
+                    }
                 }
+            } else {
+                updateTreeView(null);
             }
         } else if (libraryAction.equals(Actions.REMOVE_FROM_VIEW) || libraryAction.equals(Actions.DELETE)) {
             TreeItem<TreeViewItem> removedLibrary = m_tree.getSelectionModel().getSelectedItem();
-            boolean remove = removedLibrary.getParent().getChildren().remove(removedLibrary);
+            removedLibrary.getParent().getChildren().remove(removedLibrary);
+
+            // If there are no more libraries, show a text label
+            if (m_model.getM_libraries().size() < 1) {
+                setEmptyLibraryUI();
+            }
         }
 
     }
