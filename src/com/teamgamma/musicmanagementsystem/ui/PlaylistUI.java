@@ -3,8 +3,10 @@ package com.teamgamma.musicmanagementsystem.ui;
 import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
 import com.teamgamma.musicmanagementsystem.model.*;
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -25,6 +27,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
@@ -385,7 +388,7 @@ public class PlaylistUI extends VBox {
         genreCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, Integer> ratingCol = new TableColumn<>("Rating");
         ratingCol.setMinWidth(RATING_COLUMN_MIN_WIDTH);
-        TableColumn<Song, Double> lengthCol = new TableColumn<>("Length");
+        TableColumn<Song, String> lengthCol = new TableColumn<>("Length");
         lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
         setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
         showOrHideTableColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
@@ -419,7 +422,7 @@ public class PlaylistUI extends VBox {
                                         TableColumn<Song, String> albumCol,
                                         TableColumn<Song, String> genreCol,
                                         TableColumn<Song, Integer> ratingCol,
-                                        TableColumn<Song, Double> lengthCol) {
+                                        TableColumn<Song, String> lengthCol) {
         m_table.setTableMenuButtonVisible(true);
 
         //default columns
@@ -442,7 +445,7 @@ public class PlaylistUI extends VBox {
                                           TableColumn<Song, String> albumCol,
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, Integer> ratingCol,
-                                          TableColumn<Song, Double> lengthCol) {
+                                          TableColumn<Song, String> lengthCol) {
         filePathCol.setCellValueFactory(new PropertyValueFactory<>("m_file"));
         filePathCol.setSortable(false);
 
@@ -464,7 +467,13 @@ public class PlaylistUI extends VBox {
         ratingCol.setCellValueFactory(new PropertyValueFactory<>("m_rating"));
         ratingCol.setSortable(false);
 
-        lengthCol.setCellValueFactory(new PropertyValueFactory<>("m_length"));
+        lengthCol.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Song, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Song, String> param) {
+                Duration lengthOfSong = new Duration(param.getValue().getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
+                return new ReadOnlyObjectWrapper<String>(UserInterfaceUtils.convertDurationToTimeString(lengthOfSong));
+            }
+        });
         lengthCol.setSortable(false);
 
         m_table.getColumns().add(filePathCol);

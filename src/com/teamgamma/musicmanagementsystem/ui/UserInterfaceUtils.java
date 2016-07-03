@@ -1,10 +1,12 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.util.Duration;
 
 import java.io.File;
 
@@ -59,6 +61,32 @@ public class UserInterfaceUtils {
 
         // Idea for background image from http://stackoverflow.com/questions/29984228/javafx-button-background-image
         return new ImageView(imagePath);
+    }
+
+    /**
+     * Helper function to convert the duration obejct to a human readable format. The format is like the following MM:SS
+     *
+     * @param duration The duration to convert.
+     * @return A human readable string of the duration.
+     */
+    public static String convertDurationToTimeString(Duration duration) {
+        String timeString = "";
+
+        double seconds = duration.toSeconds();
+        int minutes = 0;
+        while ((seconds - MusicPlayerConstants.SECONDS_IN_MINUTE) >= 0) {
+            minutes++;
+            seconds -= MusicPlayerConstants.SECONDS_IN_MINUTE;
+        }
+        timeString = minutes + ":";
+
+        long leftOverSeconds = (int) seconds;
+        if (leftOverSeconds < 10) {
+            // Add on so it looks like 0:05 rather than 0:5
+            timeString += "0";
+        }
+        timeString += leftOverSeconds;
+        return timeString;
     }
 
 
