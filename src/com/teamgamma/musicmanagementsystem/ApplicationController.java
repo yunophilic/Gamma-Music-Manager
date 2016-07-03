@@ -2,7 +2,6 @@ package com.teamgamma.musicmanagementsystem;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
-import com.teamgamma.musicmanagementsystem.model.Library;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
@@ -13,11 +12,16 @@ import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.shape.Path;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -33,6 +37,7 @@ public class ApplicationController extends Application {
 
     private static final double MIN_WINDOW_WIDTH = 800;
     private static final double MIN_WINDOW_HEIGHT = 400;
+    private static final String APP_TITLE = "Gamma Music Manager";
 
     private DatabaseManager m_databaseManager;
     private MainUI m_rootUI;
@@ -47,7 +52,7 @@ public class ApplicationController extends Application {
         //disable jaudiotagger logging
         Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
 
-        primaryStage.setTitle("Gamma Music Manager");
+        primaryStage.setTitle(APP_TITLE);
 
         m_songManager = new SongManager();
         m_databaseManager = new DatabaseManager();
@@ -101,16 +106,14 @@ public class ApplicationController extends Application {
         watcher.startWatcher();
 
         primaryStage.setOnCloseRequest(e -> {
-            watcher.stopWatcher();
-            Platform.exit();
-            musicPlayerManager.stopSong();
+            closeApp(musicPlayerManager, watcher);
         });
 
         primaryStage.setScene(new Scene(m_rootUI, 1200, 650));
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.getIcons().add(
-                new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"))
+                getLogoIcon()
         );
         primaryStage.show();
 
@@ -119,6 +122,62 @@ public class ApplicationController extends Application {
         );
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         mediaPlayer.play();
+    }
+
+    private Image getLogoIcon() {
+        return new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"));
+    }
+
+    /**
+     * Save session states in new thread and show a progress bar
+     * @param musicPlayerManager
+     * @param watcher
+     */
+    private void closeApp(final MusicPlayerManager musicPlayerManager, final Watcher watcher) {
+        final int CLOSING_WINDOW_WIDTH = 400;
+        final int CLOSING_WINDOW_HEIGHT = 80;
+        watcher.stopWatcher();
+
+        ProgressBar progressBar = new ProgressBar();
+        BorderPane closingWindow = new BorderPane();
+        closingWindow.setCenter(progressBar);
+
+        Label text = new Label("Saving current session...");
+        text.setFont(new Font(16));
+        text.setPadding(new Insets(10, CLOSING_WINDOW_WIDTH/4, 10, CLOSING_WINDOW_WIDTH/4));
+        closingWindow.setTop(text);
+
+        Stage closingStage = new Stage();
+        closingStage.setTitle(APP_TITLE);
+        closingStage.getIcons().add(
+                getLogoIcon()
+        );
+        closingStage.setScene(new Scene(closingWindow, CLOSING_WINDOW_WIDTH, CLOSING_WINDOW_HEIGHT));
+        closingStage.show();
+
+        Task closeTask = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                musicPlayerManager.stopSong();
+                savePlaylistSongs();
+                saveFileTreeState();
+                m_databaseManager.closeConnection();
+
+                Platform.exit();
+
+                return null;
+            }
+        };
+
+        progressBar.progressProperty().bind(closeTask.progressProperty());
+
+        new Thread(closeTask).start();
+    }
+
+    private void savePlaylistSongs() {
+        for (Playlist playlist : m_songManager.getM_playlists()) {
+            m_databaseManager.savePlaylistSongs(playlist);
+        }
     }
 
     /**
@@ -136,16 +195,6 @@ public class ApplicationController extends Application {
 
         // Create main UI
         m_rootUI = new MainUI(songManager, musicPlayerManager, m_databaseManager, libraryUIExpandedPaths, rightPanelExpandedPaths);
-    }
-
-    @Override
-    public void stop() {
-        for (Playlist playlist : m_songManager.getM_playlists()) {
-            m_databaseManager.savePlaylistSongs(playlist);
-        }
-        saveFileTreeState();
-
-        m_databaseManager.closeConnection();
     }
 
     /**
