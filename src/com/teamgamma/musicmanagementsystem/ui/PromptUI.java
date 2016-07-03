@@ -939,8 +939,7 @@ public class PromptUI {
                 "gamma-logo.png")));
         dialog.setTitle("Remove Playlist");
         dialog.setHeaderText("\"" + playlistToRemove.getM_playlistName() + "\":");
-        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "remove-playlist.png"))));
+        dialog.setGraphic(new ImageView("res" + File.separator + "remove-playlist.png"));
         dialog.setContentText("Are you sure you want to remove this playlist?");
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);

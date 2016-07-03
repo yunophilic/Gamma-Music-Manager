@@ -44,7 +44,7 @@ public class DatabaseManager {
     private PreparedStatement m_updateQueueOrderNumber;
     private PreparedStatement m_getPlaybackQueue;
     private PreparedStatement m_addToPlaylistSongs;
-    private PreparedStatement m_nextOrderNumber;
+    private PreparedStatement m_maxOrderNumberPlaylistSongs;
     private PreparedStatement m_updatePlaylistOrder;
     private PreparedStatement m_getDeleteSongOrderNumber;
     private PreparedStatement m_deleteFromPlaylistSongs;
@@ -131,9 +131,9 @@ public class DatabaseManager {
                                                                                             "isLastPlayed)" +
                                                                  "VALUES (?, ?, ?, ?)");
 
-            m_nextOrderNumber = m_connection.prepareStatement("SELECT max(orderNumber) " +
-                                                              "FROM PlaylistSongs " +
-                                                              "WHERE playlistName = ?");
+            m_maxOrderNumberPlaylistSongs = m_connection.prepareStatement("SELECT max(orderNumber) AS 'maxOrderNumber' " +
+                                                                          "FROM PlaylistSongs " +
+                                                                          "WHERE playlistName = ?");
 
             m_updatePlaylistOrder = m_connection.prepareStatement("UPDATE PlaylistSongs " +
                                                                   "SET orderNumber = orderNumber - 1 " +
@@ -221,6 +221,9 @@ public class DatabaseManager {
     private void createTables() {
         try {
             Statement statement = m_connection.createStatement();
+
+            //turn on foreign key support
+            statement.executeUpdate("PRAGMA foreign_keys = ON");
 
             //Library table, store all the library paths
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS Library (" +
@@ -569,8 +572,7 @@ public class DatabaseManager {
     public int getMaxOrderNumberOfPlaybackQueue() {
         try {
             ResultSet resultSet = m_maxOrderNumberInQueue.executeQuery();
-            int maxOrderNumber = resultSet.getInt(1);
-            return maxOrderNumber;
+            return resultSet.getInt(1);
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -652,9 +654,9 @@ public class DatabaseManager {
      */
     public int getNextOrderNumber(String playlistName) {
         try {
-            m_nextOrderNumber.setString(1, playlistName);
-            ResultSet resultSet = m_nextOrderNumber.executeQuery();
-            int nextOrderNumber = resultSet.getInt("orderNumber");
+            m_maxOrderNumberPlaylistSongs.setString(1, playlistName);
+            ResultSet resultSet = m_maxOrderNumberPlaylistSongs.executeQuery();
+            int nextOrderNumber = resultSet.getInt("maxOrderNumber");
             return nextOrderNumber + 1;
         }
         catch (SQLException e) {
@@ -727,9 +729,9 @@ public class DatabaseManager {
      * @param playlistName
      * @return
      */
-    public List<String> getPlaylist(String playlistName) {
+    public List<String> getSongsInPlaylist(String playlistName) {
         try {
-            List<String> songPaths = new ArrayList<String>();
+            List<String> songPaths = new ArrayList<>();
             m_getSongsInPlaylist.setString(1, playlistName);
             ResultSet resultSet = m_getSongsInPlaylist.executeQuery();
             while (resultSet.next()) {
@@ -744,30 +746,21 @@ public class DatabaseManager {
     }
 
     /**
-     * Shuffle one of the playlist entirely and retrieve it
-     * @param playlistName
-     * @param songs
+     * Save playlist songs and their order
+     * @param playlist playlist where the songs are to be saved
      */
-    public List<String> shufflePlaylist(String playlistName, List<Song> songs) {
+    public void savePlaylistSongs(Playlist playlist) {
         try {
+            String playlistName = playlist.getM_playlistName();
+            List<Song> songs = playlist.getM_songList();
             m_deleteForShuffle.setString(1, playlistName);
             m_deleteForShuffle.executeUpdate();
-            for (int i = 0; i < songs.size(); i++) {
-                addToPlaylistSongs(playlistName, songs.get(i).getM_file().getAbsolutePath());
+            for (Song song : songs) {
+                addToPlaylistSongs(playlistName, song.getM_file().getAbsolutePath());
             }
-            List<String> songPaths = getPlaylist(playlistName);
-            return songPaths;
         }
         catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
     }
 }
-
-
-
-
-
-
-

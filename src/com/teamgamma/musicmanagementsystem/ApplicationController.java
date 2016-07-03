@@ -3,6 +3,8 @@ package com.teamgamma.musicmanagementsystem;
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.Library;
+import com.teamgamma.musicmanagementsystem.model.Playlist;
+import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
@@ -21,6 +23,8 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class to wrap all components together.
@@ -40,6 +44,9 @@ public class ApplicationController extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        //disable jaudiotagger logging
+        Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
+
         primaryStage.setTitle("Gamma Music Manager");
 
         m_songManager = new SongManager();
@@ -58,16 +65,20 @@ public class ApplicationController extends Application {
             m_databaseManager.setupDatabase();
         }
 
-        List<String> libraryPathList = m_databaseManager.getLibraries();
         System.out.println("loading libraries...");
+        List<String> libraryPathList = m_databaseManager.getLibraries();
         for (String libraryPath : libraryPathList) {
             m_songManager.addLibrary(libraryPath);
         }
 
-        List<String> playlistNameList = m_databaseManager.getPlaylists();
         System.out.println("loading playlists...");
+        List<String> playlistNameList = m_databaseManager.getPlaylists();
         for (String playlistName : playlistNameList) {
-            m_songManager.addPlaylist(playlistName);
+            Playlist playlist = m_songManager.addPlaylist(playlistName);
+            List<String> songPaths = m_databaseManager.getSongsInPlaylist(playlist.getM_playlistName());
+            for(String songPath : songPaths) {
+                playlist.addSong(new Song(songPath));
+            }
         }
 
         // Get previously selected right panel folder from file
@@ -93,11 +104,14 @@ public class ApplicationController extends Application {
         primaryStage.setScene(new Scene(m_rootUI, 1200, 650));
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
-        primaryStage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "gamma-logo.png")));
+        primaryStage.getIcons().add(
+                new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"))
+        );
         primaryStage.show();
 
-        Media sound = new Media(new File("src" + File.separator + "res" + File.separator +"start-sound.mp3").toURI().toString());
+        Media sound = new Media(
+                new File("src" + File.separator + "res" + File.separator +"start-sound.mp3").toURI().toString()
+        );
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         mediaPlayer.play();
     }
@@ -121,6 +135,9 @@ public class ApplicationController extends Application {
 
     @Override
     public void stop() {
+        for (Playlist playlist : m_songManager.getM_playlists()) {
+            m_databaseManager.savePlaylistSongs(playlist);
+        }
         saveFileTreeState();
 
         m_databaseManager.closeConnection();
