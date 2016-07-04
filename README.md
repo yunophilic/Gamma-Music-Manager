@@ -25,5 +25,6 @@ ___
 * [jpathwatch-0-95](https://jpathwatch.wordpress.com/)
 * [jdbc-3.8.11.2](https://bitbucket.org/xerial/sqlite-jdbc/downloads)
 * [JLayer 1.0.1](http://www.javazoom.net/javalayer/sources.html)
+* [Java Native Access](https://github.com/java-native-access/jna)
 * This program uses JavaFX Media Player that depends on codecs being installed on your computer. For example, version N of the Windows operating system will require you to install Microsoft Media Feature Pack or any other officially supported codec library for this application to run. [For more information please refer to Oracle](http://www.oracle.com/technetwork/java/javase/certconfig-2095354.html)
 ---
