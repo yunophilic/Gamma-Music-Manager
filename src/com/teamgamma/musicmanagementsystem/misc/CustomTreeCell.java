@@ -1,10 +1,10 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
+import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import com.teamgamma.musicmanagementsystem.ui.MusicPlayerHistoryUI;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
 import javafx.event.ActionEvent;
@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.FileSystemException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -213,6 +212,44 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             menuItems.add(openInRightPane);
         }
 
+        MenuItem addToPlaylist = new MenuItem(ContextMenuConstants.ADD_TO_PLAYLIST);
+        addToPlaylist.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (m_selectedTreeViewItem != null) {
+                    Song selectedSong = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    if (selectedSong != null) {
+                        List<Playlist> playlists = m_model.getM_playlists();
+                        if(playlists.isEmpty()) {
+                            PromptUI.customPromptError("Error", null, "No playlist exist!");
+                            return;
+                        }
+                        Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSong);
+                        if(selectedPlaylist != null) {
+                            m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
+                        }
+                    }
+                }
+
+            }
+        });
+        menuItems.add(addToPlaylist);
+
+        MenuItem addToCurrentPlaylist = new MenuItem(ContextMenuConstants.ADD_TO_CURRENT_PLAYLIST);
+        addToCurrentPlaylist.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Song selectedSong = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                if (selectedSong != null) {
+                    Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+                    if (selectedPlaylist != null) {
+                        m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
+                    }
+                }
+            }
+        });
+        menuItems.add(addToCurrentPlaylist);
+
         MenuItem playSong = new MenuItem(ContextMenuConstants.MENU_ITEM_PLAY_SONG);
         playSong.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -277,14 +314,11 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 // Do not show song options if this is not a song
                 Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
                 if (m_selectedTreeViewItem == null || song == null) {
-                    playSong.setDisable(true);
-                    playSong.setVisible(false);
-
-                    placeSongAtStartOfQueue.setDisable(true);
-                    placeSongAtStartOfQueue.setVisible(false);
-
-                    placeSongOnBackOfQueue.setDisable(true);
-                    placeSongOnBackOfQueue.setVisible(false);
+                    disableMenuItem(playSong);
+                    disableMenuItem(placeSongAtStartOfQueue);
+                    disableMenuItem(placeSongOnBackOfQueue);
+                    disableMenuItem(addToPlaylist);
+                    disableMenuItem(addToCurrentPlaylist);
                 }
             }
         });
@@ -292,6 +326,15 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         return menuItems;
     }
 
+    /**
+     * Function to disable the menu item passed in.
+     *
+     * @param item The menu item to disable.
+     */
+    private void disableMenuItem(MenuItem item){
+        item.setVisible(false);
+        item.setDisable(true);
+    }
     private void createContextMenu() {
         m_contextMenu = new ContextMenu();
         m_contextMenu.getItems().addAll(generateMenuItems());
