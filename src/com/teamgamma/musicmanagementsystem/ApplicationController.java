@@ -161,6 +161,7 @@ public class ApplicationController extends Application {
                 musicPlayerManager.stopSong();
                 savePlaylistSongs();
                 saveFileTreeState();
+                m_databaseManager.saveConfigFile();
                 m_databaseManager.closeConnection();
 
                 Platform.exit();

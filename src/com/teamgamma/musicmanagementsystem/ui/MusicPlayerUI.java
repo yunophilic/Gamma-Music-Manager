@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.model.Song;
@@ -62,8 +63,9 @@ public class MusicPlayerUI extends VBox {
      * Constructor
      *
      * @param manager The MusicPlayerManager to setup the actions for the UI panel.
+     * @param databaseManager The DatabaseManager to save the states for the UI panel.
      */
-    public MusicPlayerUI(MusicPlayerManager manager) {
+    public MusicPlayerUI(MusicPlayerManager manager, DatabaseManager databaseManager) {
         super();
 
         VBox topWrapper = new VBox();
@@ -79,7 +81,7 @@ public class MusicPlayerUI extends VBox {
         HBox playbackControls = createPlayBackControlBox(manager);
         this.getChildren().add(playbackControls);
 
-        HBox otherControlBox = createOtherOptionsBox(manager);
+        HBox otherControlBox = createOtherOptionsBox(manager, databaseManager);
         this.getChildren().add(otherControlBox);
 
         manager.registerErrorObservers(new MusicPlayerObserver() {
@@ -301,7 +303,7 @@ public class MusicPlayerUI extends VBox {
      * @param manager The music manager to set up actions.
      * @return
      */
-    private HBox createOtherOptionsBox(final MusicPlayerManager manager) {
+    private HBox createOtherOptionsBox(final MusicPlayerManager manager, final DatabaseManager databaseManager) {
         HBox otherControlBox = new HBox();
 
         Button volumeDownIcon = UserInterfaceUtils.createIconButton(VOLUME_MUTE_ICON_PATH);
@@ -314,7 +316,7 @@ public class MusicPlayerUI extends VBox {
         volumeUpIcon.setScaleX(VOLUME_BUTTON_SCALE);
         UserInterfaceUtils.createMouseOverUIChange(volumeUpIcon);
 
-        Slider volumeControlSider = createSliderVolumeControl(manager);
+        Slider volumeControlSider = createSliderVolumeControl(manager, databaseManager);
         otherControlBox.getChildren().addAll(volumeDownIcon,  volumeControlSider, volumeUpIcon);
         HBox.setHgrow(volumeControlSider, Priority.ALWAYS);
         volumeControlSider.setMaxSize(60, 1);
@@ -325,6 +327,7 @@ public class MusicPlayerUI extends VBox {
             public void handle(MouseEvent event) {
                 volumeControlSider.adjustValue(0);
                 manager.setVolumeLevel(0);
+                databaseManager.saveVolumeState(0);
             }
         });
         volumeUpIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -332,6 +335,7 @@ public class MusicPlayerUI extends VBox {
             public void handle(MouseEvent event) {
                 volumeControlSider.adjustValue(1);
                 manager.setVolumeLevel(1);
+                databaseManager.saveVolumeState(1);
             }
         });
         otherControlBox.setMargin(volumeControlSider, new Insets(0));
@@ -542,19 +546,21 @@ public class MusicPlayerUI extends VBox {
      *
      * @return A slider to control volume.
      */
-    private Slider createSliderVolumeControl(MusicPlayerManager manager) {
-        Slider volumeSlider = new Slider(0, 1, 1);
+    private Slider createSliderVolumeControl(MusicPlayerManager manager, DatabaseManager databaseManager) {
+        Slider volumeSlider = new Slider(0, 1, databaseManager.getVolumeConfig());
 
         volumeSlider.setOnDragDone(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent event) {
                 manager.setVolumeLevel(volumeSlider.getValue());
+                databaseManager.saveVolumeState(volumeSlider.getValue());
             }
         });
         volumeSlider.setOnMouseReleased(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 manager.setVolumeLevel(volumeSlider.getValue());
+                databaseManager.saveVolumeState(volumeSlider.getValue());
             }
         });
 
