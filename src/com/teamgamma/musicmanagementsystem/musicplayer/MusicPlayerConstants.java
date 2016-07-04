@@ -4,7 +4,7 @@ package com.teamgamma.musicmanagementsystem.musicplayer;
  * Class to just hold constants needed by the music player.
  */
 public class MusicPlayerConstants {
-    public static final int MAX_SONG_HISTORY = 10;
+    public static final int MAX_SONG_HISTORY = 100;
 
     public static final double VOLUME_CHANGE = 0.1;
 

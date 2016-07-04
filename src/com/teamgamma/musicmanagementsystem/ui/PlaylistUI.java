@@ -301,7 +301,7 @@ public class PlaylistUI extends VBox {
                 }
             }
         });
-        UserInterfaceUtils.createMouseOverUIChange(playlistButton);
+        UserInterfaceUtils.createMouseOverUIChange(playlistButton, playlistButton.getStyle());
         playlistButton.setTooltip(new Tooltip("Play Playlist"));
 
         playlistButton.setScaleY(0.75);
@@ -318,15 +318,18 @@ public class PlaylistUI extends VBox {
             public void handle(MouseEvent event) {
                 if (playlistRepeat.isSelected()){
                     m_musicPlayerManager.setRepeat(true);
+                    playlistRepeat.setStyle("-fx-background-color: lightgray");
                 } else {
                     m_musicPlayerManager.setRepeat(false);
+                    playlistRepeat.setStyle("-fx-background-color: transparent");
                 }
+                UserInterfaceUtils.createMouseOverUIChange(playlistRepeat, playlistRepeat.getStyle());
             }
         });
 
         playlistRepeat.setGraphic(new ImageView(REPEAT_PLAYLIST_ICON));
         playlistRepeat.setTooltip(new Tooltip("Repeat Playlist Mode"));
-        UserInterfaceUtils.createMouseOverUIChange(playlistRepeat);
+        UserInterfaceUtils.createMouseOverUIChange(playlistRepeat, playlistRepeat.getStyle());
 
         playlistRepeat.setScaleY(0.75);
         playlistRepeat.setScaleX(0.75);
@@ -549,19 +552,20 @@ public class PlaylistUI extends VBox {
                         }
                     }
                 });
-                row.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        row.setStyle("-fx-background-color: #BFDCF5;");
-                    }
-                });
-                row.setOnMouseExited(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        // Default to what JavaFX has defined.
-                        row.setStyle(null);
-                    }
-                });
+                UserInterfaceUtils.createMouseOverUIChange(row, null);
+//                row.setOnMouseEntered(new EventHandler<MouseEvent>() {
+//                    @Override
+//                    public void handle(MouseEvent event) {
+//                        row.setStyle("-fx-background-color: #BFDCF5;");
+//                    }
+//                });
+//                row.setOnMouseExited(new EventHandler<MouseEvent>() {
+//                    @Override
+//                    public void handle(MouseEvent event) {
+//                        // Default to what JavaFX has defined.
+//                        row.setStyle(null);
+//                    }
+//                });
 
                 return row;
             }
