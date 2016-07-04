@@ -1,9 +1,8 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import jdk.nashorn.internal.ir.debug.JSONWriter;
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -815,7 +814,7 @@ public class DatabaseManager {
      * Set the default configuration in the config file
      */
     private void setupConfigDefaults() {
-        m_jsonObject.put("volume", 100);
+        m_jsonObject.put("volume", MusicPlayerConstants.MAX_VOLUME);
     }
 
     /**
