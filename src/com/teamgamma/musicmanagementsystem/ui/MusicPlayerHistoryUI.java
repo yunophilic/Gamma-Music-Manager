@@ -38,8 +38,8 @@ public class MusicPlayerHistoryUI extends HBox{
     public MusicPlayerHistoryUI(MusicPlayerManager manager) {
         m_manager = manager;
 
-        TitledPane playbackHistory = createTitlePane(PLAYBACK_HISTORY_HEADER, m_manager.getHistory(), createPlaybackQueueAction());
-        TitledPane queuingList = createTitlePane(QUEUING_HEADER, m_manager.getPlayingQueue(), createHistoryAction());
+        TitledPane playbackHistory = createTitlePane(PLAYBACK_HISTORY_HEADER, m_manager.getHistory(), createHistoryAction());
+        TitledPane queuingList = createTitlePane(QUEUING_HEADER, m_manager.getPlayingQueue(), createPlaybackQueueAction());
 
         Accordion accordion = new Accordion();
         accordion.getPanes().addAll(playbackHistory, queuingList);
