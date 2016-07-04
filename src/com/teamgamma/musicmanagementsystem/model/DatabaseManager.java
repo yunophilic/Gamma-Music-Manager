@@ -1,5 +1,10 @@
 package com.teamgamma.musicmanagementsystem.model;
 
+import jdk.nashorn.internal.ir.debug.JSONWriter;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +20,8 @@ import java.util.List;
 public class DatabaseManager {
     private static final String DB_DIR = System.getProperty("user.dir") + File.separator + "db";
     private static final String DB_FILE_PATH = DB_DIR + File.separator + "persistence.db";
+    private static final String DB_CONFIG_PATH = DB_DIR + File.separator + "config.json";
+    private JSONObject m_jsonObject;
 
     public static final String LEFT_TREE_VIEW_TABLE = "LeftTreeView";
     public static final String RIGHT_TREE_VIEW_TABLE = "RightTreeView";
@@ -52,6 +59,7 @@ public class DatabaseManager {
     private PreparedStatement m_deleteForShuffle;
 
     public DatabaseManager() {
+        this.m_jsonObject = new JSONObject();
     }
 
     /**
@@ -72,89 +80,89 @@ public class DatabaseManager {
             m_getPlaylists = m_connection.prepareStatement("SELECT * FROM Playlist");
 
             m_renamePlaylist = m_connection.prepareStatement("UPDATE Playlist " +
-                                                             "SET playlistName=? " +
-                                                             "WHERE playlistName=?");
+                    "SET playlistName=? " +
+                    "WHERE playlistName=?");
 
             m_addLeftTreeItem = m_connection.prepareStatement("INSERT INTO LeftTreeView (expandedPath) " +
-                                                              "VALUES (?)");
+                    "VALUES (?)");
 
             m_clearLeftTreeView = m_connection.prepareStatement("DELETE FROM LeftTreeView");
 
             m_getExpandedLeftTreeItems = m_connection.prepareStatement("SELECT * " +
-                                                                       "FROM LeftTreeView ");
+                    "FROM LeftTreeView ");
 
             m_addRightTreeItem = m_connection.prepareStatement("INSERT INTO RightTreeView (expandedPath) " +
-                                                               "VALUES (?)");
+                    "VALUES (?)");
 
             m_clearRightTreeView = m_connection.prepareStatement("DELETE FROM RightTreeView");
 
             m_getExpandedRightTreeItems = m_connection.prepareStatement("SELECT * " +
-                                                                       "FROM RightTreeView ");
+                    "FROM RightTreeView ");
 
             m_addRightFolderToTree = m_connection.prepareStatement("INSERT INTO RightTreeView (expandedPath)" +
-                                                                   "VALUES (?)");
+                    "VALUES (?)");
 
             m_addHistory = m_connection.prepareStatement("INSERT INTO History (songPath) " +
-                                                         "VALUES (?)");
+                    "VALUES (?)");
 
             m_deleteFromHistory = m_connection.prepareStatement("DELETE FROM History " +
-                                                                "WHERE songPath = ?");
+                    "WHERE songPath = ?");
 
             m_getHistory = m_connection.prepareStatement("SELECT * " +
-                                                         "FROM History " +
-                                                         "ORDER BY time");
+                    "FROM History " +
+                    "ORDER BY time");
 
             m_addToPlaybackQueue = m_connection.prepareStatement("INSERT INTO PlaybackQueue (songPath, orderNumber) " +
-                                                                  "VALUES (?, ?)");
+                    "VALUES (?, ?)");
 
             m_incrementQueueOrder = m_connection.prepareStatement("UPDATE PlaybackQueue " +
-                                                                  "SET orderNumber = orderNumber + 1");
+                    "SET orderNumber = orderNumber + 1");
 
             m_maxOrderNumberInQueue = m_connection.prepareStatement("SELECT max(orderNumber) " +
-                                                                    "FROM PlaybackQueue");
+                    "FROM PlaybackQueue");
 
             m_deleteFromQueue = m_connection.prepareStatement("DELETE FROM PlaybackQueue " +
-                                                              "WHERE songPath = ?");
+                    "WHERE songPath = ?");
 
             m_updateQueueOrderNumber =  m_connection.prepareStatement("UPDATE PlaybackQueue " +
-                                                                      "SET orderNumber = orderNumber - 1 " +
-                                                                      "WHERE orderNumber > (SELECT orderNumber " +
-                                                                                           "FROM PlaybackQueue " +
-                                                                                           "WHERE songPath = ?) ");
+                    "SET orderNumber = orderNumber - 1 " +
+                    "WHERE orderNumber > (SELECT orderNumber " +
+                    "FROM PlaybackQueue " +
+                    "WHERE songPath = ?) ");
 
             m_getPlaybackQueue = m_connection.prepareStatement("SELECT * FROM PlaybackQueue " +
-                                                               "ORDER BY OrderNumber ASC");
+                    "ORDER BY OrderNumber ASC");
 
             m_addToPlaylistSongs = m_connection.prepareStatement("INSERT INTO PlaylistSongs (songPath, " +
-                                                                                            "playlistName, " +
-                                                                                            "orderNumber, " +
-                                                                                            "isLastPlayed)" +
-                                                                 "VALUES (?, ?, ?, ?)");
+                    "playlistName, " +
+                    "orderNumber, " +
+                    "isLastPlayed)" +
+                    "VALUES (?, ?, ?, ?)");
 
             m_maxOrderNumberPlaylistSongs = m_connection.prepareStatement("SELECT max(orderNumber) AS 'maxOrderNumber' " +
-                                                                          "FROM PlaylistSongs " +
-                                                                          "WHERE playlistName = ?");
+                    "FROM PlaylistSongs " +
+                    "WHERE playlistName = ?");
 
             m_updatePlaylistOrder = m_connection.prepareStatement("UPDATE PlaylistSongs " +
-                                                                  "SET orderNumber = orderNumber - 1 " +
-                                                                  "WHERE playlistName = ? AND orderNumber > ?");
+                    "SET orderNumber = orderNumber - 1 " +
+                    "WHERE playlistName = ? AND orderNumber > ?");
 
 
             m_getDeleteSongOrderNumber = m_connection.prepareStatement("SELECT orderNumber " +
-                                                                       "FROM PlaylistSongs " +
-                                                                       "WHERE playlistName = ? AND songPath = ?");
+                    "FROM PlaylistSongs " +
+                    "WHERE playlistName = ? AND songPath = ?");
 
             m_deleteFromPlaylistSongs = m_connection.prepareStatement("DELETE FROM PlaylistSongs " +
-                                                                      "WHERE playlistName = ? AND songPath = ? " +
-                                                                                             "AND orderNumber = ?");
+                    "WHERE playlistName = ? AND songPath = ? " +
+                    "AND orderNumber = ?");
 
             m_getSongsInPlaylist = m_connection.prepareStatement("SELECT songPath " +
-                                                                 "FROM PlaylistSongs " +
-                                                                 "WHERE PlaylistName = ? " +
-                                                                 "ORDER BY orderNumber ASC");
+                    "FROM PlaylistSongs " +
+                    "WHERE PlaylistName = ? " +
+                    "ORDER BY orderNumber ASC");
 
             m_deleteForShuffle = m_connection.prepareStatement("DELETE FROM PlaylistSongs " +
-                                                               "WHERE playlistName = ?");
+                    "WHERE playlistName = ?");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -167,6 +175,7 @@ public class DatabaseManager {
         setupConnection();
         createTables();
         prepareStatements();
+        setupConfig();
     }
 
     /**
@@ -227,49 +236,49 @@ public class DatabaseManager {
 
             //Library table, store all the library paths
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS Library (" +
-                                        "libraryPath TEXT PRIMARY KEY NOT NULL" +
-                                    ")");
+                    "libraryPath TEXT PRIMARY KEY NOT NULL" +
+                    ")");
 
             //left tree view table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS LeftTreeView (" +
-                                        "expandedPath TEXT NOT NULL, " +
-                                        "PRIMARY KEY (expandedPath)" +
-                                    ")");
+                    "expandedPath TEXT NOT NULL, " +
+                    "PRIMARY KEY (expandedPath)" +
+                    ")");
 
             //right tree view table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS RightTreeView (" +
-                                        "expandedPath TEXT NOT NULL, " +
-                                        "PRIMARY KEY (expandedPath)" +
-                                    ")");
+                    "expandedPath TEXT NOT NULL, " +
+                    "PRIMARY KEY (expandedPath)" +
+                    ")");
 
             //Playlist table, store all the playlist names
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS Playlist (" +
-                                        "playlistName TEXT PRIMARY KEY NOT NULL" +
-                                    ")");
+                    "playlistName TEXT PRIMARY KEY NOT NULL" +
+                    ")");
 
             //playlist songs table, store all the song's paths that are in a playlist
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS PlaylistSongs (" +
-                                        "songPath       TEXT      NOT NULL," +
-                                        "playlistName   TEXT      NOT NULL," +
-                                        "orderNumber    INTEGER   NOT NULL," +
-                                        "isLastPlayed   INTEGER   NOT NULL DEFAULT 0," +
-                                        "PRIMARY KEY(songPath, playlistName, orderNumber)" +
-                                        "FOREIGN KEY(playlistName) REFERENCES Playlist(playlistName) ON DELETE CASCADE" +
-                                    ")");
+                    "songPath       TEXT      NOT NULL," +
+                    "playlistName   TEXT      NOT NULL," +
+                    "orderNumber    INTEGER   NOT NULL," +
+                    "isLastPlayed   INTEGER   NOT NULL DEFAULT 0," +
+                    "PRIMARY KEY(songPath, playlistName, orderNumber)" +
+                    "FOREIGN KEY(playlistName) REFERENCES Playlist(playlistName) ON DELETE CASCADE" +
+                    ")");
 
             //History table, store songs that are played before
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS History (" +
-                                        "songPath TEXT      PRIMARY KEY               NOT NULL," +
-                                        "time     DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME'))" +
-                                    ")");
+                    "songPath TEXT      PRIMARY KEY               NOT NULL," +
+                    "time     DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME'))" +
+                    ")");
 
             //Playback queue table, store the songs that are in the queue
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS PlaybackQueue (" +
-                                        "songPath    TEXT    NOT NULL," +
-                                        "orderNumber INTEGER NOT NULL, " +
-                                        "time        DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME'))," +
-                                        "PRIMARY KEY (songPath)" +
-                                    ")");
+                    "songPath    TEXT    NOT NULL," +
+                    "orderNumber INTEGER NOT NULL, " +
+                    "time        DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME'))," +
+                    "PRIMARY KEY (songPath)" +
+                    ")");
 
             statement.close();
         } catch (SQLException e) {
@@ -762,5 +771,85 @@ public class DatabaseManager {
         catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Create the config file if it does not exist.
+     * Initialize the config file if it exists.
+     */
+    private void setupConfig() {
+        if(!isConfigExists()) {
+            createConfigFile();
+        } else {
+            initializeConfigFile();
+        }
+    }
+
+    /**
+     * Initialize the config file
+     */
+    private void initializeConfigFile() {
+        JSONParser parser = new JSONParser();
+        try {
+            m_jsonObject = (JSONObject) parser.parse(new FileReader(DB_CONFIG_PATH));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Create the config file
+     */
+    private void createConfigFile() {
+        Path configDir = Paths.get(DB_CONFIG_PATH);
+        try {
+            Files.createFile(configDir);
+            setupConfigDefaults();
+            saveConfigFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Set the default configuration in the config file
+     */
+    private void setupConfigDefaults() {
+        m_jsonObject.put("volume", 100);
+    }
+
+    /**
+     * Save the config file to the system
+     */
+    public void saveConfigFile() {
+        try (FileWriter writer = new FileWriter(DB_CONFIG_PATH)){
+            writer.write(m_jsonObject.toJSONString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Check if config file exists
+     * @return true if exists. false if does not exist.
+     */
+    private boolean isConfigExists() {
+        return new File(DB_CONFIG_PATH).exists();
+    }
+
+    /**
+     * Save the volume to the config file
+     * @param volumeLevel an integer indicating the volume.
+     */
+    public void saveVolumeState(double volumeLevel) {
+        m_jsonObject.replace("volume", volumeLevel);
+    }
+
+    /**
+     * Returns the volume state from config file
+     * @return volume as a double
+     */
+    public double getVolumeConfig() {
+        return (double) m_jsonObject.get("volume");
     }
 }

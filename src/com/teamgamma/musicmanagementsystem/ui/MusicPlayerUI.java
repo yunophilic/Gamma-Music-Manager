@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -63,8 +64,9 @@ public class MusicPlayerUI extends VBox {
      * Constructor
      *
      * @param manager The MusicPlayerManager to setup the actions for the UI panel.
+     * @param databaseManager The DatabaseManager to save the states for the UI panel.
      */
-    public MusicPlayerUI(MusicPlayerManager manager) {
+    public MusicPlayerUI(MusicPlayerManager manager, DatabaseManager databaseManager) {
         super();
 
         VBox topWrapper = new VBox();
@@ -80,7 +82,7 @@ public class MusicPlayerUI extends VBox {
         HBox playbackControls = createPlayBackControlBox(manager);
         this.getChildren().add(playbackControls);
 
-        HBox otherControlBox = createOtherOptionsBox(manager);
+        HBox otherControlBox = createOtherOptionsBox(manager, databaseManager);
         this.getChildren().add(otherControlBox);
 
         manager.registerErrorObservers(new MusicPlayerObserver() {
@@ -311,9 +313,10 @@ public class MusicPlayerUI extends VBox {
      * Function to create the other playback options list. This would be volume control and repeat control.
      *
      * @param manager The music manager to set up actions.
+     * @param databaseManager The database manager to save state.
      * @return
      */
-    private HBox createOtherOptionsBox(final MusicPlayerManager manager) {
+    private HBox createOtherOptionsBox(final MusicPlayerManager manager, final DatabaseManager databaseManager) {
         HBox otherControlBox = new HBox();
 
         Button volumeDownIcon = UserInterfaceUtils.createIconButton(VOLUME_MUTE_ICON_PATH);
@@ -328,7 +331,7 @@ public class MusicPlayerUI extends VBox {
         UserInterfaceUtils.createMouseOverUIChange(volumeUpIcon, volumeUpIcon.getStyle());
         volumeUpIcon.setTooltip(new Tooltip("Max Volume"));
 
-        Slider volumeControlSider = createSliderVolumeControl(manager);
+        Slider volumeControlSider = createSliderVolumeControl(manager, databaseManager);
         otherControlBox.getChildren().addAll(volumeDownIcon,  volumeControlSider, volumeUpIcon);
         HBox.setHgrow(volumeControlSider, Priority.ALWAYS);
         volumeControlSider.setMaxSize(60, 1);
@@ -339,6 +342,7 @@ public class MusicPlayerUI extends VBox {
             public void handle(MouseEvent event) {
                 volumeControlSider.adjustValue(MusicPlayerConstants.MIN_VOLUME);
                 manager.setVolumeLevel(MusicPlayerConstants.MIN_VOLUME);
+                databaseManager.saveVolumeState(MusicPlayerConstants.MIN_VOLUME);
             }
         });
         volumeUpIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -346,6 +350,7 @@ public class MusicPlayerUI extends VBox {
             public void handle(MouseEvent event) {
                 volumeControlSider.adjustValue(MusicPlayerConstants.MAX_VOLUME);
                 manager.setVolumeLevel(MusicPlayerConstants.MAX_VOLUME);
+                databaseManager.saveVolumeState(MusicPlayerConstants.MAX_VOLUME);
             }
         });
         otherControlBox.setMargin(volumeControlSider, new Insets(0));
@@ -553,22 +558,25 @@ public class MusicPlayerUI extends VBox {
      * Function to create the slider for volume control.
      *
      * @param manager The music player manager to interact with.
+     * @param databaseManager The database manager to save volume state.
      *
      * @return A slider to control volume.
      */
-    private Slider createSliderVolumeControl(MusicPlayerManager manager) {
-        Slider volumeSlider = new Slider(0, 1, 1);
+    private Slider createSliderVolumeControl(MusicPlayerManager manager, DatabaseManager databaseManager) {
+        Slider volumeSlider = new Slider(0, 1, databaseManager.getVolumeConfig());
 
         volumeSlider.setOnDragDone(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent event) {
                 manager.setVolumeLevel(volumeSlider.getValue());
+                databaseManager.saveVolumeState(volumeSlider.getValue());
             }
         });
         volumeSlider.setOnMouseReleased(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 manager.setVolumeLevel(volumeSlider.getValue());
+                databaseManager.saveVolumeState(volumeSlider.getValue());
             }
         });
 
