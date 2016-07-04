@@ -353,7 +353,7 @@ public class MusicPlayerManager {
         assert (m_songHistory.size() < m_historyIndex);
         if (!m_songHistory.isEmpty()) {
             m_isPlayingOnHistory = true;
-            if (m_historyIndex != 0) {
+            if (m_historyIndex != 0 && (m_currentSong != null)) {
                 m_historyIndex--;
             }
             m_currentSong = m_songHistory.get(m_historyIndex);
@@ -534,7 +534,7 @@ public class MusicPlayerManager {
             // Nothing in the DB.
             return;
         }
-        Deque<Song> queueFromDB = new ConcurrentLinkedDeque<Song>();
+        Deque<Song> queueFromDB = new LinkedBlockingDeque<Song>();
         for (int i = 0; i < queuedSongs.size(); i++) {
             Song song = new Song(queuedSongs.get(i));
             queueFromDB.add(song);
@@ -694,7 +694,7 @@ public class MusicPlayerManager {
         if (m_historyIndex == 0){
             return m_currentSong;
         }
-        if (m_historyIndex == m_songHistory.size() - 1){
+        if (m_historyIndex == m_songHistory.size() - 1 && (m_currentSong == null)){
             return m_songHistory.get(m_historyIndex);
         }
         return m_songHistory.get(m_historyIndex - 1);
