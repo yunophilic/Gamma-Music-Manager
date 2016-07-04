@@ -10,6 +10,7 @@ import javax.sound.sampled.*;
 import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * Class to manage the the MusicPlayer.
@@ -54,10 +55,11 @@ public class MusicPlayerManager {
     public MusicPlayerManager(DatabaseManager databaseManager) {
         m_databaseManager = databaseManager;
 
-        m_playingQueue = new ConcurrentLinkedDeque<Song>();
+        m_playingQueue = new LinkedBlockingDeque<>();
         reterievePlaybackQueueFromDB();
 
         m_songHistory = new ArrayList<Song>();
+        loadHistory();
 
         m_newSongObservers = new ArrayList<MusicPlayerObserver>();
         m_playbackObservers = new ArrayList<MusicPlayerObserver>();
@@ -276,7 +278,7 @@ public class MusicPlayerManager {
             }
         }
         m_songHistory.add(m_currentSong);
-
+        m_databaseManager.addToHisotry(m_currentSong.getM_file().getAbsolutePath());
         // On insertion of new song in history set the last played index to be the latest song in history list.
         m_historyIndex = m_songHistory.size() - 1;
         m_isPlayingOnHistory = false;
@@ -541,6 +543,19 @@ public class MusicPlayerManager {
     }
 
     /**
+     * Function to load songs that are from the history that is retrieved from the DB.
+     */
+    private void loadHistory() {
+        List<String> songsFromHistory = m_databaseManager.getHistory();
+        for (String songPath : songsFromHistory){
+            m_songHistory.add(new Song(songPath));
+        }
+
+        // TODO: Will have to set the history index to actual location that was left off
+        m_historyIndex = m_songHistory.size() - 1;
+    }
+
+    /**
      * Function to register a observer for when there is an update to the playing queue.
      * @param observer
      */
@@ -561,7 +576,7 @@ public class MusicPlayerManager {
      * @return True if there is a song that can be previously played, False other wise.
      */
     public boolean isNothingPrevious(){
-        return m_songHistory.isEmpty() && (m_currentSong == null);
+        return m_songHistory.isEmpty();
     }
 
     /**
@@ -607,6 +622,7 @@ public class MusicPlayerManager {
             }
             m_songHistory.remove(songToDelete);
         }
+        m_databaseManager.deleteFromHistory(songToDelete.getM_file().getAbsolutePath());
     }
 
     /**
