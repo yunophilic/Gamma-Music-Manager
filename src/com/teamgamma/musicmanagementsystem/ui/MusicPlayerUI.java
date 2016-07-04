@@ -178,7 +178,7 @@ public class MusicPlayerUI extends VBox {
         playPauseButton.setStyle("-fx-background-color: transparent");
         playPauseButton.setGraphic(UserInterfaceUtils.createImageViewForImage(PLAY_ICON_PATH));
         playPauseButton.setSelected(false);
-        Tooltip playPauseToolTip = new Tooltip();
+        Tooltip playPauseToolTip = new Tooltip("Pick a Song To Play!");
         playPauseButton.setTooltip(playPauseToolTip);
         playPauseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override

@@ -552,7 +552,9 @@ public class MusicPlayerManager {
         }
 
         // TODO: Will have to set the history index to actual location that was left off
-        m_historyIndex = m_songHistory.size() - 1;
+        if (!m_songHistory.isEmpty()) {
+            m_historyIndex = m_songHistory.size() - 1;
+        }
     }
 
     /**
