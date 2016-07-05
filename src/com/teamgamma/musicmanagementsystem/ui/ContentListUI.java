@@ -406,11 +406,11 @@ public class ContentListUI extends StackPane {
                     File fileToDelete = selectedSong.getM_file();
                     //confirmation dialog
                     if (fileToDelete.isDirectory()) {
-                        if (!PromptUI.deleteLibrary(fileToDelete)) {
+                        if (!PromptUI.recycleLibrary(fileToDelete)) {
                             return;
                         }
                     } else {
-                        if (!PromptUI.deleteSong(fileToDelete)) {
+                        if (!PromptUI.recycleSong(fileToDelete)) {
                             return;
                         }
                     }
