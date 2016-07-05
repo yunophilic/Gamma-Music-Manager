@@ -48,6 +48,7 @@ public class DatabaseManager {
     private PreparedStatement m_addToPlaylistSongs;
     private PreparedStatement m_maxOrderNumberPlaylistSongs;
     private PreparedStatement m_updatePlaylistOrder;
+    private PreparedStatement m_updatePLaylistLastPlayedSong;
     private PreparedStatement m_getDeleteSongOrderNumber;
     private PreparedStatement m_deleteFromPlaylistSongs;
     private PreparedStatement m_getSongsInPlaylist;
@@ -130,9 +131,8 @@ public class DatabaseManager {
 
             m_addToPlaylistSongs = m_connection.prepareStatement("INSERT INTO PlaylistSongs (songPath, " +
                                                                  "playlistName, " +
-                                                                 "orderNumber, " +
-                                                                 "isLastPlayed)" +
-                                                                 "VALUES (?, ?, ?, ?)");
+                                                                 "orderNumber) " +
+                                                                 "VALUES (?, ?, ?)");
 
             m_maxOrderNumberPlaylistSongs = m_connection.prepareStatement("SELECT max(orderNumber) AS 'maxOrderNumber' " +
                                                                           "FROM PlaylistSongs " +
@@ -141,6 +141,12 @@ public class DatabaseManager {
             m_updatePlaylistOrder = m_connection.prepareStatement("UPDATE PlaylistSongs " +
                                                                   "SET orderNumber = orderNumber - 1 " +
                                                                   "WHERE playlistName = ? AND orderNumber > ?");
+
+            m_updatePLaylistLastPlayedSong = m_connection.prepareStatement("UPDATE PlaylistSongs " +
+                                                                           "SET isLastPlayed = 1 " +
+                                                                           "WHERE playlistName = ? AND " +
+                                                                                 "songPath = ? AND " +
+                                                                                 "orderNumber = ?");
 
 
             m_getDeleteSongOrderNumber = m_connection.prepareStatement("SELECT orderNumber " +
@@ -153,12 +159,12 @@ public class DatabaseManager {
 
             m_getSongsInPlaylist = m_connection.prepareStatement("SELECT songPath " +
                                                                  "FROM PlaylistSongs " +
-                                                                 "WHERE PlaylistName = ? " +
+                                                                 "WHERE playlistName = ? " +
                                                                  "ORDER BY orderNumber ASC");
 
             m_orderNumOfPlaylistLastPlayedSong = m_connection.prepareStatement("SELECT orderNumber " +
                                                                                "FROM PlaylistSongs " +
-                                                                               "WHERE PlaylistName = ? AND isLastPlayed = 1");
+                                                                               "WHERE playlistName = ? AND isLastPlayed = 1");
 
             m_deleteFromPlaylistSongsByPlaylistName = m_connection.prepareStatement("DELETE " +
                                                                                     "FROM PlaylistSongs " +
@@ -234,50 +240,50 @@ public class DatabaseManager {
 
             //Library table, store all the library paths
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS Library (" +
-                    "libraryPath TEXT PRIMARY KEY NOT NULL" +
-                    ")");
+                                        "libraryPath TEXT PRIMARY KEY NOT NULL" +
+                                    ")");
 
             //left tree view table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS LeftTreeView (" +
-                    "expandedPath TEXT NOT NULL, " +
-                    "PRIMARY KEY (expandedPath)" +
-                    ")");
+                                        "expandedPath TEXT NOT NULL, " +
+                                        "PRIMARY KEY (expandedPath)" +
+                                    ")");
 
             //right tree view table
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS RightTreeView (" +
-                    "expandedPath TEXT NOT NULL, " +
-                    "PRIMARY KEY (expandedPath)" +
-                    ")");
+                                        "expandedPath TEXT NOT NULL, " +
+                                        "PRIMARY KEY (expandedPath)" +
+                                    ")");
 
             //Playlist table, store all the playlist names
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS Playlist (" +
-                    "playlistName TEXT PRIMARY KEY NOT NULL" +
-                    ")");
+                                        "playlistName TEXT PRIMARY KEY NOT NULL" +
+                                    ")");
 
             //playlist songs table, store all the song's paths that are in a playlist
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS PlaylistSongs (" +
-                    "songPath       TEXT      NOT NULL," +
-                    "playlistName   TEXT      NOT NULL," +
-                    "orderNumber    INTEGER   NOT NULL," +
-                    "isLastPlayed   INTEGER   NOT NULL DEFAULT 0," +
-                    "PRIMARY KEY(songPath, playlistName, orderNumber)" +
-                    "FOREIGN KEY(playlistName) REFERENCES Playlist(playlistName) ON DELETE CASCADE" +
-                    ")");
+                                        "songPath       TEXT      NOT NULL," +
+                                        "playlistName   TEXT      NOT NULL," +
+                                        "orderNumber    INTEGER   NOT NULL," +
+                                        "isLastPlayed   BOOLEAN   NOT NULL DEFAULT 0," +
+                                        "PRIMARY KEY(songPath, playlistName, orderNumber)" +
+                                        "FOREIGN KEY(playlistName) REFERENCES Playlist(playlistName) ON DELETE CASCADE" +
+                                    ")");
 
             //History table, store songs that are played before
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS History (" +
-                    "songPath TEXT                     NOT NULL," +
-                    "time     DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')), " +
-                    "PRIMARY KEY (songPath, time)" +
-                    ")");
+                                        "songPath TEXT                     NOT NULL," +
+                                        "time     DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')), " +
+                                        "PRIMARY KEY (songPath, time)" +
+                                    ")");
 
             //Playback queue table, store the songs that are in the queue
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS PlaybackQueue (" +
-                    "songPath    TEXT    NOT NULL," +
-                    "orderNumber INTEGER NOT NULL, " +
-                    "time        DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME'))," +
-                    "PRIMARY KEY (songPath)" +
-                    ")");
+                                        "songPath    TEXT    NOT NULL," +
+                                        "orderNumber INTEGER NOT NULL, " +
+                                        "time        DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME'))," +
+                                        "PRIMARY KEY (songPath, orderNumber, time)" +
+                                    ")");
 
             statement.close();
         } catch (SQLException e) {
@@ -485,7 +491,7 @@ public class DatabaseManager {
      *
      * @param songPath a string path of the song
      */
-    public void addToHisotry(String songPath) {
+    public void addToHistory(String songPath) {
         try {
             m_addHistory.setString(1, songPath);
             m_addHistory.executeUpdate();
@@ -546,7 +552,7 @@ public class DatabaseManager {
      * Helper Function for addPlaybackQueueHead()
      * Increment the order number of each song in the playback queue table before a song is inserted at the head
      */
-    public void incrementPlaybackQueueOrder() {
+    private void incrementPlaybackQueueOrder() {
         try {
             m_incrementQueueOrder.execute();
             System.out.println("Playback Queue order numbers updated");
@@ -568,7 +574,7 @@ public class DatabaseManager {
             m_addToPlaybackQueue.executeUpdate();
         }
         catch (SQLException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -577,7 +583,7 @@ public class DatabaseManager {
      * Get the largest value of the order number in PlaybackQueue table
      * @return int
      */
-    public int getMaxOrderNumberOfPlaybackQueue() {
+    private int getMaxOrderNumberOfPlaybackQueue() {
         try {
             ResultSet resultSet = m_maxOrderNumberInQueue.executeQuery();
             return resultSet.getInt(1);
@@ -640,18 +646,12 @@ public class DatabaseManager {
      * @param songPath
      * @param playlistName
      */
-    public void addToPlaylistSongs(String playlistName, String songPath, boolean isLastedPlayed) {
+    private void addToPlaylistSongs(String playlistName, String songPath) {
         try {
             int nextOrderNumber = getNextOrderNumber(playlistName);
             m_addToPlaylistSongs.setString(1, songPath);
             m_addToPlaylistSongs.setString(2, playlistName);
             m_addToPlaylistSongs.setInt(3, nextOrderNumber);
-            if (isLastedPlayed){
-                m_addToPlaylistSongs.setInt(4, 1);
-            } else {
-                m_addToPlaylistSongs.setInt(4, 0);
-            }
-
             m_addToPlaylistSongs.executeUpdate();
         }
         catch (SQLException e) {
@@ -665,7 +665,7 @@ public class DatabaseManager {
      * @param playlistName
      * @return
      */
-    public int getNextOrderNumber(String playlistName) {
+    private int getNextOrderNumber(String playlistName) {
         try {
             m_maxOrderNumberPlaylistSongs.setString(1, playlistName);
             ResultSet resultSet = m_maxOrderNumberPlaylistSongs.executeQuery();
@@ -706,7 +706,7 @@ public class DatabaseManager {
      * @param songPath
      * @return
      */
-    public int getOrderNumber(String playlistName, String songPath) {
+    private int getOrderNumber(String playlistName, String songPath) {
         try {
             m_getDeleteSongOrderNumber.setString(1, playlistName);
             m_getDeleteSongOrderNumber.setString(2, songPath);
@@ -726,7 +726,7 @@ public class DatabaseManager {
      * @param playlistName
      * @param orderNumber
      */
-    public void updatePlaylistSongsOrderNumber(String playlistName, int orderNumber) {
+    private void updatePlaylistSongsOrderNumber(String playlistName, int orderNumber) {
         try {
             m_updatePlaylistOrder.setString(1, playlistName);
             m_updatePlaylistOrder.setInt(2, orderNumber);
@@ -789,16 +789,30 @@ public class DatabaseManager {
             m_deleteFromPlaylistSongsByPlaylistName.setString(1, playlistName);
             m_deleteFromPlaylistSongsByPlaylistName.executeUpdate();
             for (Song song : songs) {
-                if (song.equals(playlist.getCurrentSong())){
-                    addToPlaylistSongs(playlistName, song.getM_file().getAbsolutePath(), true);
-                } else {
-                    addToPlaylistSongs(playlistName, song.getM_file().getAbsolutePath(), false);
-                }
+                addToPlaylistSongs(playlistName, song.getM_file().getAbsolutePath());
             }
+            savePlaylistLastPlayedSong(playlist);
         }
         catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Helper function for savePlaylistSongs()
+     * @param playlist playlist where the songs are to be saved
+     */
+    private void savePlaylistLastPlayedSong(Playlist playlist) {
+        try {
+            int orderNumber = playlist.getM_currentSongIndex() + 1;
+            if (orderNumber > 0) {
+                m_updatePLaylistLastPlayedSong.setString(1, playlist.getM_playlistName());
+                m_updatePLaylistLastPlayedSong.setString(2, playlist.getCurrentSong().getM_file().getAbsolutePath());
+                m_updatePLaylistLastPlayedSong.setInt(3, orderNumber);
+                m_updatePLaylistLastPlayedSong.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
