@@ -62,7 +62,9 @@ public class FilePersistentStorage {
     private void createConfigFile() {
         Path configDir = Paths.get(CONFIG_PATH);
         try {
-            Files.createDirectories(configDir.getParent());
+            if(!isDbDirExists()) {
+                Files.createDirectories(configDir.getParent());
+            }
             Files.createFile(configDir);
             setupConfigDefaults();
             writeConfigFile();
@@ -84,7 +86,7 @@ public class FilePersistentStorage {
     }
 
     /**
-     * Save the config file to the system.
+     * Save the config file settings.
      */
     public void saveConfigFile(File rightPanelFile, File centerPanelFile, MenuOptions menuOptions) {
         if(rightPanelFile != null) {
@@ -99,6 +101,9 @@ public class FilePersistentStorage {
         writeConfigFile();
     }
 
+    /**
+     * Write saved config settings to the file system.
+     */
     private void writeConfigFile() {
         try {
             FileWriter writer = new FileWriter(CONFIG_PATH);
@@ -116,6 +121,14 @@ public class FilePersistentStorage {
      */
     private boolean isConfigExists() {
         return new File(CONFIG_PATH).exists();
+    }
+
+    /**
+     * Check if db folder exists.
+     * @return true if exists. false if does not exist.
+     */
+    private boolean isDbDirExists() {
+        return new File(DB_DIR).exists();
     }
 
     /**
