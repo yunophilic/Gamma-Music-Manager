@@ -316,7 +316,7 @@ public class SongManager {
      * @return new Playlist object created
      */
     public Playlist addAndCreatePlaylist(String playlistName) {
-        Playlist newPlaylist = new Playlist(playlistName, -1);
+        Playlist newPlaylist = new Playlist(playlistName);
         m_playlists.add(newPlaylist);
         return newPlaylist;
     }

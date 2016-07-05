@@ -12,10 +12,16 @@ public class Playlist implements PlaylistObserver {
     private List<Song> m_songList;
     private int m_currentSongIndex; //-1 means no song is playing!
 
-    public Playlist(String playlistName, int songIndex) {
+    public Playlist(String playlistName) {
         m_playlistName = playlistName;
         m_songList = new ArrayList<>();
         m_currentSongIndex = -1;
+    }
+
+    public Playlist(String playlistName, int songIndex) {
+        m_playlistName = playlistName;
+        m_songList = new ArrayList<>();
+        m_currentSongIndex = songIndex;
     }
 
     /**

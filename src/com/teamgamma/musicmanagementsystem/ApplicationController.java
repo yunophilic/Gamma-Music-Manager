@@ -79,7 +79,7 @@ public class ApplicationController extends Application {
         System.out.println("loading playlists...");
         List<String> playlistNameList = m_databaseManager.getPlaylists();
         for (String playlistName : playlistNameList) {
-            int lastSongPlayedIndex = m_databaseManager.getLastPlayedSongInPlayList(playlistName);
+            int lastSongPlayedIndex = m_databaseManager.getPlaylistLastPlayedSongIndex(playlistName);
 
             Playlist playlist = new Playlist(playlistName, lastSongPlayedIndex);
             List<String> songPaths = m_databaseManager.getSongsInPlaylist(playlist.getM_playlistName());
