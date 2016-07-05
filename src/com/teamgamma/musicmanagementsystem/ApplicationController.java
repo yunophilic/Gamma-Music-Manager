@@ -42,16 +42,17 @@ public class ApplicationController extends Application {
     private DatabaseManager m_databaseManager;
     private MainUI m_rootUI;
     private SongManager m_songManager;
+    private MusicPlayerManager m_MusicPlayerManager;
 
-    public static void main(String[] args) {
-        launch(args);
+    @Override
+    public void init() throws Exception {
+
     }
 
     @Override
     public void start(Stage primaryStage) {
         //disable jaudiotagger logging
         Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
-
         primaryStage.setTitle(APP_TITLE);
 
         m_songManager = new SongManager();
@@ -97,16 +98,15 @@ public class ApplicationController extends Application {
         }
         m_songManager.setM_rightFolderSelected(previousRightPanelFolder);
 
-        MusicPlayerManager musicPlayerManager = new MusicPlayerManager(m_databaseManager);
+        m_MusicPlayerManager = new MusicPlayerManager(m_databaseManager);
 
-        createRootUI(m_songManager, musicPlayerManager);
-
+        createRootUI(m_songManager, m_MusicPlayerManager);
 
         Watcher watcher = new Watcher(m_songManager, m_databaseManager);
         watcher.startWatcher();
 
         primaryStage.setOnCloseRequest(e -> {
-            closeApp(musicPlayerManager, watcher);
+            closeApp(m_MusicPlayerManager, watcher);
         });
 
         primaryStage.setScene(new Scene(m_rootUI, 1200, 650));
