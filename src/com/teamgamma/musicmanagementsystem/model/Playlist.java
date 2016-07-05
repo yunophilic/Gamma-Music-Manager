@@ -18,6 +18,12 @@ public class Playlist implements PlaylistObserver {
         m_currentSongIndex = -1;
     }
 
+    public Playlist(String playlistName, int songIndex) {
+        m_playlistName = playlistName;
+        m_songList = new ArrayList<>();
+        m_currentSongIndex = songIndex;
+    }
+
     /**
      * Add song to playlist
      * @param songToAdd
@@ -29,11 +35,15 @@ public class Playlist implements PlaylistObserver {
 
     /**
      * Remove song from playlist
-     * @param songToRemove
-     * @return boolean
+     * @param songToRemoveIndex
      */
-    public boolean removeSong(Song songToRemove) {
-        return m_songList.remove(songToRemove);
+    public void removeSong(int songToRemoveIndex) {
+        //refresh current song index
+        if(m_currentSongIndex > songToRemoveIndex) {
+            m_currentSongIndex--;
+        }
+        //remove the song
+        m_songList.remove(songToRemoveIndex);
     }
 
     /**
@@ -47,9 +57,11 @@ public class Playlist implements PlaylistObserver {
         playlistsChanged();
 
         return m_songList;
-
     }
 
+    /**
+     * Shuffle unplayed songs in playlist
+     */
     public List<Song> shuffleUnplayedSongs() {
         // copy played songs...
         List<Song> playedSongs = new ArrayList<>();
@@ -102,10 +114,6 @@ public class Playlist implements PlaylistObserver {
         return m_songList.get(m_currentSongIndex);
     }
 
-    public void moveToSpecifiedSong(Song song) {
-        m_currentSongIndex = m_songList.indexOf(song);
-    }
-
     /**
      * Function to get the current song in the playlist.
 
@@ -113,6 +121,10 @@ public class Playlist implements PlaylistObserver {
      */
     public Song getCurrentSong() {
         return m_songList.get(m_currentSongIndex);
+    }
+
+    public Song getSongByIndex(int index) {
+        return m_songList.get(index);
     }
 
     public boolean isSongPlaying() {
@@ -136,14 +148,18 @@ public class Playlist implements PlaylistObserver {
         return m_songList.get(m_currentSongIndex);
     }
     // Return one song at a time
-    public Song oneAtATime() {
+    /*public Song oneAtATime() {
         // Keep track of this int in the database, call it from the player
         //m_currentSongIndex++;
         return m_songList.get(m_currentSongIndex);
-    }
+    }*/
 
     public boolean isLastSongInPlaylist(){
         return (m_currentSongIndex == (m_songList.size() - 1));
+    }
+
+    public boolean isEmpty() {
+        return m_songList.isEmpty();
     }
 
     // TODO: Do this
@@ -159,8 +175,16 @@ public class Playlist implements PlaylistObserver {
         return m_playlistName;
     }
 
+    public int getM_currentSongIndex() {
+        return m_currentSongIndex;
+    }
+
     public void setM_playlistName(String m_playlistName) {
         this.m_playlistName = m_playlistName;
+    }
+
+    public void setM_currentSongIndex(int index) {
+        m_currentSongIndex = index;
     }
 
     /**
