@@ -80,8 +80,6 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                                 if (!songToPlay.equals(m_musicPlayerManager.getCurrentSongPlaying())) {
                                     m_musicPlayerManager.playSongRightNow(songToPlay);
                                 }
-                                System.out.println("Playing song requested click");
-
                             } else {
                                 System.out.println("SOMETHING WRONG!!!");
                             }
