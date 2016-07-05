@@ -65,7 +65,8 @@ public class Watcher {
                     if (m_watchKey == null) {
                         Actions finalAction = action;
                         File finalTempFile = tempFile;
-                        Platform.runLater(() -> m_model.notifyFileObservers(finalAction, finalTempFile));
+                        Platform.runLater(() ->
+                                m_model.fileSysChanged(finalAction, finalTempFile));
                         break;
                     }
 
