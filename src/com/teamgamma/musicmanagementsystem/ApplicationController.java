@@ -48,25 +48,16 @@ public class ApplicationController extends Application {
      */
     @Override
     public void init() throws Exception {
-        m_filePersistentStorage = new FilePersistentStorage();
-        MenuOptions menuOptions = new MenuOptions(m_filePersistentStorage.getCenterPanelOption(),
-                m_filePersistentStorage.getLeftPanelOption());
-        m_songManager = new SongManager(menuOptions);
+        m_songManager = new SongManager();
         m_databaseManager = new DatabaseManager();
-        if (!m_databaseManager.isDatabaseFileExist()) {
-            System.out.println("No libraries are existent");
-            System.out.println("creating new database file...");
-            m_databaseManager.createDatabaseFile();
+        m_filePersistentStorage = new FilePersistentStorage();
+        if (m_databaseManager.isDatabaseFileExist()) {
             m_databaseManager.setupDatabase();
-            String firstLibrary = PromptUI.initialWelcome();
-            if (firstLibrary != null) {
-                m_songManager.addLibrary(firstLibrary);
-                m_databaseManager.addLibrary(firstLibrary);
-            }
-        } else {
-            m_databaseManager.setupDatabase();
+            loadSessionState();
         }
+    }
 
+    private void loadSessionState() {
         System.out.println("loading libraries...");
         List<String> libraryPathList = m_databaseManager.getLibraries();
         for (String libraryPath : libraryPathList) {
@@ -85,6 +76,11 @@ public class ApplicationController extends Application {
             }
             m_songManager.addPlaylist(playlist);
         }
+
+        // Get previous menu options from file
+        MenuOptions menuOptions = new MenuOptions(m_filePersistentStorage.getCenterPanelOption(),
+                m_filePersistentStorage.getLeftPanelOption());
+        m_songManager.setM_menuOptions(menuOptions);
 
         // Get previously selected right panel folder from file
         File previousRightPanelFolder = null;
@@ -111,6 +107,20 @@ public class ApplicationController extends Application {
     public void start(Stage primaryStage) {
         //disable jaudiotagger logging
         Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
+
+        if (!m_databaseManager.isDatabaseFileExist()) {
+            System.out.println("No libraries are existent");
+            System.out.println("creating new database file...");
+            m_databaseManager.createDatabaseFile();
+            m_databaseManager.setupDatabase();
+            String firstLibrary = PromptUI.initialWelcome();
+            if (firstLibrary != null) {
+                m_songManager.addLibrary(firstLibrary);
+                m_databaseManager.addLibrary(firstLibrary);
+            }
+        }
+
+        loadSessionState();
 
         primaryStage.setTitle(APP_TITLE);
 
