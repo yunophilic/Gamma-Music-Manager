@@ -5,6 +5,8 @@ import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 
 import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
@@ -12,6 +14,9 @@ import javafx.scene.control.Alert.AlertType;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +29,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 
 /**
@@ -387,6 +393,96 @@ public class PromptUI {
     // ---------------------- Confirmation Prompts
 
     /**
+     * Move library and contents to recyele bin
+     *
+     * @param folder to recycle
+     * @return true if user clicks OK
+     */
+    public static boolean recycleLibrary(File folder) {
+        Dialog dialog = new Dialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
+        dialog.setTitle("Remove Library");
+        Long sizeInKB = folderSize(folder) / 1024;
+        Long sizeInMB = sizeInKB / 1024;
+        String fileSize = String.format("%,d", sizeInKB) + " kilobytes";
+        if (1000 <= sizeInKB) {
+            fileSize = String.format("%,d", sizeInMB) + " megabytes";
+        }
+        BasicFileAttributes fileInfo;
+        try {
+            fileInfo = Files.readAttributes(folder.toPath(), BasicFileAttributes.class);
+        } catch (IOException e) {
+            fileInfo = null;
+        }
+        FileTime dateCreation = fileInfo.creationTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy h:mm a");
+        String dateCreated = dateFormat.format(dateCreation.toMillis());
+
+        FileTime dateModify = fileInfo.lastModifiedTime();
+        String dateModified = dateFormat.format(dateModify.toMillis());
+
+        dialog.setHeaderText(folder.getName() + "\n\nSize: " + fileSize + "\nCreated: " + dateCreated +
+                "\nLast Modified: " + dateModified);
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "recycle-library.png"))));
+        dialog.setContentText("Are you sure you want to move this folder and its contents to the Recycle Bin?");
+        ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
+
+        Optional result = dialog.showAndWait();
+
+        return result.isPresent() && result.get() == okButton;
+    }
+
+    /**
+     * Move song to recycle bin
+     *
+     * @param mediaFile to recycle
+     * @return true if user clicks OK
+     */
+    public static boolean recycleSong(File mediaFile) {
+        Dialog dialog = new Dialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "gamma-logo.png")));
+        dialog.setTitle("Remove Media File");
+        Long sizeInKB = mediaFile.length() / 1024;
+        Long sizeInMB = sizeInKB / 1024;
+        String fileSize = String.format("%,d", sizeInKB) + " kilobytes";
+        if (1000 <= sizeInKB) {
+            fileSize = String.format("%,d", sizeInMB) + " megabytes";
+        }
+        Song songInfo = new Song(mediaFile.getAbsolutePath());
+        String songArtist = songInfo.getM_artist();
+        if (songArtist.isEmpty()) {
+            songArtist = "Unknown Artist";
+        }
+        String songAlbum = songInfo.getM_album();
+        if (songAlbum.isEmpty()) {
+            songAlbum = "Unknown Album";
+        }
+        String fileNameFull = mediaFile.getName();
+        int beforeExtension = fileNameFull.lastIndexOf('.');
+        String fileNameFullNoExtension = fileNameFull.substring(0, beforeExtension);
+
+        Duration lengthOfSong = new Duration(songInfo.getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
+        String songLength = UserInterfaceUtils.convertDurationToTimeString(lengthOfSong);
+        dialog.setHeaderText(fileNameFullNoExtension + "\n\n" + songArtist + "\n" +
+                songAlbum + "\nLength: " + songLength + "\nSize: " + fileSize);
+        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
+                "recycle-song.png"))));
+        dialog.setContentText("Are you sure you want to move this song to the Recycle Bin?");
+        ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
+
+        Optional result = dialog.showAndWait();
+
+        return result.isPresent() && result.get() == okButton;
+    }
+
+    /**
      * Delete library and contents
      *
      * @param folder to delete
@@ -398,7 +494,27 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         dialog.setTitle("Delete Library");
-        dialog.setHeaderText("\"" + folder.getName() + "\":");
+        Long sizeInKB = folderSize(folder) / 1024;
+        Long sizeInMB = sizeInKB / 1024;
+        String fileSize = String.format("%,d", sizeInKB) + " kilobytes";
+        if (1000 <= sizeInKB) {
+            fileSize = String.format("%,d", sizeInMB) + " megabytes";
+        }
+        BasicFileAttributes fileInfo;
+        try {
+            fileInfo = Files.readAttributes(folder.toPath(), BasicFileAttributes.class);
+        } catch (IOException e) {
+            fileInfo = null;
+        }
+        FileTime dateCreation = fileInfo.creationTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy h:mm a");
+        String dateCreated = dateFormat.format(dateCreation.toMillis());
+
+        FileTime dateModify = fileInfo.lastModifiedTime();
+        String dateModified = dateFormat.format(dateModify.toMillis());
+
+        dialog.setHeaderText(folder.getName() + "\n\nSize: " + fileSize + "\nCreated: " + dateCreated +
+                "\nLast Modified: " + dateModified);
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "delete-library.png"))));
         dialog.setContentText("Are you sure you want to permanently delete this folder and all of its contents?");
@@ -422,7 +538,29 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         dialog.setTitle("Delete Media File");
-        dialog.setHeaderText("\"" + mediaFile.getName() + "\":");
+        Long sizeInKB = mediaFile.length() / 1024;
+        Long sizeInMB = sizeInKB / 1024;
+        String fileSize = String.format("%,d", sizeInKB) + " kilobytes";
+        if (1000 <= sizeInKB) {
+            fileSize = String.format("%,d", sizeInMB) + " megabytes";
+        }
+        Song songInfo = new Song(mediaFile.getAbsolutePath());
+        String songArtist = songInfo.getM_artist();
+        if (songArtist.isEmpty()) {
+            songArtist = "Unknown Artist";
+        }
+        String songAlbum = songInfo.getM_album();
+        if (songAlbum.isEmpty()) {
+            songAlbum = "Unknown Album";
+        }
+        String fileNameFull = mediaFile.getName();
+        int beforeExtension = fileNameFull.lastIndexOf('.');
+        String fileNameFullNoExtension = fileNameFull.substring(0, beforeExtension);
+
+        Duration lengthOfSong = new Duration(songInfo.getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
+        String songLength = UserInterfaceUtils.convertDurationToTimeString(lengthOfSong);
+        dialog.setHeaderText(fileNameFullNoExtension + "\n\n" + songArtist + "\n" +
+                songAlbum + "\nLength: " + songLength + "\nSize: " + fileSize);
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "delete-song.png"))));
         dialog.setContentText("Are you sure you want to permanently delete this song?");
@@ -432,6 +570,17 @@ public class PromptUI {
         Optional result = dialog.showAndWait();
 
         return result.isPresent() && result.get() == okButton;
+    }
+
+    private static long folderSize(File library) {
+        long length = 0;
+        for (File file : library.listFiles()) {
+            if (file.isFile())
+                length += file.length();
+            else
+                length += folderSize(file);
+        }
+        return length;
     }
 
     /**
