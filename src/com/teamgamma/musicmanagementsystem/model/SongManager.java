@@ -43,7 +43,7 @@ public class SongManager {
     private Actions m_libraryFileAction;
     private Actions m_rightPanelFileAction;
 
-    public SongManager() {
+    public SongManager(MenuOptions options) {
         m_songManagerObservers = new ArrayList<>();
         m_playlistObservers = new ArrayList<>();
         m_libraries = new ArrayList<>();
@@ -64,7 +64,7 @@ public class SongManager {
         m_rightFolderSelected = null;
         m_selectedPlaylist = null;
 
-        m_menuOptions = new MenuOptions();
+        m_menuOptions = options;
     }
 
     /**
@@ -315,12 +315,15 @@ public class SongManager {
      * @param playlistName name of new playlist
      * @return new Playlist object created
      */
-    public Playlist addPlaylist(String playlistName) {
+    public Playlist addAndCreatePlaylist(String playlistName) {
         Playlist newPlaylist = new Playlist(playlistName);
         m_playlists.add(newPlaylist);
         return newPlaylist;
     }
 
+    public void addPlaylist(Playlist playlist) {
+        m_playlists.add(playlist);
+    }
     /**
      * Remove existing playlist
      *

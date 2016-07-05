@@ -1,10 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.misc.Actions;
-import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
-import com.teamgamma.musicmanagementsystem.model.MenuOptions;
-import com.teamgamma.musicmanagementsystem.model.Playlist;
-import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.CheckMenuItem;
@@ -19,16 +16,16 @@ public class MenuUI extends MenuBar{
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
 
-    public MenuUI(SongManager model, DatabaseManager databaseManager){
+    public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage){
         super();
         m_model = model;
         m_databaseManager = databaseManager;
 
-        setMenu();
+        setMenu(filePersistentStorage);
     }
 
-    private void setMenu() {
-        super.getMenus().addAll(getMenuFile(), getMenuOptions(), getPlaylistSubMenu());
+    private void setMenu(FilePersistentStorage filePersistentStorage) {
+        super.getMenus().addAll(getMenuFile(), getMenuOptions(filePersistentStorage), getPlaylistSubMenu());
     }
 
     private Menu getMenuFile() {
@@ -54,18 +51,19 @@ public class MenuUI extends MenuBar{
         return menuFile;
     }
 
-    private Menu getMenuOptions() {
+    private Menu getMenuOptions(FilePersistentStorage filePersistentStorage) {
         final Menu menuOptions = new Menu("Options");
-        Menu leftPanelSubMenu = getLeftPanelSubMenu();
-        Menu centerPanelSubMenu = getCenterPanelSubMenu();
+        Menu leftPanelSubMenu = getLeftPanelSubMenu(filePersistentStorage);
+        Menu centerPanelSubMenu = getCenterPanelSubMenu(filePersistentStorage);
 
         menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu);
         return menuOptions;
     }
 
-    private Menu getLeftPanelSubMenu() {
+    private Menu getLeftPanelSubMenu(FilePersistentStorage config) {
         Menu leftPanelSubMenu = new Menu("Left Panel");
         CheckMenuItem showFoldersOnly = new CheckMenuItem("Show folders only");
+        showFoldersOnly.setSelected(config.getLeftPanelOption());
 
         showFoldersOnly.setOnAction(event -> {
             if (showFoldersOnly.isSelected()){
@@ -85,9 +83,10 @@ public class MenuUI extends MenuBar{
         return leftPanelSubMenu;
     }
 
-    private Menu getCenterPanelSubMenu() {
+    private Menu getCenterPanelSubMenu(FilePersistentStorage config) {
         Menu centerPanelSubMenu = new Menu("Center Panel");
         CheckMenuItem showFoldersOnly = new CheckMenuItem("Show files in subfolders");
+        showFoldersOnly.setSelected(config.getCenterPanelOption());
 
         showFoldersOnly.setOnAction(event -> {
             if (showFoldersOnly.isSelected()){
@@ -120,7 +119,7 @@ public class MenuUI extends MenuBar{
                     return;
                 }
                 if (newPlaylistName != null) {
-                    m_model.addPlaylist(newPlaylistName);
+                    m_model.addAndCreatePlaylist(newPlaylistName);
                     m_databaseManager.addPlaylist(newPlaylistName);
                     m_model.notifyPlaylistsObservers();
                 }

@@ -4,12 +4,12 @@ package com.teamgamma.musicmanagementsystem.model;
  * Manages choices made in the Menu Bar
  */
 public class MenuOptions {
-    private boolean m_leftPanelShowFolder;
     private boolean m_centerPanelShowSubfolderFiles;
+    private boolean m_leftPanelShowFolder;
 
-    public MenuOptions(){
-        this.m_leftPanelShowFolder = false;
-        this.m_centerPanelShowSubfolderFiles = false;
+    public MenuOptions(boolean centerPanelOption, boolean leftPanelOption) {
+        this.m_centerPanelShowSubfolderFiles = centerPanelOption;
+        this.m_leftPanelShowFolder = leftPanelOption;
     }
 
     /**

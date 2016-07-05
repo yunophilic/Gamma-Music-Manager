@@ -15,6 +15,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
@@ -265,10 +266,10 @@ public class ContentListUI extends StackPane {
                             m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
                         }
                         System.out.println("Selected song is " + selectedSong);
-                        if (selectedSong != null && event.isControlDown() && event.getButton() == MouseButton.PRIMARY){
+                        if (selectedSong != null && event.isControlDown() && event.getButton() == MouseButton.PRIMARY) {
                             System.out.println("The condition for the playback Conext menu is true");
-                                m_playbackContextMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, selectedSong);
-                                m_playbackContextMenu.show(m_table, event.getScreenX(), event.getScreenY());
+                            m_playbackContextMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, selectedSong);
+                            m_playbackContextMenu.show(m_table, event.getScreenX(), event.getScreenY());
 
                         }
                     }
@@ -378,21 +379,21 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent e) {
                 //if (selectedSong != null) {
-                    File dest = m_model.getM_selectedCenterFolder();
-                    if (!dest.isDirectory()) {
-                        PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
-                        return;
-                    }
-                    try {
-                        m_model.copyToDestination(dest);
-                        m_model.notifyFileObservers(Actions.PASTE, null);
-                    } catch (FileAlreadyExistsException ex) {
-                        PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
-                    } catch (IOException ex) {
-                        PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
-                    } catch (Exception ex) {
-                        PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
-                    }
+                File dest = m_model.getM_selectedCenterFolder();
+                if (!dest.isDirectory()) {
+                    PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
+                    return;
+                }
+                try {
+                    m_model.copyToDestination(dest);
+                    m_model.notifyFileObservers(Actions.PASTE, null);
+                } catch (FileAlreadyExistsException ex) {
+                    PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
+                } catch (IOException ex) {
+                    PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
+                } catch (Exception ex) {
+                    PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
+                }
                 //}
             }
         });
@@ -406,16 +407,16 @@ public class ContentListUI extends StackPane {
                     File fileToDelete = selectedSong.getM_file();
                     //confirmation dialog
                     if (fileToDelete.isDirectory()) {
-                        if (!PromptUI.deleteLibrary(fileToDelete)) {
+                        if (!PromptUI.recycleLibrary(fileToDelete)) {
                             return;
                         }
                     } else {
-                        if (!PromptUI.deleteSong(fileToDelete)) {
+                        if (!PromptUI.recycleSong(fileToDelete)) {
                             return;
                         }
                     }
                     //try to actually delete (retry if FileSystemException happens)
-                    for(int i=0; i<2; i++) {
+                    for (int i = 0; i < 2; i++) {
                         try {
                             m_model.deleteFile(fileToDelete);
                             break;
@@ -423,13 +424,13 @@ public class ContentListUI extends StackPane {
                             m_musicPlayerManager.stopSong();
                             m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
 
-                            if (m_musicPlayerManager.isThereANextSong()){
+                            if (m_musicPlayerManager.isThereANextSong()) {
                                 m_musicPlayerManager.playNextSong();
-                            } else if (!m_musicPlayerManager.getHistory().isEmpty()){
+                            } else if (!m_musicPlayerManager.getHistory().isEmpty()) {
                                 m_musicPlayerManager.playPreviousSong();
                             }
 
-                            if (i==1) { //if this exception still thrown after retry (for debugging)
+                            if (i == 1) { //if this exception still thrown after retry (for debugging)
                                 ex.printStackTrace();
                             }
                         } catch (Exception ex) {
@@ -458,12 +459,12 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent event) {
                 List<Playlist> playlists = m_model.getM_playlists();
-                if(playlists.isEmpty()) {
+                if (playlists.isEmpty()) {
                     PromptUI.customPromptError("Error", null, "No playlist exist!");
                     return;
                 }
                 Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSong);
-                if(selectedPlaylist != null) {
+                if (selectedPlaylist != null) {
                     m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
                 }
             }
@@ -475,7 +476,7 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent event) {
                 Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                if(selectedPlaylist != null) {
+                if (selectedPlaylist != null) {
                     m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
                 }
             }

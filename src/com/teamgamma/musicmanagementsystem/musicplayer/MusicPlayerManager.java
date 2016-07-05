@@ -58,14 +58,14 @@ public class MusicPlayerManager {
         m_playingQueue = new LinkedBlockingDeque<>();
         reterievePlaybackQueueFromDB();
 
-        m_songHistory = new ArrayList<Song>();
+        m_songHistory = new ArrayList<>();
         loadHistory();
 
-        m_newSongObservers = new ArrayList<MusicPlayerObserver>();
-        m_playbackObservers = new ArrayList<MusicPlayerObserver>();
-        m_changeStateObserver = new ArrayList<MusicPlayerObserver>();
-        m_errorObservers = new ArrayList<MusicPlayerObserver>();
-        m_queuingObserver = new ArrayList<MusicPlayerObserver>();
+        m_newSongObservers = new ArrayList<>();
+        m_playbackObservers = new ArrayList<>();
+        m_changeStateObserver = new ArrayList<>();
+        m_errorObservers = new ArrayList<>();
+        m_queuingObserver = new ArrayList<>();
         m_musicPlayer = new JlayerMP3Player(this);
 
     }
@@ -81,15 +81,23 @@ public class MusicPlayerManager {
             m_currentSong = m_songHistory.get(m_historyIndex);
             m_musicPlayer.playSong(m_currentSong);
         } else if (!m_playingQueue.isEmpty()){
+            m_historyIndex = m_songHistory.size() - 1;
             m_isPlayingOnHistory = false;
             Song nextSong = m_playingQueue.poll();
             playSongRightNow(nextSong);
 
         } else if (isThereNextSongOnPlaylist()) {
+            m_historyIndex = m_songHistory.size() - 1;
             m_isPlayingOnHistory = false;
             playNextSongFromPlaylist();
         }
+        notifyChangeStateObservers();
+        notifyNewSongObservers();
     }
+
+    /**
+     * Function to play the next song from the playlist.
+     */
     private void playNextSongFromPlaylist() {
         // Get the current song in the playlist
         m_currentSong = m_currentPlayList.moveToNextSong();
@@ -97,7 +105,7 @@ public class MusicPlayerManager {
 
     }
     /**
-     * Function to play song immidiatly with out going to the queue.
+     * Function to play song immediately with out going to the queue.
      *
      * @param songToPlay
      */
@@ -157,12 +165,18 @@ public class MusicPlayerManager {
      * @param playlistToPlay The playlist that we want to play.
      */
     public void playPlaylist(Playlist playlistToPlay) {
+        //prevent double song playing
+        if(isSomethingPlaying()) {
+            stopSong();
+        }
+
         if (playlistToPlay.getM_songList().isEmpty()){
             m_lastException = new Exception("Cannot play playlist " + playlistToPlay.getM_playlistName() +
                     " because there is no songs in there");
             notifyError();
             return;
         }
+
         m_currentPlayList = playlistToPlay;
         m_currentSong = m_currentPlayList.isSongPlaying() ? m_currentPlayList.getCurrentSong() : m_currentPlayList.moveToNextSong();
 
@@ -534,7 +548,7 @@ public class MusicPlayerManager {
             // Nothing in the DB.
             return;
         }
-        Deque<Song> queueFromDB = new LinkedBlockingDeque<Song>();
+        Deque<Song> queueFromDB = new LinkedBlockingDeque<>();
         for (int i = 0; i < queuedSongs.size(); i++) {
             Song song = new Song(queuedSongs.get(i));
             queueFromDB.add(song);
@@ -693,12 +707,23 @@ public class MusicPlayerManager {
      * @return The previous song in the player or the current song that is playing if there is no other song.
      */
     public Song getPreviousSong() {
-        if (m_historyIndex == 0){
-            return m_currentSong;
+        if (isPlayingSongOnFromHistoryList()) {
+            if (m_historyIndex == 0) {
+                return m_currentSong;
+            } else if ((m_historyIndex == m_songHistory.size() - 1)) {
+                return m_songHistory.get(m_historyIndex);
+            } else {
+                return m_songHistory.get(m_historyIndex - 1);
+            }
         }
-        if (m_historyIndex == m_songHistory.size() - 1 && (m_currentSong == null)){
-            return m_songHistory.get(m_historyIndex);
+        if (!m_songHistory.isEmpty()){
+            if (m_songHistory.size() == 1){
+                return m_songHistory.get(0);
+            } else {
+                return m_songHistory.get(m_historyIndex - 1);
+            }
         }
-        return m_songHistory.get(m_historyIndex - 1);
+
+        return m_currentSong;
     }
 }
