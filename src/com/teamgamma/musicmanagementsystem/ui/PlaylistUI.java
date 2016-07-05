@@ -572,8 +572,14 @@ public class PlaylistUI extends VBox {
                 Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
                 if (PromptUI.removeSongFromPlaylist(selectedPlaylist,
                                                     selectedPlaylist.getSongByIndex(selectedSongIndex))) {
+                    boolean songToRemoveIsPlaying = (selectedSongIndex == selectedPlaylist.getM_currentSongIndex());
+
                     selectedPlaylist.removeSong(selectedSongIndex);
                     m_model.notifyPlaylistSongsObservers();
+
+                    if (!selectedPlaylist.isEmpty() && songToRemoveIsPlaying) {
+                        m_musicPlayerManager.playPlaylist(selectedPlaylist);
+                    }
                 }
             }
         });

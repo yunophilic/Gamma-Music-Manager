@@ -38,6 +38,11 @@ public class Playlist implements PlaylistObserver {
      * @param songToRemoveIndex
      */
     public void removeSong(int songToRemoveIndex) {
+        //refresh current song index
+        if(m_currentSongIndex > songToRemoveIndex) {
+            m_currentSongIndex--;
+        }
+        //remove the song
         m_songList.remove(songToRemoveIndex);
     }
 
@@ -153,6 +158,10 @@ public class Playlist implements PlaylistObserver {
         return (m_currentSongIndex == (m_songList.size() - 1));
     }
 
+    public boolean isEmpty() {
+        return m_songList.isEmpty();
+    }
+
     // TODO: Do this
     /*public int getCurrentSongPlayingIndex() {
         MusicPlayerManager
@@ -164,6 +173,10 @@ public class Playlist implements PlaylistObserver {
 
     public String getM_playlistName() {
         return m_playlistName;
+    }
+
+    public int getM_currentSongIndex() {
+        return m_currentSongIndex;
     }
 
     public void setM_playlistName(String m_playlistName) {
