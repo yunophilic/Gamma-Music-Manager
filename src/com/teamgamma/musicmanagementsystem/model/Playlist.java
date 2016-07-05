@@ -35,11 +35,10 @@ public class Playlist implements PlaylistObserver {
 
     /**
      * Remove song from playlist
-     * @param songToRemove
-     * @return boolean
+     * @param songToRemoveIndex
      */
-    public boolean removeSong(Song songToRemove) {
-        return m_songList.remove(songToRemove);
+    public void removeSong(int songToRemoveIndex) {
+        m_songList.remove(songToRemoveIndex);
     }
 
     /**
@@ -53,9 +52,11 @@ public class Playlist implements PlaylistObserver {
         playlistsChanged();
 
         return m_songList;
-
     }
 
+    /**
+     * Shuffle unplayed songs in playlist
+     */
     public List<Song> shuffleUnplayedSongs() {
         // copy played songs...
         List<Song> playedSongs = new ArrayList<>();
@@ -108,10 +109,6 @@ public class Playlist implements PlaylistObserver {
         return m_songList.get(m_currentSongIndex);
     }
 
-    public void moveToSpecifiedSong(Song song) {
-        m_currentSongIndex = m_songList.indexOf(song);
-    }
-
     /**
      * Function to get the current song in the playlist.
 
@@ -119,6 +116,10 @@ public class Playlist implements PlaylistObserver {
      */
     public Song getCurrentSong() {
         return m_songList.get(m_currentSongIndex);
+    }
+
+    public Song getSongByIndex(int index) {
+        return m_songList.get(index);
     }
 
     public boolean isSongPlaying() {
@@ -142,11 +143,11 @@ public class Playlist implements PlaylistObserver {
         return m_songList.get(m_currentSongIndex);
     }
     // Return one song at a time
-    public Song oneAtATime() {
+    /*public Song oneAtATime() {
         // Keep track of this int in the database, call it from the player
         //m_currentSongIndex++;
         return m_songList.get(m_currentSongIndex);
-    }
+    }*/
 
     public boolean isLastSongInPlaylist(){
         return (m_currentSongIndex == (m_songList.size() - 1));
@@ -167,6 +168,10 @@ public class Playlist implements PlaylistObserver {
 
     public void setM_playlistName(String m_playlistName) {
         this.m_playlistName = m_playlistName;
+    }
+
+    public void setM_currentSongIndex(int index) {
+        m_currentSongIndex = index;
     }
 
     /**

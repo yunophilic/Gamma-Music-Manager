@@ -469,7 +469,7 @@ public class PlaylistUI extends VBox {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<Song, String> param) {
                 Duration lengthOfSong = new Duration(param.getValue().getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
-                return new ReadOnlyObjectWrapper<String>(UserInterfaceUtils.convertDurationToTimeString(lengthOfSong));
+                return new ReadOnlyObjectWrapper<>(UserInterfaceUtils.convertDurationToTimeString(lengthOfSong));
             }
         });
         lengthCol.setSortable(false);
@@ -524,10 +524,10 @@ public class PlaylistUI extends VBox {
                 row.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {
-                        Song selectedSong = row.getItem();
-                        if (selectedSong != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+                        int selectedSongIndex = row.getIndex();
+                        if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
                             Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                            selectedPlaylist.moveToSpecifiedSong(selectedSong);
+                            selectedPlaylist.setM_currentSongIndex(selectedSongIndex);
                             m_musicPlayerManager.playPlaylist(selectedPlaylist);
                         } else if (event.getButton() == MouseButton.PRIMARY) {
                             m_contextMenu.hide();
@@ -536,14 +536,8 @@ public class PlaylistUI extends VBox {
                             }
                         } else if (event.getButton() == MouseButton.SECONDARY) {
                             m_contextMenu.hide();
-                            m_contextMenu = generateContextMenu(row.getItem());
+                            m_contextMenu = generateContextMenu(selectedSongIndex);
                             m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
-                        }
-                        System.out.println("Selected song is " + selectedSong);
-                        if (selectedSong != null && event.isControlDown() && event.getButton() == MouseButton.PRIMARY){
-                            System.out.println("The condition for the playback Conext menu is true");
-                            m_playbackContextMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, selectedSong);
-                            m_playbackContextMenu.show(m_table, event.getScreenX(), event.getScreenY());
                         }
                     }
                 });
@@ -567,7 +561,7 @@ public class PlaylistUI extends VBox {
         });
     }
 
-    private ContextMenu generateContextMenu(Song selectedSong) {
+    private ContextMenu generateContextMenu(int selectedSongIndex) {
         ContextMenu contextMenu = new ContextMenu();
 
         //remove from playlist option
@@ -576,8 +570,9 @@ public class PlaylistUI extends VBox {
             @Override
             public void handle(ActionEvent e) {
                 Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                if (PromptUI.removeSongFromPlaylist(selectedPlaylist, selectedSong)) {
-                    selectedPlaylist.removeSong(selectedSong);
+                if (PromptUI.removeSongFromPlaylist(selectedPlaylist,
+                                                    selectedPlaylist.getSongByIndex(selectedSongIndex))) {
+                    selectedPlaylist.removeSong(selectedSongIndex);
                     m_model.notifyPlaylistSongsObservers();
                 }
             }
