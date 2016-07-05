@@ -424,7 +424,7 @@ public class PromptUI {
         String dateModified = dateFormat.format(dateModify.toMillis());
 
         dialog.setHeaderText(folder.getName() + "\n\nSize: " + fileSize + "\nCreated: " + dateCreated +
-            "\nLast Modified: " + dateModified);
+                "\nLast Modified: " + dateModified);
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "recycle-library.png"))));
         dialog.setContentText("Are you sure you want to move this folder and its contents to the Recycle Bin?");
@@ -481,6 +481,7 @@ public class PromptUI {
 
         return result.isPresent() && result.get() == okButton;
     }
+
     /**
      * Delete library and contents
      *

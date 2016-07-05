@@ -122,7 +122,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                         }
                     }
                     //try to actually delete (retry if FileSystemException happens)
-                    for(int i=0; i<2; i++) {
+                    for (int i = 0; i < 2; i++) {
                         try {
                             m_model.deleteFile(fileToDelete);
                             break;
@@ -130,13 +130,13 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                             m_musicPlayerManager.stopSong();
                             m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
 
-                            if (m_musicPlayerManager.isThereANextSong()){
+                            if (m_musicPlayerManager.isThereANextSong()) {
                                 m_musicPlayerManager.playNextSong();
-                            } else if (!m_musicPlayerManager.getHistory().isEmpty()){
+                            } else if (!m_musicPlayerManager.getHistory().isEmpty()) {
                                 m_musicPlayerManager.playPreviousSong();
                             }
 
-                            if (i==1) { //if this exception still thrown after retry (for debugging)
+                            if (i == 1) { //if this exception still thrown after retry (for debugging)
                                 ex.printStackTrace();
                             }
                         } catch (Exception ex) {
@@ -220,12 +220,12 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     Song selectedSong = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
                     if (selectedSong != null) {
                         List<Playlist> playlists = m_model.getM_playlists();
-                        if(playlists.isEmpty()) {
+                        if (playlists.isEmpty()) {
                             PromptUI.customPromptError("Error", null, "No playlist exist!");
                             return;
                         }
                         Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSong);
-                        if(selectedPlaylist != null) {
+                        if (selectedPlaylist != null) {
                             m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
                         }
                     }
@@ -331,10 +331,11 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
      *
      * @param item The menu item to disable.
      */
-    private void disableMenuItem(MenuItem item){
+    private void disableMenuItem(MenuItem item) {
         item.setVisible(false);
         item.setDisable(true);
     }
+
     private void createContextMenu() {
         m_contextMenu = new ContextMenu();
         m_contextMenu.getItems().addAll(generateMenuItems());
@@ -347,7 +348,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         setOnDragDetected(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if(m_selectedTreeViewItem != null) {
+                if (m_selectedTreeViewItem != null) {
                     System.out.println("Drag detected on " + m_selectedTreeViewItem);
 
                     //update model
