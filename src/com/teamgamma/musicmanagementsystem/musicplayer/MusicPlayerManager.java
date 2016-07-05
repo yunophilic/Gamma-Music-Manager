@@ -709,8 +709,6 @@ public class MusicPlayerManager {
         if (isPlayingSongOnFromHistoryList()) {
             if (m_historyIndex == 0) {
                 return m_currentSong;
-            } else if ((m_historyIndex == m_songHistory.size() - 1)) {
-                return m_songHistory.get(m_historyIndex);
             } else {
                 return m_songHistory.get(m_historyIndex - 1);
             }
@@ -718,6 +716,8 @@ public class MusicPlayerManager {
         if (!m_songHistory.isEmpty()){
             if (m_songHistory.size() == 1){
                 return m_songHistory.get(0);
+            } else if (m_currentSong == null) {
+                return m_songHistory.get(m_historyIndex);
             } else {
                 return m_songHistory.get(m_historyIndex - 1);
             }

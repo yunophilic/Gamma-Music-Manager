@@ -37,7 +37,6 @@ import java.io.File;
 public class MusicPlayerUI extends VBox {
 
     // Constants for MusicPlayerUI.
-    public static final int SECONDS_IN_MINUTE = 60;
     public static final double SEEK_BAR_Y_SCALE = 3;
     public static final int HEADER_FONT_SIZE = 20;
     public static final int SONG_TITLE_HEADER_SIZE = 13;
@@ -276,14 +275,25 @@ public class MusicPlayerUI extends VBox {
         };
     }
 
+    /**
+     * Fuunction to set the tooltip to the next song in the music player
+     *
+     * @param manager   Music Player manager to query
+     * @param nextSongTip   The tooltip to set
+     */
     private void setToolTipToNextSong(MusicPlayerManager manager, Tooltip nextSongTip) {
         Song nextSong = manager.getNextSong();
-        if (nextSong != null ) {
-            String songTitle = getSongDisplayName(nextSong);
-            nextSongTip.setText(songTitle);
-        } else {
-            nextSongTip.setText(NEXT_SONG_TOOLTIP_DEFAULT);
-        }
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                if (nextSong != null ) {
+                    String songTitle = getSongDisplayName(nextSong);
+                    nextSongTip.setText(songTitle);
+                } else {
+                    nextSongTip.setText(NEXT_SONG_TOOLTIP_DEFAULT);
+                }
+            }
+        });
     }
 
     /**
