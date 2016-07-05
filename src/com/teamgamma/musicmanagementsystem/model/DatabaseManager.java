@@ -20,11 +20,11 @@ public class DatabaseManager {
     private static final String DB_DIR = System.getProperty("user.dir") + File.separator + "db";
     private static final String DB_FILE_PATH = DB_DIR + File.separator + "persistence.db";
     private static final String DB_CONFIG_PATH = DB_DIR + File.separator + "config.json";
+
+    //config.json
     private JSONObject m_jsonObject;
 
-    public static final String LEFT_TREE_VIEW_TABLE = "LeftTreeView";
-    public static final String RIGHT_TREE_VIEW_TABLE = "RightTreeView";
-
+    //persistence.db
     private Connection m_connection;
     private PreparedStatement m_addLibrary;
     private PreparedStatement m_getLibraries;
@@ -55,7 +55,8 @@ public class DatabaseManager {
     private PreparedStatement m_getDeleteSongOrderNumber;
     private PreparedStatement m_deleteFromPlaylistSongs;
     private PreparedStatement m_getSongsInPlaylist;
-    private PreparedStatement m_deleteForShuffle;
+    private PreparedStatement m_orderNumOfPlaylistLastPlayedSong;
+    private PreparedStatement m_deleteFromPlaylistSongsByPlaylistName;
 
     public DatabaseManager() {
         this.m_jsonObject = new JSONObject();
@@ -70,98 +71,103 @@ public class DatabaseManager {
 
             m_getLibraries = m_connection.prepareStatement("SELECT * FROM Library");
 
-            m_deleteLibrary = m_connection.prepareStatement("DELETE FROM Library WHERE libraryPath=?");
+            m_deleteLibrary = m_connection.prepareStatement("DELETE FROM Library WHERE libraryPath = ?");
 
             m_addPlaylist = m_connection.prepareStatement("INSERT INTO Playlist VALUES (?)");
 
-            m_deletePlaylist = m_connection.prepareStatement("DELETE FROM Playlist WHERE playlistName=?");
+            m_deletePlaylist = m_connection.prepareStatement("DELETE FROM Playlist WHERE playlistName = ?");
 
             m_getPlaylists = m_connection.prepareStatement("SELECT * FROM Playlist");
 
             m_renamePlaylist = m_connection.prepareStatement("UPDATE Playlist " +
-                    "SET playlistName=? " +
-                    "WHERE playlistName=?");
+                                                             "SET playlistName = ? " +
+                                                             "WHERE playlistName = ?");
 
             m_addLeftTreeItem = m_connection.prepareStatement("INSERT INTO LeftTreeView (expandedPath) " +
-                    "VALUES (?)");
+                                                              "VALUES (?)");
 
             m_clearLeftTreeView = m_connection.prepareStatement("DELETE FROM LeftTreeView");
 
             m_getExpandedLeftTreeItems = m_connection.prepareStatement("SELECT * " +
-                    "FROM LeftTreeView ");
+                                                                       "FROM LeftTreeView ");
 
             m_addRightTreeItem = m_connection.prepareStatement("INSERT INTO RightTreeView (expandedPath) " +
-                    "VALUES (?)");
+                                                               "VALUES (?)");
 
             m_clearRightTreeView = m_connection.prepareStatement("DELETE FROM RightTreeView");
 
             m_getExpandedRightTreeItems = m_connection.prepareStatement("SELECT * " +
-                    "FROM RightTreeView ");
+                                                                        "FROM RightTreeView ");
 
             m_addRightFolderToTree = m_connection.prepareStatement("INSERT INTO RightTreeView (expandedPath)" +
-                    "VALUES (?)");
+                                                                   "VALUES (?)");
 
             m_addHistory = m_connection.prepareStatement("INSERT INTO History (songPath) " +
-                    "VALUES (?)");
+                                                         "VALUES (?)");
 
             m_deleteFromHistory = m_connection.prepareStatement("DELETE FROM History " +
-                    "WHERE songPath = ?");
+                                                                "WHERE songPath = ?");
 
             m_getHistory = m_connection.prepareStatement("SELECT * " +
-                    "FROM History " +
-                    "ORDER BY time");
+                                                         "FROM History " +
+                                                         "ORDER BY time");
 
             m_addToPlaybackQueue = m_connection.prepareStatement("INSERT INTO PlaybackQueue (songPath, orderNumber) " +
-                    "VALUES (?, ?)");
+                                                                 "VALUES (?, ?)");
 
             m_incrementQueueOrder = m_connection.prepareStatement("UPDATE PlaybackQueue " +
-                    "SET orderNumber = orderNumber + 1");
+                                                                  "SET orderNumber = orderNumber + 1");
 
             m_maxOrderNumberInQueue = m_connection.prepareStatement("SELECT max(orderNumber) " +
-                    "FROM PlaybackQueue");
+                                                                    "FROM PlaybackQueue");
 
             m_deleteFromQueue = m_connection.prepareStatement("DELETE FROM PlaybackQueue " +
-                    "WHERE songPath = ?");
+                                                              "WHERE songPath = ?");
 
             m_updateQueueOrderNumber =  m_connection.prepareStatement("UPDATE PlaybackQueue " +
-                    "SET orderNumber = orderNumber - 1 " +
-                    "WHERE orderNumber > (SELECT orderNumber " +
-                    "FROM PlaybackQueue " +
-                    "WHERE songPath = ?) ");
+                                                                      "SET orderNumber = orderNumber - 1 " +
+                                                                      "WHERE orderNumber > (SELECT orderNumber " +
+                                                                      "FROM PlaybackQueue " +
+                                                                      "WHERE songPath = ?) ");
 
             m_getPlaybackQueue = m_connection.prepareStatement("SELECT * FROM PlaybackQueue " +
-                    "ORDER BY OrderNumber ASC");
+                                                               "ORDER BY OrderNumber ASC");
 
             m_addToPlaylistSongs = m_connection.prepareStatement("INSERT INTO PlaylistSongs (songPath, " +
-                    "playlistName, " +
-                    "orderNumber, " +
-                    "isLastPlayed)" +
-                    "VALUES (?, ?, ?, ?)");
+                                                                 "playlistName, " +
+                                                                 "orderNumber, " +
+                                                                 "isLastPlayed)" +
+                                                                 "VALUES (?, ?, ?, ?)");
 
             m_maxOrderNumberPlaylistSongs = m_connection.prepareStatement("SELECT max(orderNumber) AS 'maxOrderNumber' " +
-                    "FROM PlaylistSongs " +
-                    "WHERE playlistName = ?");
+                                                                          "FROM PlaylistSongs " +
+                                                                          "WHERE playlistName = ?");
 
             m_updatePlaylistOrder = m_connection.prepareStatement("UPDATE PlaylistSongs " +
-                    "SET orderNumber = orderNumber - 1 " +
-                    "WHERE playlistName = ? AND orderNumber > ?");
+                                                                  "SET orderNumber = orderNumber - 1 " +
+                                                                  "WHERE playlistName = ? AND orderNumber > ?");
 
 
             m_getDeleteSongOrderNumber = m_connection.prepareStatement("SELECT orderNumber " +
-                    "FROM PlaylistSongs " +
-                    "WHERE playlistName = ? AND songPath = ?");
+                                                                       "FROM PlaylistSongs " +
+                                                                       "WHERE playlistName = ? AND songPath = ?");
 
             m_deleteFromPlaylistSongs = m_connection.prepareStatement("DELETE FROM PlaylistSongs " +
-                    "WHERE playlistName = ? AND songPath = ? " +
-                    "AND orderNumber = ?");
+                                                                      "WHERE playlistName = ? AND songPath = ? " +
+                                                                      "AND orderNumber = ?");
 
             m_getSongsInPlaylist = m_connection.prepareStatement("SELECT songPath " +
-                    "FROM PlaylistSongs " +
-                    "WHERE PlaylistName = ? " +
-                    "ORDER BY orderNumber ASC");
+                                                                 "FROM PlaylistSongs " +
+                                                                 "WHERE PlaylistName = ? " +
+                                                                 "ORDER BY orderNumber ASC");
 
-            m_deleteForShuffle = m_connection.prepareStatement("DELETE FROM PlaylistSongs " +
-                    "WHERE playlistName = ?");
+            m_orderNumOfPlaylistLastPlayedSong = m_connection.prepareStatement("SELECT orderNumber " +
+                                                                               "FROM PlaylistSongs " +
+                                                                               "WHERE PlaylistName = ? AND isLastPlayed = 1");
+
+            m_deleteFromPlaylistSongsByPlaylistName = m_connection.prepareStatement("DELETE " +
+                                                                                    "FROM PlaylistSongs " +
+                                                                                    "WHERE playlistName = ?");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -641,13 +647,18 @@ public class DatabaseManager {
      * @param songPath
      * @param playlistName
      */
-    public void addToPlaylistSongs(String playlistName, String songPath) {
+    public void addToPlaylistSongs(String playlistName, String songPath, boolean isLastedPlayed) {
         try {
             int nextOrderNumber = getNextOrderNumber(playlistName);
             m_addToPlaylistSongs.setString(1, songPath);
             m_addToPlaylistSongs.setString(2, playlistName);
             m_addToPlaylistSongs.setInt(3, nextOrderNumber);
-            m_addToPlaylistSongs.setInt(4, 0);
+            if (isLastedPlayed){
+                m_addToPlaylistSongs.setInt(4, 1);
+            } else {
+                m_addToPlaylistSongs.setInt(4, 0);
+            }
+
             m_addToPlaylistSongs.executeUpdate();
         }
         catch (SQLException e) {
@@ -665,8 +676,8 @@ public class DatabaseManager {
         try {
             m_maxOrderNumberPlaylistSongs.setString(1, playlistName);
             ResultSet resultSet = m_maxOrderNumberPlaylistSongs.executeQuery();
-            int nextOrderNumber = resultSet.getInt("maxOrderNumber");
-            return nextOrderNumber + 1;
+            int maxOrderNumber = resultSet.getInt("maxOrderNumber");
+            return maxOrderNumber + 1;
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -755,6 +766,26 @@ public class DatabaseManager {
     }
 
     /**
+     * Function to get the last played song in the playlist
+     *
+     * @param playlistName   The name of the playlist.
+     *
+     * @return  The index of the last song played or -1 if it was unable to get it.
+     */
+    public int getPlaylistLastPlayedSongIndex(String playlistName) {
+        try{
+            m_orderNumOfPlaylistLastPlayedSong.setString(1, playlistName);
+            m_orderNumOfPlaylistLastPlayedSong.execute();
+            ResultSet res = m_orderNumOfPlaylistLastPlayedSong.getResultSet();
+            return res.getInt(1) - 1;
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    /**
      * Save playlist songs and their order
      * @param playlist playlist where the songs are to be saved
      */
@@ -762,10 +793,14 @@ public class DatabaseManager {
         try {
             String playlistName = playlist.getM_playlistName();
             List<Song> songs = playlist.getM_songList();
-            m_deleteForShuffle.setString(1, playlistName);
-            m_deleteForShuffle.executeUpdate();
+            m_deleteFromPlaylistSongsByPlaylistName.setString(1, playlistName);
+            m_deleteFromPlaylistSongsByPlaylistName.executeUpdate();
             for (Song song : songs) {
-                addToPlaylistSongs(playlistName, song.getM_file().getAbsolutePath());
+                if (song.equals(playlist.getCurrentSong())){
+                    addToPlaylistSongs(playlistName, song.getM_file().getAbsolutePath(), true);
+                } else {
+                    addToPlaylistSongs(playlistName, song.getM_file().getAbsolutePath(), false);
+                }
             }
         }
         catch (SQLException e) {

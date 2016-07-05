@@ -315,12 +315,15 @@ public class SongManager {
      * @param playlistName name of new playlist
      * @return new Playlist object created
      */
-    public Playlist addPlaylist(String playlistName) {
+    public Playlist addAndCreatePlaylist(String playlistName) {
         Playlist newPlaylist = new Playlist(playlistName);
         m_playlists.add(newPlaylist);
         return newPlaylist;
     }
 
+    public void addPlaylist(Playlist playlist) {
+        m_playlists.add(playlist);
+    }
     /**
      * Remove existing playlist
      *

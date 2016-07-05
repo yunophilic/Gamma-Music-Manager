@@ -120,7 +120,7 @@ public class MenuUI extends MenuBar{
                     return;
                 }
                 if (newPlaylistName != null) {
-                    m_model.addPlaylist(newPlaylistName);
+                    m_model.addAndCreatePlaylist(newPlaylistName);
                     m_databaseManager.addPlaylist(newPlaylistName);
                     m_model.notifyPlaylistsObservers();
                 }

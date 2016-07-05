@@ -58,14 +58,14 @@ public class MusicPlayerManager {
         m_playingQueue = new LinkedBlockingDeque<>();
         reterievePlaybackQueueFromDB();
 
-        m_songHistory = new ArrayList<Song>();
+        m_songHistory = new ArrayList<>();
         loadHistory();
 
-        m_newSongObservers = new ArrayList<MusicPlayerObserver>();
-        m_playbackObservers = new ArrayList<MusicPlayerObserver>();
-        m_changeStateObserver = new ArrayList<MusicPlayerObserver>();
-        m_errorObservers = new ArrayList<MusicPlayerObserver>();
-        m_queuingObserver = new ArrayList<MusicPlayerObserver>();
+        m_newSongObservers = new ArrayList<>();
+        m_playbackObservers = new ArrayList<>();
+        m_changeStateObserver = new ArrayList<>();
+        m_errorObservers = new ArrayList<>();
+        m_queuingObserver = new ArrayList<>();
         m_musicPlayer = new JlayerMP3Player(this);
 
     }
@@ -157,12 +157,18 @@ public class MusicPlayerManager {
      * @param playlistToPlay The playlist that we want to play.
      */
     public void playPlaylist(Playlist playlistToPlay) {
+        //prevent double song playing
+        if(isSomethingPlaying()) {
+            stopSong();
+        }
+
         if (playlistToPlay.getM_songList().isEmpty()){
             m_lastException = new Exception("Cannot play playlist " + playlistToPlay.getM_playlistName() +
                     " because there is no songs in there");
             notifyError();
             return;
         }
+
         m_currentPlayList = playlistToPlay;
         m_currentSong = m_currentPlayList.isSongPlaying() ? m_currentPlayList.getCurrentSong() : m_currentPlayList.moveToNextSong();
 
@@ -534,7 +540,7 @@ public class MusicPlayerManager {
             // Nothing in the DB.
             return;
         }
-        Deque<Song> queueFromDB = new LinkedBlockingDeque<Song>();
+        Deque<Song> queueFromDB = new LinkedBlockingDeque<>();
         for (int i = 0; i < queuedSongs.size(); i++) {
             Song song = new Song(queuedSongs.get(i));
             queueFromDB.add(song);
