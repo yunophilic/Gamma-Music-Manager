@@ -43,7 +43,7 @@ public class SongManager {
     private Actions m_libraryFileAction;
     private Actions m_rightPanelFileAction;
 
-    public SongManager() {
+    public SongManager(MenuOptions options) {
         m_songManagerObservers = new ArrayList<>();
         m_playlistObservers = new ArrayList<>();
         m_libraries = new ArrayList<>();
@@ -64,7 +64,7 @@ public class SongManager {
         m_rightFolderSelected = null;
         m_selectedPlaylist = null;
 
-        m_menuOptions = new MenuOptions();
+        m_menuOptions = options;
     }
 
     /**

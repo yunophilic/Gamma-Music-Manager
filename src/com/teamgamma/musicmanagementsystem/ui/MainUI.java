@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
+import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
@@ -19,17 +20,20 @@ public class MainUI extends BorderPane {
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
+    private FilePersistentStorage m_filePersistentStorage;
     private LibraryUI m_libraryUI;
     private DynamicTreeViewUI m_rightFilePane;
 
     public MainUI(
             SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager,
-            List<String> libraryExpandedPaths, List<String> dynamicTreeViewExpandedPaths) {
+            FilePersistentStorage filePersistentStorage, List<String> libraryExpandedPaths,
+            List<String> dynamicTreeViewExpandedPaths) {
         super();
 
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
+        m_filePersistentStorage = filePersistentStorage;
 
         this.setLeft(leftPane(libraryExpandedPaths));
         this.setRight(rightPane());
@@ -51,7 +55,7 @@ public class MainUI extends BorderPane {
         PlaylistUI playlistUI = new PlaylistUI(m_model, m_musicPlayerManager, m_databaseManager);
 
         VBox musicPlayerWrapper = new VBox();
-        musicPlayerWrapper.getChildren().add(new MusicPlayerUI(m_musicPlayerManager, m_databaseManager));
+        musicPlayerWrapper.getChildren().add(new MusicPlayerUI(m_musicPlayerManager, m_filePersistentStorage));
         musicPlayerWrapper.getChildren().add(new MusicPlayerHistoryUI(m_musicPlayerManager));
 
         BorderPane rightPane = new BorderPane();
@@ -63,7 +67,7 @@ public class MainUI extends BorderPane {
     }
 
     private Node topPane() {
-        return new MenuUI(m_model, m_databaseManager);
+        return new MenuUI(m_model, m_databaseManager, m_filePersistentStorage);
     }
 
     private Node bottomPane() {
