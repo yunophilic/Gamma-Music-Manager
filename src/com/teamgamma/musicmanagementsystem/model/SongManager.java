@@ -404,6 +404,16 @@ public class SongManager {
         notifyFileObservers(Actions.RENAME, fileToRename);
     }
 
+    /**
+     * Notify file changes detected from File system
+     * @param action
+     * @param file
+     */
+    public void fileSysChanged(Actions action, File file) {
+        updateLibraries();
+        notifyFileObservers(action, file);
+    }
+
     public void fileDeleted(File fileToDelete) {
 
     }
