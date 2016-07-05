@@ -11,6 +11,8 @@ import java.nio.file.Paths;
 
 /**
  * Class to save state for the application.
+ * Note: @SuppressWarnings("unchecked") is used because of JSONObject implementation
+ * from the json-simple api
  */
 public class FilePersistentStorage {
     private static final String DB_DIR = System.getProperty("user.dir") + File.separator + "db";
@@ -43,7 +45,7 @@ public class FilePersistentStorage {
     }
 
     /**
-     * Initialize the config file
+     * Initialize the config file.
      */
     private void initializeConfigFile() {
         JSONParser parser = new JSONParser();
@@ -55,7 +57,7 @@ public class FilePersistentStorage {
     }
 
     /**
-     * Create the config file
+     * Create the config file.
      */
     private void createConfigFile() {
         Path configDir = Paths.get(CONFIG_PATH);
@@ -70,8 +72,9 @@ public class FilePersistentStorage {
     }
 
     /**
-     * Set the default configuration in the config file
+     * Set the default configuration in the config file.
      */
+    @SuppressWarnings("unchecked")
     private void setupConfigDefaults() {
         m_jsonObject.put(VOLUME, MusicPlayerConstants.MAX_VOLUME);
         m_jsonObject.put(LEFT_PANEL_OPTION, false);
@@ -81,11 +84,15 @@ public class FilePersistentStorage {
     }
 
     /**
-     * Save the config file to the system
+     * Save the config file to the system.
      */
     public void saveConfigFile(File rightPanelFile, File centerPanelFile, MenuOptions menuOptions) {
-        saveRightPanelFolder(rightPanelFile.getAbsolutePath());
-        saveCenterPanelFolder(centerPanelFile.getAbsolutePath());
+        if(rightPanelFile != null) {
+            saveRightPanelFolder(rightPanelFile.getAbsolutePath());
+        }
+        if(centerPanelFile != null) {
+            saveCenterPanelFolder(centerPanelFile.getAbsolutePath());
+        }
         saveCenterPanelOption(menuOptions.getM_centerPanelShowSubfolderFiles());
         saveLeftPanelOption(menuOptions.getM_leftPanelShowFolder());
 
@@ -93,15 +100,18 @@ public class FilePersistentStorage {
     }
 
     private void writeConfigFile() {
-        try (FileWriter writer = new FileWriter(CONFIG_PATH)){
+        try {
+            FileWriter writer = new FileWriter(CONFIG_PATH);
             writer.write(m_jsonObject.toJSONString());
+            writer.flush();
+            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * Check if config file exists
+     * Check if config file exists.
      * @return true if exists. false if does not exist.
      */
     private boolean isConfigExists() {
@@ -109,49 +119,86 @@ public class FilePersistentStorage {
     }
 
     /**
-     * Save the volume to the config file
+     * Save the volume to the config file.
      * @param volumeLevel an integer indicating the volume.
      */
+    @SuppressWarnings("unchecked")
     public void saveVolumeState(double volumeLevel) {
         m_jsonObject.replace(VOLUME, volumeLevel);
     }
 
     /**
-     * Returns the volume state from config file
-     * @return volume as a double
+     * Returns the volume state from config file.
+     * @return volume as a double.
      */
     public double getVolumeConfig() {
         return (double) m_jsonObject.get(VOLUME);
     }
 
+    /**
+     * Save the right panel folder to the config file.
+     * @param rightFolderPath path to save.
+     */
+    @SuppressWarnings("unchecked")
     private void saveRightPanelFolder(String rightFolderPath) {
         m_jsonObject.replace(RIGHT_PANEL_FOLDER, rightFolderPath);
     }
 
+    /**
+     * Returns the right panel folder from config file.
+     * @return right folder path as a string.
+     */
     public String getRightPanelFolder() {
         return (String) m_jsonObject.get(RIGHT_PANEL_FOLDER);
     }
 
+    /**
+     * Save the center panel folder to the config file.
+     * @param centerFolderPath path to save.
+     */
+    @SuppressWarnings("unchecked")
     private void saveCenterPanelFolder(String centerFolderPath) {
         m_jsonObject.replace(CENTER_PANEL_FOLDER, centerFolderPath);
     }
 
+    /**
+     * Returns the center panel folder from config file.
+     * @return center folder path as a string.
+     */
     public String getCenterPanelFolder() {
         return (String) m_jsonObject.get(CENTER_PANEL_FOLDER);
     }
 
+    /**
+     * Save the center panel option to the config file.
+     * @param option boolean value to save.
+     */
+    @SuppressWarnings("unchecked")
     private void saveCenterPanelOption(boolean option) {
         m_jsonObject.replace(CENTER_PANEL_OPTION, option);
     }
 
+    /**
+     * Returns the center panel option from config file.
+     * @return center folder option as a boolean.
+     */
     public boolean getCenterPanelOption() {
         return (boolean) m_jsonObject.get(CENTER_PANEL_OPTION);
     }
 
+    /**
+     * Save the left panel option to the config file.
+     * @param option boolean value to save.
+     */
+    @SuppressWarnings("unchecked")
     private void saveLeftPanelOption(boolean option) {
         m_jsonObject.replace(LEFT_PANEL_OPTION, option);
     }
 
+    /**
+     * Returns the left panel option from config file.
+     * @return left folder option as a boolean.
+     */
     public boolean getLeftPanelOption() {
         return (boolean) m_jsonObject.get(LEFT_PANEL_OPTION);
     }
