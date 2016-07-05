@@ -9,7 +9,6 @@ import javafx.util.Duration;
 import javax.sound.sampled.*;
 import java.io.FileNotFoundException;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
@@ -292,7 +291,7 @@ public class MusicPlayerManager {
             }
         }
         m_songHistory.add(m_currentSong);
-        m_databaseManager.addToHisotry(m_currentSong.getM_file().getAbsolutePath());
+        m_databaseManager.addToHistory(m_currentSong.getM_file().getAbsolutePath());
         // On insertion of new song in history set the last played index to be the latest song in history list.
         m_historyIndex = m_songHistory.size() - 1;
         m_isPlayingOnHistory = false;
