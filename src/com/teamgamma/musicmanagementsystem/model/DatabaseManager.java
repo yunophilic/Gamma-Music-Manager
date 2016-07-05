@@ -267,8 +267,9 @@ public class DatabaseManager {
 
             //History table, store songs that are played before
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS History (" +
-                    "songPath TEXT      PRIMARY KEY               NOT NULL," +
-                    "time     DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME'))" +
+                    "songPath TEXT                     NOT NULL," +
+                    "time     DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')), " +
+                    "PRIMARY KEY (songPath, time)" +
                     ")");
 
             //Playback queue table, store the songs that are in the queue
