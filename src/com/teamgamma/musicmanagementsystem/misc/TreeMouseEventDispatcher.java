@@ -77,8 +77,11 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                         } else if (!isFolder) {
                             Song songToPlay = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
                             if (songToPlay != null) {
+                                if (!songToPlay.equals(m_musicPlayerManager.getCurrentSongPlaying())) {
+                                    m_musicPlayerManager.playSongRightNow(songToPlay);
+                                }
                                 System.out.println("Playing song requested click");
-                                m_musicPlayerManager.playSongRightNow(songToPlay);
+
                             } else {
                                 System.out.println("SOMETHING WRONG!!!");
                             }
