@@ -192,7 +192,6 @@ public class DatabaseManager {
     public void createDatabaseFile() {
         Path dbFilePath = Paths.get(DB_FILE_PATH);
         try {
-            Files.createDirectories(dbFilePath.getParent());
             Files.createFile(dbFilePath);
         } catch (IOException e) {
             e.printStackTrace();

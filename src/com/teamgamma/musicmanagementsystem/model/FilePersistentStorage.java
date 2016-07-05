@@ -60,6 +60,7 @@ public class FilePersistentStorage {
     private void createConfigFile() {
         Path configDir = Paths.get(CONFIG_PATH);
         try {
+            Files.createDirectories(configDir.getParent());
             Files.createFile(configDir);
             setupConfigDefaults();
             writeConfigFile();

@@ -48,11 +48,9 @@ public class ApplicationController extends Application {
      */
     @Override
     public void init() throws Exception {
-        m_filePersistentStorage = new FilePersistentStorage();
-        MenuOptions menuOptions = new MenuOptions(m_filePersistentStorage.getCenterPanelOption(),
-                m_filePersistentStorage.getLeftPanelOption());
-        m_songManager = new SongManager(menuOptions);
+        m_songManager = new SongManager();
         m_databaseManager = new DatabaseManager();
+        m_filePersistentStorage = new FilePersistentStorage();
         if (!m_databaseManager.isDatabaseFileExist()) {
             System.out.println("No libraries are existent");
             System.out.println("creating new database file...");
@@ -85,6 +83,11 @@ public class ApplicationController extends Application {
             }
             m_songManager.addPlaylist(playlist);
         }
+
+        // Get previous menu options from file
+        MenuOptions menuOptions = new MenuOptions(m_filePersistentStorage.getCenterPanelOption(),
+                m_filePersistentStorage.getLeftPanelOption());
+        m_songManager.setM_menuOptions(menuOptions);
 
         // Get previously selected right panel folder from file
         File previousRightPanelFolder = null;
