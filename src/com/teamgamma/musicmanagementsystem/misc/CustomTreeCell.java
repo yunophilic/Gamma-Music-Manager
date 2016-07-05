@@ -353,6 +353,10 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     //update model
                     m_model.setM_fileToMove(m_selectedTreeViewItem.getM_file());
 
+                    Song songToAddInPlaylist = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    if (songToAddInPlaylist != null) {
+                        m_model.setM_songToAddToPlaylist(songToAddInPlaylist);
+                    }
                     //update drag board
                     Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
                     dragBoard.setDragView(snapshot(null, null));
