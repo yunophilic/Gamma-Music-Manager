@@ -1,6 +1,5 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
@@ -25,14 +24,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import javafx.util.Duration;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.FileSystemException;
 import java.util.List;
 
 /**
@@ -165,7 +160,7 @@ public class PlaylistUI extends VBox {
                     return;
                 }
                 if (newPlaylistName != null) {
-                    Playlist newPlaylist = m_model.addPlaylist(newPlaylistName);
+                    Playlist newPlaylist = m_model.addAndCreatePlaylist(newPlaylistName);
                     m_databaseManager.addPlaylist(newPlaylistName);
                     m_model.notifyPlaylistsObservers();
                     m_dropDownMenu.getSelectionModel().select(newPlaylist);

@@ -640,13 +640,18 @@ public class DatabaseManager {
      * @param songPath
      * @param playlistName
      */
-    public void addToPlaylistSongs(String playlistName, String songPath) {
+    public void addToPlaylistSongs(String playlistName, String songPath, boolean isLastedPlayed) {
         try {
             int nextOrderNumber = getNextOrderNumber(playlistName);
             m_addToPlaylistSongs.setString(1, songPath);
             m_addToPlaylistSongs.setString(2, playlistName);
             m_addToPlaylistSongs.setInt(3, nextOrderNumber);
-            m_addToPlaylistSongs.setInt(4, 0);
+            if (isLastedPlayed){
+                m_addToPlaylistSongs.setInt(4, 1);
+            } else {
+                m_addToPlaylistSongs.setInt(4, 0);
+            }
+
             m_addToPlaylistSongs.executeUpdate();
         }
         catch (SQLException e) {
@@ -754,6 +759,27 @@ public class DatabaseManager {
     }
 
     /**
+     * Function to get the last played song in the playlist
+     *
+     * @param playlistName   The name of the playlist.
+     *
+     * @return  The index of the last song played or -1 if it was unable to get it.
+     */
+    public int getLastPlayedSongInPlayList(String playlistName) {
+        try{
+            PreparedStatement stmt = m_connection.prepareStatement("SELECT orderNumber FROM SongPlaylist WHERE PlaylistName = ? and isPlayedLast = 1");
+            stmt.setString(1, playlistName);
+            stmt.execute();
+            ResultSet res = stmt.getResultSet();
+            return res.getInt(1);
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    /**
      * Save playlist songs and their order
      * @param playlist playlist where the songs are to be saved
      */
@@ -764,7 +790,12 @@ public class DatabaseManager {
             m_deleteForShuffle.setString(1, playlistName);
             m_deleteForShuffle.executeUpdate();
             for (Song song : songs) {
-                addToPlaylistSongs(playlistName, song.getM_file().getAbsolutePath());
+                if (song.equals(playlist.getCurrentSong())){
+                    addToPlaylistSongs(playlistName, song.getM_file().getAbsolutePath(), true);
+                } else {
+                    addToPlaylistSongs(playlistName, song.getM_file().getAbsolutePath(), false);
+                }
+
             }
         }
         catch (SQLException e) {
