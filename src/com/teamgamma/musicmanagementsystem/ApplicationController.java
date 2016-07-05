@@ -41,18 +41,13 @@ public class ApplicationController extends Application {
     private SongManager m_songManager;
     private MusicPlayerManager m_MusicPlayerManager;
 
+    /**
+     * Load previously saved session states
+     * Modified from https://blog.codecentric.de/en/2015/09/javafx-how-to-easily-implement-application-preloader-2/
+     * @throws Exception
+     */
     @Override
     public void init() throws Exception {
-
-    }
-
-    @Override
-    public void start(Stage primaryStage) {
-        //disable jaudiotagger logging
-        Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
-
-        primaryStage.setTitle(APP_TITLE);
-
         m_filePersistentStorage = new FilePersistentStorage();
         MenuOptions menuOptions = new MenuOptions(m_filePersistentStorage.getCenterPanelOption(),
                 m_filePersistentStorage.getLeftPanelOption());
@@ -110,6 +105,14 @@ public class ApplicationController extends Application {
         m_songManager.setM_selectedCenterFolder(previousCenterPanelFolder);
 
         m_MusicPlayerManager = new MusicPlayerManager(m_databaseManager);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        //disable jaudiotagger logging
+        Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
+
+        primaryStage.setTitle(APP_TITLE);
 
         createRootUI(m_songManager, m_MusicPlayerManager);
 
