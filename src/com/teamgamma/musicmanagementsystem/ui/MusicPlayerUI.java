@@ -157,7 +157,16 @@ public class MusicPlayerUI extends VBox {
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                previousSongToolTip.setText(getSongDisplayName(manager.getPreviousSong()));
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (manager.isNothingPrevious()) {
+                            previousSongToolTip.setText(PREVIOUS_SONG_TOOLTIP_DEFUALT);
+                        } else {
+                            previousSongToolTip.setText(getSongDisplayName(manager.getPreviousSong()));
+                        }
+                    }
+                });
             }
         });
         previousSongButton.setTooltip(previousSongToolTip);
@@ -165,12 +174,17 @@ public class MusicPlayerUI extends VBox {
         manager.registerNewSongObserver(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
-                if (manager.isNothingPrevious()) {
-                    previousSongButton.setOpacity(FADED);
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (manager.isNothingPrevious()) {
+                            previousSongButton.setOpacity(FADED);
 
-                } else {
-                    previousSongButton.setOpacity(NOT_FADED);
-                }
+                        } else {
+                            previousSongButton.setOpacity(NOT_FADED);
+                        }
+                    }
+                });
             }
         });
 

@@ -81,15 +81,23 @@ public class MusicPlayerManager {
             m_currentSong = m_songHistory.get(m_historyIndex);
             m_musicPlayer.playSong(m_currentSong);
         } else if (!m_playingQueue.isEmpty()){
+            m_historyIndex = m_songHistory.size() - 1;
             m_isPlayingOnHistory = false;
             Song nextSong = m_playingQueue.poll();
             playSongRightNow(nextSong);
 
         } else if (isThereNextSongOnPlaylist()) {
+            m_historyIndex = m_songHistory.size() - 1;
             m_isPlayingOnHistory = false;
             playNextSongFromPlaylist();
         }
+        notifyChangeStateObservers();
+        notifyNewSongObservers();
     }
+
+    /**
+     * Function to play the next song from the playlist.
+     */
     private void playNextSongFromPlaylist() {
         // Get the current song in the playlist
         m_currentSong = m_currentPlayList.moveToNextSong();
@@ -97,7 +105,7 @@ public class MusicPlayerManager {
 
     }
     /**
-     * Function to play song immidiatly with out going to the queue.
+     * Function to play song immediately with out going to the queue.
      *
      * @param songToPlay
      */
@@ -699,12 +707,23 @@ public class MusicPlayerManager {
      * @return The previous song in the player or the current song that is playing if there is no other song.
      */
     public Song getPreviousSong() {
-        if (m_historyIndex == 0){
-            return m_currentSong;
+        if (isPlayingSongOnFromHistoryList()) {
+            if (m_historyIndex == 0) {
+                return m_currentSong;
+            } else if ((m_historyIndex == m_songHistory.size() - 1)) {
+                return m_songHistory.get(m_historyIndex);
+            } else {
+                return m_songHistory.get(m_historyIndex - 1);
+            }
         }
-        if (m_historyIndex == m_songHistory.size() - 1 && (m_currentSong == null)){
-            return m_songHistory.get(m_historyIndex);
+        if (!m_songHistory.isEmpty()){
+            if (m_songHistory.size() == 1){
+                return m_songHistory.get(0);
+            } else {
+                return m_songHistory.get(m_historyIndex - 1);
+            }
         }
-        return m_songHistory.get(m_historyIndex - 1);
+
+        return m_currentSong;
     }
 }
