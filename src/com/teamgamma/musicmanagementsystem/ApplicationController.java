@@ -39,18 +39,15 @@ public class ApplicationController extends Application {
     private FilePersistentStorage m_filePersistentStorage;
     private MainUI m_rootUI;
     private SongManager m_songManager;
+    private MusicPlayerManager m_MusicPlayerManager;
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-
+    /**
+     * Load previously saved session states
+     * Modified from https://blog.codecentric.de/en/2015/09/javafx-how-to-easily-implement-application-preloader-2/
+     * @throws Exception
+     */
     @Override
-    public void start(Stage primaryStage) {
-        //disable jaudiotagger logging
-        Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
-
-        primaryStage.setTitle(APP_TITLE);
-
+    public void init() throws Exception {
         m_filePersistentStorage = new FilePersistentStorage();
         MenuOptions menuOptions = new MenuOptions(m_filePersistentStorage.getCenterPanelOption(),
                 m_filePersistentStorage.getLeftPanelOption());
@@ -107,16 +104,23 @@ public class ApplicationController extends Application {
         }
         m_songManager.setM_selectedCenterFolder(previousCenterPanelFolder);
 
-        MusicPlayerManager musicPlayerManager = new MusicPlayerManager(m_databaseManager);
+        m_MusicPlayerManager = new MusicPlayerManager(m_databaseManager);
+    }
 
-        createRootUI(m_songManager, musicPlayerManager);
+    @Override
+    public void start(Stage primaryStage) {
+        //disable jaudiotagger logging
+        Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
 
+        primaryStage.setTitle(APP_TITLE);
+
+        createRootUI(m_songManager, m_MusicPlayerManager);
 
         Watcher watcher = new Watcher(m_songManager, m_databaseManager);
         watcher.startWatcher();
 
         primaryStage.setOnCloseRequest(e -> {
-            closeApp(musicPlayerManager, watcher);
+            closeApp(m_MusicPlayerManager, watcher);
         });
 
         primaryStage.setScene(new Scene(m_rootUI, 1200, 650));
