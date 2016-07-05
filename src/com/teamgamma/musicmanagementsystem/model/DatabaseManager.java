@@ -283,7 +283,7 @@ public class DatabaseManager {
                                         "songPath    TEXT    NOT NULL," +
                                         "orderNumber INTEGER NOT NULL, " +
                                         "time        DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME'))," +
-                                        "PRIMARY KEY (songPath)" +
+                                        "PRIMARY KEY (songPath, orderNumber, time)" +
                                     ")");
 
             statement.close();
