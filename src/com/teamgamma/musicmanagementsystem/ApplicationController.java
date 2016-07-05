@@ -48,6 +48,7 @@ public class ApplicationController extends Application {
      */
     @Override
     public void init() throws Exception {
+        Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
         m_songManager = new SongManager();
         m_databaseManager = new DatabaseManager();
         m_filePersistentStorage = new FilePersistentStorage();
@@ -106,7 +107,7 @@ public class ApplicationController extends Application {
     @Override
     public void start(Stage primaryStage) {
         //disable jaudiotagger logging
-        Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
+
 
         if (!m_databaseManager.isDatabaseFileExist()) {
             System.out.println("No libraries are existent");
