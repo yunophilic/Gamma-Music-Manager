@@ -19,8 +19,6 @@ import java.util.List;
 public class DatabaseManager {
     private static final String DB_DIR = System.getProperty("user.dir") + File.separator + "db";
     private static final String DB_FILE_PATH = DB_DIR + File.separator + "persistence.db";
-    private static final String DB_CONFIG_PATH = DB_DIR + File.separator + "config.json";
-    private JSONObject m_jsonObject;
 
     public static final String LEFT_TREE_VIEW_TABLE = "LeftTreeView";
     public static final String RIGHT_TREE_VIEW_TABLE = "RightTreeView";
@@ -58,7 +56,6 @@ public class DatabaseManager {
     private PreparedStatement m_deleteForShuffle;
 
     public DatabaseManager() {
-        this.m_jsonObject = new JSONObject();
     }
 
     /**
@@ -174,7 +171,6 @@ public class DatabaseManager {
         setupConnection();
         createTables();
         prepareStatements();
-        setupConfig();
     }
 
     /**
@@ -772,83 +768,4 @@ public class DatabaseManager {
         }
     }
 
-    /**
-     * Create the config file if it does not exist.
-     * Initialize the config file if it exists.
-     */
-    private void setupConfig() {
-        if(!isConfigExists()) {
-            createConfigFile();
-        } else {
-            initializeConfigFile();
-        }
-    }
-
-    /**
-     * Initialize the config file
-     */
-    private void initializeConfigFile() {
-        JSONParser parser = new JSONParser();
-        try {
-            m_jsonObject = (JSONObject) parser.parse(new FileReader(DB_CONFIG_PATH));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Create the config file
-     */
-    private void createConfigFile() {
-        Path configDir = Paths.get(DB_CONFIG_PATH);
-        try {
-            Files.createFile(configDir);
-            setupConfigDefaults();
-            saveConfigFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Set the default configuration in the config file
-     */
-    private void setupConfigDefaults() {
-        m_jsonObject.put("volume", MusicPlayerConstants.MAX_VOLUME);
-    }
-
-    /**
-     * Save the config file to the system
-     */
-    public void saveConfigFile() {
-        try (FileWriter writer = new FileWriter(DB_CONFIG_PATH)){
-            writer.write(m_jsonObject.toJSONString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Check if config file exists
-     * @return true if exists. false if does not exist.
-     */
-    private boolean isConfigExists() {
-        return new File(DB_CONFIG_PATH).exists();
-    }
-
-    /**
-     * Save the volume to the config file
-     * @param volumeLevel an integer indicating the volume.
-     */
-    public void saveVolumeState(double volumeLevel) {
-        m_jsonObject.replace("volume", volumeLevel);
-    }
-
-    /**
-     * Returns the volume state from config file
-     * @return volume as a double
-     */
-    public double getVolumeConfig() {
-        return (double) m_jsonObject.get("volume");
-    }
 }

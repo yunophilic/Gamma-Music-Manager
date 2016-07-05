@@ -1,10 +1,6 @@
 package com.teamgamma.musicmanagementsystem;
 
-import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
-import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
-import com.teamgamma.musicmanagementsystem.model.Playlist;
-import com.teamgamma.musicmanagementsystem.model.Song;
-import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
@@ -40,6 +36,7 @@ public class ApplicationController extends Application {
     private static final String APP_TITLE = "Gamma Music Manager";
 
     private DatabaseManager m_databaseManager;
+    private FilePersistentStorage m_filePersistentStorage;
     private MainUI m_rootUI;
     private SongManager m_songManager;
 
@@ -54,7 +51,10 @@ public class ApplicationController extends Application {
 
         primaryStage.setTitle(APP_TITLE);
 
-        m_songManager = new SongManager();
+        m_filePersistentStorage = new FilePersistentStorage();
+        MenuOptions menuOptions = new MenuOptions(m_filePersistentStorage.getCenterPanelOption(),
+                m_filePersistentStorage.getLeftPanelOption());
+        m_songManager = new SongManager(menuOptions);
         m_databaseManager = new DatabaseManager();
         if (!m_databaseManager.isDatabaseFileExist()) {
             System.out.println("No libraries are existent");
@@ -88,14 +88,21 @@ public class ApplicationController extends Application {
 
         // Get previously selected right panel folder from file
         File previousRightPanelFolder = null;
-        if (FilePersistentStorage.isRightFolderStateFileExist()) {
-            String previousRightFolderPath = FilePersistentStorage.getRightFolder();
-            System.out.println("PREVIOUS RIGHT FOLDER PATH: " + previousRightFolderPath);
-            if (!previousRightFolderPath.isEmpty()) {
-                previousRightPanelFolder = new File(previousRightFolderPath);
-            }
+        String previousRightFolderPath = m_filePersistentStorage.getRightPanelFolder();
+        System.out.println("PREVIOUS RIGHT FOLDER PATH: " + previousRightFolderPath);
+        if (!previousRightFolderPath.isEmpty()) {
+            previousRightPanelFolder = new File(previousRightFolderPath);
         }
         m_songManager.setM_rightFolderSelected(previousRightPanelFolder);
+
+        // Get previously selected center panel folder from file
+        File previousCenterPanelFolder = null;
+        String previousCenterFolderPath = m_filePersistentStorage.getCenterPanelFolder();
+        System.out.println("PREVIOUS CENTER FOLDER PATH: " + previousCenterFolderPath);
+        if (!previousCenterFolderPath.isEmpty()) {
+            previousCenterPanelFolder = new File(previousCenterFolderPath);
+        }
+        m_songManager.setM_selectedCenterFolder(previousCenterPanelFolder);
 
         MusicPlayerManager musicPlayerManager = new MusicPlayerManager(m_databaseManager);
 
@@ -161,7 +168,8 @@ public class ApplicationController extends Application {
                 musicPlayerManager.stopSong();
                 savePlaylistSongs();
                 saveFileTreeState();
-                m_databaseManager.saveConfigFile();
+                m_filePersistentStorage.saveConfigFile(m_songManager.getM_rightFolderSelected(),
+                        m_songManager.getM_selectedCenterFolder(), m_songManager.getM_menuOptions());
                 m_databaseManager.closeConnection();
 
                 Platform.exit();
@@ -195,7 +203,8 @@ public class ApplicationController extends Application {
         rightPanelExpandedPaths = m_databaseManager.getExpandedRightTreeViewItems();
 
         // Create main UI
-        m_rootUI = new MainUI(songManager, musicPlayerManager, m_databaseManager, libraryUIExpandedPaths, rightPanelExpandedPaths);
+        m_rootUI = new MainUI(songManager, musicPlayerManager, m_databaseManager,
+                m_filePersistentStorage, libraryUIExpandedPaths, rightPanelExpandedPaths);
     }
 
     /**
@@ -203,10 +212,7 @@ public class ApplicationController extends Application {
      */
     private void saveFileTreeState() {
         saveLibraryUIExpandedState();
-
         saveRightPanelExpandedState();
-
-        saveRightPanelFolderPath();
     }
 
     private void saveLibraryUIExpandedState() {
@@ -227,20 +233,6 @@ public class ApplicationController extends Application {
             for (String path : dynamicTreeViewUIExpandedPaths) {
                 System.out.println("DYNAMIC TREEVIEW EXPANDED PATH: " + path);
             }
-        }
-    }
-
-    private void saveRightPanelFolderPath() {
-        File rightPanelFolder = m_songManager.getM_rightFolderSelected();
-        System.out.println("SAVING RIGHT FOLDER: " + rightPanelFolder);
-        if (!FilePersistentStorage.isRightFolderStateFileExist()) {
-            FilePersistentStorage.createRightFolderFile();
-        }
-
-        if (rightPanelFolder != null) {
-            FilePersistentStorage.updateRightFolder(rightPanelFolder.getAbsolutePath());
-        } else {
-            FilePersistentStorage.updateRightFolder("");
         }
     }
 }

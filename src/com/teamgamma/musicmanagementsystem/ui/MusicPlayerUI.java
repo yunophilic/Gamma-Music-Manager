@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
+import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -64,9 +65,9 @@ public class MusicPlayerUI extends VBox {
      * Constructor
      *
      * @param manager The MusicPlayerManager to setup the actions for the UI panel.
-     * @param databaseManager The DatabaseManager to save the states for the UI panel.
+     * @param config The FilePersistentStorage to save the states for the UI panel.
      */
-    public MusicPlayerUI(MusicPlayerManager manager, DatabaseManager databaseManager) {
+    public MusicPlayerUI(MusicPlayerManager manager, FilePersistentStorage config) {
         super();
 
         VBox topWrapper = new VBox();
@@ -82,7 +83,7 @@ public class MusicPlayerUI extends VBox {
         HBox playbackControls = createPlayBackControlBox(manager);
         this.getChildren().add(playbackControls);
 
-        HBox otherControlBox = createOtherOptionsBox(manager, databaseManager);
+        HBox otherControlBox = createOtherOptionsBox(manager, config);
         this.getChildren().add(otherControlBox);
 
         manager.registerErrorObservers(new MusicPlayerObserver() {
@@ -313,10 +314,10 @@ public class MusicPlayerUI extends VBox {
      * Function to create the other playback options list. This would be volume control and repeat control.
      *
      * @param manager The music manager to set up actions.
-     * @param databaseManager The database manager to save state.
+     * @param config The file persistent storage to save state.
      * @return
      */
-    private HBox createOtherOptionsBox(final MusicPlayerManager manager, final DatabaseManager databaseManager) {
+    private HBox createOtherOptionsBox(final MusicPlayerManager manager, final FilePersistentStorage config) {
         HBox otherControlBox = new HBox();
 
         Button volumeDownIcon = UserInterfaceUtils.createIconButton(VOLUME_MUTE_ICON_PATH);
@@ -331,7 +332,7 @@ public class MusicPlayerUI extends VBox {
         UserInterfaceUtils.createMouseOverUIChange(volumeUpIcon, volumeUpIcon.getStyle());
         volumeUpIcon.setTooltip(new Tooltip("Max Volume"));
 
-        Slider volumeControlSider = createSliderVolumeControl(manager, databaseManager);
+        Slider volumeControlSider = createSliderVolumeControl(manager, config);
         otherControlBox.getChildren().addAll(volumeDownIcon,  volumeControlSider, volumeUpIcon);
         HBox.setHgrow(volumeControlSider, Priority.ALWAYS);
         volumeControlSider.setMaxSize(60, 1);
@@ -342,7 +343,7 @@ public class MusicPlayerUI extends VBox {
             public void handle(MouseEvent event) {
                 volumeControlSider.adjustValue(MusicPlayerConstants.MIN_VOLUME);
                 manager.setVolumeLevel(MusicPlayerConstants.MIN_VOLUME);
-                databaseManager.saveVolumeState(MusicPlayerConstants.MIN_VOLUME);
+                config.saveVolumeState(MusicPlayerConstants.MIN_VOLUME);
             }
         });
         volumeUpIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -350,7 +351,7 @@ public class MusicPlayerUI extends VBox {
             public void handle(MouseEvent event) {
                 volumeControlSider.adjustValue(MusicPlayerConstants.MAX_VOLUME);
                 manager.setVolumeLevel(MusicPlayerConstants.MAX_VOLUME);
-                databaseManager.saveVolumeState(MusicPlayerConstants.MAX_VOLUME);
+                config.saveVolumeState(MusicPlayerConstants.MAX_VOLUME);
             }
         });
         otherControlBox.setMargin(volumeControlSider, new Insets(0));
@@ -558,25 +559,25 @@ public class MusicPlayerUI extends VBox {
      * Function to create the slider for volume control.
      *
      * @param manager The music player manager to interact with.
-     * @param databaseManager The database manager to save volume state.
+     * @param config The file persistent storage to save volume state.
      *
      * @return A slider to control volume.
      */
-    private Slider createSliderVolumeControl(MusicPlayerManager manager, DatabaseManager databaseManager) {
-        Slider volumeSlider = new Slider(0, 1, databaseManager.getVolumeConfig());
+    private Slider createSliderVolumeControl(MusicPlayerManager manager, FilePersistentStorage config) {
+        Slider volumeSlider = new Slider(0, 1, config.getVolumeConfig());
 
         volumeSlider.setOnDragDone(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent event) {
                 manager.setVolumeLevel(volumeSlider.getValue());
-                databaseManager.saveVolumeState(volumeSlider.getValue());
+                config.saveVolumeState(volumeSlider.getValue());
             }
         });
         volumeSlider.setOnMouseReleased(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 manager.setVolumeLevel(volumeSlider.getValue());
-                databaseManager.saveVolumeState(volumeSlider.getValue());
+                config.saveVolumeState(volumeSlider.getValue());
             }
         });
 
