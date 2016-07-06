@@ -584,7 +584,6 @@ public class PlaylistUI extends VBox {
                     if (selectedPlaylist.isEmpty()) {
                         m_musicPlayerManager.stopSong();
                         m_musicPlayerManager.resetCurrentPlaylist();
-                        System.out.println("CURRENT INDEX = " + selectedPlaylist.getM_currentSongIndex());
                     }
                 }
             }
