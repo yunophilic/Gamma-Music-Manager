@@ -83,7 +83,9 @@ public class PlaylistUI extends VBox {
         setCssStyle();
         registerAsPlaylistObserver();
         this.setSpacing(0);
-        this.getChildren().add(createPlaylistPlaybackOptions());
+        HBox playbackOptions = createPlaylistPlaybackOptions();
+        VBox.setVgrow(playbackOptions, Priority.NEVER);
+        this.getChildren().add(playbackOptions);
     }
 
     /**
@@ -369,6 +371,7 @@ public class PlaylistUI extends VBox {
         super.getChildren().add(m_table);
         StackPane.setMargin(m_table, TABLE_VIEW_MARGIN);
         updateTable();
+        VBox.setVgrow(m_table, Priority.ALWAYS);
     }
 
     private void setTableColumns() {
@@ -542,20 +545,6 @@ public class PlaylistUI extends VBox {
                     }
                 });
                 UserInterfaceUtils.createMouseOverUIChange(row, null);
-//                row.setOnMouseEntered(new EventHandler<MouseEvent>() {
-//                    @Override
-//                    public void handle(MouseEvent event) {
-//                        row.setStyle("-fx-background-color: #BFDCF5;");
-//                    }
-//                });
-//                row.setOnMouseExited(new EventHandler<MouseEvent>() {
-//                    @Override
-//                    public void handle(MouseEvent event) {
-//                        // Default to what JavaFX has defined.
-//                        row.setStyle(null);
-//                    }
-//                });
-
                 return row;
             }
         });
