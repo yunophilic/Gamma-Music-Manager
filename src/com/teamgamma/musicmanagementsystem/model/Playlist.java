@@ -47,7 +47,7 @@ public class Playlist implements PlaylistObserver {
 
         //restart playlist if current index exceeds list range
         if(m_currentSongIndex > m_songList.size()-1) {
-            m_currentSongIndex = 0;
+            m_currentSongIndex = m_songList.isEmpty() ? -1 : 0;
         }
     }
 
