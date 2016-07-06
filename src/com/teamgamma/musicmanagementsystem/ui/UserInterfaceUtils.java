@@ -15,6 +15,9 @@ import java.io.File;
  */
 public class UserInterfaceUtils {
 
+    // Constants
+    public static final String SELECTED_BACKGROUND_COLOUR = "-fx-background-color: #BFDCF5;";
+
     /**
      * Function to create a UI indication when mousing over something.
      *
@@ -24,7 +27,7 @@ public class UserInterfaceUtils {
         element.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                element.setStyle("-fx-background-color: #BFDCF5;");
+                element.setStyle(SELECTED_BACKGROUND_COLOUR);
             }
         });
         element.setOnMouseExited(new EventHandler<MouseEvent>() {

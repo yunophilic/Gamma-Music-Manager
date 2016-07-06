@@ -194,6 +194,7 @@ public class MusicPlayerManager {
         if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.repeatSong(repeatSong);
         }
+        notifyQueingObserver();
     }
 
     /**
@@ -726,7 +727,22 @@ public class MusicPlayerManager {
         return m_currentSong;
     }
 
+    /**
+     * Function to unload a playlist.
+     */
     public void resetCurrentPlaylist() {
         m_currentPlayList = null;
+    }
+
+    /**
+     * Function to get the current song in the playlist that is loaded.
+     *
+     * @return The song that is in the playlist or null if there is no playlist loaded.
+     */
+    public Song getCurrentPlaylistSong(){
+        if (m_currentPlayList != null) {
+            return m_currentPlayList.getCurrentSong();
+        }
+        return null;
     }
 }

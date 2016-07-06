@@ -5,6 +5,7 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -34,6 +35,7 @@ import java.util.List;
  * UI class for list of songs in center of application
  */
 public class PlaylistUI extends VBox {
+
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
@@ -53,7 +55,10 @@ public class PlaylistUI extends VBox {
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
     private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
+    public static final double PLAYLIST_PLAYBACK_BUTTON_SCALE = 0.75;
+
     private static final Insets TABLE_VIEW_MARGIN = new Insets(30, 0, 0, 0);
+
     private static final String ADD_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "add-playlist-button.png";
     private static final String ADD_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "add-playlist-button-highlight.png";
     private static final String REMOVE_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "remove-playlist-button.png";
@@ -64,6 +69,15 @@ public class PlaylistUI extends VBox {
     private static final String SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "shuffle-playlist-button-highlight.png";
     private static final String PLAY_PLAYLIST_ICON = "res" + File.separator + "ic_play_circle_filled_black_48dp_1x.png";
     private static final String REPEAT_PLAYLIST_ICON = "res" + File.separator + "ic_repeat_black_48dp_1x.png";
+
+    public static final String SELECT_PLAYLIST_HEADER = " Select Playlist:";
+    public static final String ADD_PLAYLIST_TOOL_TIP_MESSAGE = "Add Playlist";
+    public static final String REMOVE_PLAYLIST_TOOLTIP_MESSAGE = "Remove Playlist";
+    public static final String RENAME_PLAYLIST_TOOL_TIP_MESSAGE = "Rename Playlist";
+    public static final String SHUFFLE_PLAYLIST_TOOL_TIP_MESSAGE = "Shuffle Playlist";
+    public static final String PLAY_PLAYLIST_TOOL_TIP_MESSAGE = "Play Playlist";
+    public static final String REPEAT_PLAYLIST_TOOL_TIP_BUTTON = "Repeat Playlist Mode";
+    public static final String EMPTY_PLAYLIST_MESSAGE = "Playlist empty";
 
     public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
@@ -77,13 +91,15 @@ public class PlaylistUI extends VBox {
                     createDropDownMenu(),
                     createCreateNewPlaylistButton(),
                     createRemovePlaylistButton(),
-                    createEditPlaylistButton(),
+                    createRenamePlaylistButton(),
                     createShufflePlaylistButton());
         initTableView();
         setCssStyle();
         registerAsPlaylistObserver();
         this.setSpacing(0);
-        this.getChildren().add(createPlaylistPlaybackOptions());
+        HBox playbackOptions = createPlaylistPlaybackOptions();
+        VBox.setVgrow(playbackOptions, Priority.NEVER);
+        this.getChildren().add(playbackOptions);
     }
 
     /**
@@ -106,12 +122,22 @@ public class PlaylistUI extends VBox {
         });
     }
 
+    /**
+     * Function to return the playlist header label.
+     *
+     * @return The playlist header label
+     */
     private Label createSelectPlaylistLabel() {
-        Label selectPlaylistLabel = new Label(" Select Playlist:");
+        Label selectPlaylistLabel = new Label(SELECT_PLAYLIST_HEADER);
         selectPlaylistLabel.setPrefSize(SELECT_PLAYLIST_LABEL_PREF_WIDTH, SELECT_PLAYLIST_LABEL_PREF_HEIGHT);
         return selectPlaylistLabel;
     }
 
+    /**
+     * Function to create the drop down menu to select a playlist.
+     *
+     * @return The drop down menu containing the playlist you can select.
+     */
     private ComboBox<Playlist> createDropDownMenu() {
         ObservableList<Playlist> options = FXCollections.observableList(m_model.getM_playlists());
         ComboBox<Playlist> dropDownMenu = new ComboBox<>();
@@ -134,9 +160,14 @@ public class PlaylistUI extends VBox {
         return dropDownMenu;
     }
 
+    /**
+     * Function to create the playlist button.
+     *
+     * @return The create playlist button.
+     */
     private Button createCreateNewPlaylistButton() {
         Button createNewPlaylistButton = new Button();
-        createNewPlaylistButton.setTooltip(new Tooltip("Add Playlist"));
+        createNewPlaylistButton.setTooltip(new Tooltip(ADD_PLAYLIST_TOOL_TIP_MESSAGE));
         createNewPlaylistButton.setStyle("-fx-background-color: transparent");
         createNewPlaylistButton.setGraphic(new ImageView(ADD_PLAYLIST_BUTTON_ICON_PATH));
         createNewPlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
@@ -170,9 +201,14 @@ public class PlaylistUI extends VBox {
         return createNewPlaylistButton;
     }
 
+    /**
+     * Function to create the remove playlist button.
+     *
+     * @return  The remove playlist button
+     */
     private Button createRemovePlaylistButton() {
         Button removePlaylistButton = new Button();
-        removePlaylistButton.setTooltip(new Tooltip("Remove Playlist"));
+        removePlaylistButton.setTooltip(new Tooltip(REMOVE_PLAYLIST_TOOLTIP_MESSAGE));
         removePlaylistButton.setStyle("-fx-background-color: transparent");
         removePlaylistButton.setGraphic(new ImageView(REMOVE_PLAYLIST_BUTTON_ICON_PATH));
         removePlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
@@ -211,9 +247,14 @@ public class PlaylistUI extends VBox {
         return removePlaylistButton;
     }
 
-    private Button createEditPlaylistButton() {
+    /**
+     * Function to create the edit playlist button.
+     *
+     * @return The edit playlist button
+     */
+    private Button createRenamePlaylistButton() {
         Button editPlaylistButton = new Button();
-        editPlaylistButton.setTooltip(new Tooltip("Rename Playlist"));
+        editPlaylistButton.setTooltip(new Tooltip(RENAME_PLAYLIST_TOOL_TIP_MESSAGE));
         editPlaylistButton.setStyle("-fx-background-color: transparent");
         editPlaylistButton.setGraphic(new ImageView(EDIT_PLAYLIST_BUTTON_ICON_PATH));
         editPlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
@@ -256,7 +297,7 @@ public class PlaylistUI extends VBox {
 
     private Button createShufflePlaylistButton() {
         Button shufflePlaylistButton = new Button();
-        shufflePlaylistButton.setTooltip(new Tooltip("Shuffle Playlist"));
+        shufflePlaylistButton.setTooltip(new Tooltip(SHUFFLE_PLAYLIST_TOOL_TIP_MESSAGE));
         shufflePlaylistButton.setStyle("-fx-background-color: transparent");
         shufflePlaylistButton.setGraphic(new ImageView(SHUFFLE_PLAYLIST_BUTTON_ICON_PATH));
         shufflePlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
@@ -286,6 +327,11 @@ public class PlaylistUI extends VBox {
         return shufflePlaylistButton;
     }
 
+    /**
+     * Function to create the play playlist button
+     *
+     * @return The play palylist button.
+     */
     private Button createPlayPlaylistButton() {
         Button playlistButton = UserInterfaceUtils.createIconButton(PLAY_PLAYLIST_ICON);
         playlistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -297,14 +343,19 @@ public class PlaylistUI extends VBox {
             }
         });
         UserInterfaceUtils.createMouseOverUIChange(playlistButton, playlistButton.getStyle());
-        playlistButton.setTooltip(new Tooltip("Play Playlist"));
+        playlistButton.setTooltip(new Tooltip(PLAY_PLAYLIST_TOOL_TIP_MESSAGE));
 
-        playlistButton.setScaleY(0.75);
-        playlistButton.setScaleX(0.75);
+        playlistButton.setScaleY(PLAYLIST_PLAYBACK_BUTTON_SCALE);
+        playlistButton.setScaleX(PLAYLIST_PLAYBACK_BUTTON_SCALE);
         playlistButton.setPadding(new Insets(0));
         return playlistButton;
     }
 
+    /**
+     * Function to create the repeat playlist button.
+     *
+     * @return The repeat playlist button.
+     */
     private ToggleButton createPlaylistRepeatButton() {
         ToggleButton playlistRepeat = new ToggleButton();
         playlistRepeat.setStyle("-fx-background-color: transparent");
@@ -323,15 +374,20 @@ public class PlaylistUI extends VBox {
         });
 
         playlistRepeat.setGraphic(new ImageView(REPEAT_PLAYLIST_ICON));
-        playlistRepeat.setTooltip(new Tooltip("Repeat Playlist Mode"));
+        playlistRepeat.setTooltip(new Tooltip(REPEAT_PLAYLIST_TOOL_TIP_BUTTON));
         UserInterfaceUtils.createMouseOverUIChange(playlistRepeat, playlistRepeat.getStyle());
 
-        playlistRepeat.setScaleY(0.75);
-        playlistRepeat.setScaleX(0.75);
+        playlistRepeat.setScaleY(PLAYLIST_PLAYBACK_BUTTON_SCALE);
+        playlistRepeat.setScaleX(PLAYLIST_PLAYBACK_BUTTON_SCALE);
         playlistRepeat.setPadding(new Insets(0));
         return playlistRepeat;
     }
 
+    /**
+     * Function to create the playlist playback options UI elements.
+     *
+     * @return A Hbox containing the playlist playback options.
+     */
     private HBox createPlaylistPlaybackOptions() {
         HBox wrapper = new HBox();
         wrapper.getChildren().add(createPlayPlaylistButton());
@@ -340,6 +396,7 @@ public class PlaylistUI extends VBox {
         wrapper.setAlignment(Pos.CENTER);
         return wrapper;
     }
+
     private void initTopMenu(Label selectPlaylistLabel,
                              ComboBox<Playlist> dropDownMenu,
                              Button addPlaylistButton,
@@ -369,6 +426,7 @@ public class PlaylistUI extends VBox {
         super.getChildren().add(m_table);
         StackPane.setMargin(m_table, TABLE_VIEW_MARGIN);
         updateTable();
+        VBox.setVgrow(m_table, Priority.ALWAYS);
     }
 
     private void setTableColumns() {
@@ -393,23 +451,23 @@ public class PlaylistUI extends VBox {
     }
 
     private void clearTable() {
-        System.out.println("Clearing playlist panel...");
+        //System.out.println("Clearing playlist panel...");
         m_table.getItems().clear();
     }
 
     private void updateTable() {
-        System.out.println("Updating playlist panel...");
+        //System.out.println("Updating playlist panel...");
         Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
         if (selectedPlaylist != null) {
             List<Song> songs = selectedPlaylist.getM_songList();
 
             if (songs.isEmpty()) {
-                m_table.setPlaceholder(new Label("Playlist empty"));
+                m_table.setPlaceholder(new Label(EMPTY_PLAYLIST_MESSAGE));
             } else {
                 m_table.setItems(FXCollections.observableArrayList(songs));
             }
         } else {
-            m_table.setPlaceholder(new Label("Select a playlist"));
+            m_table.setPlaceholder(new Label(SELECT_PLAYLIST_HEADER));
         }
     }
 
@@ -468,7 +526,8 @@ public class PlaylistUI extends VBox {
         lengthCol.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Song, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<Song, String> param) {
-                Duration lengthOfSong = new Duration(param.getValue().getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
+                Duration lengthOfSong = new Duration(
+                        param.getValue().getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
                 return new ReadOnlyObjectWrapper<>(UserInterfaceUtils.convertDurationToTimeString(lengthOfSong));
             }
         });
@@ -489,7 +548,8 @@ public class PlaylistUI extends VBox {
         m_table.setOnDragOver(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent dragEvent) {
-                System.out.println("Drag over on playlist");
+                // For Debugging
+                //System.out.println("Drag over on playlist");
                 if(m_model.getM_songToAddToPlaylist() != null && m_model.getM_selectedPlaylist() != null) {
                     dragEvent.acceptTransferModes(TransferMode.MOVE);
                 }
@@ -500,7 +560,7 @@ public class PlaylistUI extends VBox {
         m_table.setOnDragDropped(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent dragEvent) {
-                System.out.println("Drag dropped on playlist");
+                //System.out.println("Drag dropped on playlist");
                 m_model.addSongToPlaylist(m_model.getM_songToAddToPlaylist(), m_model.getM_selectedPlaylist());
                 dragEvent.consume();
             }
@@ -509,7 +569,7 @@ public class PlaylistUI extends VBox {
         m_table.setOnDragDone(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent dragEvent) {
-                System.out.println("Drag done on playlist");
+                //System.out.println("Drag done on playlist");
                 m_model.setM_songToAddToPlaylist(null);
                 dragEvent.consume();
             }
@@ -541,20 +601,27 @@ public class PlaylistUI extends VBox {
                         }
                     }
                 });
+
                 UserInterfaceUtils.createMouseOverUIChange(row, null);
-//                row.setOnMouseEntered(new EventHandler<MouseEvent>() {
-//                    @Override
-//                    public void handle(MouseEvent event) {
-//                        row.setStyle("-fx-background-color: #BFDCF5;");
-//                    }
-//                });
-//                row.setOnMouseExited(new EventHandler<MouseEvent>() {
-//                    @Override
-//                    public void handle(MouseEvent event) {
-//                        // Default to what JavaFX has defined.
-//                        row.setStyle(null);
-//                    }
-//                });
+
+                m_musicPlayerManager.registerNewSongObserver(new MusicPlayerObserver() {
+                    @Override
+                    public void updateUI() {
+                        Song songForRow = row.getItem();
+                        if (songForRow != null){
+                            if (songForRow.equals(m_musicPlayerManager.getCurrentPlaylistSong())){
+                                row.setStyle(UserInterfaceUtils.SELECTED_BACKGROUND_COLOUR);
+
+                                // Make it persist
+                                UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
+                                return;
+                            }
+                        }
+                        row.setStyle(null);
+                        UserInterfaceUtils.createMouseOverUIChange(row, null);
+                    }
+                });
+
 
                 return row;
             }

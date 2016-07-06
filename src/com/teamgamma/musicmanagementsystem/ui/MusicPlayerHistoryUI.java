@@ -30,6 +30,7 @@ public class MusicPlayerHistoryUI extends HBox{
 
     public static final String PLAYBACK_HISTORY_HEADER = "History";
     public static final String QUEUING_HEADER = "Playing Next";
+
     public static final int DOUBLE_CLICK = 2;
     public static final int FIRST_SONG = 1;
 
