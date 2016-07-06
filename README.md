@@ -4,7 +4,7 @@ The Gamma Music Manager allows you to manage your Mp3 files, maintain your playl
 You will be able to copy, paste, delete and move songs using the built-in file manager. In addition, choose any Mp3 file to play in our music player.
 You will also be able to create and delete playlists, and add and remove songs to a playlist.
 
-> Note: We currently do not support Linux or Mac OSX.
+> Note: we currently do not support Linux or Mac OSX.
 
 ___
 
@@ -36,9 +36,11 @@ ___
 ---
 ## Build Instructions
 * Clone this repository
-* Download all dependencies (below)
+* Download Java SE Development Kit 8u92 (refer to Dependencies section)
 * Load project into IntelliJ IDE
 * Run Main.main()
+
+> Note: JDK 8u40 or newer is required to use the JavaFX Dialogs in this application.
 
 ### Dependencies 
 * [Java SE Development Kit 8u92](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
