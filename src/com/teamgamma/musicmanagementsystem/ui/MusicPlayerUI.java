@@ -1,8 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
-import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.model.Song;
@@ -14,22 +12,14 @@ import javafx.event.EventHandler;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 
-import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
 import javafx.scene.text.Font;
-import javafx.stage.WindowEvent;
 import javafx.util.Duration;
-
-import javax.tools.Tool;
-import java.io.File;
 
 /**
  * Class for Music Player MainUI. Acts as the controller for the media player.
@@ -44,6 +34,8 @@ public class MusicPlayerUI extends VBox {
     public static final double NOT_FADED = 1.0;
     public static final int TITLE_ANIMATION_TIME_MS = 5000;
     public static final double VOLUME_BUTTON_SCALE = 0.75;
+    public static final int VOLUME_MAX_WIDTH = 60;
+    public static final int VOLUME_MAX_HEIGHT = 1;
 
     public static final String PREVIOUS_ICON_PATH = "res\\ic_skip_previous_black_48dp_1x.png";
     public static final String PLAY_ICON_PATH = "res\\ic_play_arrow_black_48dp_1x.png";
@@ -56,8 +48,14 @@ public class MusicPlayerUI extends VBox {
     public static final String ADD_TO_PLAYLIST_ICON_PATH = "res/ic_playlist_add_black_48dp_1x.png";
     public static final String SONG_REPEAT_ICON_PATH = "res\\ic_repeat_one_black_48dp_1x.png";
 
-    public static final String PREVIOUS_SONG_TOOLTIP_DEFUALT = "No Previous Song";
-    public static final String NEXT_SONG_TOOLTIP_DEFAULT = "No Next Song";
+    public static final String PREVIOUS_SONG_TOOL_TIP_DEFUALT = "No Previous Song";
+    public static final String NEXT_SONG_TOOL_TIP_DEFAULT = "No Next Song";
+    public static final String MAX_VOLUME_TOOL_TIP_MESSAGE = "Max Volume";
+    public static final String MUTE_VOLUME_TOOL_TIP_MESSAGE = "Mute Volume";
+    public static final String PAUSE_SONG_TOOL_TIP_MESSAGE = "Pause Song";
+    public static final String RESUME_SONG_TOOL_TIP_MESSAGE = "Resume Song";
+    public static final String DEFUALT_PLAY_BUTTON_TOOL_TIP_MESSAGE = "Pick a Song To Play!";
+
     public static final String DEFAULT_TIME_STRING = "0:00";
 
     /**
@@ -145,7 +143,7 @@ public class MusicPlayerUI extends VBox {
         });
         UserInterfaceUtils.createMouseOverUIChange(previousSongButton, previousSongButton.getStyle());
         previousSongButton.setAlignment(Pos.CENTER_LEFT);
-        Tooltip previousSongToolTip = new Tooltip(PREVIOUS_SONG_TOOLTIP_DEFUALT);
+        Tooltip previousSongToolTip = new Tooltip(PREVIOUS_SONG_TOOL_TIP_DEFUALT);
 
         if (manager.isNothingPrevious()){
             previousSongButton.setOpacity(FADED);
@@ -161,7 +159,7 @@ public class MusicPlayerUI extends VBox {
                     @Override
                     public void run() {
                         if (manager.isNothingPrevious()) {
-                            previousSongToolTip.setText(PREVIOUS_SONG_TOOLTIP_DEFUALT);
+                            previousSongToolTip.setText(PREVIOUS_SONG_TOOL_TIP_DEFUALT);
                         } else {
                             previousSongToolTip.setText(getSongDisplayName(manager.getPreviousSong()));
                         }
@@ -192,7 +190,7 @@ public class MusicPlayerUI extends VBox {
         playPauseButton.setStyle("-fx-background-color: transparent");
         playPauseButton.setGraphic(UserInterfaceUtils.createImageViewForImage(PLAY_ICON_PATH));
         playPauseButton.setSelected(false);
-        Tooltip playPauseToolTip = new Tooltip("Pick a Song To Play!");
+        Tooltip playPauseToolTip = new Tooltip(DEFUALT_PLAY_BUTTON_TOOL_TIP_MESSAGE);
         playPauseButton.setTooltip(playPauseToolTip);
         playPauseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -216,11 +214,11 @@ public class MusicPlayerUI extends VBox {
                         if (!manager.isSomethingPlaying()) {
                             playPauseButton.setGraphic(UserInterfaceUtils.createImageViewForImage(PLAY_ICON_PATH));
                             playPauseButton.setSelected(true);
-                            playPauseToolTip.setText("Resume Song");
+                            playPauseToolTip.setText(RESUME_SONG_TOOL_TIP_MESSAGE);
                         } else {
                             playPauseButton.setGraphic(UserInterfaceUtils.createImageViewForImage(PAUSE_ICON_PATH));
                             playPauseButton.setSelected(false);
-                            playPauseToolTip.setText("Pause Song");
+                            playPauseToolTip.setText(PAUSE_SONG_TOOL_TIP_MESSAGE);
                         }
                     }
                 });
@@ -245,7 +243,7 @@ public class MusicPlayerUI extends VBox {
         });
         UserInterfaceUtils.createMouseOverUIChange(skipButton, skipButton.getStyle());
 
-        Tooltip nextSongTip = new Tooltip(NEXT_SONG_TOOLTIP_DEFAULT);
+        Tooltip nextSongTip = new Tooltip(NEXT_SONG_TOOL_TIP_DEFAULT);
         skipButton.setTooltip(nextSongTip);
         setToolTipToNextSong(manager, nextSongTip);
 
@@ -290,7 +288,7 @@ public class MusicPlayerUI extends VBox {
                     String songTitle = getSongDisplayName(nextSong);
                     nextSongTip.setText(songTitle);
                 } else {
-                    nextSongTip.setText(NEXT_SONG_TOOLTIP_DEFAULT);
+                    nextSongTip.setText(NEXT_SONG_TOOL_TIP_DEFAULT);
                 }
             }
         });
@@ -310,8 +308,6 @@ public class MusicPlayerUI extends VBox {
         }
         return songTitle;
     }
-
-
 
     /**
      * Helper function to create the observer that will be used to fade the next button or not.
@@ -339,7 +335,8 @@ public class MusicPlayerUI extends VBox {
      *
      * @param manager The music manager to set up actions.
      * @param config The file persistent storage to save state.
-     * @return
+     *
+     * @return  The HBox containing the other options.
      */
     private HBox createOtherOptionsBox(final MusicPlayerManager manager, final FilePersistentStorage config) {
         HBox otherControlBox = new HBox();
@@ -348,20 +345,22 @@ public class MusicPlayerUI extends VBox {
         volumeDownIcon.setScaleY(VOLUME_BUTTON_SCALE);
         volumeDownIcon.setScaleX(VOLUME_BUTTON_SCALE);
         UserInterfaceUtils.createMouseOverUIChange(volumeDownIcon, volumeDownIcon.getStyle());
-        volumeDownIcon.setTooltip(new Tooltip("Mute Volume"));
+        volumeDownIcon.setTooltip(new Tooltip(MUTE_VOLUME_TOOL_TIP_MESSAGE));
 
         Button volumeUpIcon = UserInterfaceUtils.createIconButton(VOLUME_UP_ICON_PATH);
         volumeUpIcon.setScaleY(VOLUME_BUTTON_SCALE);
         volumeUpIcon.setScaleX(VOLUME_BUTTON_SCALE);
         UserInterfaceUtils.createMouseOverUIChange(volumeUpIcon, volumeUpIcon.getStyle());
-        volumeUpIcon.setTooltip(new Tooltip("Max Volume"));
+        volumeUpIcon.setTooltip(new Tooltip(MAX_VOLUME_TOOL_TIP_MESSAGE));
 
         Slider volumeControlSider = createSliderVolumeControl(manager, config);
-        otherControlBox.getChildren().addAll(volumeDownIcon,  volumeControlSider, volumeUpIcon);
         HBox.setHgrow(volumeControlSider, Priority.ALWAYS);
-        volumeControlSider.setMaxSize(60, 1);
+        volumeControlSider.setMaxSize(VOLUME_MAX_WIDTH, VOLUME_MAX_HEIGHT);
+
+        otherControlBox.getChildren().addAll(volumeDownIcon,  volumeControlSider, volumeUpIcon);
         otherControlBox.setAlignment(Pos.BASELINE_CENTER);
         otherControlBox.setSpacing(0);
+
         volumeDownIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -370,6 +369,7 @@ public class MusicPlayerUI extends VBox {
                 config.saveVolumeState(MusicPlayerConstants.MIN_VOLUME);
             }
         });
+
         volumeUpIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -378,7 +378,9 @@ public class MusicPlayerUI extends VBox {
                 config.saveVolumeState(MusicPlayerConstants.MAX_VOLUME);
             }
         });
+
         otherControlBox.setMargin(volumeControlSider, new Insets(0));
+
         return otherControlBox;
     }
 
@@ -449,6 +451,7 @@ public class MusicPlayerUI extends VBox {
 
         Tooltip playbackTimeToolTip = new Tooltip(UserInterfaceUtils.convertDurationToTimeString(manager.getCurrentPlayTime()));
         playbackSlider.setTooltip(playbackTimeToolTip);
+
         // Setup the observer pattern stuff for UI updates to the current play time.
         manager.registerPlaybackObserver(new MusicPlayerObserver() {
             @Override
@@ -464,13 +467,6 @@ public class MusicPlayerUI extends VBox {
                         playbackTimeToolTip.setText(UserInterfaceUtils.convertDurationToTimeString(manager.getCurrentPlayTime()));
                     }
                 });
-            }
-        });
-
-        musicPlayerProgress.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-
             }
         });
 
@@ -588,7 +584,10 @@ public class MusicPlayerUI extends VBox {
      * @return A slider to control volume.
      */
     private Slider createSliderVolumeControl(MusicPlayerManager manager, FilePersistentStorage config) {
-        Slider volumeSlider = new Slider(0, 1, config.getVolumeConfig());
+        Slider volumeSlider = new Slider(
+                MusicPlayerConstants.MIN_VOLUME,
+                MusicPlayerConstants.MAX_VOLUME,
+                config.getVolumeConfig());
 
         volumeSlider.setOnDragDone(new EventHandler<DragEvent>() {
             @Override
