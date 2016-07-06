@@ -13,4 +13,6 @@ Java Native Access used to move file to recycle bin. Link: https://github.com/ja
 
 The Resources sheet in the List of Features spreadsheet also has a number of links that we used as reference.
 
-Start up sound modified from the application FL Studio 11
+Start up sound modified from the application FL Studio 11.
+
+Start up loader is adapted from code in https://blog.codecentric.de/en/2015/09/javafx-how-to-easily-implement-application-preloader-2/

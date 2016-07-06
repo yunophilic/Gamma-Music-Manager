@@ -625,6 +625,11 @@ public class PlaylistUI extends VBox {
                     if (!selectedPlaylist.isEmpty() && songToRemoveIsPlaying) {
                         m_musicPlayerManager.playPlaylist(selectedPlaylist);
                     }
+
+                    if (selectedPlaylist.isEmpty()) {
+                        m_musicPlayerManager.stopSong();
+                        m_musicPlayerManager.resetCurrentPlaylist();
+                    }
                 }
             }
         });

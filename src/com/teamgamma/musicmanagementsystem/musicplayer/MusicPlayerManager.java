@@ -725,4 +725,8 @@ public class MusicPlayerManager {
 
         return m_currentSong;
     }
+
+    public void resetCurrentPlaylist() {
+        m_currentPlayList = null;
+    }
 }
