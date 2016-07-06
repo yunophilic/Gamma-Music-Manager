@@ -54,7 +54,7 @@ public class ApplicationController extends Application {
         m_filePersistentStorage = new FilePersistentStorage();
         if (m_databaseManager.isDatabaseFileExist()) {
             m_databaseManager.setupDatabase();
-            //loadSessionState();
+            loadSessionState();
         }
     }
 
@@ -108,7 +108,6 @@ public class ApplicationController extends Application {
     public void start(Stage primaryStage) {
         //disable jaudiotagger logging
 
-
         if (!m_databaseManager.isDatabaseFileExist()) {
             System.out.println("No libraries are existent");
             System.out.println("creating new database file...");
@@ -119,9 +118,8 @@ public class ApplicationController extends Application {
                 m_songManager.addLibrary(firstLibrary);
                 m_databaseManager.addLibrary(firstLibrary);
             }
+            loadSessionState();
         }
-
-        loadSessionState();
 
         primaryStage.setTitle(APP_TITLE);
 
