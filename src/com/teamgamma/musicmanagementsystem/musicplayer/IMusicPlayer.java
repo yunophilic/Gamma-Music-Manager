@@ -26,37 +26,6 @@ public interface IMusicPlayer {
     void resumeSong();
 
     /**
-     * This function should increase the volume of the song being played.
-     */
-    void increaseVolume();
-
-    /**
-     * This function should decrease the volume of the song being played.
-     */
-    void decreaseVolume();
-
-    /**
-     * This function should set the player to repeat the current song that is being played.
-     *
-     * @param repeatSong The flag that will set if the player is to repeat the song.
-     */
-    void repeatSong(boolean repeatSong);
-
-    /**
-     * This function should set the action that the player will take when the song is finished running.
-     *
-     * @param action
-     */
-    void setOnSongFinishAction(Runnable action);
-
-    /**
-     * This function should set the action that the player will take when an error occurs.
-     *
-     * @param action
-     */
-    void setOnErrorAction(Runnable action);
-
-    /**
      * Function to see if something is being played in the song manager.
      *
      * @return True if something is being played, false otherwise.

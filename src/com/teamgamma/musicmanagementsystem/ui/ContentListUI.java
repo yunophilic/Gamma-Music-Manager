@@ -466,6 +466,7 @@ public class ContentListUI extends StackPane {
                 Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSong);
                 if (selectedPlaylist != null) {
                     m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
+                    m_musicPlayerManager.notifyQueingObserver();
                 }
             }
         });
@@ -478,6 +479,7 @@ public class ContentListUI extends StackPane {
                 Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
                 if (selectedPlaylist != null) {
                     m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
+                    m_musicPlayerManager.notifyQueingObserver();
                 }
             }
         });

@@ -36,8 +36,6 @@ public class JlayerMP3Player implements IMusicPlayer{
 
     private int m_lastFramePlayed = 0;
 
-    private Runnable m_onFinishAction;
-
     private boolean m_isPlaying = false;
 
     private Lock m_lock = new ReentrantLock();
@@ -146,10 +144,6 @@ public class JlayerMP3Player implements IMusicPlayer{
 
                 // Stop playback UI thread
                 m_isPlaying = false;
-
-                if (m_onFinishAction != null){
-                    m_onFinishAction.run();
-                }
 
                 m_manager.notifyChangeStateObservers();
                 if (!m_isUserInterrupted){
@@ -268,31 +262,6 @@ public class JlayerMP3Player implements IMusicPlayer{
                 }
             }
         });
-    }
-
-    @Override
-    public void increaseVolume() {
-
-    }
-
-    @Override
-    public void decreaseVolume() {
-
-    }
-
-    @Override
-    public void repeatSong(boolean repeatSong) {
-
-    }
-
-    @Override
-    public void setOnSongFinishAction(Runnable action) {
-        m_onFinishAction = action;
-    }
-
-    @Override
-    public void setOnErrorAction(Runnable action) {
-
     }
 
     @Override

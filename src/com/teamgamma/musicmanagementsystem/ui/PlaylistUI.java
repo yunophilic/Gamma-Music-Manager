@@ -562,6 +562,7 @@ public class PlaylistUI extends VBox {
             public void handle(DragEvent dragEvent) {
                 //System.out.println("Drag dropped on playlist");
                 m_model.addSongToPlaylist(m_model.getM_songToAddToPlaylist(), m_model.getM_selectedPlaylist());
+                m_musicPlayerManager.notifyQueingObserver();
                 dragEvent.consume();
             }
         });
@@ -607,16 +608,14 @@ public class PlaylistUI extends VBox {
                 m_musicPlayerManager.registerNewSongObserver(new MusicPlayerObserver() {
                     @Override
                     public void updateUI() {
-                        Song songForRow = row.getItem();
-                        if (songForRow != null){
-                            if (songForRow.equals(m_musicPlayerManager.getCurrentPlaylistSong())){
-                                row.setStyle(UserInterfaceUtils.SELECTED_BACKGROUND_COLOUR);
+                        if (m_musicPlayerManager.getCurrentIndexOfPlaylistSong() == row.getIndex()){
+                            row.setStyle(UserInterfaceUtils.SELECTED_BACKGROUND_COLOUR);
 
-                                // Make it persist
-                                UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
-                                return;
-                            }
+                            // Make it persist
+                            UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
+                            return;
                         }
+
                         row.setStyle(null);
                         UserInterfaceUtils.createMouseOverUIChange(row, null);
                     }
