@@ -177,7 +177,7 @@ public class MusicPlayerManager {
         }
 
         m_currentPlayList = playlistToPlay;
-        m_currentSong = m_currentPlayList.isSongPlaying() ? m_currentPlayList.getCurrentSong() : m_currentPlayList.moveToNextSong();
+        m_currentSong = m_currentPlayList.isThereASongLoadedInPlaylist() ? m_currentPlayList.getCurrentSong() : m_currentPlayList.moveToNextSong();
 
         m_isPlayingOnHistory = false;
 
@@ -191,9 +191,7 @@ public class MusicPlayerManager {
      */
     public void setRepeat(boolean repeatSong) {
         m_repeatPlaylist = repeatSong;
-        if (m_musicPlayer.isReadyToUse()) {
-            m_musicPlayer.repeatSong(repeatSong);
-        }
+
         notifyQueingObserver();
     }
 
@@ -216,32 +214,6 @@ public class MusicPlayerManager {
             m_musicPlayer.resumeSong();
             notifyChangeStateObservers();
         }
-    }
-
-    /**
-     * Function to increase the volume.
-     */
-    public void increaseVolume() {
-        if (m_volumeLevel < MusicPlayerConstants.MAX_VOLUME){
-            m_volumeLevel += MusicPlayerConstants.VOLUME_CHANGE;
-        }
-        if (m_musicPlayer.isReadyToUse()) {
-            m_musicPlayer.increaseVolume();
-        }
-        setVolumeControl();
-    }
-
-    /**
-     * Function to decrease the volume.
-     */
-    public void decreaseVolume() {
-        if (m_volumeLevel > MusicPlayerConstants.MIN_VOLUME) {
-            m_volumeLevel -= MusicPlayerConstants.VOLUME_CHANGE;
-        }
-        if (m_musicPlayer.isReadyToUse()) {
-            m_musicPlayer.decreaseVolume();
-        }
-        setVolumeControl();
     }
 
     /**

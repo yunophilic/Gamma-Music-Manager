@@ -7,17 +7,28 @@ import java.util.List;
 /**
  * Class that represents a playlist
  */
-public class Playlist implements PlaylistObserver {
+public class Playlist {
     private String m_playlistName;
     private List<Song> m_songList;
     private int m_currentSongIndex; //-1 means no song is playing!
 
+    /**
+     * Constructor
+     *
+     * @param playlistName
+     */
     public Playlist(String playlistName) {
         m_playlistName = playlistName;
         m_songList = new ArrayList<>();
         m_currentSongIndex = -1;
     }
 
+    /**
+     * Constructor to set the current song in the playlist.
+     *
+     * @param playlistName
+     * @param songIndex
+     */
     public Playlist(String playlistName, int songIndex) {
         m_playlistName = playlistName;
         m_songList = new ArrayList<>();
@@ -58,9 +69,6 @@ public class Playlist implements PlaylistObserver {
         Collections.shuffle(m_songList);
         m_currentSongIndex = -1;
 
-        // Call observer
-        playlistsChanged();
-
         return m_songList;
     }
 
@@ -88,8 +96,6 @@ public class Playlist implements PlaylistObserver {
         m_songList.addAll(playedSongs);
         m_songList.addAll(unplayedSongs);
 
-        // Call observer
-        playlistsChanged();
         return m_songList;
     }
 
@@ -99,7 +105,7 @@ public class Playlist implements PlaylistObserver {
      * @return The next song in the playlist
      */
     public Song getNextSong(){
-        if (!m_songList.isEmpty() && (m_songList.size() - 1 == m_currentSongIndex)) {
+        if (isLastSong()) {
             return m_songList.get(0);
         } else {
             return  m_songList.get(m_currentSongIndex + 1);
@@ -111,12 +117,21 @@ public class Playlist implements PlaylistObserver {
      * @return  The song that is to be played next.
      */
     public Song moveToNextSong(){
-        if (!m_songList.isEmpty() && (m_songList.size() - 1 == m_currentSongIndex)) {
+        if (isLastSong()) {
             m_currentSongIndex = 0;
         } else {
             m_currentSongIndex++;
         }
         return m_songList.get(m_currentSongIndex);
+    }
+
+    /**
+     * Function to tell you if it is the last song.
+     *
+     * @return True if it is the last song in the playlist or false if it is not.
+     */
+    private boolean isLastSong() {
+        return !m_songList.isEmpty() && (m_songList.size() - 1 == m_currentSongIndex);
     }
 
     /**
@@ -128,87 +143,126 @@ public class Playlist implements PlaylistObserver {
         return m_songList.get(m_currentSongIndex);
     }
 
+    /**
+     * Function to get the song based on the index location it is in the playlist.
+     *
+     * @param index The index of the song
+     *
+     * @return The song at that index.
+     */
     public Song getSongByIndex(int index) {
         return m_songList.get(index);
     }
 
-    public boolean isSongPlaying() {
-        return m_currentSongIndex>-1;
+    /**
+     * Function to tell you if there is a song loaded in the playlist.
+     *
+     * @return True if there is, false other wise.
+     */
+    public boolean isThereASongLoadedInPlaylist() {
+        return m_currentSongIndex > -1;
 	}
 
+    /**
+     * Function to get you the previous song.
+     *
+     * @return The previous song in the playlist.
+     */
     public Song getPreviousSong() {
-        if (!m_songList.isEmpty() && m_currentSongIndex != 0){
+        if (isThereAPreviousSong()){
             return m_songList.get(m_currentSongIndex - 1);
         } else {
             return m_songList.get(m_songList.size() - 1);
         }
     }
 
+    /**
+     * Function to tell you if there is a previous song.
+     *
+     * @return True if there is false other wise.
+     */
+    private boolean isThereAPreviousSong() {
+        return !m_songList.isEmpty() && m_currentSongIndex != 0;
+    }
+
+    /**
+     * Function to move to the previous song and update position in the playlist.
+     *
+     * @return The song that should be the current song playing.
+     */
     public Song moveToPreviousSong() {
-        if (!m_songList.isEmpty() && m_currentSongIndex != 0){
+        if (isThereAPreviousSong()){
             m_currentSongIndex--;
         } else {
             m_currentSongIndex = m_songList.size() - 1;
         }
         return m_songList.get(m_currentSongIndex);
     }
-    // Return one song at a time
-    /*public Song oneAtATime() {
-        // Keep track of this int in the database, call it from the player
-        //m_currentSongIndex++;
-        return m_songList.get(m_currentSongIndex);
-    }*/
 
+    /**
+     * Function to check if the current song is the last on in the playlist
+     *
+     * @return True if the current song is the last on in the playlist false otherwise. 
+     */
     public boolean isLastSongInPlaylist(){
         return (m_currentSongIndex == (m_songList.size() - 1));
     }
 
+    /**
+     * Function to check if the playlist is empty
+     *
+     * @return True if it is false other wise.
+     */
     public boolean isEmpty() {
         return m_songList.isEmpty();
     }
 
-    // TODO: Do this
-    /*public int getCurrentSongPlayingIndex() {
-        MusicPlayerManager
-    }*/
-
+    /**
+     * Function to get all the songs in the playlist.
+     *
+     * return The list of songs in the playlist
+     */
     public List<Song> getM_songList() {
         return m_songList;
     }
 
+    /**
+     * Function to get the playlist name .
+     *
+     * @return The name of the playlist
+     */
     public String getM_playlistName() {
         return m_playlistName;
     }
 
+    /**
+     * Function to get the index of the current song in the playlist.
+     * @return
+     */
     public int getM_currentSongIndex() {
         return m_currentSongIndex;
     }
 
+    /**
+     * Function to set the name of the playlist.
+     *
+     * @param m_playlistName The name of the playlist.
+     */
     public void setM_playlistName(String m_playlistName) {
         this.m_playlistName = m_playlistName;
     }
 
+    /**
+     * Function to set the current song index of the playlist.
+     *
+     * @param index The index to set.
+     */
     public void setM_currentSongIndex(int index) {
         m_currentSongIndex = index;
     }
 
-    /**
-     * For drop down menu
-     *
-     * @return name of the playlist
-     */
     @Override
     public String toString() {
         return m_playlistName;
-    }
-
-    @Override
-    public void playlistsChanged() {
-
-    }
-
-    @Override
-    public void songsChanged() {
-
     }
 }
