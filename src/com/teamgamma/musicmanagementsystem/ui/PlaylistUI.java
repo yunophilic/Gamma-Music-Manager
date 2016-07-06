@@ -5,6 +5,7 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -600,7 +601,28 @@ public class PlaylistUI extends VBox {
                         }
                     }
                 });
+
                 UserInterfaceUtils.createMouseOverUIChange(row, null);
+
+                m_musicPlayerManager.registerNewSongObserver(new MusicPlayerObserver() {
+                    @Override
+                    public void updateUI() {
+                        Song songForRow = row.getItem();
+                        if (songForRow != null && !m_musicPlayerManager.isPlayingSongOnFromHistoryList()){
+                            if (songForRow.equals(m_musicPlayerManager.getCurrentSongPlaying())){
+                                row.setStyle(UserInterfaceUtils.SELECTED_BACKGROUND_COLOUR);
+
+                                // Make it persist
+                                UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
+                                return;
+                            }
+                        }
+                        row.setStyle(null);
+                        UserInterfaceUtils.createMouseOverUIChange(row, null);
+                    }
+                });
+
+
                 return row;
             }
         });
