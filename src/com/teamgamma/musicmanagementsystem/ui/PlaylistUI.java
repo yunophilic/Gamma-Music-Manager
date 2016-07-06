@@ -608,8 +608,8 @@ public class PlaylistUI extends VBox {
                     @Override
                     public void updateUI() {
                         Song songForRow = row.getItem();
-                        if (songForRow != null && !m_musicPlayerManager.isPlayingSongOnFromHistoryList()){
-                            if (songForRow.equals(m_musicPlayerManager.getCurrentSongPlaying())){
+                        if (songForRow != null){
+                            if (songForRow.equals(m_musicPlayerManager.getCurrentPlaylistSong())){
                                 row.setStyle(UserInterfaceUtils.SELECTED_BACKGROUND_COLOUR);
 
                                 // Make it persist

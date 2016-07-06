@@ -194,6 +194,7 @@ public class MusicPlayerManager {
         if (m_musicPlayer.isReadyToUse()) {
             m_musicPlayer.repeatSong(repeatSong);
         }
+        notifyQueingObserver();
     }
 
     /**
@@ -726,6 +727,9 @@ public class MusicPlayerManager {
         return m_currentSong;
     }
 
+    /**
+     * Function to unload a playlist.
+     */
     public void resetCurrentPlaylist() {
         m_currentPlayList = null;
     }
