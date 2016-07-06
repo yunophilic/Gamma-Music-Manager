@@ -188,6 +188,11 @@ public class LibraryUI extends StackPane {
         }
         TreeView<TreeViewItem> tree = new TreeView<>(root);
         tree.setShowRoot(false);
+
+        if (m_model.getM_selectedCenterFolder() != null) {
+            TreeViewUtil.setOpenFolder(tree, m_model.getM_selectedCenterFolder().getAbsolutePath());
+        }
+
         return tree;
     }
 
