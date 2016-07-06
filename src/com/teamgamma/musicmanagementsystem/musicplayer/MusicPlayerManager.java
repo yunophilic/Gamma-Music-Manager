@@ -717,4 +717,16 @@ public class MusicPlayerManager {
         }
         return null;
     }
+
+    /**
+     * Function to get the index of the current song in the playlist that is loaded
+     *
+     * @return  The index of the current song or -1 if there is no song loaded.
+     */
+    public int getCurrentIndexOfPlaylistSong(){
+        if (m_currentPlayList != null) {
+            return m_currentPlayList.getM_currentSongIndex();
+        }
+        return -1;
+    }
 }
