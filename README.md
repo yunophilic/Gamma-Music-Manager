@@ -40,7 +40,7 @@ ___
 * Load project into IntelliJ IDE
 * Create a new run configuration under the Application section
 * Set the Main class to be com.teamgamma.musicmanagementsystem.Main
-* Set the JRE to be 1.8 with a version greater than equal to 8.4
+* Set the JRE to be 1.8 with a version greater than or equal to 8.4
 * Run Main.main()
 
 > Note: JDK 8u40 or newer is required to use the JavaFX Dialogs in this application.
