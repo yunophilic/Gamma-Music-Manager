@@ -38,6 +38,9 @@ ___
 * Clone this repository
 * Download Java SE Development Kit 8u92 (refer to Dependencies section)
 * Load project into IntelliJ IDE
+* Create a new run configuration under the Application section
+* Set the Main class to be com.teamgamma.musicmanagementsystem.Main
+* Set the JRE to be 1.8 with a version greater than or equal to 8.4
 * Run Main.main()
 
 > Note: JDK 8u40 or newer is required to use the JavaFX Dialogs in this application.
@@ -49,5 +52,5 @@ ___
 * [jdbc-3.8.11.2](https://bitbucket.org/xerial/sqlite-jdbc/downloads)
 * [JLayer 1.0.1](http://www.javazoom.net/javalayer/sources.html)
 * [Java Native Access](https://github.com/java-native-access/jna)
-* This program uses the JavaFX Media Player which depends on codecs being installed on your computer. For example, version N of the Windows operating system will require you to install Microsoft Media Feature Pack or any other officially supported codec library for this application to run. [For more information please refer to Oracle](http://www.oracle.com/technetwork/java/javase/certconfig-2095354.html)
+
 ---
