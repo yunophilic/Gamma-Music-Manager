@@ -26,7 +26,7 @@ public class Playlist implements PlaylistObserver {
 
     /**
      * Add song to playlist
-     * @param songToAdd
+     * @param songToAdd song object to be added
      * @return boolean
      */
     public boolean addSong(Song songToAdd) {
@@ -35,15 +35,20 @@ public class Playlist implements PlaylistObserver {
 
     /**
      * Remove song from playlist
-     * @param songToRemoveIndex
+     * @param songToRemoveIndex index of song to be removed
      */
     public void removeSong(int songToRemoveIndex) {
+        m_songList.remove(songToRemoveIndex);
+
         //refresh current song index
         if(m_currentSongIndex > songToRemoveIndex) {
             m_currentSongIndex--;
         }
-        //remove the song
-        m_songList.remove(songToRemoveIndex);
+
+        //restart playlist if current index exceeds list range
+        if(m_currentSongIndex > m_songList.size()-1) {
+            m_currentSongIndex = 0;
+        }
     }
 
     /**

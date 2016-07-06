@@ -54,7 +54,7 @@ public class ApplicationController extends Application {
         m_filePersistentStorage = new FilePersistentStorage();
         if (m_databaseManager.isDatabaseFileExist()) {
             m_databaseManager.setupDatabase();
-            loadSessionState();
+            //loadSessionState();
         }
     }
 

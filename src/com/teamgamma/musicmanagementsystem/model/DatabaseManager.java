@@ -768,10 +768,8 @@ public class DatabaseManager {
     public int getPlaylistLastPlayedSongIndex(String playlistName) {
         try{
             m_orderNumOfPlaylistLastPlayedSong.setString(1, playlistName);
-            m_orderNumOfPlaylistLastPlayedSong.execute();
-            ResultSet res = m_orderNumOfPlaylistLastPlayedSong.getResultSet();
-            return res.getInt(1) - 1;
-
+            ResultSet res = m_orderNumOfPlaylistLastPlayedSong.executeQuery();
+            return (res.next()) ? (res.getInt(1) - 1) : -1;
         } catch (Exception e){
             e.printStackTrace();
         }
