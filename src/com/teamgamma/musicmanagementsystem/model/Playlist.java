@@ -202,7 +202,7 @@ public class Playlist {
     /**
      * Function to check if the current song is the last on in the playlist
      *
-     * @return True if the current song is the last on in the playlist false otherwise. 
+     * @return True if the current song is the last on in the playlist false otherwise.
      */
     public boolean isLastSongInPlaylist(){
         return (m_currentSongIndex == (m_songList.size() - 1));
