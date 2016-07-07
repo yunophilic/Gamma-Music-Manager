@@ -166,7 +166,7 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         alert.setTitle("File Not Found");
-        alert.setHeaderText("An error occured while copying \"" + missingFile.getName() + "\":");
+        alert.setHeaderText("An error occured while copying \"" + missingFile.getName() + "\"");
         alert.setContentText("The file " + missingFile.getAbsolutePath() + " is not found. Delete " +
                 "its reference?");
 
@@ -192,7 +192,7 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         alert.setTitle("File Not Found");
-        alert.setHeaderText("An error occured while moving \"" + missingFile.getName() + "\":");
+        alert.setHeaderText("An error occured while moving \"" + missingFile.getName() + "\"");
         alert.setContentText("The file " + missingFile.getAbsolutePath() + " is not found. Delete " +
                 "its reference?");
 
@@ -218,7 +218,7 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         alert.setTitle("Copy Error");
-        alert.setHeaderText("An error occured while pasting \"" + copiedFile.getName() + "\":");
+        alert.setHeaderText("An error occured while pasting \"" + copiedFile.getName() + "\"");
         alert.setContentText("The file cannot be pasted into the media file " +
                 destinationFile.getName() + ". Please paste into a folder instead.");
 
@@ -595,7 +595,7 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         dialog.setTitle("Invalid media file");
-        dialog.setHeaderText("\"" + corruptedFile.getName() + "\":");
+        dialog.setHeaderText("\"" + corruptedFile.getName() + "\"]");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "missing-song.png"))));
         dialog.setContentText("The program has detected that this file is either corrupted or an invalid MP3 file.");
@@ -725,7 +725,7 @@ public class PromptUI {
             stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                     "gamma-logo.png")));
             dialog.setTitle("Rename Library");
-            dialog.setHeaderText(fileNameFull + ":");
+            dialog.setHeaderText(fileNameFull);
             dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                     "rename-library.png"))));
             dialog.setContentText("Rename the library to:");
@@ -760,7 +760,7 @@ public class PromptUI {
             stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                     "gamma-logo.png")));
             dialog.setTitle("Rename Media File");
-            dialog.setHeaderText(fileNameFull + ":");
+            dialog.setHeaderText(fileNameFull);
             dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                     "rename-song.png"))));
             dialog.setContentText("Rename the file to:");
@@ -903,7 +903,7 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         dialog.setTitle("Rename Media File");
-        dialog.setHeaderText("Please enter at least one character \n to rename \"" + fileName + "\":");
+        dialog.setHeaderText("Please enter at least one character \n to rename \"" + fileName + "\"");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-song.png"))));
         dialog.setContentText("Rename the file to:");
@@ -939,7 +939,7 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         dialog.setTitle("Rename Media File");
-        dialog.setHeaderText("Please enter at least one character \n to rename \"" + folderName + "\":");
+        dialog.setHeaderText("Please enter at least one character \n to rename \"" + folderName + "\"");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-library.png"))));
         dialog.setContentText("Rename the file to:");
@@ -1009,7 +1009,7 @@ public class PromptUI {
                 "gamma-logo.png")));
         dialog.setTitle("Add Playlist");
 
-        dialog.setHeaderText("Please enter at least one character for the playlist name:");
+        dialog.setHeaderText("Please enter at least one character for the playlist name");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "add-playlist.png"))));
         dialog.setContentText("New playlist:");
@@ -1034,7 +1034,7 @@ public class PromptUI {
                 "gamma-logo.png")));
         dialog.setTitle("Edit Playlist");
 
-        dialog.setHeaderText("Rename \"" + playlistToEdit.getM_playlistName() + "\":");
+        dialog.setHeaderText("Rename \"" + playlistToEdit.getM_playlistName() + "\"");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-playlist.png"))));
         dialog.setContentText("Rename playlist:");
@@ -1063,7 +1063,7 @@ public class PromptUI {
                 "gamma-logo.png")));
         dialog.setTitle("Edit Playlist");
 
-        dialog.setHeaderText("Please enter at least one character for the playlist name:");
+        dialog.setHeaderText("Please enter at least one character for the playlist name");
         dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "rename-playlist.png"))));
         dialog.setContentText("Rename playlist \"" + playlistToEdit.getM_playlistName() + "\":");
@@ -1087,7 +1087,7 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         dialog.setTitle("Remove Playlist");
-        dialog.setHeaderText("\"" + playlistToRemove.getM_playlistName() + "\":");
+        dialog.setHeaderText(playlistToRemove.getM_playlistName());
         dialog.setGraphic(new ImageView("res" + File.separator + "remove-playlist.png"));
         dialog.setContentText("Are you sure you want to remove this playlist?");
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
@@ -1133,7 +1133,7 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         dialog.setTitle("Add to Playlist");
-        dialog.setHeaderText("Add \"" + songToAdd.getM_fileName() + "\" to playlist:");
+        dialog.setHeaderText("Add \"" + songToAdd.getM_fileName() + "\" to playlist");
         dialog.setGraphic(new ImageView("res" + File.separator + "add-song-playlist.png"));
         dialog.setContentText("Select a playlist:");
 
@@ -1157,7 +1157,7 @@ public class PromptUI {
         stage.getIcons().add(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
                 "gamma-logo.png")));
         dialog.setTitle("Remove from Playlist");
-        dialog.setHeaderText("Remove \"" + songName.getM_fileName() + "\" from " + playlist.getM_playlistName() + ":");
+        dialog.setHeaderText("Remove \"" + songName.getM_fileName() + "\" from " + playlist.getM_playlistName());
         dialog.setGraphic(new ImageView("res" + File.separator + "remove-song-playlist.png"));
         dialog.setContentText("Are you sure you want to remove this song from the playlist?");
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
