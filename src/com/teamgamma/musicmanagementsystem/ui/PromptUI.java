@@ -295,7 +295,7 @@ public class PromptUI {
         final String SONG_INFO_HEADER = song.getM_title() + "\n" +
                 song.getM_artist() + "\n" +
                 song.getM_album();
-        Dialog<ButtonType> dialog = makeDialog(PROMPT_ICON, "edit-metadata.png", EDIT_METADATA_TITLE, SONG_INFO_HEADER, null);
+        Dialog<ButtonType> dialog = makeDialog(PROMPT_ICON, EDIT_METADATA_TITLE, "edit-metadata.png", SONG_INFO_HEADER, null);
 
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
@@ -924,7 +924,7 @@ public class PromptUI {
      */
     public static boolean removeSongFromPlaylist(Playlist playlist, Song songName) {
         final String DIALOG_MESSAGE = "Remove \"" + songName.getM_fileName() + "\" from " + playlist.getM_playlistName();
-        Dialog dialog = makeDialog(PROMPT_ICON, REMOVE_FROM_PLAYLIST_TITLE, DIALOG_MESSAGE, "remove-song-playlist.png", REMOVE_SONG_PLAYLIST_CONFIRMATION);
+        Dialog dialog = makeDialog(PROMPT_ICON, REMOVE_FROM_PLAYLIST_TITLE, "remove-song-playlist.png", DIALOG_MESSAGE, REMOVE_SONG_PLAYLIST_CONFIRMATION);
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
 
