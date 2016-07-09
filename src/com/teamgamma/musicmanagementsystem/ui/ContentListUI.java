@@ -35,12 +35,12 @@ import javafx.util.converter.IntegerStringConverter;
  * UI class for list of songs in center of application
  */
 public class ContentListUI extends StackPane {
-    private SongManager m_model;
-    private MusicPlayerManager m_musicPlayerManager;
-    private DatabaseManager m_databaseManager;
-    private ContextMenu m_contextMenu;
-    private ContextMenu m_playbackContextMenu;
-    private TableView<Song> m_table;
+    private static SongManager m_model;
+    private static MusicPlayerManager m_musicPlayerManager;
+    private static DatabaseManager m_databaseManager;
+    private static ContextMenu m_contextMenu;
+    private static ContextMenu m_playbackContextMenu;
+    private static TableView<Song> m_table;
 
     //constants
     private static final int FILE_COLUMN_MIN_WIDTH = 80;
@@ -404,41 +404,7 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent e) {
                 if (selectedSong != null) {
-                    File fileToDelete = selectedSong.getM_file();
-                    //confirmation dialog
-                    if (fileToDelete.isDirectory()) {
-                        if (!PromptUI.recycleLibrary(fileToDelete)) {
-                            return;
-                        }
-                    } else {
-                        if (!PromptUI.recycleSong(fileToDelete)) {
-                            return;
-                        }
-                    }
-                    //try to actually delete (retry if FileSystemException happens)
-                    for (int i = 0; i < 2; i++) {
-                        try {
-                            m_model.deleteFile(fileToDelete);
-                            break;
-                        } catch (IOException ex) {
-                            m_musicPlayerManager.stopSong();
-                            m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
-
-                            if (m_musicPlayerManager.isThereANextSong()) {
-                                m_musicPlayerManager.playNextSong();
-                            } else if (!m_musicPlayerManager.getHistory().isEmpty()) {
-                                m_musicPlayerManager.playPreviousSong();
-                            }
-
-                            if (i == 1) { //if this exception still thrown after retry (for debugging)
-                                ex.printStackTrace();
-                            }
-                        } catch (Exception ex) {
-                            PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
-                            ex.printStackTrace();
-                            break;
-                        }
-                    }
+                    deleteSong(selectedSong);
                 }
             }
         });
@@ -521,6 +487,44 @@ public class ContentListUI extends StackPane {
         });
 
         return contextMenu;
+    }
+
+    public static void deleteSong(Song selectedSong) {
+        File fileToDelete = selectedSong.getM_file();
+        //confirmation dialog
+        if (fileToDelete.isDirectory()) {
+            if (!PromptUI.recycleLibrary(fileToDelete)) {
+                return;
+            }
+        } else {
+            if (!PromptUI.recycleSong(fileToDelete)) {
+                return;
+            }
+        }
+        //try to actually delete (retry if FileSystemException happens)
+        for (int i = 0; i < 2; i++) {
+            try {
+                m_model.deleteFile(fileToDelete);
+                break;
+            } catch (IOException ex) {
+                m_musicPlayerManager.stopSong();
+                m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
+
+                if (m_musicPlayerManager.isThereANextSong()) {
+                    m_musicPlayerManager.playNextSong();
+                } else if (!m_musicPlayerManager.getHistory().isEmpty()) {
+                    m_musicPlayerManager.playPreviousSong();
+                }
+
+                if (i == 1) { //if this exception still thrown after retry (for debugging)
+                    ex.printStackTrace();
+                }
+            } catch (Exception ex) {
+                PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
+                ex.printStackTrace();
+                break;
+            }
+        }
     }
 
     private void setCssStyle() {

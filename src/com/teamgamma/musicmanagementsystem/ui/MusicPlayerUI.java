@@ -47,14 +47,17 @@ public class MusicPlayerUI extends VBox {
     public static final String PLAYLIST_REPEAT_ICON_PATH = "res\\ic_repeat_black_48dp_1x.png";
     public static final String ADD_TO_PLAYLIST_ICON_PATH = "res/ic_playlist_add_black_48dp_1x.png";
     public static final String SONG_REPEAT_ICON_PATH = "res\\ic_repeat_one_black_48dp_1x.png";
+    public static final String DELETE_SONG_ICON_PATH = "res\\delete-song-player.png";
 
     public static final String PREVIOUS_SONG_TOOL_TIP_DEFUALT = "No Previous Song";
     public static final String NEXT_SONG_TOOL_TIP_DEFAULT = "No Next Song";
+    private static final String DELETE_SONG_TOOL_TIP_DEFAULT = "No Song to Delete";
     public static final String MAX_VOLUME_TOOL_TIP_MESSAGE = "Max Volume";
     public static final String MUTE_VOLUME_TOOL_TIP_MESSAGE = "Mute Volume";
     public static final String PAUSE_SONG_TOOL_TIP_MESSAGE = "Pause Song";
     public static final String RESUME_SONG_TOOL_TIP_MESSAGE = "Resume Song";
-    public static final String DEFUALT_PLAY_BUTTON_TOOL_TIP_MESSAGE = "Pick a Song To Play!";
+    public static final String DELETE_SONG_TOOL_TIP_MESSAGE = "Delete Song";
+    public static final String DEFAULT_PLAY_BUTTON_TOOL_TIP_MESSAGE = "Pick a Song To Play!";
 
     public static final String DEFAULT_TIME_STRING = "0:00";
 
@@ -62,7 +65,7 @@ public class MusicPlayerUI extends VBox {
      * Constructor
      *
      * @param manager The MusicPlayerManager to setup the actions for the UI panel.
-     * @param config The FilePersistentStorage to save the states for the UI panel.
+     * @param config  The FilePersistentStorage to save the states for the UI panel.
      */
     public MusicPlayerUI(MusicPlayerManager manager, FilePersistentStorage config) {
         super();
@@ -145,7 +148,7 @@ public class MusicPlayerUI extends VBox {
         previousSongButton.setAlignment(Pos.CENTER_LEFT);
         Tooltip previousSongToolTip = new Tooltip(PREVIOUS_SONG_TOOL_TIP_DEFUALT);
 
-        if (manager.isNothingPrevious()){
+        if (manager.isNothingPrevious()) {
             previousSongButton.setOpacity(FADED);
         } else {
             previousSongButton.setOpacity(NOT_FADED);
@@ -190,7 +193,8 @@ public class MusicPlayerUI extends VBox {
         playPauseButton.setStyle("-fx-background-color: transparent");
         playPauseButton.setGraphic(UserInterfaceUtils.createImageViewForImage(PLAY_ICON_PATH));
         playPauseButton.setSelected(false);
-        Tooltip playPauseToolTip = new Tooltip(DEFUALT_PLAY_BUTTON_TOOL_TIP_MESSAGE);
+        Tooltip playPauseToolTip = new Tooltip(DEFAULT_PLAY_BUTTON_TOOL_TIP_MESSAGE);
+        playPauseButton.setOpacity(FADED);
         playPauseButton.setTooltip(playPauseToolTip);
         playPauseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -212,10 +216,12 @@ public class MusicPlayerUI extends VBox {
                     @Override
                     public void run() {
                         if (!manager.isSomethingPlaying()) {
+                            playPauseButton.setOpacity(NOT_FADED);
                             playPauseButton.setGraphic(UserInterfaceUtils.createImageViewForImage(PLAY_ICON_PATH));
                             playPauseButton.setSelected(true);
                             playPauseToolTip.setText(RESUME_SONG_TOOL_TIP_MESSAGE);
                         } else {
+                            playPauseButton.setOpacity(NOT_FADED);
                             playPauseButton.setGraphic(UserInterfaceUtils.createImageViewForImage(PAUSE_ICON_PATH));
                             playPauseButton.setSelected(false);
                             playPauseToolTip.setText(PAUSE_SONG_TOOL_TIP_MESSAGE);
@@ -229,7 +235,7 @@ public class MusicPlayerUI extends VBox {
         playbackControls.getChildren().add(playPauseButton);
 
         Button skipButton = UserInterfaceUtils.createIconButton(NEXT_SONG_ICON_PATH);
-        if (manager.isThereANextSong()){
+        if (manager.isThereANextSong()) {
             skipButton.setOpacity(NOT_FADED);
         } else {
             skipButton.setOpacity(FADED);
@@ -259,9 +265,8 @@ public class MusicPlayerUI extends VBox {
     /**
      * Helper function to create the next song observer for the tool tip.
      *
-     * @param manager   The MusicPlayerManager to use.
-     * @param nextSongTip   The tooltip to use.
-     *
+     * @param manager     The MusicPlayerManager to use.
+     * @param nextSongTip The tooltip to use.
      * @return An observer that will update the tooltip using the manager for next song.
      */
     private MusicPlayerObserver createNextSongToolTipObserver(final MusicPlayerManager manager, final Tooltip nextSongTip) {
@@ -276,15 +281,15 @@ public class MusicPlayerUI extends VBox {
     /**
      * Fuunction to set the tooltip to the next song in the music player
      *
-     * @param manager   Music Player manager to query
-     * @param nextSongTip   The tooltip to set
+     * @param manager     Music Player manager to query
+     * @param nextSongTip The tooltip to set
      */
     private void setToolTipToNextSong(MusicPlayerManager manager, Tooltip nextSongTip) {
         Song nextSong = manager.getNextSong();
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                if (nextSong != null ) {
+                if (nextSong != null) {
                     String songTitle = getSongDisplayName(nextSong);
                     nextSongTip.setText(songTitle);
                 } else {
@@ -297,9 +302,8 @@ public class MusicPlayerUI extends VBox {
     /**
      * Helper function to get the song name to display. If the metadata is empty then we will use file name.
      *
-     * @param nextSong  The song to get the title for
-     *
-     * @return  Either the song of the title if its there or the filename.
+     * @param nextSong The song to get the title for
+     * @return Either the song of the title if its there or the filename.
      */
     private String getSongDisplayName(Song nextSong) {
         String songTitle = nextSong.getM_title();
@@ -312,10 +316,9 @@ public class MusicPlayerUI extends VBox {
     /**
      * Helper function to create the observer that will be used to fade the next button or not.
      *
-     * @param manager       The music player manager to query.
-     * @param skipButton    The button to update.
-     *
-     * @return  The observer containing the next song faded logic.
+     * @param manager    The music player manager to query.
+     * @param skipButton The button to update.
+     * @return The observer containing the next song faded logic.
      */
     private MusicPlayerObserver createNextSongButtonFadedAction(final MusicPlayerManager manager, final Button skipButton) {
         return new MusicPlayerObserver() {
@@ -331,12 +334,11 @@ public class MusicPlayerUI extends VBox {
     }
 
     /**
-     * Function to create the other playback options list. This would be volume control and repeat control.
+     * Function to create the other playback options list. This would be volume control, repeat control, and delete song.
      *
      * @param manager The music manager to set up actions.
-     * @param config The file persistent storage to save state.
-     *
-     * @return  The HBox containing the other options.
+     * @param config  The file persistent storage to save state.
+     * @return The HBox containing the other options.
      */
     private HBox createOtherOptionsBox(final MusicPlayerManager manager, final FilePersistentStorage config) {
         HBox otherControlBox = new HBox();
@@ -357,7 +359,15 @@ public class MusicPlayerUI extends VBox {
         HBox.setHgrow(volumeControlSider, Priority.ALWAYS);
         volumeControlSider.setMaxSize(VOLUME_MAX_WIDTH, VOLUME_MAX_HEIGHT);
 
-        otherControlBox.getChildren().addAll(volumeDownIcon,  volumeControlSider, volumeUpIcon);
+        Button deleteSongIcon= UserInterfaceUtils.createIconButton(DELETE_SONG_ICON_PATH);
+        UserInterfaceUtils.createMouseOverUIChange(deleteSongIcon, deleteSongIcon.getStyle());
+        volumeUpIcon.setScaleY(VOLUME_BUTTON_SCALE);
+        volumeUpIcon.setScaleX(VOLUME_BUTTON_SCALE);
+        deleteSongIcon.setAlignment(Pos.BASELINE_RIGHT);
+        deleteSongIcon.setOpacity(FADED);
+        deleteSongIcon.setTooltip(new Tooltip(DELETE_SONG_TOOL_TIP_DEFAULT));
+
+        otherControlBox.getChildren().addAll(volumeDownIcon, volumeControlSider, volumeUpIcon, deleteSongIcon);
         otherControlBox.setAlignment(Pos.BASELINE_CENTER);
         otherControlBox.setSpacing(0);
 
@@ -376,6 +386,27 @@ public class MusicPlayerUI extends VBox {
                 volumeControlSider.adjustValue(MusicPlayerConstants.MAX_VOLUME);
                 manager.setVolumeLevel(MusicPlayerConstants.MAX_VOLUME);
                 config.saveVolumeState(MusicPlayerConstants.MAX_VOLUME);
+            }
+        });
+
+        manager.registerChangeStateObservers(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (manager.isSomethingPlaying() || !manager.isSomethingPlaying()) {
+                            deleteSongIcon.setOpacity(NOT_FADED);
+                            deleteSongIcon.setTooltip(new Tooltip(DELETE_SONG_TOOL_TIP_MESSAGE));
+                            deleteSongIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                                @Override
+                                public void handle(MouseEvent event) {
+                                    ContentListUI.deleteSong(manager.getCurrentSongPlaying());
+                                }
+                            });
+                        }
+                    }
+                });
             }
         });
 
@@ -478,7 +509,6 @@ public class MusicPlayerUI extends VBox {
      * Function to create the current song playing UI component.
      *
      * @param manager The music player manager to setup the observer pattern.
-     *
      * @return The song header component.
      */
     private VBox makeSongTitleHeader(final MusicPlayerManager manager) {
@@ -517,7 +547,6 @@ public class MusicPlayerUI extends VBox {
 
         return songTitleWrapper;
     }
-
 
 
     /**
@@ -579,8 +608,7 @@ public class MusicPlayerUI extends VBox {
      * Function to create the slider for volume control.
      *
      * @param manager The music player manager to interact with.
-     * @param config The file persistent storage to save volume state.
-     *
+     * @param config  The file persistent storage to save volume state.
      * @return A slider to control volume.
      */
     private Slider createSliderVolumeControl(MusicPlayerManager manager, FilePersistentStorage config) {
