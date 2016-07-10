@@ -70,14 +70,14 @@ public class PlaylistUI extends VBox {
     private static final String PLAY_PLAYLIST_ICON = "res" + File.separator + "ic_play_circle_filled_black_48dp_1x.png";
     private static final String REPEAT_PLAYLIST_ICON = "res" + File.separator + "ic_repeat_black_48dp_1x.png";
 
-    public static final String SELECT_PLAYLIST_HEADER = " Select Playlist:";
-    public static final String ADD_PLAYLIST_TOOL_TIP_MESSAGE = "Add Playlist";
-    public static final String REMOVE_PLAYLIST_TOOLTIP_MESSAGE = "Remove Playlist";
-    public static final String RENAME_PLAYLIST_TOOL_TIP_MESSAGE = "Rename Playlist";
-    public static final String SHUFFLE_PLAYLIST_TOOL_TIP_MESSAGE = "Shuffle Playlist";
-    public static final String PLAY_PLAYLIST_TOOL_TIP_MESSAGE = "Play Playlist";
-    public static final String REPEAT_PLAYLIST_TOOL_TIP_BUTTON = "Repeat Playlist Mode";
-    public static final String EMPTY_PLAYLIST_MESSAGE = "Playlist empty";
+    private static final String SELECT_PLAYLIST_HEADER = " Select Playlist:";
+    private static final String ADD_PLAYLIST_TOOL_TIP_MESSAGE = "Add Playlist";
+    private static final String REMOVE_PLAYLIST_TOOLTIP_MESSAGE = "Remove Playlist";
+    private static final String RENAME_PLAYLIST_TOOL_TIP_MESSAGE = "Rename Playlist";
+    private static final String SHUFFLE_PLAYLIST_TOOL_TIP_MESSAGE = "Shuffle Playlist";
+    private static final String PLAY_PLAYLIST_TOOL_TIP_MESSAGE = "Play Playlist";
+    private static final String REPEAT_PLAYLIST_TOOL_TIP_BUTTON = "Repeat Playlist Mode";
+    private static final String EMPTY_PLAYLIST_MESSAGE = "Playlist empty";
 
     public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
@@ -550,7 +550,7 @@ public class PlaylistUI extends VBox {
             public void handle(DragEvent dragEvent) {
                 // For Debugging
                 //System.out.println("Drag over on playlist");
-                if(m_model.getM_songToAddToPlaylist() != null && m_model.getM_selectedPlaylist() != null) {
+                if(m_model.getM_fileToMove() instanceof Song && m_model.getM_selectedPlaylist() != null) {
                     dragEvent.acceptTransferModes(TransferMode.MOVE);
                 }
                 dragEvent.consume();
@@ -561,7 +561,7 @@ public class PlaylistUI extends VBox {
             @Override
             public void handle(DragEvent dragEvent) {
                 //System.out.println("Drag dropped on playlist");
-                m_model.addSongToPlaylist(m_model.getM_songToAddToPlaylist(), m_model.getM_selectedPlaylist());
+                m_model.addSongToPlaylist( (Song) m_model.getM_fileToMove(), m_model.getM_selectedPlaylist() );
                 m_musicPlayerManager.notifyQueingObserver();
                 dragEvent.consume();
             }
@@ -571,7 +571,7 @@ public class PlaylistUI extends VBox {
             @Override
             public void handle(DragEvent dragEvent) {
                 //System.out.println("Drag done on playlist");
-                m_model.setM_songToAddToPlaylist(null);
+                //m_model.setM_songToAddToPlaylist(null);
                 dragEvent.consume();
             }
         });

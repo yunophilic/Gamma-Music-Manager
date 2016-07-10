@@ -787,7 +787,7 @@ public class DatabaseManager {
             m_deleteFromPlaylistSongsByPlaylistName.setString(1, playlistName);
             m_deleteFromPlaylistSongsByPlaylistName.executeUpdate();
             for (Song song : songs) {
-                addToPlaylistSongs(playlistName, song.getM_file().getAbsolutePath());
+                addToPlaylistSongs(playlistName, song.getAbsolutePath());
             }
             savePlaylistLastPlayedSong(playlist);
         }
@@ -805,7 +805,7 @@ public class DatabaseManager {
             int orderNumber = playlist.getM_currentSongIndex() + 1;
             if (orderNumber > 0) {
                 m_updatePLaylistLastPlayedSong.setString(1, playlist.getM_playlistName());
-                m_updatePLaylistLastPlayedSong.setString(2, playlist.getCurrentSong().getM_file().getAbsolutePath());
+                m_updatePLaylistLastPlayedSong.setString(2, playlist.getCurrentSong().getAbsolutePath());
                 m_updatePLaylistLastPlayedSong.setInt(3, orderNumber);
                 m_updatePLaylistLastPlayedSong.executeUpdate();
             }

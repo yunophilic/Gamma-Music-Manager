@@ -24,10 +24,12 @@ public class MainUI extends BorderPane {
     private LibraryUI m_libraryUI;
     private DynamicTreeViewUI m_rightFilePane;
 
-    public MainUI(
-            SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager,
-            FilePersistentStorage filePersistentStorage, List<String> libraryExpandedPaths,
-            List<String> dynamicTreeViewExpandedPaths) {
+    public MainUI(SongManager model,
+                  MusicPlayerManager musicPlayerManager,
+                  DatabaseManager databaseManager,
+                  FilePersistentStorage filePersistentStorage,
+                  List<String> libraryExpandedPaths,
+                  List<String> dynamicTreeViewExpandedPaths) {
         super();
 
         m_model = model;

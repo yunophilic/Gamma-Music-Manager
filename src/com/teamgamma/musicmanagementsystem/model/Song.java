@@ -16,8 +16,8 @@ import org.jaudiotagger.tag.id3.ID3v24Tag;
  * Credits to http://www.jthink.net/jaudiotagger/ for reading writing the song metadata
  * Credits to https://github.com/soc/jaudiotagger/blob/master/src/main/java/org/jaudiotagger/tag/id3/reference/MediaMonkeyPlayerRating.java for rating conversion
  */
-public class Song {
-    private File m_file;
+public class Song extends File {
+    //private File m_file;
     private String m_fileName;
     private String m_title;
     private String m_artist;
@@ -28,20 +28,20 @@ public class Song {
     private long m_frames;
 
     public Song(String pathToFile) {
-        m_file = new File(pathToFile);
-        String fileNameFull = m_file.getName();
+        super(pathToFile);
+        //m_file = new File(pathToFile);
+        String fileNameFull = super.getName();
         int beforeExtension = fileNameFull.lastIndexOf('.');
-        String fileName = fileNameFull.substring(0, beforeExtension);
-        m_fileName = fileName;
+        m_fileName = fileNameFull.substring(0, beforeExtension);
         try {
-            AudioFile file = AudioFileIO.read(m_file);
+            AudioFile file = AudioFileIO.read(this);
             Tag tag = file.getTag();
             if (tag == null) {
                 tag = fillEmptyTag(file);
             }
             parseTags(tag);
 
-            MP3File mp3File = new MP3File(m_file);
+            MP3File mp3File = new MP3File(this);
             m_length =  mp3File.getMP3AudioHeader().getPreciseTrackLength();
             m_frames = mp3File.getMP3AudioHeader().getNumberOfFrames();
         } catch (Exception e) {
@@ -141,9 +141,9 @@ public class Song {
         return newValue;
     }
 
-    public File getM_file() {
-        return m_file;
-    }
+    /*public File getM_file() {
+        return this;
+    }*/
 
     public String getM_fileName() {
         return m_fileName;
@@ -172,7 +172,7 @@ public class Song {
     public void setTitle(String title) {
         try {
             //update metadata
-            AudioFile file = AudioFileIO.read(m_file);
+            AudioFile file = AudioFileIO.read(this);
             Tag tag = file.getTag();
             tag.setField(FieldKey.TITLE, title);
             AudioFileIO.write(file);
@@ -186,7 +186,7 @@ public class Song {
     public void setArtist(String artist) {
         try {
             //update metadata
-            AudioFile file = AudioFileIO.read(m_file);
+            AudioFile file = AudioFileIO.read(this);
             Tag tag = file.getTag();
             tag.setField(FieldKey.ARTIST, artist);
             AudioFileIO.write(file);
@@ -200,7 +200,7 @@ public class Song {
     public void setAlbum(String album) {
         try {
             //update metadata
-            AudioFile file = AudioFileIO.read(m_file);
+            AudioFile file = AudioFileIO.read(this);
             Tag tag = file.getTag();
             tag.setField(FieldKey.ALBUM, album);
             AudioFileIO.write(file);
@@ -214,7 +214,7 @@ public class Song {
     public void setGenre(String genre) {
         try {
             //update metadata
-            AudioFile file = AudioFileIO.read(m_file);
+            AudioFile file = AudioFileIO.read(this);
             Tag tag = file.getTag();
             tag.setField(FieldKey.GENRE, genre);
             AudioFileIO.write(file);
@@ -228,7 +228,7 @@ public class Song {
     public void setRating(int rating) throws IllegalArgumentException {
         try {
             //update metadata
-            AudioFile file = AudioFileIO.read(m_file);
+            AudioFile file = AudioFileIO.read(this);
             Tag tag = file.getTag();
             tag.setField(FieldKey.RATING, Integer.toString(convertRatingFromFiveStarScale(rating)));
             AudioFileIO.write(file);
@@ -249,12 +249,12 @@ public class Song {
         return m_frames;
     }
 
-    @Override
+    /*@Override
     public boolean equals(Object obj){
-        if ((obj == null)|| !(obj instanceof Song)){
+        if ((obj == null) || !(obj instanceof Song)){
             return false;
         }
         Song otherSong = (Song) obj;
-        return this.getM_file().getAbsolutePath().equals(otherSong.getM_file().getAbsolutePath());
-    }
+        return getAbsolutePath().equals(otherSong.getAbsolutePath());
+    }*/
 }

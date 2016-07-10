@@ -72,26 +72,23 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                             m_model.notifyCenterFolderObservers();
 
                             TreeViewUtil.closeAllFoldersIcons(m_tree.getRoot());
-
                             TreeViewUtil.setOpenFolder(m_tree, m_selectedTreeViewItem.getM_file().getAbsolutePath());
+
                         } else if (!isFolder) {
-                            Song songToPlay = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
-                            if (songToPlay != null) {
-                                if (!songToPlay.equals(m_musicPlayerManager.getCurrentSongPlaying())) {
-                                    m_musicPlayerManager.playSongRightNow(songToPlay);
-                                }
-                            } else {
-                                System.out.println("SOMETHING WRONG!!!");
+                            Song songToPlay = (Song) m_selectedTreeViewItem.getM_file();
+                            if (!songToPlay.equals(m_musicPlayerManager.getCurrentSongPlaying())) {
+                                m_musicPlayerManager.playSongRightNow(songToPlay);
                             }
                         }
                     }
                 }
 
                 event.consume();
-            } else if (mouseEvent.isControlDown() && (mouseEvent.isPrimaryButtonDown())){
+            } else if (mouseEvent.isControlDown() && mouseEvent.isPrimaryButtonDown()) {
                 if (!event.isConsumed()) {
-                    Song songSelected = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
-                    if (songSelected != null) {
+                    File selectedFile = m_selectedTreeViewItem.getM_file();
+                    if (selectedFile instanceof Song) {
+                        Song songSelected = (Song) selectedFile;
                         if (m_playbackContextMenuInstance != null) {
                             m_playbackContextMenuInstance.hide();
                         }

@@ -126,10 +126,10 @@ public class Watcher {
         List<File> deletedDirs = new ArrayList<>();
         for (Library lib : m_model.getM_libraries()) {
             try {
-                if(lib.getM_rootDir().exists()) {
-                    addWatchDir(lib.getM_rootDirPath());
+                if(lib.getRootDir().exists()) {
+                    addWatchDir(lib.getRootDirPath());
                 } else {
-                    deletedDirs.add(lib.getM_rootDir());
+                    deletedDirs.add(lib.getRootDir());
                 }
             } catch (IOException e) {
                 e.printStackTrace();

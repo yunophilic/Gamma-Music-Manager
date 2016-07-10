@@ -217,7 +217,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             @Override
             public void handle(ActionEvent event) {
                 if (m_selectedTreeViewItem != null) {
-                    Song selectedSong = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    Song selectedSong = (Song) m_selectedTreeViewItem.getM_file();
                     if (selectedSong != null) {
                         List<Playlist> playlists = m_model.getM_playlists();
                         if (playlists.isEmpty()) {
@@ -240,13 +240,15 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         addToCurrentPlaylist.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Song selectedSong = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                Song selectedSong = (Song) m_selectedTreeViewItem.getM_file();
                 if (selectedSong != null) {
                     Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                    if (selectedPlaylist != null) {
-                        m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
-                        m_musicPlayerManager.notifyQueingObserver();
+                    if (selectedPlaylist == null) {
+                        PromptUI.customPromptError("Error", null, "Please select a playlist!");
+                        return;
                     }
+                    m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
+                    m_musicPlayerManager.notifyQueingObserver();
                 }
             }
         });
@@ -257,7 +259,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             @Override
             public void handle(ActionEvent event) {
                 if (m_selectedTreeViewItem != null) {
-                    Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    Song song = (Song) m_selectedTreeViewItem.getM_file();
                     if (song != null) {
                         m_musicPlayerManager.playSongRightNow(song);
                     }
@@ -270,7 +272,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             @Override
             public void handle(ActionEvent event) {
                 if (m_selectedTreeViewItem != null) {
-                    Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    Song song = (Song) m_selectedTreeViewItem.getM_file();
                     if (song != null) {
                         m_musicPlayerManager.placeSongAtStartOfQueue(song);
                     }
@@ -283,7 +285,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             @Override
             public void handle(ActionEvent event) {
                 if (m_selectedTreeViewItem != null) {
-                    Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
+                    Song song = (Song) m_selectedTreeViewItem.getM_file();
                     if (song != null) {
                         m_musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
                     }
@@ -314,8 +316,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 }
 
                 // Do not show song options if this is not a song
-                Song song = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
-                if (m_selectedTreeViewItem == null || song == null) {
+                if ( !(m_selectedTreeViewItem.getM_file() instanceof Song) ) {
                     disableMenuItem(playSong);
                     disableMenuItem(placeSongAtStartOfQueue);
                     disableMenuItem(placeSongOnBackOfQueue);
@@ -353,18 +354,21 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 if (m_selectedTreeViewItem != null) {
                     System.out.println("Drag detected on " + m_selectedTreeViewItem);
 
-                    //update model
-                    m_model.setM_fileToMove(m_selectedTreeViewItem.getM_file());
+                    File selectedFile = m_selectedTreeViewItem.getM_file();
 
-                    Song songToAddInPlaylist = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
-                    if (songToAddInPlaylist != null) {
+                    //update model
+                    m_model.setM_fileToMove(selectedFile);
+
+                    /*if (selectedFile instanceof Song) {
+                        Song songToAddInPlaylist = (Song) selectedFile;
                         m_model.setM_songToAddToPlaylist(songToAddInPlaylist);
-                    }
+                    }*/
+
                     //update drag board
                     Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
                     dragBoard.setDragView(snapshot(null, null));
                     ClipboardContent content = new ClipboardContent();
-                    content.put(DataFormat.PLAIN_TEXT, m_selectedTreeViewItem.getM_file().getAbsolutePath());
+                    content.put(DataFormat.PLAIN_TEXT, selectedFile.getAbsolutePath());
                     dragBoard.setContent(content);
 
                     mouseEvent.consume();

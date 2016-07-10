@@ -295,17 +295,17 @@ public class ContentListUI extends StackPane {
                     public void handle(MouseEvent mouseEvent) {
                         Song selectedItem = row.getItem();
 
-                        System.out.println("Drag detected on " + selectedItem.getM_file());
+                        System.out.println("Drag detected on " + selectedItem);
 
                         //update model
-                        m_model.setM_fileToMove(selectedItem.getM_file());
-                        m_model.setM_songToAddToPlaylist(selectedItem);
+                        m_model.setM_fileToMove(selectedItem);
+                        //m_model.setM_songToAddToPlaylist(selectedItem);
 
                         //update drag board
                         Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
                         dragBoard.setDragView(row.snapshot(null, null));
                         ClipboardContent content = new ClipboardContent();
-                        content.put(DataFormat.PLAIN_TEXT, selectedItem.getM_file().getAbsolutePath());
+                        content.put(DataFormat.PLAIN_TEXT, selectedItem.getAbsolutePath());
                         dragBoard.setContent(content);
 
                         mouseEvent.consume();
@@ -368,7 +368,7 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent e) {
                 if (selectedSong != null) {
-                    m_model.setM_fileToCopy(selectedSong.getM_file());
+                    m_model.setM_fileToCopy(selectedSong);
                 }
             }
         });
@@ -404,7 +404,7 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent e) {
                 if (selectedSong != null) {
-                    File fileToDelete = selectedSong.getM_file();
+                    File fileToDelete = selectedSong;
                     //confirmation dialog
                     if (fileToDelete.isDirectory()) {
                         if (!PromptUI.recycleLibrary(fileToDelete)) {
@@ -477,10 +477,12 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent event) {
                 Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                if (selectedPlaylist != null) {
-                    m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
-                    m_musicPlayerManager.notifyQueingObserver();
+                if (selectedPlaylist == null) {
+                    PromptUI.customPromptError("Error", null, "Please select a playlist!");
+                    return;
                 }
+                m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
+                m_musicPlayerManager.notifyQueingObserver();
             }
         });
 

@@ -28,7 +28,7 @@ public class SongManager {
     private File m_addedFile;
     private File m_renamedFile;
 
-    private Song m_songToAddToPlaylist;
+    //private Song m_songToAddToPlaylist;
 
     // For observer pattern
     private File m_selectedCenterFolder;
@@ -58,7 +58,7 @@ public class SongManager {
         m_addedFile = null;
         m_renamedFile = null;
 
-        m_songToAddToPlaylist = null;
+        //m_songToAddToPlaylist = null;
 
         m_selectedCenterFolder = null;
         m_rightFolderSelected = null;
@@ -79,7 +79,7 @@ public class SongManager {
         }
         try {
             Library newLibrary = new Library(directoryPath);
-            if (!newLibrary.getM_rootDir().exists()) {
+            if (!newLibrary.getRootDir().exists()) {
                 return false;
             }
             m_libraries.add(newLibrary);
@@ -102,7 +102,7 @@ public class SongManager {
 
     private boolean isInLibrary(String directoryPath) {
         for (Library library : m_libraries) {
-            if (library.getM_rootDirPath().equals(directoryPath)) {
+            if (library.getRootDirPath().equals(directoryPath)) {
                 return true;
             }
         }
@@ -117,7 +117,7 @@ public class SongManager {
      */
     private Library getLibrary(File file) {
         for (Library l : m_libraries) {
-            if (file.getAbsolutePath().startsWith(l.getM_rootDirPath())) {
+            if (file.getAbsolutePath().startsWith(l.getRootDirPath())) {
                 return l;
             }
         }
@@ -130,10 +130,10 @@ public class SongManager {
      * @param libraryRootDir File object representing the root dir of the the library
      * @return list of songs
      */
-    public Song getSongInLibrary(File songFile, File libraryRootDir) {
+    /*public Song getSongInLibrary(File songFile, File libraryRootDir) {
         Library library = getLibrary(libraryRootDir);
         return (library != null) ? library.getSong(songFile) : null;
-    }
+    }*/
 
     /**
      * Get libraries
@@ -151,7 +151,7 @@ public class SongManager {
     public boolean isLibrary(File file) {
         String filePath = file.getAbsolutePath();
         for (Library library: m_libraries) {
-            String libraryPath = library.getM_rootDirPath();
+            String libraryPath = library.getRootDirPath();
             if (libraryPath.equals(filePath)) {
                 return true;
             }
@@ -192,7 +192,7 @@ public class SongManager {
 
         m_copyDest = dest;
 
-        updateLibraries();
+        //updateLibraries();
     }
 
     /**
@@ -203,7 +203,7 @@ public class SongManager {
      */
     public void moveFile(File fileToMove, File destDir) throws IOException {
         FileManager.moveFile(fileToMove, destDir);
-        updateLibraries();
+        //updateLibraries();
 
         m_moveDest = destDir;
         notifyFileObservers(Actions.DROP, null);
@@ -225,7 +225,7 @@ public class SongManager {
         if (!FileManager.removeFile(fileToDelete)) {
             throw new FileSystemException("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
         }
-        updateLibraries();
+        //updateLibraries();
 
         m_deletedFile = fileToDelete;
         notifyFileObservers(Actions.DELETE, fileToDelete);
@@ -237,13 +237,13 @@ public class SongManager {
     /**
      * Update the list of libraries
      */
-    private void updateLibraries() {
+    /*private void updateLibraries() {
         // Delete current libraries and create new libraries with same paths
         // to update songs in libraries when files are moved
         List<String> libraryPaths = new ArrayList<>();
 
         for (Library library : m_libraries) {
-            libraryPaths.add(library.getM_rootDirPath());
+            libraryPaths.add(library.getRootDirPath());
         }
 
         m_libraries.clear();
@@ -254,7 +254,7 @@ public class SongManager {
                 this.addLibrary(libraryPath);
             }
         }
-    }
+    }*/
 
     /**
      * Get list of songs in a certain library within the library list
@@ -262,7 +262,7 @@ public class SongManager {
      * @return list of songs
      */
     private List<Song> getSongs(Library library) {
-        return library.getM_songList();
+        return library.getSongs();
     }
 
     /**
@@ -277,12 +277,12 @@ public class SongManager {
             for (Library library : m_libraries) {
                 for (Song song : getSongs(library)) {
                     if (m_menuOptions.getM_centerPanelShowSubfolderFiles()) {
-                        String songFilePath = song.getM_file().getAbsolutePath();
+                        String songFilePath = song.getAbsolutePath();
                         if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath())) {
                             centerPanelSongs.add(song);
                         }
                     } else {
-                        String songParentPath = song.getM_file().getParent();
+                        String songParentPath = song.getParent();
                         //System.out.println("== Song parent path: " + songParentPath);
                         if (songParentPath.equals(m_selectedCenterFolder.getAbsolutePath())) {
                             centerPanelSongs.add(song);
@@ -399,7 +399,7 @@ public class SongManager {
     public void renameFile(File fileToRename, Path newPath) {
         m_renamedFile = new File(newPath.toString());
 
-        updateLibraries();
+        //updateLibraries();
 
         notifyFileObservers(Actions.RENAME, fileToRename);
     }
@@ -410,7 +410,7 @@ public class SongManager {
      * @param file
      */
     public void fileSysChanged(Actions action, File file) {
-        updateLibraries();
+        //updateLibraries();
         notifyFileObservers(action, file);
     }
 
@@ -418,13 +418,13 @@ public class SongManager {
 
     }
 
-    public Song getM_songToAddToPlaylist() {
+    /*public Song getM_songToAddToPlaylist() {
         return m_songToAddToPlaylist;
     }
 
     public void setM_songToAddToPlaylist(Song m_songToAddToPlaylist) {
         this.m_songToAddToPlaylist = m_songToAddToPlaylist;
-    }
+    }*/
 
     public File getM_renamedFile() {
         return m_renamedFile;
@@ -558,9 +558,9 @@ public class SongManager {
         }
     }
 
-    public void notifySongObservers() {
+    /*public void notifySongObservers() {
 
-    }
+    }*/
 
     public void notifyFileObservers(Actions action, File file) {
         for (SongManagerObserver observer : m_songManagerObservers) {
