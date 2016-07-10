@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
+import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.model.Song;
@@ -60,16 +61,16 @@ public class MusicPlayerUI extends VBox {
     public static final String DEFAULT_PLAY_BUTTON_TOOL_TIP_MESSAGE = "Pick a Song To Play!";
 
     public static final String DEFAULT_TIME_STRING = "0:00";
-
+    private SongManager m_model;
     /**
      * Constructor
      *
      * @param manager The MusicPlayerManager to setup the actions for the UI panel.
      * @param config  The FilePersistentStorage to save the states for the UI panel.
      */
-    public MusicPlayerUI(MusicPlayerManager manager, FilePersistentStorage config) {
+    public MusicPlayerUI(MusicPlayerManager manager, FilePersistentStorage config, SongManager model) {
         super();
-
+        m_model = model;
         VBox topWrapper = new VBox();
         topWrapper.setSpacing(0);
         topWrapper.getChildren().add(makeSongTitleHeader(manager));
@@ -401,7 +402,8 @@ public class MusicPlayerUI extends VBox {
                             deleteSongIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
                                 @Override
                                 public void handle(MouseEvent event) {
-                                    ContentListUI.deleteSong(manager.getCurrentSongPlaying());
+                                    final Song currentSongPlaying = manager.getCurrentSongPlaying();
+                                    UserInterfaceUtils.deleteSong(currentSongPlaying.getM_file(), m_model, manager);
                                 }
                             });
                         }

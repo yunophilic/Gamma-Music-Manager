@@ -35,12 +35,12 @@ import javafx.util.converter.IntegerStringConverter;
  * UI class for list of songs in center of application
  */
 public class ContentListUI extends StackPane {
-    private static SongManager m_model;
-    private static MusicPlayerManager m_musicPlayerManager;
-    private static DatabaseManager m_databaseManager;
-    private static ContextMenu m_contextMenu;
-    private static ContextMenu m_playbackContextMenu;
-    private static TableView<Song> m_table;
+    private SongManager m_model;
+    private MusicPlayerManager m_musicPlayerManager;
+    private DatabaseManager m_databaseManager;
+    private ContextMenu m_contextMenu;
+    private ContextMenu m_playbackContextMenu;
+    private TableView<Song> m_table;
 
     //constants
     private static final int FILE_COLUMN_MIN_WIDTH = 80;
@@ -48,6 +48,13 @@ public class ContentListUI extends StackPane {
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
     //private String style = "";
 
+    /**
+     * Constructor
+     *
+     * @param model
+     * @param musicPlayerManager
+     * @param databaseManager
+     */
     public ContentListUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
         m_model = model;
@@ -99,6 +106,9 @@ public class ContentListUI extends StackPane {
         });
     }
 
+    /**
+     * Intitial table view
+     */
     private void initTableView() {
         m_table = new TableView<>();
         setTableColumns();
@@ -107,6 +117,9 @@ public class ContentListUI extends StackPane {
         updateTable();
     }
 
+    /**
+     * Set the various table column labels
+     */
     private void setTableColumns() {
         TableColumn<Song, File> filePathCol = new TableColumn<>("File Path");
         filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
@@ -126,11 +139,17 @@ public class ContentListUI extends StackPane {
         showOrHideTableColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
     }
 
+    /**
+     * Clear the song explorer table
+     */
     private void clearTable() {
         System.out.println("Clearing song explorer table...");
         m_table.getItems().clear();
     }
 
+    /**
+     * Update the song explorer table
+     */
     private void updateTable() {
         System.out.println("Updating song explorer table...");
         if (m_model.getM_selectedCenterFolder() != null) {
@@ -145,6 +164,17 @@ public class ContentListUI extends StackPane {
         }
     }
 
+    /**
+     * Allows user to show or hide different columns
+     *
+     * @param filePathCol full path of the song file
+     * @param fileNameCol name of the song file
+     * @param titleCol title of the song
+     * @param artistCol artist of the song
+     * @param albumCol album of the song
+     * @param genreCol genre of the song
+     * @param ratingCol rating of the song
+     */
     private void showOrHideTableColumns(TableColumn<Song, File> filePathCol,
                                         TableColumn<Song, String> fileNameCol,
                                         TableColumn<Song, String> titleCol,
@@ -165,6 +195,17 @@ public class ContentListUI extends StackPane {
         ratingCol.setVisible(false);
     }
 
+    /**
+     * Create various columns for the table
+     *
+     * @param filePathCol full path of the song file
+     * @param fileNameCol name of the song file
+     * @param titleCol title of the song
+     * @param artistCol artist of the song
+     * @param albumCol album of the song
+     * @param genreCol genre of the song
+     * @param ratingCol rating of the song
+     */
     private void setTableColumnAttributes(TableColumn<Song, File> filePathCol,
                                           TableColumn<Song, String> fileNameCol,
                                           TableColumn<Song, String> titleCol,
@@ -244,6 +285,9 @@ public class ContentListUI extends StackPane {
         m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
+    /**
+     * Apply all of the different mouse actions on a selected song
+     */
     private void setTableRowMouseEvents() {
         m_table.setRowFactory(new Callback<TableView<Song>, TableRow<Song>>() {
             @Override
@@ -359,6 +403,12 @@ public class ContentListUI extends StackPane {
         });
     }
 
+    /**
+     * Generate all the different options when a song is right clicked
+     *
+     * @param selectedSong song selected
+     * @return context menu generated
+     */
     private ContextMenu generateContextMenu(Song selectedSong) {
         ContextMenu contextMenu = new ContextMenu();
 
@@ -404,7 +454,8 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent e) {
                 if (selectedSong != null) {
-                    deleteSong(selectedSong);
+                    File selectedSongFile = selectedSong.getM_file();
+                    UserInterfaceUtils.deleteSong(selectedSongFile, m_model, m_musicPlayerManager);
                 }
             }
         });
@@ -487,44 +538,6 @@ public class ContentListUI extends StackPane {
         });
 
         return contextMenu;
-    }
-
-    public static void deleteSong(Song selectedSong) {
-        File fileToDelete = selectedSong.getM_file();
-        //confirmation dialog
-        if (fileToDelete.isDirectory()) {
-            if (!PromptUI.recycleLibrary(fileToDelete)) {
-                return;
-            }
-        } else {
-            if (!PromptUI.recycleSong(fileToDelete)) {
-                return;
-            }
-        }
-        //try to actually delete (retry if FileSystemException happens)
-        for (int i = 0; i < 2; i++) {
-            try {
-                m_model.deleteFile(fileToDelete);
-                break;
-            } catch (IOException ex) {
-                m_musicPlayerManager.stopSong();
-                m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
-
-                if (m_musicPlayerManager.isThereANextSong()) {
-                    m_musicPlayerManager.playNextSong();
-                } else if (!m_musicPlayerManager.getHistory().isEmpty()) {
-                    m_musicPlayerManager.playPreviousSong();
-                }
-
-                if (i == 1) { //if this exception still thrown after retry (for debugging)
-                    ex.printStackTrace();
-                }
-            } catch (Exception ex) {
-                PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
-                ex.printStackTrace();
-                break;
-            }
-        }
     }
 
     private void setCssStyle() {
