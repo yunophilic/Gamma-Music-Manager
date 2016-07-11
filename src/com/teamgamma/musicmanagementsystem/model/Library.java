@@ -4,9 +4,6 @@ import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
 import javafx.scene.control.TreeItem;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.DirectoryNotEmptyException;
-import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,7 +89,7 @@ public class Library {
      */
     /*public boolean copySong(Song songToCopy, String pathToDest) {
         try {
-            return FileManager.copyFile(songToCopy.getM_file(), new File(pathToDest));
+            return FileManager.copyFile(songToCopy.getFile(), new File(pathToDest));
         } catch (InvalidPathException x) {
             System.err.format("Invalid path %s", pathToDest);
         } catch (IOException x) {
@@ -179,7 +176,7 @@ public class Library {
      * @return String to root directory
      */
     public String getRootDirPath() {
-        return m_treeRoot.getValue().getM_file().getAbsolutePath();
+        return m_treeRoot.getValue().getFile().getAbsolutePath();
     }
 
     /**
@@ -188,7 +185,7 @@ public class Library {
      * @return File of root directory
      */
     public File getRootDir() {
-        return m_treeRoot.getValue().getM_file();
+        return m_treeRoot.getValue().getFile();
     }
 
     public TreeItem<TreeViewItem> getM_treeRoot() {
@@ -200,7 +197,7 @@ public class Library {
     }
 
     private Song getSong(TreeItem<TreeViewItem> node, File fileToMove) {
-        if (node.getValue().getM_file().getAbsolutePath().equals(fileToMove.getAbsolutePath())) {
+        if (node.getValue().getFile().getAbsolutePath().equals(fileToMove.getAbsolutePath())) {
             return (Song) node.getValue();
         }
 

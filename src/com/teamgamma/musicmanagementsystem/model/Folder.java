@@ -3,7 +3,7 @@ package com.teamgamma.musicmanagementsystem.model;
 import java.io.File;
 
 /**
- * Created by Karen on 2016-07-10.
+ * Class that represents a Folder
  */
 public class Folder implements TreeViewItem {
     private File m_file;
@@ -15,17 +15,17 @@ public class Folder implements TreeViewItem {
     }
 
     @Override
-    public File getM_file() {
+    public File getFile() {
         return m_file;
     }
 
     @Override
-    public boolean getM_isRootPath() {
+    public boolean isRootPath() {
         return m_isRootPath;
     }
 
     @Override
-    public File getSongToPlay() {
+    public Song getSong() {
         return null;
     }
 
@@ -52,7 +52,7 @@ public class Folder implements TreeViewItem {
 
         Folder otherFolder = (Folder)object;
         String thisFilePath = m_file.getAbsolutePath();
-        String otherFilePath = otherFolder.getM_file().getAbsolutePath();
+        String otherFilePath = otherFolder.getFile().getAbsolutePath();
 
         if (thisFilePath.equals(otherFilePath)) {
             return true;

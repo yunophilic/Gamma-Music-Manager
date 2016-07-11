@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.FileSystemException;
 import java.util.List;
 
 import javafx.scene.control.MenuItem;
@@ -298,14 +297,14 @@ public class ContentListUI extends StackPane {
                         System.out.println("Drag detected on " + selectedItem);
 
                         //update model
-                        m_model.setM_fileToMove(selectedItem.getM_file());
+                        m_model.setM_itemToMove(selectedItem);
                         //m_model.setM_songToAddToPlaylist(selectedItem);
 
                         //update drag board
                         Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
                         dragBoard.setDragView(row.snapshot(null, null));
                         ClipboardContent content = new ClipboardContent();
-                        content.put(DataFormat.PLAIN_TEXT, selectedItem.getM_file().getAbsolutePath());
+                        content.put(DataFormat.PLAIN_TEXT, selectedItem.getFile().getAbsolutePath());
                         dragBoard.setContent(content);
 
                         mouseEvent.consume();
@@ -327,7 +326,7 @@ public class ContentListUI extends StackPane {
                         System.out.println("Drag dropped on center");
 
                         //move to the selected center folder
-                        File fileToMove = m_model.getM_fileToMove();
+                        File fileToMove = m_model.getFileToMove();
                         File destination = m_model.getM_selectedCenterFolder();
                         try {
                             m_model.moveFile(fileToMove, destination);
@@ -349,7 +348,7 @@ public class ContentListUI extends StackPane {
                     @Override
                     public void handle(DragEvent dragEvent) {
                         System.out.println("Drag done");
-                        m_model.setM_fileToMove(null);
+                        m_model.setM_itemToMove(null);
                         dragEvent.consume();
                     }
                 });
@@ -368,7 +367,7 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent e) {
                 if (selectedSong != null) {
-                    m_model.setM_fileToCopy(selectedSong.getM_file());
+                    m_model.setM_fileToCopy(selectedSong.getFile());
                 }
             }
         });
@@ -404,7 +403,7 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent e) {
                 if (selectedSong != null) {
-                    File fileToDelete = selectedSong.getM_file();
+                    File fileToDelete = selectedSong.getFile();
                     //confirmation dialog
                     if (fileToDelete.isDirectory()) {
                         if (!PromptUI.recycleLibrary(fileToDelete)) {

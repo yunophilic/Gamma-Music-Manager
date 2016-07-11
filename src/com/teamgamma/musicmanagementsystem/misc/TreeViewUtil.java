@@ -33,13 +33,13 @@ public class TreeViewUtil {
                 (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
         );
 
-        File treeItemFile = item.getValue().getM_file();
+        File treeItemFile = item.getValue().getFile();
         System.out.println("$$$" + treeItemFile + ", " + treeItemFile.isDirectory());
         if (treeItemFile.isDirectory()) {
             item.setGraphic(new ImageView(folderImage));
 
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
-                if (expandedPaths.contains(item.getValue().getM_file().getAbsolutePath())) {
+                if (expandedPaths.contains(item.getValue().getFile().getAbsolutePath())) {
                     item.setExpanded(true);
                 }
             }
@@ -87,7 +87,7 @@ public class TreeViewUtil {
             item.setGraphic(new ImageView(folderImage));
 
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
-                if (expandedPaths.contains(item.getValue().getM_file().getAbsolutePath())) {
+                if (expandedPaths.contains(item.getValue().getFile().getAbsolutePath())) {
                     item.setExpanded(true);
                 }
             }
@@ -132,7 +132,7 @@ public class TreeViewUtil {
      */
     public static TreeItem<TreeViewItem> searchTreeItem(TreeItem<TreeViewItem> node, String path) {
         //base case
-        if (node.getValue().getM_file().getAbsolutePath().equals(path)) {
+        if (node.getValue().getFile().getAbsolutePath().equals(path)) {
             //System.out.println("Returning node: " + node);
             return node;
         }
@@ -155,7 +155,7 @@ public class TreeViewUtil {
      */
     public static void closeAllFoldersIcons(TreeItem<TreeViewItem> treeItem) {
         //System.out.println("#### closing file: " + treeItem.getValue());
-        if (treeItem.getValue().getM_file().isDirectory()) {
+        if (treeItem.getValue().getFile().isDirectory()) {
             treeItem.setGraphic(new ImageView(folderImage));
         } else {
             treeItem.setGraphic(new ImageView(songImage));
@@ -194,7 +194,7 @@ public class TreeViewUtil {
 
     public static boolean isLibraryInList(List<TreeViewItem> libraryNodes, Library library) {
         for (TreeViewItem libraryNode : libraryNodes) {
-            String libraryNodePath = libraryNode.getM_file().getAbsolutePath();
+            String libraryNodePath = libraryNode.getFile().getAbsolutePath();
             if (libraryNodePath.equals(library.getRootDirPath())) {
                 return true;
             }
@@ -229,10 +229,10 @@ public class TreeViewUtil {
             }
             case DROP: {
                 // Add new node to destination file node
-                addNewNode(tree, model, model.getM_fileToMove().getName(), model.getM_moveDest().getAbsolutePath());
+                addNewNode(tree, model, model.getFileToMove().getName(), model.getM_moveDest().getAbsolutePath());
 
                 // Remove node from old folder it was in
-                String deletedFilePath = model.getM_fileToMove().getAbsolutePath();
+                String deletedFilePath = model.getFileToMove().getAbsolutePath();
                 TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
 
                 removedFile.getParent().getChildren().remove(removedFile);
@@ -299,7 +299,7 @@ public class TreeViewUtil {
 
         if (children != null) {
             for (TreeItem<TreeViewItem> child : children) {
-                String newPath = path + File.separator + child.getValue().getM_file().getName();
+                String newPath = path + File.separator + child.getValue().getFile().getName();
                 recursivelyRenameNodes(child, newPath, model);
             }
         }
@@ -320,7 +320,7 @@ public class TreeViewUtil {
 
     public static boolean isLibraryNodeInList(List<Library> libraries, TreeViewItem libraryNode) {
         for (Library library : libraries) {
-            String libraryNodePath = libraryNode.getM_file().getAbsolutePath();
+            String libraryNodePath = libraryNode.getFile().getAbsolutePath();
             if (libraryNodePath.equals(library.getRootDirPath())) {
                 return true;
             }
@@ -353,7 +353,7 @@ public class TreeViewUtil {
             }
             //play song
             return model.getSongInLibrary(
-                    selectedItem.getM_file(), selectedTreeItem.getValue().getM_file()
+                    selectedItem.getFile(), selectedTreeItem.getValue().getFile()
             );
         }
         return null;
@@ -386,7 +386,7 @@ public class TreeViewUtil {
 
         // Add to list if this path is expanded
         if (currentItem.isExpanded()) {
-            File file = currentItem.getValue().getM_file();
+            File file = currentItem.getValue().getFile();
             expandedPaths.add(file.getAbsolutePath());
         }
 
@@ -406,7 +406,7 @@ public class TreeViewUtil {
      * @param node the root tree item
      */
     public static void setTreeExpandedState(TreeItem<TreeViewItem> node, List<String> expandedPaths) {
-        File file = node.getValue().getM_file();
+        File file = node.getValue().getFile();
         if (file.isDirectory())
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
                 if (expandedPaths.contains(file.getAbsolutePath())) {

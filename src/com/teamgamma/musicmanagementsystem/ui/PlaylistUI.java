@@ -55,7 +55,7 @@ public class PlaylistUI extends VBox {
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
     private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
-    public static final double PLAYLIST_PLAYBACK_BUTTON_SCALE = 0.75;
+    private static final double PLAYLIST_PLAYBACK_BUTTON_SCALE = 0.75;
 
     private static final Insets TABLE_VIEW_MARGIN = new Insets(30, 0, 0, 0);
 
@@ -551,7 +551,7 @@ public class PlaylistUI extends VBox {
                 // For Debugging
                 //System.out.println("Drag over on playlist");
                 // TODO: is this check still correct?
-                if(m_model.getM_selectedPlaylist() != null) {
+                if (m_model.getSongToMove() != null && m_model.getM_selectedPlaylist() != null) {
                     dragEvent.acceptTransferModes(TransferMode.MOVE);
                 }
                 dragEvent.consume();

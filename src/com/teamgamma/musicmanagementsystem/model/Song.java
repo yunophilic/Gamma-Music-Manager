@@ -141,7 +141,7 @@ public class Song implements TreeViewItem {
         return newValue;
     }
 
-    /*public File getM_file() {
+    /*public File getFile() {
         return m_file;
     }*/
 
@@ -250,18 +250,18 @@ public class Song implements TreeViewItem {
     }
 
     @Override
-    public File getM_file() {
+    public File getFile() {
         return m_file;
     }
 
     @Override
-    public boolean getM_isRootPath() {
+    public boolean isRootPath() {
         return false;
     }
 
     @Override
-    public File getSongToPlay() {
-        return m_file;
+    public Song getSong() {
+        return this;
     }
 
     @Override
@@ -283,7 +283,7 @@ public class Song implements TreeViewItem {
 
         Song otherSong = (Song)object;
         String thisFilePath = m_file.getAbsolutePath();
-        String otherFilePath = otherSong.getM_file().getAbsolutePath();
+        String otherFilePath = otherSong.getFile().getAbsolutePath();
 
         if (thisFilePath.equals(otherFilePath)) {
             return true;

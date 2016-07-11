@@ -9,16 +9,9 @@ import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-
-import javax.swing.tree.TreeNode;
-import java.io.File;
-import java.util.List;
 
 /**
  * Custom EventDispatcher class to override the default double-click behaviour of TreeView
@@ -65,16 +58,16 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
             if (isPrimaryMouseButton && isDoubleClick) {
                 if (!event.isConsumed()) {
                     if (m_selectedTreeViewItem != null) {
-                        boolean isFolder = m_selectedTreeViewItem.getM_file().isDirectory();
+                        boolean isFolder = m_selectedTreeViewItem.getFile().isDirectory();
 
                         //Only notify center panel if this is a left panel and if this is a directory
                         if (m_isLeftPane && isFolder) {
                             System.out.println("Selected Item: " + m_selectedTreeViewItem);
-                            m_model.setM_selectedCenterFolder(m_selectedTreeViewItem.getM_file());
+                            m_model.setM_selectedCenterFolder(m_selectedTreeViewItem.getFile());
                             m_model.notifyCenterFolderObservers();
 
                             TreeViewUtil.closeAllFoldersIcons(m_tree.getRoot());
-                            TreeViewUtil.setOpenFolder(m_tree, m_selectedTreeViewItem.getM_file().getAbsolutePath());
+                            TreeViewUtil.setOpenFolder(m_tree, m_selectedTreeViewItem.getFile().getAbsolutePath());
 
                         } else if (!isFolder) {
                             Song songToPlay = (Song) m_selectedTreeViewItem;

@@ -6,13 +6,15 @@ import java.io.File;
  * Interface for file tree objects
  */
 public interface TreeViewItem {
-    File getM_file();
+    File getFile();
 
-    boolean getM_isRootPath();
+    boolean isRootPath();
 
-    File getSongToPlay();
+    Song getSong();
 
+    @Override
     String toString();
 
+    @Override
     boolean equals(Object object);
 }

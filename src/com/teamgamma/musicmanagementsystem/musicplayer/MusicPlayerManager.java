@@ -113,7 +113,7 @@ public class MusicPlayerManager {
         m_currentSong = songToPlay;
         m_musicPlayer.playSong(songToPlay);
         updateHistory();
-        m_databaseManager.deleteFromPlaybackQueue(songToPlay.getM_file().getAbsolutePath());
+        m_databaseManager.deleteFromPlaybackQueue(songToPlay.getFile().getAbsolutePath());
 
         notifyQueingObserver();
     }
@@ -130,7 +130,7 @@ public class MusicPlayerManager {
             m_musicPlayer.playSong(nextSong);
         } else {
             m_playingQueue.add(nextSong);
-            m_databaseManager.addToPlaybackQueueTail(nextSong.getM_file().getAbsolutePath());
+            m_databaseManager.addToPlaybackQueueTail(nextSong.getFile().getAbsolutePath());
         }
 
         notifyQueingObserver();
@@ -153,7 +153,7 @@ public class MusicPlayerManager {
     public void placeSongAtStartOfQueue(Song songToPlace) {
         boolean isNoSongPlaying = isNoSongPlayingOrNext();
         m_playingQueue.addFirst(songToPlace);
-        m_databaseManager.addToPlaybackQueueHead(songToPlace.getM_file().getAbsolutePath());
+        m_databaseManager.addToPlaybackQueueHead(songToPlace.getFile().getAbsolutePath());
         if (isNoSongPlaying){
             playNextSong();
         }
@@ -265,7 +265,7 @@ public class MusicPlayerManager {
             }
         }
         m_songHistory.add(m_currentSong);
-        m_databaseManager.addToHistory(m_currentSong.getM_file().getAbsolutePath());
+        m_databaseManager.addToHistory(m_currentSong.getFile().getAbsolutePath());
         // On insertion of new song in history set the last played index to be the latest song in history list.
         m_historyIndex = m_songHistory.size() - 1;
         m_isPlayingOnHistory = false;
@@ -443,8 +443,8 @@ public class MusicPlayerManager {
 
         int songHistorySize = m_songHistory.size();
         for (int songIndex = 0; songIndex < songHistorySize; ++songIndex) {
-            if (m_songHistory.get(songIndex).getM_file().getAbsolutePath().equals(
-                    m_currentSong.getM_file().getAbsolutePath())) {
+            if (m_songHistory.get(songIndex).getFile().getAbsolutePath().equals(
+                    m_currentSong.getFile().getAbsolutePath())) {
 
                 m_songHistory.remove(songIndex);
                 if (songIndex == 0 || m_songHistory.isEmpty()){
@@ -613,7 +613,7 @@ public class MusicPlayerManager {
             }
             m_songHistory.remove(songToDelete);
         }
-        m_databaseManager.deleteFromHistory(songToDelete.getM_file().getAbsolutePath());
+        m_databaseManager.deleteFromHistory(songToDelete.getFile().getAbsolutePath());
     }
 
     /**

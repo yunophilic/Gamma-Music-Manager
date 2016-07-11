@@ -19,9 +19,11 @@ public class SongManager {
     private List<Library> m_libraries;
     private List<Playlist> m_playlists;
 
+    // buffers
+
     private File m_fileToCopy;
     private File m_copyDest;
-    private File m_fileToMove;
+    private TreeViewItem m_itemToMove;
     private File m_moveDest;
 
     private File m_deletedFile;
@@ -51,7 +53,7 @@ public class SongManager {
 
         m_fileToCopy = null;
         m_copyDest = null;
-        m_fileToMove = null;
+        m_itemToMove = null;
         m_moveDest = null;
 
         m_deletedFile = null;
@@ -169,10 +171,10 @@ public class SongManager {
 
     /**
      * Set file/folder to be moved
-     * @param m_fileToMove
+     * @param m_itemToMove
      */
-    public void setM_fileToMove(File m_fileToMove) {
-        this.m_fileToMove = m_fileToMove;
+    public void setM_itemToMove(TreeViewItem m_itemToMove) {
+        this.m_itemToMove = m_itemToMove;
     }
 
     /**
@@ -277,12 +279,12 @@ public class SongManager {
             for (Library library : m_libraries) {
                 for (Song song : library.getSongs()) {
                     if (m_menuOptions.getM_centerPanelShowSubfolderFiles()) {
-                        String songFilePath = song.getM_file().getAbsolutePath();
+                        String songFilePath = song.getFile().getAbsolutePath();
                         if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath())) {
                             centerPanelSongs.add(song);
                         }
                     } else {
-                        String songParentPath = song.getM_file().getParent();
+                        String songParentPath = song.getFile().getParent();
                         //System.out.println("== Song parent path: " + songParentPath);
                         if (songParentPath.equals(m_selectedCenterFolder.getAbsolutePath())) {
                             centerPanelSongs.add(song);
@@ -478,8 +480,8 @@ public class SongManager {
         return m_fileToCopy;
     }
 
-    public File getM_fileToMove() {
-        return m_fileToMove;
+    public TreeViewItem getM_itemToMove() {
+        return m_itemToMove;
     }
 
     public List<Playlist> getM_playlists() {
@@ -586,11 +588,11 @@ public class SongManager {
         }
     }
 
+    public File getFileToMove() {
+        return m_itemToMove.getFile();
+    }
+
     public Song getSongToMove() {
-        Song song = null;
-        for (Library library: m_libraries) {
-            song = library.getSong(m_fileToMove);
-        }
-        return song;
+        return m_itemToMove.getSong();
     }
 }
