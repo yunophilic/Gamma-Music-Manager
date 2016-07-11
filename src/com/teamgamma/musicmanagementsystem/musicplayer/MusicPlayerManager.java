@@ -707,6 +707,11 @@ public class MusicPlayerManager {
     }
 
     /**
+     * Function to unload a song from the music player manager. Should set the player back to an inital state.
+     */
+    public void unloadSong() {m_currentSong = null;}
+
+    /**
      * Function to get the current song in the playlist that is loaded.
      *
      * @return The song that is in the playlist or null if there is no playlist loaded.

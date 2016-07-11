@@ -1,6 +1,5 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -126,6 +125,8 @@ public class UserInterfaceUtils {
                     musicPlayerManager.playNextSong();
                 } else if (!musicPlayerManager.getHistory().isEmpty()) {
                     musicPlayerManager.playPreviousSong();
+                } else {
+                    musicPlayerManager.unloadSong();
                 }
 
                 if (i == 1) { //if this exception still thrown after retry (for debugging)
@@ -137,6 +138,9 @@ public class UserInterfaceUtils {
                 break;
             }
         }
+        musicPlayerManager.notifyNewSongObservers();
+        musicPlayerManager.notifyQueingObserver();
+        musicPlayerManager.notifyChangeStateObservers();
     }
 
 

@@ -344,38 +344,23 @@ public class MusicPlayerUI extends VBox {
     private HBox createOtherOptionsBox(final MusicPlayerManager manager, final FilePersistentStorage config) {
         HBox otherControlBox = new HBox();
 
-        Button volumeDownIcon = UserInterfaceUtils.createIconButton(VOLUME_MUTE_ICON_PATH);
-        volumeDownIcon.setScaleY(VOLUME_BUTTON_SCALE);
-        volumeDownIcon.setScaleX(VOLUME_BUTTON_SCALE);
-        UserInterfaceUtils.createMouseOverUIChange(volumeDownIcon, volumeDownIcon.getStyle());
-        volumeDownIcon.setTooltip(new Tooltip(MUTE_VOLUME_TOOL_TIP_MESSAGE));
+        Button volumeDownIcon = makeVolumeIcon(VOLUME_MUTE_ICON_PATH, MUTE_VOLUME_TOOL_TIP_MESSAGE);
+        Button volumeUpIcon = makeVolumeIcon(VOLUME_UP_ICON_PATH, MAX_VOLUME_TOOL_TIP_MESSAGE);
 
-        Button volumeUpIcon = UserInterfaceUtils.createIconButton(VOLUME_UP_ICON_PATH);
-        volumeUpIcon.setScaleY(VOLUME_BUTTON_SCALE);
-        volumeUpIcon.setScaleX(VOLUME_BUTTON_SCALE);
-        UserInterfaceUtils.createMouseOverUIChange(volumeUpIcon, volumeUpIcon.getStyle());
-        volumeUpIcon.setTooltip(new Tooltip(MAX_VOLUME_TOOL_TIP_MESSAGE));
+        Slider volumeControlSlider = createSliderVolumeControl(manager, config);
+        HBox.setHgrow(volumeControlSlider, Priority.ALWAYS);
+        volumeControlSlider.setMaxSize(VOLUME_MAX_WIDTH, VOLUME_MAX_HEIGHT);
 
-        Slider volumeControlSider = createSliderVolumeControl(manager, config);
-        HBox.setHgrow(volumeControlSider, Priority.ALWAYS);
-        volumeControlSider.setMaxSize(VOLUME_MAX_WIDTH, VOLUME_MAX_HEIGHT);
+        Button deleteSongIcon = createDeleteSongButton(manager);
 
-        Button deleteSongIcon= UserInterfaceUtils.createIconButton(DELETE_SONG_ICON_PATH);
-        UserInterfaceUtils.createMouseOverUIChange(deleteSongIcon, deleteSongIcon.getStyle());
-        volumeUpIcon.setScaleY(VOLUME_BUTTON_SCALE);
-        volumeUpIcon.setScaleX(VOLUME_BUTTON_SCALE);
-        deleteSongIcon.setAlignment(Pos.BASELINE_RIGHT);
-        deleteSongIcon.setOpacity(FADED);
-        deleteSongIcon.setTooltip(new Tooltip(DELETE_SONG_TOOL_TIP_DEFAULT));
-
-        otherControlBox.getChildren().addAll(volumeDownIcon, volumeControlSider, volumeUpIcon, deleteSongIcon);
+        otherControlBox.getChildren().addAll(volumeDownIcon, volumeControlSlider, volumeUpIcon, deleteSongIcon);
         otherControlBox.setAlignment(Pos.BASELINE_CENTER);
         otherControlBox.setSpacing(0);
 
         volumeDownIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                volumeControlSider.adjustValue(MusicPlayerConstants.MIN_VOLUME);
+                volumeControlSlider.adjustValue(MusicPlayerConstants.MIN_VOLUME);
                 manager.setVolumeLevel(MusicPlayerConstants.MIN_VOLUME);
                 config.saveVolumeState(MusicPlayerConstants.MIN_VOLUME);
             }
@@ -384,11 +369,48 @@ public class MusicPlayerUI extends VBox {
         volumeUpIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                volumeControlSider.adjustValue(MusicPlayerConstants.MAX_VOLUME);
+                volumeControlSlider.adjustValue(MusicPlayerConstants.MAX_VOLUME);
                 manager.setVolumeLevel(MusicPlayerConstants.MAX_VOLUME);
                 config.saveVolumeState(MusicPlayerConstants.MAX_VOLUME);
             }
         });
+
+
+        otherControlBox.setMargin(volumeControlSlider, new Insets(0));
+
+        return otherControlBox;
+    }
+
+    /**
+     * Helper function to create an volume icon.
+     *
+     * @param iconPath          The path to the icon for the button.
+     * @param toolTipMessage    The message that will be displayed in the tooltip.
+     *
+     * @return The button with styling for volume control.
+     */
+    private Button makeVolumeIcon(String iconPath, String toolTipMessage) {
+        Button volumeDownIcon = UserInterfaceUtils.createIconButton(iconPath);
+        volumeDownIcon.setScaleY(VOLUME_BUTTON_SCALE);
+        volumeDownIcon.setScaleX(VOLUME_BUTTON_SCALE);
+        UserInterfaceUtils.createMouseOverUIChange(volumeDownIcon, volumeDownIcon.getStyle());
+        volumeDownIcon.setTooltip(new Tooltip(toolTipMessage));
+        return volumeDownIcon;
+    }
+
+    /**
+     * Function to create the delete Song button in the player.
+     *
+     * @param manager   The music manager to use register the observer.
+     *
+     * @return The button that will contain the user action for deleting song in the music palyer
+     */
+    private Button createDeleteSongButton(final MusicPlayerManager manager) {
+        Button deleteSongIcon= UserInterfaceUtils.createIconButton(DELETE_SONG_ICON_PATH);
+        UserInterfaceUtils.createMouseOverUIChange(deleteSongIcon, deleteSongIcon.getStyle());
+        deleteSongIcon.setAlignment(Pos.BASELINE_RIGHT);
+        deleteSongIcon.setOpacity(FADED);
+        deleteSongIcon.setTooltip(new Tooltip(DELETE_SONG_TOOL_TIP_DEFAULT));
 
         manager.registerChangeStateObservers(new MusicPlayerObserver() {
             @Override
@@ -397,13 +419,22 @@ public class MusicPlayerUI extends VBox {
                     @Override
                     public void run() {
                         if (manager.isSomethingPlaying() || !manager.isSomethingPlaying()) {
-                            deleteSongIcon.setOpacity(NOT_FADED);
+                            final Song currentSongPlaying = manager.getCurrentSongPlaying();
+
+                            if (currentSongPlaying == null) {
+                                deleteSongIcon.setOpacity(FADED);
+                            } else {
+                                deleteSongIcon.setOpacity(NOT_FADED);
+                            }
+
                             deleteSongIcon.setTooltip(new Tooltip(DELETE_SONG_TOOL_TIP_MESSAGE));
+
                             deleteSongIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
                                 @Override
                                 public void handle(MouseEvent event) {
-                                    final Song currentSongPlaying = manager.getCurrentSongPlaying();
-                                    UserInterfaceUtils.deleteSong(currentSongPlaying.getM_file(), m_model, manager);
+                                    if (currentSongPlaying != null) {
+                                        UserInterfaceUtils.deleteSong(currentSongPlaying.getM_file(), m_model, manager);
+                                    }
                                 }
                             });
                         }
@@ -411,10 +442,7 @@ public class MusicPlayerUI extends VBox {
                 });
             }
         });
-
-        otherControlBox.setMargin(volumeControlSider, new Insets(0));
-
-        return otherControlBox;
+        return deleteSongIcon;
     }
 
     /**
