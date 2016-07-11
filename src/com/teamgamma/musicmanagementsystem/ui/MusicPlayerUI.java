@@ -21,6 +21,8 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 
+import java.io.File;
+
 /**
  * Class for Music Player MainUI. Acts as the controller for the media player.
  */
@@ -117,7 +119,8 @@ public class MusicPlayerUI extends VBox {
         addSong.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                manager.placeSongOnBackOfPlaybackQueue(new Song(songPath.getText()));
+                File newFile = new File(songPath.getText());
+                manager.placeSongOnBackOfPlaybackQueue(new Song(newFile));
             }
         });
         musicFileBox.getChildren().addAll(songPathHeader, songPath, addSong);

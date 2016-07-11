@@ -1,6 +1,5 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
 import javafx.scene.control.TreeItem;
 
@@ -162,8 +161,8 @@ public class Library {
 
     private List<Song> getSongs(TreeItem<TreeViewItem> node) {
         List<Song> songs = new ArrayList<>();
-        if(node.getValue().getM_file() instanceof Song) {
-            songs.add( (Song) node.getValue().getM_file() );
+        if(node.getValue() instanceof Song) {
+            songs.add( (Song) node.getValue() );
         }
 
         List<TreeItem<TreeViewItem>> children = node.getChildren();
@@ -194,5 +193,23 @@ public class Library {
 
     public TreeItem<TreeViewItem> getM_treeRoot() {
         return m_treeRoot;
+    }
+
+    public Song getSong(File fileToMove) {
+        return getSong(m_treeRoot, fileToMove);
+    }
+
+    private Song getSong(TreeItem<TreeViewItem> node, File fileToMove) {
+        if (node.getValue().getM_file().getAbsolutePath().equals(fileToMove.getAbsolutePath())) {
+            return (Song) node.getValue();
+        }
+
+        Song song = null;
+        List<TreeItem<TreeViewItem>> children = node.getChildren();
+        for (TreeItem<TreeViewItem> child : children) {
+            song = getSong(child, fileToMove);
+        }
+
+        return song;
     }
 }

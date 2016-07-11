@@ -73,7 +73,7 @@ public class ApplicationController extends Application {
             Playlist playlist = new Playlist(playlistName, lastSongPlayedIndex);
             List<String> songPaths = m_databaseManager.getSongsInPlaylist(playlist.getM_playlistName());
             for(String songPath : songPaths) {
-                playlist.addSong(new Song(songPath));
+                playlist.addSong(new Song(new File(songPath)));
             }
             m_songManager.addPlaylist(playlist);
         }

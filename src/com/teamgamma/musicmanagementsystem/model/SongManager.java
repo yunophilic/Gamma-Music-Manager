@@ -275,14 +275,14 @@ public class SongManager {
 
         if (m_selectedCenterFolder != null) {
             for (Library library : m_libraries) {
-                for (Song song : getSongs(library)) {
+                for (Song song : library.getSongs()) {
                     if (m_menuOptions.getM_centerPanelShowSubfolderFiles()) {
-                        String songFilePath = song.getAbsolutePath();
+                        String songFilePath = song.getM_file().getAbsolutePath();
                         if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath())) {
                             centerPanelSongs.add(song);
                         }
                     } else {
-                        String songParentPath = song.getParent();
+                        String songParentPath = song.getM_file().getParent();
                         //System.out.println("== Song parent path: " + songParentPath);
                         if (songParentPath.equals(m_selectedCenterFolder.getAbsolutePath())) {
                             centerPanelSongs.add(song);
@@ -584,5 +584,13 @@ public class SongManager {
         for (PlaylistObserver observer : m_playlistObservers) {
             observer.playlistsChanged();
         }
+    }
+
+    public Song getSongToMove() {
+        Song song = null;
+        for (Library library: m_libraries) {
+            song = library.getSong(m_fileToMove);
+        }
+        return song;
     }
 }

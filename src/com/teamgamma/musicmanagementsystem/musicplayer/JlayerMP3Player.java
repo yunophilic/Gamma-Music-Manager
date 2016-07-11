@@ -85,7 +85,7 @@ public class JlayerMP3Player implements IMusicPlayer{
     private void setUpMusicPlayer(Song songToPlay) throws Exception{
         try {
             m_isUserInterrupted = false;
-            m_fs = new FileInputStream(songToPlay);
+            m_fs = new FileInputStream(songToPlay.getM_file());
             m_bufferedStream = new BufferedInputStream(m_fs);
             m_audioDevice = FactoryRegistry.systemRegistry().createAudioDevice();
 

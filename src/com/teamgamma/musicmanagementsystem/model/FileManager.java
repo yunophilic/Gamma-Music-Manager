@@ -31,7 +31,7 @@ public class FileManager {
 
         // Create Song object and add to array list
         for (File musicFile : musicFiles) {
-            listOfSongs.add(new Song(musicFile.getAbsolutePath()));
+            listOfSongs.add(new Song(musicFile));
         }
 
         return listOfSongs;

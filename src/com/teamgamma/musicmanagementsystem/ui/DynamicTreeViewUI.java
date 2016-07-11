@@ -2,12 +2,8 @@ package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
-import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
-import com.teamgamma.musicmanagementsystem.model.Library;
-import com.teamgamma.musicmanagementsystem.model.SongManager;
-import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
+import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.misc.CustomTreeCell;
-import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
@@ -128,7 +124,7 @@ public class DynamicTreeViewUI extends StackPane {
     private TreeView<TreeViewItem> createTrees(List<Library> libraries, List<String> dynamicTreeViewExpandedPaths) {
         if (!libraries.isEmpty()) {
             File dummyRootFile = new File(libraries.get(0).getRootDirPath());
-            TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
+            TreeItem<TreeViewItem> root = new TreeItem<>(new Folder(dummyRootFile, true));
 
             TreeItem<TreeViewItem> rootItem = TreeViewUtil.generateTreeItems(
                     m_model.getM_rightFolderSelected(), m_model.getM_rightFolderSelected().getAbsolutePath(), dynamicTreeViewExpandedPaths

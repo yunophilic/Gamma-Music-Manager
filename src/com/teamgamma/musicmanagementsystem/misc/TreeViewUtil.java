@@ -1,9 +1,6 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
-import com.teamgamma.musicmanagementsystem.model.FileManager;
-import com.teamgamma.musicmanagementsystem.model.Library;
-import com.teamgamma.musicmanagementsystem.model.Song;
-import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.*;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -76,18 +73,17 @@ public class TreeViewUtil {
 
     public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath, List<String> expandedPaths) {
         System.out.println(file + ", " + dirPath);
+        System.out.println("$$$" + file + ", " + file.isDirectory());
 
+        TreeItem<TreeViewItem> item;
         if(!file.isDirectory()) {
-            file = new Song(file.getAbsolutePath());
-        }
+            item = new TreeItem<>(new Song(file));
+            item.setGraphic(new ImageView(songImage));
+        } else {
+            item = new TreeItem<>(
+                    (file.getAbsolutePath().equals(dirPath)) ? new Folder(file, true) : new Folder(file, false)
+            );
 
-        TreeItem<TreeViewItem> item = new TreeItem<>(
-                (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
-        );
-
-        File treeItemFile = item.getValue().getM_file();
-        System.out.println("$$$" + treeItemFile + ", " + treeItemFile.isDirectory());
-        if (treeItemFile.isDirectory()) {
             item.setGraphic(new ImageView(folderImage));
 
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
@@ -95,8 +91,6 @@ public class TreeViewUtil {
                     item.setExpanded(true);
                 }
             }
-        } else {
-            item.setGraphic(new ImageView(songImage));
         }
 
         File[] children = getFiles(file);
@@ -291,11 +285,13 @@ public class TreeViewUtil {
     private static void recursivelyRenameNodes(TreeItem<TreeViewItem> node, String path, SongManager model) {
         File file = new File(path);
 
+        TreeViewItem newItem;
         if (!file.isDirectory()) {
-            file = new Song(file.getAbsolutePath());
+            newItem = new Song(file);
+        } else {
+            newItem = (model.isLibrary(file)) ? new Folder(file, true) : new Folder(file, false);
         }
 
-        TreeViewItem newItem = new TreeViewItem(file, model.isLibrary(file));
         System.out.println("^^^^ NEW ITEM: " + newItem);
         node.setValue(newItem);
 

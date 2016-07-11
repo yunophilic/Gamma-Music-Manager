@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem.misc;
 
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.TreeViewItem;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MusicPlayerHistoryUI;
 import javafx.event.Event;
@@ -15,6 +16,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
+import javax.swing.tree.TreeNode;
 import java.io.File;
 import java.util.List;
 
@@ -75,7 +77,7 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                             TreeViewUtil.setOpenFolder(m_tree, m_selectedTreeViewItem.getM_file().getAbsolutePath());
 
                         } else if (!isFolder) {
-                            Song songToPlay = (Song) m_selectedTreeViewItem.getM_file();
+                            Song songToPlay = (Song) m_selectedTreeViewItem;
                             if (!songToPlay.equals(m_musicPlayerManager.getCurrentSongPlaying())) {
                                 m_musicPlayerManager.playSongRightNow(songToPlay);
                             }
@@ -86,9 +88,8 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                 event.consume();
             } else if (mouseEvent.isControlDown() && mouseEvent.isPrimaryButtonDown()) {
                 if (!event.isConsumed()) {
-                    File selectedFile = m_selectedTreeViewItem.getM_file();
-                    if (selectedFile instanceof Song) {
-                        Song songSelected = (Song) selectedFile;
+                    if (m_selectedTreeViewItem instanceof Song) {
+                        Song songSelected = (Song) m_selectedTreeViewItem;
                         if (m_playbackContextMenuInstance != null) {
                             m_playbackContextMenuInstance.hide();
                         }

@@ -422,7 +422,7 @@ public class PromptUI {
         if (CONVERT_TO_NEXT_SIZE_TYPE <= sizeInKB) {
             fileSize = String.format("%,d", sizeInMB) + " megabytes";
         }
-        Song songInfo = new Song(mediaFile.getAbsolutePath());
+        Song songInfo = new Song(mediaFile);
         String songArtist = songInfo.getM_artist();
         if (songArtist.isEmpty()) {
             songArtist = UNKNOWN_ARTIST;
@@ -500,7 +500,7 @@ public class PromptUI {
         if (CONVERT_TO_NEXT_SIZE_TYPE <= sizeInKB) {
             fileSize = String.format("%,d", sizeInMB) + " megabytes";
         }
-        Song songInfo = new Song(mediaFile.getAbsolutePath());
+        Song songInfo = new Song(mediaFile);
         String songArtist = songInfo.getM_artist();
         if (songArtist.isEmpty()) {
             songArtist = UNKNOWN_ARTIST;

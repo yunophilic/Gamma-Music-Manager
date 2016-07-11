@@ -1,24 +1,34 @@
-package com.teamgamma.musicmanagementsystem.misc;
+package com.teamgamma.musicmanagementsystem.model;
 
 import java.io.File;
 
 /**
- * Class that represents an item in the file tree
+ * Created by Karen on 2016-07-10.
  */
-public class TreeViewItem {
+public class Folder implements TreeViewItem {
     private File m_file;
     private boolean m_isRootPath;
 
-    public TreeViewItem(File path, boolean isRootPath) {
-        m_file = path;
+    public Folder(File file, boolean isRootPath) {
+        m_file = file;
         m_isRootPath = isRootPath;
     }
 
-    /**
-     * For tree view, show absolute m_file if this is an root m_file, otherwise, show just the file name
-     *
-     * @return string to show in TreeItem
-     */
+    @Override
+    public File getM_file() {
+        return m_file;
+    }
+
+    @Override
+    public boolean getM_isRootPath() {
+        return m_isRootPath;
+    }
+
+    @Override
+    public File getSongToPlay() {
+        return null;
+    }
+
     @Override
     public String toString() {
         if (m_isRootPath) {
@@ -26,14 +36,6 @@ public class TreeViewItem {
         } else {
             return m_file.getName();
         }
-    }
-
-    public File getM_file() {
-        return m_file;
-    }
-
-    public boolean isM_isRootPath() {
-        return m_isRootPath;
     }
 
     @Override
@@ -44,13 +46,13 @@ public class TreeViewItem {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof TreeViewItem)) {
+        if (!(object instanceof Folder)) {
             return false;
         }
 
-        TreeViewItem otherTreeViewItem = (TreeViewItem)object;
+        Folder otherFolder = (Folder)object;
         String thisFilePath = m_file.getAbsolutePath();
-        String otherFilePath = otherTreeViewItem.getM_file().getAbsolutePath();
+        String otherFilePath = otherFolder.getM_file().getAbsolutePath();
 
         if (thisFilePath.equals(otherFilePath)) {
             return true;

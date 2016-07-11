@@ -298,14 +298,14 @@ public class ContentListUI extends StackPane {
                         System.out.println("Drag detected on " + selectedItem);
 
                         //update model
-                        m_model.setM_fileToMove(selectedItem);
+                        m_model.setM_fileToMove(selectedItem.getM_file());
                         //m_model.setM_songToAddToPlaylist(selectedItem);
 
                         //update drag board
                         Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
                         dragBoard.setDragView(row.snapshot(null, null));
                         ClipboardContent content = new ClipboardContent();
-                        content.put(DataFormat.PLAIN_TEXT, selectedItem.getAbsolutePath());
+                        content.put(DataFormat.PLAIN_TEXT, selectedItem.getM_file().getAbsolutePath());
                         dragBoard.setContent(content);
 
                         mouseEvent.consume();
@@ -368,7 +368,7 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent e) {
                 if (selectedSong != null) {
-                    m_model.setM_fileToCopy(selectedSong);
+                    m_model.setM_fileToCopy(selectedSong.getM_file());
                 }
             }
         });
@@ -404,7 +404,7 @@ public class ContentListUI extends StackPane {
             @Override
             public void handle(ActionEvent e) {
                 if (selectedSong != null) {
-                    File fileToDelete = selectedSong;
+                    File fileToDelete = selectedSong.getM_file();
                     //confirmation dialog
                     if (fileToDelete.isDirectory()) {
                         if (!PromptUI.recycleLibrary(fileToDelete)) {

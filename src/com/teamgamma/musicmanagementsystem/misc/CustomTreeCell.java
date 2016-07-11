@@ -1,9 +1,6 @@
 package com.teamgamma.musicmanagementsystem.misc;
 
-import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
-import com.teamgamma.musicmanagementsystem.model.Playlist;
-import com.teamgamma.musicmanagementsystem.model.Song;
-import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
@@ -15,6 +12,7 @@ import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.input.*;
 import javafx.stage.WindowEvent;
 
+import javax.swing.tree.TreeNode;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
@@ -217,7 +215,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             @Override
             public void handle(ActionEvent event) {
                 if (m_selectedTreeViewItem != null) {
-                    Song selectedSong = (Song) m_selectedTreeViewItem.getM_file();
+                    Song selectedSong = (Song) m_selectedTreeViewItem;
                     if (selectedSong != null) {
                         List<Playlist> playlists = m_model.getM_playlists();
                         if (playlists.isEmpty()) {
@@ -240,7 +238,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         addToCurrentPlaylist.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Song selectedSong = (Song) m_selectedTreeViewItem.getM_file();
+                Song selectedSong = (Song) m_selectedTreeViewItem;
                 if (selectedSong != null) {
                     Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
                     if (selectedPlaylist == null) {
@@ -259,7 +257,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             @Override
             public void handle(ActionEvent event) {
                 if (m_selectedTreeViewItem != null) {
-                    Song song = (Song) m_selectedTreeViewItem.getM_file();
+                    Song song = (Song) m_selectedTreeViewItem;
                     if (song != null) {
                         m_musicPlayerManager.playSongRightNow(song);
                     }
@@ -272,7 +270,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             @Override
             public void handle(ActionEvent event) {
                 if (m_selectedTreeViewItem != null) {
-                    Song song = (Song) m_selectedTreeViewItem.getM_file();
+                    Song song = (Song) m_selectedTreeViewItem;
                     if (song != null) {
                         m_musicPlayerManager.placeSongAtStartOfQueue(song);
                     }
@@ -285,7 +283,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             @Override
             public void handle(ActionEvent event) {
                 if (m_selectedTreeViewItem != null) {
-                    Song song = (Song) m_selectedTreeViewItem.getM_file();
+                    Song song = (Song) m_selectedTreeViewItem;
                     if (song != null) {
                         m_musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
                     }
@@ -310,13 +308,13 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 }
 
                 // Do not show remove library option if selected item is not a library
-                if (m_selectedTreeViewItem == null || !m_selectedTreeViewItem.isM_isRootPath()) {
+                if (m_selectedTreeViewItem == null || !m_selectedTreeViewItem.getM_isRootPath()) {
                     removeLibrary.setDisable(true);
                     removeLibrary.setVisible(false);
                 }
 
                 // Do not show song options if this is not a song
-                if ( !(m_selectedTreeViewItem.getM_file() instanceof Song) ) {
+                if ( !(m_selectedTreeViewItem instanceof Song) ) {
                     disableMenuItem(playSong);
                     disableMenuItem(placeSongAtStartOfQueue);
                     disableMenuItem(placeSongOnBackOfQueue);

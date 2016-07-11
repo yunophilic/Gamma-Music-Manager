@@ -2,12 +2,8 @@ package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
-import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
-import com.teamgamma.musicmanagementsystem.model.Library;
-import com.teamgamma.musicmanagementsystem.model.SongManager;
-import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
+import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.misc.CustomTreeCell;
-import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
 
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.control.*;
@@ -36,7 +32,9 @@ public class LibraryUI extends StackPane {
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         updateTreeView();
-        setTreeExpandedState(expandedPaths);
+        if (m_tree != null) {
+            setTreeExpandedState(expandedPaths);
+        }
         setPaneStyle();
         registerAsLibraryObserver();
     }
@@ -183,7 +181,7 @@ public class LibraryUI extends StackPane {
      */
     private TreeView<TreeViewItem> createTrees(List<Library> libraries) {
         File dummyRootFile = new File(System.getProperty("user.dir"));
-        TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
+        TreeItem<TreeViewItem> root = new TreeItem<>(new Folder(dummyRootFile, true));
 
         for (Library library : libraries) {
             /*TreeItem<TreeViewItem> rootItem = TreeViewUtil.generateTreeItems(

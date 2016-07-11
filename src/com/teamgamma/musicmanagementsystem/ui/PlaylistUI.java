@@ -550,7 +550,8 @@ public class PlaylistUI extends VBox {
             public void handle(DragEvent dragEvent) {
                 // For Debugging
                 //System.out.println("Drag over on playlist");
-                if(m_model.getM_fileToMove() instanceof Song && m_model.getM_selectedPlaylist() != null) {
+                // TODO: is this check still correct?
+                if(m_model.getM_selectedPlaylist() != null) {
                     dragEvent.acceptTransferModes(TransferMode.MOVE);
                 }
                 dragEvent.consume();
@@ -561,7 +562,7 @@ public class PlaylistUI extends VBox {
             @Override
             public void handle(DragEvent dragEvent) {
                 //System.out.println("Drag dropped on playlist");
-                m_model.addSongToPlaylist( (Song) m_model.getM_fileToMove(), m_model.getM_selectedPlaylist() );
+                m_model.addSongToPlaylist( m_model.getSongToMove(), m_model.getM_selectedPlaylist() );
                 m_musicPlayerManager.notifyQueingObserver();
                 dragEvent.consume();
             }
