@@ -307,7 +307,7 @@ public class MusicPlayerUI extends VBox {
     private String getSongDisplayName(Song nextSong) {
         String songTitle = nextSong.getM_title();
         if (songTitle.isEmpty()) {
-            songTitle = nextSong.getM_fileName();
+            songTitle = nextSong.getFileName();
         }
         return songTitle;
     }
@@ -503,7 +503,7 @@ public class MusicPlayerUI extends VBox {
                         if (currentPlayingSong == null) {
                             songTitle.setText("");
                         } else {
-                            songTitle.setText(manager.getCurrentSongPlaying().getM_fileName());
+                            songTitle.setText(manager.getCurrentSongPlaying().getFileName());
 
                             TranslateTransition songTitleAnimation = new TranslateTransition(
                                     new Duration(TITLE_ANIMATION_TIME_MS), songTitle);

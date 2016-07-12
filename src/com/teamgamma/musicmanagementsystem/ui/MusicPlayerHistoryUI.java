@@ -1,7 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
-import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
@@ -13,7 +12,6 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.stage.WindowEvent;
 
 import java.util.Collection;
 
@@ -214,14 +212,14 @@ public class MusicPlayerHistoryUI extends HBox{
                 if (songNumber == FIRST_SONG) {
                     row.getChildren().add(createOldestStyleLabel(Integer.toString(songNumber)));
 
-                    Label fileName = createOldestStyleLabel(songForRow.getM_fileName());
+                    Label fileName = createOldestStyleLabel(songForRow.getFileName());
                     row.getChildren().add(fileName);
                     HBox.setHgrow(fileName, Priority.ALWAYS);
 
                 } else {
                     row.getChildren().add(new Label(Integer.toString(songNumber)));
 
-                    Label fileName = new Label(songForRow.getM_fileName());
+                    Label fileName = new Label(songForRow.getFileName());
                     row.getChildren().add(fileName);
                     HBox.setHgrow(fileName, Priority.ALWAYS);
                 }
@@ -254,13 +252,13 @@ public class MusicPlayerHistoryUI extends HBox{
                 if (songNumber == FIRST_SONG) {
                     row.getChildren().add(createOldestStyleLabel(Integer.toString(songNumber)));
 
-                    Label fileName = createOldestStyleLabel(songForRow.getM_fileName());
+                    Label fileName = createOldestStyleLabel(songForRow.getFileName());
                     row.getChildren().add(fileName);
                     HBox.setHgrow(fileName, Priority.ALWAYS);
                 } else {
                     row.getChildren().add(new Label(Integer.toString(songNumber)));
 
-                    Label fileName = new Label(songForRow.getM_fileName());
+                    Label fileName = new Label(songForRow.getFileName());
                     row.getChildren().add(fileName);
                     HBox.setHgrow(fileName, Priority.ALWAYS);
                 }

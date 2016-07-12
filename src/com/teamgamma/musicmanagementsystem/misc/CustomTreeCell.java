@@ -23,20 +23,20 @@ import java.util.List;
 /**
  * Event handling class used in LibraryUI and DynamicTreeViewUI
  */
-public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
+public class CustomTreeCell extends TextFieldTreeCell<Item> {
     //attributes
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private ContextMenu m_contextMenu;
-    private TreeView<TreeViewItem> m_tree;
-    private TreeViewItem m_selectedTreeViewItem;
+    private TreeView<Item> m_tree;
+    private Item m_selectedItem;
     private boolean m_isLeftPane;
 
     public CustomTreeCell(SongManager model,
                           MusicPlayerManager musicPlayerManager,
                           DatabaseManager databaseManager,
-                          TreeView<TreeViewItem> tree,
+                          TreeView<Item> tree,
                           boolean isLeftPane) {
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
@@ -57,8 +57,8 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         MenuItem copy = new MenuItem(ContextMenuConstants.COPY);
         copy.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                if (m_selectedTreeViewItem != null) {
-                    m_model.setM_fileToCopy(m_selectedTreeViewItem.getFile());
+                if (m_selectedItem != null) {
+                    m_model.setM_itemToCopy(m_selectedItem);
                 }
             }
         });
@@ -67,8 +67,8 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         MenuItem paste = new MenuItem(ContextMenuConstants.PASTE);
         paste.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                if (m_selectedTreeViewItem != null) {
-                    File dest = m_selectedTreeViewItem.getFile();
+                if (m_selectedItem != null) {
+                    File dest = m_selectedItem.getFile();
                     if (!dest.isDirectory()) {
                         PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
                         return;
@@ -91,8 +91,8 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         MenuItem rename = new MenuItem(ContextMenuConstants.RENAME_THIS_FILE);
         rename.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                if (m_selectedTreeViewItem != null) {
-                    File fileToRename = m_selectedTreeViewItem.getFile();
+                if (m_selectedItem != null) {
+                    File fileToRename = m_selectedItem.getFile();
                     Path newPath = PromptUI.fileRename(fileToRename);
 
                     if (newPath != null) {
@@ -106,8 +106,8 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         MenuItem delete = new MenuItem(ContextMenuConstants.DELETE);
         delete.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                if (m_selectedTreeViewItem != null) {
-                    File fileToDelete = m_selectedTreeViewItem.getFile();
+                if (m_selectedItem != null) {
+                    File fileToDelete = m_selectedItem.getFile();
                     //confirmation dialog
                     if (fileToDelete.isDirectory()) {
                         if (!PromptUI.recycleLibrary(fileToDelete)) {
@@ -151,13 +151,13 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         MenuItem removeLibrary = new MenuItem(ContextMenuConstants.REMOVE_THIS_LIBRARY);
         removeLibrary.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                if (m_selectedTreeViewItem != null) {
+                if (m_selectedItem != null) {
                     System.out.println("Remove library");
-                    m_model.removeLibrary(m_selectedTreeViewItem.getFile());
+                    m_model.removeLibrary(m_selectedItem.getFile());
 
                     if (m_model.getM_rightFolderSelected() != null) {
                         boolean isLibraryInRight = m_model.getM_rightFolderSelected().getAbsolutePath().contains(
-                                m_selectedTreeViewItem.getFile().getAbsolutePath()
+                                m_selectedItem.getFile().getAbsolutePath()
                         );
                         if (isLibraryInRight) {
                             m_model.setM_rightFolderSelected(null);
@@ -166,7 +166,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
 
                     if (m_model.getM_selectedCenterFolder() != null) {
                         boolean isLibraryInCenter = m_model.getM_selectedCenterFolder().getAbsolutePath().contains(
-                                m_selectedTreeViewItem.getFile().getAbsolutePath()
+                                m_selectedItem.getFile().getAbsolutePath()
                         );
                         if (isLibraryInCenter) {
                             System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
@@ -175,7 +175,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     }
 
                     m_databaseManager.removeLibrary(
-                            m_selectedTreeViewItem.getFile().getAbsolutePath()
+                            m_selectedItem.getFile().getAbsolutePath()
                     );
                     m_model.setM_libraryAction(Actions.REMOVE_FROM_VIEW);
                     m_model.notifyLibraryObservers();
@@ -187,8 +187,8 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         MenuItem openInRightPane = new MenuItem(ContextMenuConstants.SHOW_IN_RIGHT_PANE);
         openInRightPane.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                if (m_selectedTreeViewItem != null) {
-                    File folderSelected = m_selectedTreeViewItem.getFile();
+                if (m_selectedItem != null) {
+                    File folderSelected = m_selectedItem.getFile();
                     if (!folderSelected.isDirectory()) {
                         PromptUI.customPromptError("Not a directory!", "", "Please select a directory.");
                     } else {
@@ -213,22 +213,19 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         addToPlaylist.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if (m_selectedTreeViewItem != null) {
-                    Song selectedSong = (Song) m_selectedTreeViewItem;
-                    if (selectedSong != null) {
-                        List<Playlist> playlists = m_model.getM_playlists();
-                        if (playlists.isEmpty()) {
-                            PromptUI.customPromptError("Error", null, "No playlist exist!");
-                            return;
-                        }
-                        Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSong);
-                        if (selectedPlaylist != null) {
-                            m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
-                            m_musicPlayerManager.notifyQueingObserver();
-                        }
+                if (m_selectedItem != null) {
+                    Song selectedSong = (Song) m_selectedItem;
+                    List<Playlist> playlists = m_model.getM_playlists();
+                    if (playlists.isEmpty()) {
+                        PromptUI.customPromptError("Error", null, "No playlist exist!");
+                        return;
+                    }
+                    Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSong);
+                    if (selectedPlaylist != null) {
+                        m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
+                        m_musicPlayerManager.notifyQueingObserver();
                     }
                 }
-
             }
         });
         menuItems.add(addToPlaylist);
@@ -237,7 +234,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         addToCurrentPlaylist.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Song selectedSong = (Song) m_selectedTreeViewItem;
+                Song selectedSong = (Song) m_selectedItem;
                 if (selectedSong != null) {
                     Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
                     if (selectedPlaylist == null) {
@@ -255,11 +252,9 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         playSong.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if (m_selectedTreeViewItem != null) {
-                    Song song = (Song) m_selectedTreeViewItem;
-                    if (song != null) {
-                        m_musicPlayerManager.playSongRightNow(song);
-                    }
+                if (m_selectedItem != null) {
+                    Song song = (Song) m_selectedItem;
+                    m_musicPlayerManager.playSongRightNow(song);
                 }
             }
         });
@@ -268,11 +263,9 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         placeSongAtStartOfQueue.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if (m_selectedTreeViewItem != null) {
-                    Song song = (Song) m_selectedTreeViewItem;
-                    if (song != null) {
-                        m_musicPlayerManager.placeSongAtStartOfQueue(song);
-                    }
+                if (m_selectedItem != null) {
+                    Song song = (Song) m_selectedItem;
+                    m_musicPlayerManager.placeSongAtStartOfQueue(song);
                 }
             }
         });
@@ -281,11 +274,9 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         placeSongOnBackOfQueue.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if (m_selectedTreeViewItem != null) {
-                    Song song = (Song) m_selectedTreeViewItem;
-                    if (song != null) {
-                        m_musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
-                    }
+                if (m_selectedItem != null) {
+                    Song song = (Song) m_selectedItem;
+                    m_musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
                 }
             }
         });
@@ -298,7 +289,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             @Override
             public void handle(WindowEvent event) {
                 // Disable paste if nothing is chosen to be copied
-                if (m_model.getM_fileToCopy() == null) {
+                if (m_model.getM_itemToCopy() == null) {
                     paste.setDisable(true);
                     paste.setStyle("-fx-text-fill: gray;");
                 } else {
@@ -307,13 +298,13 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                 }
 
                 // Do not show remove library option if selected item is not a library
-                if (m_selectedTreeViewItem == null || !m_selectedTreeViewItem.isRootPath()) {
+                if (m_selectedItem == null || !m_selectedItem.isRootPath()) {
                     removeLibrary.setDisable(true);
                     removeLibrary.setVisible(false);
                 }
 
                 // Do not show song options if this is not a song
-                if ( !(m_selectedTreeViewItem instanceof Song) ) {
+                if ( !(m_selectedItem instanceof Song) ) {
                     disableMenuItem(playSong);
                     disableMenuItem(placeSongAtStartOfQueue);
                     disableMenuItem(placeSongOnBackOfQueue);
@@ -348,13 +339,13 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         setOnDragDetected(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if (m_selectedTreeViewItem != null) {
-                    System.out.println("Drag detected on " + m_selectedTreeViewItem);
+                if (m_selectedItem != null) {
+                    System.out.println("Drag detected on " + m_selectedItem);
 
-                    //File selectedFile = m_selectedTreeViewItem.getFile();
+                    //File selectedFile = m_selectedItem.getFile();
 
                     //update model
-                    m_model.setM_itemToMove(m_selectedTreeViewItem);
+                    m_model.setM_itemToMove(m_selectedItem);
 
                     /*if (selectedFile instanceof Song) {
                         Song songToAddInPlaylist = (Song) selectedFile;
@@ -365,7 +356,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
                     dragBoard.setDragView(snapshot(null, null));
                     ClipboardContent content = new ClipboardContent();
-                    content.put(DataFormat.PLAIN_TEXT, m_selectedTreeViewItem.getFile().getAbsolutePath());
+                    content.put(DataFormat.PLAIN_TEXT, m_selectedItem.getFile().getAbsolutePath());
                     dragBoard.setContent(content);
 
                     mouseEvent.consume();
@@ -376,10 +367,10 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         setOnDragOver(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent dragEvent) {
-                System.out.println("Drag over on " + m_selectedTreeViewItem);
+                System.out.println("Drag over on " + m_selectedItem);
                 if (dragEvent.getDragboard().hasString()) {
                     String draggedItemPath = dragEvent.getDragboard().getString();
-                    String destination = m_selectedTreeViewItem.getFile().getAbsolutePath();
+                    String destination = m_selectedItem.getFile().getAbsolutePath();
                     if (!draggedItemPath.equals(destination)) {
                         dragEvent.acceptTransferModes(TransferMode.MOVE);
                     }
@@ -391,12 +382,12 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         setOnDragDropped(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent dragEvent) {
-                System.out.println("Drag dropped on " + m_selectedTreeViewItem);
+                System.out.println("Drag dropped on " + m_selectedItem);
 
                 //fetch item to be moved and destination
                 /*String draggedItemPath = dragEvent.getDragboard().getString();
-                TreeItem<TreeViewItem> nodeToMove = searchTreeItem(draggedItemPath);
-                TreeItem<TreeViewItem> targetNode = searchTreeItem(m_selectedTreeViewItem.getFile().getAbsolutePath());*/
+                TreeItem<Item> nodeToMove = searchTreeItem(draggedItemPath);
+                TreeItem<Item> targetNode = searchTreeItem(m_selectedItem.getFile().getAbsolutePath());*/
 
                 //move the item in UI (this have no effect because the file tree will be refreshed)
                 /*nodeToMove.getParent().getChildren().remove(nodeToMove);
@@ -407,10 +398,10 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
                     //move in the file system
                     File fileToMove = m_model.getFileToMove();
                     File destination;
-                    if (!m_selectedTreeViewItem.getFile().isDirectory()) {
-                        destination = m_selectedTreeViewItem.getFile().getParentFile();
+                    if (!m_selectedItem.getFile().isDirectory()) {
+                        destination = m_selectedItem.getFile().getParentFile();
                     } else {
-                        destination = m_selectedTreeViewItem.getFile();
+                        destination = m_selectedItem.getFile();
                     }
 
                     m_model.moveFile(fileToMove, destination);
@@ -440,7 +431,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         /*setOnDragEntered(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent dragEvent) {
-                System.out.println("Drag entered on " + m_selectedTreeViewItem);
+                System.out.println("Drag entered on " + m_selectedItem);
                 dragEvent.consume();
             }
         });
@@ -448,18 +439,18 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
         setOnDragExited(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent dragEvent) {
-                System.out.println("Drag exited on " + m_selectedTreeViewItem);
+                System.out.println("Drag exited on " + m_selectedItem);
                 dragEvent.consume();
             }
         });*/
     }
 
     @Override
-    public void updateItem(TreeViewItem item, boolean empty) {
+    public void updateItem(Item item, boolean empty) {
         super.updateItem(item, empty);
-        m_selectedTreeViewItem = item;
+        m_selectedItem = item;
         EventDispatcher originalDispatcher = getEventDispatcher();
-        setEventDispatcher(new TreeMouseEventDispatcher(originalDispatcher, m_model, m_musicPlayerManager, m_tree, m_selectedTreeViewItem, m_isLeftPane));
+        setEventDispatcher(new TreeMouseEventDispatcher(originalDispatcher, m_model, m_musicPlayerManager, m_tree, m_selectedItem, m_isLeftPane));
         createContextMenu();
         setContextMenu(m_contextMenu);
     }

@@ -5,12 +5,12 @@ import java.io.File;
 /**
  * Interface for file tree objects
  */
-public interface TreeViewItem {
+public interface Item {
     File getFile();
 
-    boolean isRootPath();
+    void renameFile(String newPath);
 
-    Song getSong();
+    boolean isRootPath();
 
     @Override
     String toString();

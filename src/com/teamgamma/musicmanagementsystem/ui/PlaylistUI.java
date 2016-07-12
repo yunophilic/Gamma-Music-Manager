@@ -430,7 +430,7 @@ public class PlaylistUI extends VBox {
     }
 
     private void setTableColumns() {
-        TableColumn<Song, File> filePathCol = new TableColumn<>("File Path");
+        TableColumn<Song, String> filePathCol = new TableColumn<>("File Path");
         filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
         TableColumn<Song, String> fileNameCol = new TableColumn<>("File Name");
         fileNameCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
@@ -471,7 +471,7 @@ public class PlaylistUI extends VBox {
         }
     }
 
-    private void showOrHideTableColumns(TableColumn<Song, File> filePathCol,
+    private void showOrHideTableColumns(TableColumn<Song, String> filePathCol,
                                         TableColumn<Song, String> fileNameCol,
                                         TableColumn<Song, String> titleCol,
                                         TableColumn<Song, String> artistCol,
@@ -494,7 +494,7 @@ public class PlaylistUI extends VBox {
     }
 
 
-    private void setTableColumnAttributes(TableColumn<Song, File> filePathCol,
+    private void setTableColumnAttributes(TableColumn<Song, String> filePathCol,
                                           TableColumn<Song, String> fileNameCol,
                                           TableColumn<Song, String> titleCol,
                                           TableColumn<Song, String> artistCol,
@@ -502,10 +502,10 @@ public class PlaylistUI extends VBox {
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, Integer> ratingCol,
                                           TableColumn<Song, String> lengthCol) {
-        filePathCol.setCellValueFactory(new PropertyValueFactory<>("m_file"));
+        filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().toString()));
         filePathCol.setSortable(false);
 
-        fileNameCol.setCellValueFactory(new PropertyValueFactory<>("m_fileName"));
+        fileNameCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFileName()));
         fileNameCol.setSortable(false);
 
         titleCol.setCellValueFactory(new PropertyValueFactory<>("m_title"));
@@ -523,13 +523,11 @@ public class PlaylistUI extends VBox {
         ratingCol.setCellValueFactory(new PropertyValueFactory<>("m_rating"));
         ratingCol.setSortable(false);
 
-        lengthCol.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Song, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Song, String> param) {
-                Duration lengthOfSong = new Duration(
-                        param.getValue().getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
-                return new ReadOnlyObjectWrapper<>(UserInterfaceUtils.convertDurationToTimeString(lengthOfSong));
-            }
+        lengthCol.setCellValueFactory(param -> {
+            Duration lengthOfSong = new Duration(
+                    param.getValue().getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND
+            );
+            return new ReadOnlyObjectWrapper<>(UserInterfaceUtils.convertDurationToTimeString(lengthOfSong));
         });
         lengthCol.setSortable(false);
 
@@ -545,86 +543,66 @@ public class PlaylistUI extends VBox {
     }
 
     private void setTableDragEvents() {
-        m_table.setOnDragOver(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                // For Debugging
-                //System.out.println("Drag over on playlist");
-                // TODO: is this check still correct?
-                if (m_model.getSongToMove() != null && m_model.getM_selectedPlaylist() != null) {
-                    dragEvent.acceptTransferModes(TransferMode.MOVE);
-                }
-                dragEvent.consume();
+        m_table.setOnDragOver(dragEvent -> {
+            // For Debugging
+            System.out.println("Drag over on playlist");
+            if (m_model.getM_itemToMove() instanceof Song && m_model.getM_selectedPlaylist() != null) {
+                dragEvent.acceptTransferModes(TransferMode.MOVE);
             }
+            dragEvent.consume();
         });
 
-        m_table.setOnDragDropped(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                //System.out.println("Drag dropped on playlist");
-                m_model.addSongToPlaylist( m_model.getSongToMove(), m_model.getM_selectedPlaylist() );
-                m_musicPlayerManager.notifyQueingObserver();
-                dragEvent.consume();
-            }
+        m_table.setOnDragDropped(dragEvent -> {
+            //System.out.println("Drag dropped on playlist");
+            m_model.addSongToPlaylist( (Song) m_model.getM_itemToMove(), m_model.getM_selectedPlaylist() );
+            m_musicPlayerManager.notifyQueingObserver();
+            dragEvent.consume();
         });
 
-        m_table.setOnDragDone(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                //System.out.println("Drag done on playlist");
-                //m_model.setM_songToAddToPlaylist(null);
-                dragEvent.consume();
-            }
+        m_table.setOnDragDone(dragEvent -> {
+            //System.out.println("Drag done on playlist");
+            m_model.setM_itemToMove(null);
+            dragEvent.consume();
         });
     }
 
     private void setTableRowMouseEvents() {
-        m_table.setRowFactory(new Callback<TableView<Song>, TableRow<Song>>() {
-            @Override
-            public TableRow<Song> call(TableView<Song> param) {
-                TableRow<Song> row = new TableRow<>();
-                row.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        int selectedSongIndex = row.getIndex();
-                        if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
-                            Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                            selectedPlaylist.setM_currentSongIndex(selectedSongIndex);
-                            m_musicPlayerManager.playPlaylist(selectedPlaylist);
-                        } else if (event.getButton() == MouseButton.PRIMARY) {
-                            m_contextMenu.hide();
-                            if (m_playbackContextMenu != null) {
-                                m_playbackContextMenu.hide();
-                            }
-                        } else if (event.getButton() == MouseButton.SECONDARY) {
-                            m_contextMenu.hide();
-                            m_contextMenu = generateContextMenu(selectedSongIndex);
-                            m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
-                        }
+        m_table.setRowFactory(param -> {
+            TableRow<Song> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                int selectedSongIndex = row.getIndex();
+                if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+                    Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+                    selectedPlaylist.setM_currentSongIndex(selectedSongIndex);
+                    m_musicPlayerManager.playPlaylist(selectedPlaylist);
+                } else if (event.getButton() == MouseButton.PRIMARY) {
+                    m_contextMenu.hide();
+                    if (m_playbackContextMenu != null) {
+                        m_playbackContextMenu.hide();
                     }
-                });
+                } else if (event.getButton() == MouseButton.SECONDARY) {
+                    m_contextMenu.hide();
+                    m_contextMenu = generateContextMenu(selectedSongIndex);
+                    m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
+                }
+            });
 
+            UserInterfaceUtils.createMouseOverUIChange(row, null);
+
+            m_musicPlayerManager.registerNewSongObserver(() -> {
+                if (m_musicPlayerManager.getCurrentIndexOfPlaylistSong() == row.getIndex()){
+                    row.setStyle(UserInterfaceUtils.SELECTED_BACKGROUND_COLOUR);
+
+                    // Make it persist
+                    UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
+                    return;
+                }
+
+                row.setStyle(null);
                 UserInterfaceUtils.createMouseOverUIChange(row, null);
+            });
 
-                m_musicPlayerManager.registerNewSongObserver(new MusicPlayerObserver() {
-                    @Override
-                    public void updateUI() {
-                        if (m_musicPlayerManager.getCurrentIndexOfPlaylistSong() == row.getIndex()){
-                            row.setStyle(UserInterfaceUtils.SELECTED_BACKGROUND_COLOUR);
-
-                            // Make it persist
-                            UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
-                            return;
-                        }
-
-                        row.setStyle(null);
-                        UserInterfaceUtils.createMouseOverUIChange(row, null);
-                    }
-                });
-
-
-                return row;
-            }
+            return row;
         });
     }
 
@@ -633,25 +611,22 @@ public class PlaylistUI extends VBox {
 
         //remove from playlist option
         MenuItem removeFromPlaylist = new MenuItem(ContextMenuConstants.REMOVE_FROM_PLAYLIST);
-        removeFromPlaylist.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                if (PromptUI.removeSongFromPlaylist(selectedPlaylist,
-                                                    selectedPlaylist.getSongByIndex(selectedSongIndex))) {
-                    boolean songToRemoveIsPlaying = (selectedSongIndex == selectedPlaylist.getM_currentSongIndex());
+        removeFromPlaylist.setOnAction(event -> {
+            Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+            if (PromptUI.removeSongFromPlaylist(selectedPlaylist,
+                                                selectedPlaylist.getSongByIndex(selectedSongIndex))) {
+                boolean songToRemoveIsPlaying = (selectedSongIndex == selectedPlaylist.getM_currentSongIndex());
 
-                    selectedPlaylist.removeSong(selectedSongIndex);
-                    m_model.notifyPlaylistSongsObservers();
+                selectedPlaylist.removeSong(selectedSongIndex);
+                m_model.notifyPlaylistSongsObservers();
 
-                    if (!selectedPlaylist.isEmpty() && songToRemoveIsPlaying) {
-                        m_musicPlayerManager.playPlaylist(selectedPlaylist);
-                    }
+                if (!selectedPlaylist.isEmpty() && songToRemoveIsPlaying) {
+                    m_musicPlayerManager.playPlaylist(selectedPlaylist);
+                }
 
-                    if (selectedPlaylist.isEmpty()) {
-                        m_musicPlayerManager.stopSong();
-                        m_musicPlayerManager.resetCurrentPlaylist();
-                    }
+                if (selectedPlaylist.isEmpty()) {
+                    m_musicPlayerManager.stopSong();
+                    m_musicPlayerManager.resetCurrentPlaylist();
                 }
             }
         });

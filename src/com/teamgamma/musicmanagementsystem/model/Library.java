@@ -1,6 +1,6 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
+import com.teamgamma.musicmanagementsystem.misc.FileTreeUtil;
 import javafx.scene.control.TreeItem;
 
 import java.io.File;
@@ -14,7 +14,7 @@ public class Library {
     /*private List<Song> m_songList;
     private File m_rootDir;*/
 
-    private TreeItem<TreeViewItem> m_treeRoot;
+    private TreeItem<Item> m_treeRoot;
 
     /**
      * Constructor
@@ -25,7 +25,7 @@ public class Library {
         /*m_songList = FileManager.generateSongs(folderPath);*/
 
         File rootDir = new File(folderPath);
-        m_treeRoot = TreeViewUtil.generateTreeItems(rootDir, rootDir.getAbsolutePath(), null);
+        m_treeRoot = FileTreeUtil.generateTreeItems(rootDir, rootDir.getAbsolutePath(), null);
     }
 
     /**
@@ -36,7 +36,7 @@ public class Library {
      */
     public Library(String folderPath, List<String> expandedPaths) {
         File rootDir = new File(folderPath);
-        m_treeRoot = TreeViewUtil.generateTreeItems(rootDir, rootDir.getAbsolutePath(), expandedPaths);
+        m_treeRoot = FileTreeUtil.generateTreeItems(rootDir, rootDir.getAbsolutePath(), expandedPaths);
     }
 
     /**
@@ -109,7 +109,7 @@ public class Library {
      */
     /*public Song getSong(String songName) {
         for (Song song : m_songList) {
-            if (song.getM_fileName().equals(songName)) {
+            if (song.getFileName().equals(songName)) {
                 return song;
             }
         }
@@ -156,14 +156,14 @@ public class Library {
         return getSongs(m_treeRoot);
     }
 
-    private List<Song> getSongs(TreeItem<TreeViewItem> node) {
+    private List<Song> getSongs(TreeItem<Item> node) {
         List<Song> songs = new ArrayList<>();
         if(node.getValue() instanceof Song) {
             songs.add( (Song) node.getValue() );
         }
 
-        List<TreeItem<TreeViewItem>> children = node.getChildren();
-        for (TreeItem<TreeViewItem> child : children) {
+        List<TreeItem<Item>> children = node.getChildren();
+        for (TreeItem<Item> child : children) {
             songs.addAll(getSongs(child));
         }
 
@@ -188,7 +188,7 @@ public class Library {
         return m_treeRoot.getValue().getFile();
     }
 
-    public TreeItem<TreeViewItem> getM_treeRoot() {
+    public TreeItem<Item> getM_treeRoot() {
         return m_treeRoot;
     }
 
@@ -196,14 +196,14 @@ public class Library {
         return getSong(m_treeRoot, fileToMove);
     }
 
-    private Song getSong(TreeItem<TreeViewItem> node, File fileToMove) {
+    private Song getSong(TreeItem<Item> node, File fileToMove) {
         if (node.getValue().getFile().getAbsolutePath().equals(fileToMove.getAbsolutePath())) {
             return (Song) node.getValue();
         }
 
         Song song = null;
-        List<TreeItem<TreeViewItem>> children = node.getChildren();
-        for (TreeItem<TreeViewItem> child : children) {
+        List<TreeItem<Item>> children = node.getChildren();
+        for (TreeItem<Item> child : children) {
             song = getSong(child, fileToMove);
         }
 

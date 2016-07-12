@@ -16,9 +16,8 @@ import org.jaudiotagger.tag.id3.ID3v24Tag;
  * Credits to http://www.jthink.net/jaudiotagger/ for reading writing the song metadata
  * Credits to https://github.com/soc/jaudiotagger/blob/master/src/main/java/org/jaudiotagger/tag/id3/reference/MediaMonkeyPlayerRating.java for rating conversion
  */
-public class Song implements TreeViewItem {
+public class Song implements Item {
     private File m_file;
-    private String m_fileName;
     private String m_title;
     private String m_artist;
     private String m_album;
@@ -28,11 +27,8 @@ public class Song implements TreeViewItem {
     private long m_frames;
 
     public Song(File file) {
-        //super(pathToFile);
         m_file = file;
-        String fileNameFull = m_file.getName();
-        int beforeExtension = fileNameFull.lastIndexOf('.');
-        m_fileName = fileNameFull.substring(0, beforeExtension);
+
         try {
             AudioFile audioFile = AudioFileIO.read(m_file);
             Tag tag = audioFile.getTag();
@@ -141,12 +137,25 @@ public class Song implements TreeViewItem {
         return newValue;
     }
 
-    /*public File getFile() {
+    @Override
+    public File getFile() {
         return m_file;
-    }*/
+    }
 
-    public String getM_fileName() {
-        return m_fileName;
+    @Override
+    public void renameFile(String newPath) {
+        m_file = new File(newPath);
+    }
+
+    @Override
+    public boolean isRootPath() {
+        return false;
+    }
+
+    public String getFileName() {
+        String fileNameFull = m_file.getName();
+        int beforeExtension = fileNameFull.lastIndexOf('.');
+        return fileNameFull.substring(0, beforeExtension);
     }
 
     public String getM_title() {
@@ -250,21 +259,6 @@ public class Song implements TreeViewItem {
     }
 
     @Override
-    public File getFile() {
-        return m_file;
-    }
-
-    @Override
-    public boolean isRootPath() {
-        return false;
-    }
-
-    @Override
-    public Song getSong() {
-        return this;
-    }
-
-    @Override
     public String toString() {
         return m_file.getName();
     }
@@ -285,10 +279,6 @@ public class Song implements TreeViewItem {
         String thisFilePath = m_file.getAbsolutePath();
         String otherFilePath = otherSong.getFile().getAbsolutePath();
 
-        if (thisFilePath.equals(otherFilePath)) {
-            return true;
-        } else {
-            return false;
-        }
+        return thisFilePath.equals(otherFilePath);
     }
 }

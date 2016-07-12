@@ -19,18 +19,14 @@ public class SongManager {
     private List<Library> m_libraries;
     private List<Playlist> m_playlists;
 
-    // buffers
-
-    private File m_fileToCopy;
+    // Buffers
+    private Item m_itemToCopy;
+    private Item m_itemToMove;
     private File m_copyDest;
-    private TreeViewItem m_itemToMove;
     private File m_moveDest;
-
-    private File m_deletedFile;
     private File m_addedFile;
+    private File m_deletedFile;
     private File m_renamedFile;
-
-    //private Song m_songToAddToPlaylist;
 
     // For observer pattern
     private File m_selectedCenterFolder;
@@ -51,16 +47,13 @@ public class SongManager {
         m_libraries = new ArrayList<>();
         m_playlists = new ArrayList<>();
 
-        m_fileToCopy = null;
-        m_copyDest = null;
+        m_itemToCopy = null;
         m_itemToMove = null;
+        m_copyDest = null;
         m_moveDest = null;
-
-        m_deletedFile = null;
         m_addedFile = null;
+        m_deletedFile = null;
         m_renamedFile = null;
-
-        //m_songToAddToPlaylist = null;
 
         m_selectedCenterFolder = null;
         m_rightFolderSelected = null;
@@ -162,33 +155,17 @@ public class SongManager {
     }
 
     /**
-     * Set file/folder to be copied
-     * @param m_fileToCopy
-     */
-    public void setM_fileToCopy(File m_fileToCopy) {
-        this.m_fileToCopy = m_fileToCopy;
-    }
-
-    /**
-     * Set file/folder to be moved
-     * @param m_itemToMove
-     */
-    public void setM_itemToMove(TreeViewItem m_itemToMove) {
-        this.m_itemToMove = m_itemToMove;
-    }
-
-    /**
      * Copy files in buffer to destination
      * @param dest the destination folder
      * @throws IOException
      * @throws InvalidPathException
      */
     public void copyToDestination(File dest) throws Exception {
-        if (m_fileToCopy == null) {
+        if (m_itemToCopy == null) {
             throw new Exception("File to copy should not be null");
         }
 
-        if (!FileManager.copyFilesRecursively(m_fileToCopy, dest)) {
+        if (!FileManager.copyFilesRecursively(m_itemToCopy.getFile(), dest)) {
             throw new IOException("Fail to copy");
         }
 
@@ -420,33 +397,26 @@ public class SongManager {
 
     }
 
-    /*public Song getM_songToAddToPlaylist() {
-        return m_songToAddToPlaylist;
-    }
 
-    public void setM_songToAddToPlaylist(Song m_songToAddToPlaylist) {
-        this.m_songToAddToPlaylist = m_songToAddToPlaylist;
-    }*/
-
-    public File getM_renamedFile() {
-        return m_renamedFile;
-    }
+    /**********
+     * Getters and setters
+     *************/
 
     public File getM_addedFile(){
         return m_addedFile;
     }
 
-    public void setM_addedFile(File addedFile) {
-        m_addedFile = addedFile;
+    public File getM_deletedFile() {
+        return m_deletedFile;
+    }
+
+    public File getM_renamedFile() {
+        return m_renamedFile;
     }
 
     public File getM_moveDest() {
         return m_moveDest;
     }
-
-    /*public void setM_moveDest(File dest) {
-        m_moveDest = dest;
-    }*/
 
     public File getM_copyDest() {
         return m_copyDest;
@@ -476,12 +446,20 @@ public class SongManager {
         this.m_selectedPlaylist = m_selectedPlaylist;
     }
 
-    public File getM_fileToCopy() {
-        return m_fileToCopy;
+    public Item getM_itemToCopy() {
+        return m_itemToCopy;
     }
 
-    public TreeViewItem getM_itemToMove() {
+    public void setM_itemToCopy(Item m_itemToCopy) {
+        this.m_itemToCopy = m_itemToCopy;
+    }
+
+    public Item getM_itemToMove() {
         return m_itemToMove;
+    }
+
+    public void setM_itemToMove(Item m_itemToMove) {
+        this.m_itemToMove = m_itemToMove;
     }
 
     public List<Playlist> getM_playlists() {
@@ -496,37 +474,28 @@ public class SongManager {
         m_menuOptions = options;
     }
 
-    public void setM_libraryAction(Actions libraryAction) {
-        m_libraryAction = libraryAction;
-    }
-
-
     public Actions getM_libraryAction() {
         return m_libraryAction;
     }
 
-    public void setM_libraryFileAction(Actions fileAction) {
-        m_libraryFileAction = fileAction;
+    public void setM_libraryAction(Actions libraryAction) {
+        m_libraryAction = libraryAction;
     }
-    
+
     public Actions getM_libraryFileAction() {
         return m_libraryFileAction;
     }
 
-    public void setM_rightPanelFileAction(Actions fileAction) {
-        m_rightPanelFileAction = fileAction;
+    public void setM_libraryFileAction(Actions fileAction) {
+        m_libraryFileAction = fileAction;
     }
 
     public Actions getM_rightPanelFileAction() {
         return m_rightPanelFileAction;
     }
 
-    /*public void setM_deletedFile(File deletedFile) {
-        m_deletedFile = deletedFile;
-    }*/
-
-    public File getM_deletedFile() {
-        return m_deletedFile;
+    public void setM_rightPanelFileAction(Actions fileAction) {
+        m_rightPanelFileAction = fileAction;
     }
 
 
@@ -588,11 +557,11 @@ public class SongManager {
         }
     }
 
-    public File getFileToMove() {
-        return m_itemToMove.getFile();
+    public File getFileToCopy() {
+        return m_itemToCopy.getFile();
     }
 
-    public Song getSongToMove() {
-        return m_itemToMove.getSong();
+    public File getFileToMove() {
+        return m_itemToMove.getFile();
     }
 }

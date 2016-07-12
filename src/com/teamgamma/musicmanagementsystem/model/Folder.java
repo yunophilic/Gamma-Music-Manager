@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * Class that represents a Folder
  */
-public class Folder implements TreeViewItem {
+public class Folder implements Item {
     private File m_file;
     private boolean m_isRootPath;
 
@@ -20,13 +20,13 @@ public class Folder implements TreeViewItem {
     }
 
     @Override
-    public boolean isRootPath() {
-        return m_isRootPath;
+    public void renameFile(String newPath) {
+        m_file = new File(newPath);
     }
 
     @Override
-    public Song getSong() {
-        return null;
+    public boolean isRootPath() {
+        return m_isRootPath;
     }
 
     @Override
@@ -54,10 +54,6 @@ public class Folder implements TreeViewItem {
         String thisFilePath = m_file.getAbsolutePath();
         String otherFilePath = otherFolder.getFile().getAbsolutePath();
 
-        if (thisFilePath.equals(otherFilePath)) {
-            return true;
-        } else {
-            return false;
-        }
+        return thisFilePath.equals(otherFilePath);
     }
 }

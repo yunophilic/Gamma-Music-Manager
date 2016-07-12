@@ -16,21 +16,15 @@ import java.util.List;
 /**
  * Utility class that provides functionality for the FileTree
  */
-public class TreeViewUtil {
+public class FileTreeUtil {
     private static final Image openFolderImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "Status-folder-open-icon.png"));
     private static final Image folderImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "folder-icon.png"));
     private static final Image songImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "music-file-icon.png"));
 
-    /**
-     * Recursively create tree items from the files in a directory and return a reference to the root item,
-     * Set nodes in expandedPaths to expanded state
-     *
-     * @return TreeItem<String> to the root item
-     */
-    /*public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath, boolean showFolderOnly, List<String> expandedPaths) {
+    /*public static TreeItem<Item> generateTreeItems(File file, String dirPath, boolean showFolderOnly, List<String> expandedPaths) {
         System.out.println(file + ", " + dirPath);
-        TreeItem<TreeViewItem> item = new TreeItem<>(
-                (file.getAbsolutePath().equals(dirPath)) ? new TreeViewItem(file, true) : new TreeViewItem(file, false)
+        TreeItem<Item> item = new TreeItem<>(
+                (file.getAbsolutePath().equals(dirPath)) ? new Item(file, true) : new Item(file, false)
         );
 
         File treeItemFile = item.getValue().getFile();
@@ -71,11 +65,17 @@ public class TreeViewUtil {
             });
     }*/
 
-    public static TreeItem<TreeViewItem> generateTreeItems(File file, String dirPath, List<String> expandedPaths) {
+    /**
+     * Recursively create tree items from the files in a directory and return a reference to the root item,
+     * Set nodes in expandedPaths to expanded state
+     *
+     * @return TreeItem<Item> to the root item
+     */
+    public static TreeItem<Item> generateTreeItems(File file, String dirPath, List<String> expandedPaths) {
         System.out.println(file + ", " + dirPath);
         System.out.println("$$$" + file + ", " + file.isDirectory());
 
-        TreeItem<TreeViewItem> item;
+        TreeItem<Item> item;
         if(!file.isDirectory()) {
             item = new TreeItem<>(new Song(file));
             item.setGraphic(new ImageView(songImage));
@@ -114,23 +114,23 @@ public class TreeViewUtil {
     }
 
     /**
-     * Search for the TreeItem<TreeViewItem> from the specified TreeView<TreeViewItem> based on the given path
+     * Search for the TreeItem<Item> from the specified TreeView<Item> based on the given path
      *
      * @param path the specified path
-     * @return TreeItem<TreeViewItem> or null if not found
+     * @return TreeItem<Item> or null if not found
      */
-    public static TreeItem<TreeViewItem> searchTreeItem(TreeView<TreeViewItem> tree, String path) {
+    public static TreeItem<Item> searchTreeItem(TreeView<Item> tree, String path) {
         return searchTreeItem(tree.getRoot(), path);
     }
 
     /**
-     * Search for the TreeItem<TreeViewItem> from the sub-tree rooted at the specified node based on the given path
+     * Search for the TreeItem<Item> from the sub-tree rooted at the specified node based on the given path
      *
      * @param node the specified node
      * @param path the specified path
-     * @return TreeItem<TreeViewItem> or null if not found
+     * @return TreeItem<Item> or null if not found
      */
-    public static TreeItem<TreeViewItem> searchTreeItem(TreeItem<TreeViewItem> node, String path) {
+    public static TreeItem<Item> searchTreeItem(TreeItem<Item> node, String path) {
         //base case
         if (node.getValue().getFile().getAbsolutePath().equals(path)) {
             //System.out.println("Returning node: " + node);
@@ -138,8 +138,8 @@ public class TreeViewUtil {
         }
 
         //recursive case
-        for (TreeItem<TreeViewItem> child : node.getChildren()) {
-            TreeItem<TreeViewItem> target = searchTreeItem(child, path);
+        for (TreeItem<Item> child : node.getChildren()) {
+            TreeItem<Item> target = searchTreeItem(child, path);
             if (target != null) {
                 return target;
             }
@@ -153,7 +153,7 @@ public class TreeViewUtil {
      *
      * @param treeItem
      */
-    public static void closeAllFoldersIcons(TreeItem<TreeViewItem> treeItem) {
+    public static void closeAllFoldersIcons(TreeItem<Item> treeItem) {
         //System.out.println("#### closing file: " + treeItem.getValue());
         if (treeItem.getValue().getFile().isDirectory()) {
             treeItem.setGraphic(new ImageView(folderImage));
@@ -161,8 +161,8 @@ public class TreeViewUtil {
             treeItem.setGraphic(new ImageView(songImage));
         }
         if (!treeItem.getChildren().isEmpty()) {
-            List<TreeItem<TreeViewItem>> childTreeItems = treeItem.getChildren();
-            for (TreeItem<TreeViewItem> child : childTreeItems) {
+            List<TreeItem<Item>> childTreeItems = treeItem.getChildren();
+            for (TreeItem<Item> child : childTreeItems) {
                 closeAllFoldersIcons(child);
             }
         }
@@ -174,26 +174,26 @@ public class TreeViewUtil {
      * @param m_tree
      * @param filePath
      */
-    public static void setOpenFolder(TreeView<TreeViewItem> m_tree, String filePath) {
+    public static void setOpenFolder(TreeView<Item> m_tree, String filePath) {
         System.out.println("^^^^^ Tree root: " + m_tree.getRoot());
-        TreeItem<TreeViewItem> selectedTreeItem = TreeViewUtil.searchTreeItem(m_tree, filePath);
+        TreeItem<Item> selectedTreeItem = FileTreeUtil.searchTreeItem(m_tree, filePath);
         //System.out.println("@@@ Found treeitem: " + selectedTreeItem.getValue());
         System.out.println("@@@ Found treeitem: " + selectedTreeItem);
         selectedTreeItem.setGraphic(new ImageView(openFolderImage));
     }
 
-    public static List<TreeViewItem> getTreeViewItems(List<TreeItem<TreeViewItem>> treeItems) {
-        List<TreeViewItem> treeViewItems = new ArrayList<>();
+    public static List<Item> getTreeViewItems(List<TreeItem<Item>> treeItems) {
+        List<Item> items = new ArrayList<>();
 
-        for (TreeItem<TreeViewItem> treeItem : treeItems) {
-            treeViewItems.add(treeItem.getValue());
+        for (TreeItem<Item> treeItem : treeItems) {
+            items.add(treeItem.getValue());
         }
 
-        return treeViewItems;
+        return items;
     }
 
-    public static boolean isLibraryInList(List<TreeViewItem> libraryNodes, Library library) {
-        for (TreeViewItem libraryNode : libraryNodes) {
+    public static boolean isLibraryInList(List<Item> libraryNodes, Library library) {
+        for (Item libraryNode : libraryNodes) {
             String libraryNodePath = libraryNode.getFile().getAbsolutePath();
             if (libraryNodePath.equals(library.getRootDirPath())) {
                 return true;
@@ -212,14 +212,14 @@ public class TreeViewUtil {
      * @param model
      * @throws IOException
      */
-    public static void updateTreeItems(Actions fileAction, File changedFile, TreeView<TreeViewItem> tree, SongManager model) throws IOException {
+    public static void updateTreeItems(Actions fileAction, File changedFile, TreeView<Item> tree, SongManager model) throws IOException {
         switch (fileAction) {
             case ADD: {
                 // Add new if it does not already exist (For watcher)
-                TreeItem<TreeViewItem> searchedItem = searchTreeItem(tree, changedFile.getAbsolutePath());
+                TreeItem<Item> searchedItem = searchTreeItem(tree, changedFile.getAbsolutePath());
 
                 if (searchedItem == null) {
-                    addNewNode(tree, model, changedFile.getName(), changedFile.getParent());
+                    addNewNode(tree, changedFile.getName(), changedFile.getParent());
                 }
                 break;
             }
@@ -229,18 +229,18 @@ public class TreeViewUtil {
             }
             case DROP: {
                 // Add new node to destination file node
-                addNewNode(tree, model, model.getFileToMove().getName(), model.getM_moveDest().getAbsolutePath());
+                addNewNode(tree, model.getFileToMove().getName(), model.getM_moveDest().getAbsolutePath());
 
                 // Remove node from old folder it was in
                 String deletedFilePath = model.getFileToMove().getAbsolutePath();
-                TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
+                TreeItem<Item> removedFile = searchTreeItem(tree, deletedFilePath);
 
                 removedFile.getParent().getChildren().remove(removedFile);
                 break;
             }
             case DELETE: {
                 String deletedFilePath = changedFile.getAbsolutePath();
-                TreeItem<TreeViewItem> removedFile = searchTreeItem(tree, deletedFilePath);
+                TreeItem<Item> removedFile = searchTreeItem(tree, deletedFilePath);
 
                 if (removedFile != null) {
                     removedFile.getParent().getChildren().remove(removedFile);
@@ -248,7 +248,7 @@ public class TreeViewUtil {
                 break;
             }
             case PASTE: {
-                addNewNode(tree, model, model.getM_fileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
+                addNewNode(tree, model.getFileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
                 break;
             }
             case RENAME: {
@@ -261,16 +261,16 @@ public class TreeViewUtil {
         }
     }
 
-    private static void renameNode(File changedFile, TreeView<TreeViewItem> tree, SongManager model) {
-        TreeItem<TreeViewItem> nodeToRename = searchTreeItem(tree, changedFile.getAbsolutePath());
+    private static void renameNode(File changedFile, TreeView<Item> tree, SongManager model) {
+        TreeItem<Item> nodeToRename = searchTreeItem(tree, changedFile.getAbsolutePath());
         File renamedFile = model.getM_renamedFile();
 
         System.out.println("NEW FILE NAME: " + renamedFile);
 
-        //TreeViewItem renamedItem = new TreeViewItem(renamedFile, model.isLibrary(renamedFile));
+        //Item renamedItem = new Item(renamedFile, model.isLibrary(renamedFile));
 
-        //TreeItem<TreeViewItem> renamedNode = generateTreeItems(renamedFile, renamedFile.getParent(), model.getM_menuOptions().getM_leftPanelShowFolder());
-        TreeItem<TreeViewItem> parentNode = nodeToRename.getParent();
+        //TreeItem<Item> renamedNode = generateTreeItems(renamedFile, renamedFile.getParent(), model.getM_menuOptions().getM_leftPanelShowFolder());
+        TreeItem<Item> parentNode = nodeToRename.getParent();
 
         System.out.println("^^^^ RENAMING NODE: " + nodeToRename);
         System.out.println("^^^^ PARENT NODE: " + parentNode);
@@ -282,35 +282,30 @@ public class TreeViewUtil {
         recursivelyRenameNodes(nodeToRename, renamedFile.getAbsolutePath(), model);
     }
 
-    private static void recursivelyRenameNodes(TreeItem<TreeViewItem> node, String path, SongManager model) {
-        File file = new File(path);
+    private static void recursivelyRenameNodes(TreeItem<Item> node, String path, SongManager model) {
+        Item item = node.getValue();
+        item.renameFile(path);
 
-        TreeViewItem newItem;
-        if (!file.isDirectory()) {
-            newItem = new Song(file);
-        } else {
-            newItem = (model.isLibrary(file)) ? new Folder(file, true) : new Folder(file, false);
-        }
+        System.out.println("^^^^ CHANGED ITEM: " + item);
 
-        System.out.println("^^^^ NEW ITEM: " + newItem);
-        node.setValue(newItem);
+        node.setValue(null); //this line ensures the renamed node display string gets refreshed
+        node.setValue(item);
 
-        List<TreeItem<TreeViewItem>> children = node.getChildren();
-
+        List<TreeItem<Item>> children = node.getChildren();
         if (children != null) {
-            for (TreeItem<TreeViewItem> child : children) {
+            for (TreeItem<Item> child : children) {
                 String newPath = path + File.separator + child.getValue().getFile().getName();
                 recursivelyRenameNodes(child, newPath, model);
             }
         }
     }
 
-    private static void addNewNode(TreeView<TreeViewItem> tree, SongManager model, String fileName, String newParentPath) {
+    private static void addNewNode(TreeView<Item> tree, String fileName, String newParentPath) {
         String newFilePath = newParentPath + File.separator + fileName;
         File copiedFile = new File(newFilePath);
 
-        TreeItem<TreeViewItem> newFileNode = generateTreeItems(copiedFile, newParentPath, null);
-        TreeItem<TreeViewItem> parentFileNode = searchTreeItem(tree, newParentPath);
+        TreeItem<Item> newFileNode = generateTreeItems(copiedFile, newParentPath, null);
+        TreeItem<Item> parentFileNode = searchTreeItem(tree, newParentPath);
 
         if (newFileNode != null && parentFileNode != null) {
             parentFileNode.getChildren().add(newFileNode);
@@ -318,7 +313,7 @@ public class TreeViewUtil {
         }
     }
 
-    public static boolean isLibraryNodeInList(List<Library> libraries, TreeViewItem libraryNode) {
+    public static boolean isLibraryNodeInList(List<Library> libraries, Item libraryNode) {
         for (Library library : libraries) {
             String libraryNodePath = libraryNode.getFile().getAbsolutePath();
             if (libraryNodePath.equals(library.getRootDirPath())) {
@@ -329,8 +324,8 @@ public class TreeViewUtil {
         return false;
     }
 
-    public static void deleteLibrary(TreeView<TreeViewItem> tree, TreeItem<TreeViewItem> libraryNode) {
-        TreeItem<TreeViewItem> root = tree.getRoot();
+    public static void deleteLibrary(TreeView<Item> tree, TreeItem<Item> libraryNode) {
+        TreeItem<Item> root = tree.getRoot();
 
         root.getChildren().remove(libraryNode);
     }
@@ -344,10 +339,10 @@ public class TreeViewUtil {
      *
      * @return The song that was selected or null if something was not selected yet.
      */
-    /*public static Song getSongSelected(TreeView<TreeViewItem> tree, TreeViewItem selectedItem, SongManager model) {
+    /*public static Song getSongSelected(TreeView<Item> tree, Item selectedItem, SongManager model) {
         //get library song is in
         if (selectedItem != null && tree.getSelectionModel().getSelectedItem() != null) {
-            TreeItem<TreeViewItem> selectedTreeItem = tree.getSelectionModel().getSelectedItem();
+            TreeItem<Item> selectedTreeItem = tree.getSelectionModel().getSelectedItem();
             while (!selectedTreeItem.getValue().isM_isRootPath()) {
                 selectedTreeItem = selectedTreeItem.getParent();
             }
@@ -364,10 +359,8 @@ public class TreeViewUtil {
      * @param m_tree
      * @return Arraylist of paths as String
      */
-    public static List<String> getExpandedPaths(TreeView<TreeViewItem> m_tree) {
-        List<String> expandedPaths = getExpandedPathsRecursively(m_tree.getRoot());
-
-        return expandedPaths;
+    public static List<String> getExpandedPaths(TreeView<Item> m_tree) {
+        return getExpandedPathsRecursively(m_tree.getRoot());
     }
 
     /**
@@ -375,9 +368,9 @@ public class TreeViewUtil {
      * @param currentItem
      * @return Arraylist of paths as String
      */
-    private static List<String> getExpandedPathsRecursively(TreeItem<TreeViewItem> currentItem) {
+    private static List<String> getExpandedPathsRecursively(TreeItem<Item> currentItem) {
         List<String> expandedPaths = new ArrayList<>();
-        List<TreeItem<TreeViewItem>> children = currentItem.getChildren();
+        List<TreeItem<Item>> children = currentItem.getChildren();
 
         // Base case
         if (children.isEmpty()) {
@@ -391,7 +384,7 @@ public class TreeViewUtil {
         }
 
         // Recursive case
-        for (TreeItem<TreeViewItem> child : children) {
+        for (TreeItem<Item> child : children) {
             List<String> childExpandedPaths = getExpandedPathsRecursively(child);
 
             expandedPaths.addAll(childExpandedPaths);
@@ -404,8 +397,9 @@ public class TreeViewUtil {
      * Copy tree rooted at rootNode, newly created tree hold the same reference for the values
      *
      * @param node the root tree item
+     * @param expandedPaths list of expanded paths
      */
-    public static void setTreeExpandedState(TreeItem<TreeViewItem> node, List<String> expandedPaths) {
+    public static void setTreeExpandedState(TreeItem<Item> node, List<String> expandedPaths) {
         File file = node.getValue().getFile();
         if (file.isDirectory())
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
@@ -414,8 +408,8 @@ public class TreeViewUtil {
                 }
             }
 
-        List<TreeItem<TreeViewItem>> children = node.getChildren();
-        for(TreeItem<TreeViewItem> child : children) {
+        List<TreeItem<Item>> children = node.getChildren();
+        for(TreeItem<Item> child : children) {
             setTreeExpandedState(child, expandedPaths);
         }
     }

@@ -903,7 +903,7 @@ public class PromptUI {
         Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
         stage.getIcons().add(PROMPT_ICON);
         dialog.setTitle(ADD_TO_PLAYLIST_TITLE);
-        final String ADD_TO_PLAYLIST = "Add \"" + songToAdd.getM_fileName() + "\" to playlist";
+        final String ADD_TO_PLAYLIST = "Add \"" + songToAdd.getFileName() + "\" to playlist";
         dialog.setHeaderText(ADD_TO_PLAYLIST);
         setDialogIcon(dialog, "add-song-playlist.png");
         dialog.setContentText(SELECT_PLAYLIST_LABEL);
@@ -923,7 +923,7 @@ public class PromptUI {
      * @return true if user confirms dialog, false otherwise
      */
     public static boolean removeSongFromPlaylist(Playlist playlist, Song songName) {
-        final String DIALOG_MESSAGE = "Remove \"" + songName.getM_fileName() + "\" from " + playlist.getM_playlistName();
+        final String DIALOG_MESSAGE = "Remove \"" + songName.getFileName() + "\" from " + playlist.getM_playlistName();
         Dialog dialog = makeDialog(PROMPT_ICON, REMOVE_FROM_PLAYLIST_TITLE, "remove-song-playlist.png", DIALOG_MESSAGE, REMOVE_SONG_PLAYLIST_CONFIRMATION);
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
@@ -1111,7 +1111,7 @@ public class PromptUI {
      * Renames or a library folder.
      *
      * @param fileToRename file to rename
-     * @param extension    file name extension. If a library, extension should be an emptry string
+     * @param extension    file name extension. If a library, extension should be an empty string
      * @param result       button result
      * @return null if failed to rename
      */
