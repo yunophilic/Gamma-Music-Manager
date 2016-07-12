@@ -1050,12 +1050,12 @@ public class PromptUI {
     /**
      * Get the total folder size
      *
-     * @param library folder
+     * @param folder folder
      * @return size of the folder
      */
-    private static long folderSize(File library) {
+    private static long folderSize(File folder) {
         long length = 0;
-        for (File file : library.listFiles()) {
+        for (File file : folder.listFiles()) {
             if (file.isFile())
                 length += file.length();
             else
@@ -1145,5 +1145,4 @@ public class PromptUI {
         }
         return null;
     }
-
 }

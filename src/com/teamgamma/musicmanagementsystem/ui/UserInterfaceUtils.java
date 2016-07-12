@@ -24,18 +24,8 @@ public class UserInterfaceUtils {
      * @param element  The element to apply UI effect on.
      */
     public static void createMouseOverUIChange(final Node element, String defaultStyle) {
-        element.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                element.setStyle(SELECTED_BACKGROUND_COLOUR);
-            }
-        });
-        element.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                element.setStyle(defaultStyle);
-            }
-        });
+        element.setOnMouseEntered(event -> element.setStyle(SELECTED_BACKGROUND_COLOUR));
+        element.setOnMouseExited(event -> element.setStyle(defaultStyle));
     }
 
     /**

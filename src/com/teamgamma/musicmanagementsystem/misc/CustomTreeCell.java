@@ -55,146 +55,134 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
     private List<MenuItem> generateMenuItems() {
         //copy option
         MenuItem copy = new MenuItem(ContextMenuConstants.COPY);
-        copy.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
-                if (m_selectedItem != null) {
-                    m_model.setM_itemToCopy(m_selectedItem);
-                }
+        copy.setOnAction(event -> {
+            if (m_selectedItem != null) {
+                m_model.setM_itemToCopy(m_selectedItem);
             }
         });
 
         //paste option
         MenuItem paste = new MenuItem(ContextMenuConstants.PASTE);
-        paste.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
-                if (m_selectedItem != null) {
-                    File dest = m_selectedItem.getFile();
-                    if (!dest.isDirectory()) {
-                        PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
-                        return;
-                    }
-                    try {
-                        m_model.copyToDestination(dest);
-                        m_model.notifyFileObservers(Actions.PASTE, null);
-                    } catch (FileAlreadyExistsException ex) {
-                        PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
-                    } catch (IOException ex) {
-                        PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
-                    } catch (Exception ex) {
-                        PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
-                    }
+        paste.setOnAction(event -> {
+            if (m_selectedItem != null) {
+                File dest = m_selectedItem.getFile();
+                if (!dest.isDirectory()) {
+                    PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
+                    return;
+                }
+                try {
+                    m_model.copyToDestination(dest);
+                    m_model.notifyFileObservers(Actions.PASTE, null);
+                } catch (FileAlreadyExistsException ex) {
+                    PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
+                } catch (IOException ex) {
+                    PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
+                } catch (Exception ex) {
+                    PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
                 }
             }
         });
 
         //rename option
         MenuItem rename = new MenuItem(ContextMenuConstants.RENAME_THIS_FILE);
-        rename.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
-                if (m_selectedItem != null) {
-                    File fileToRename = m_selectedItem.getFile();
-                    Path newPath = PromptUI.fileRename(fileToRename);
+        rename.setOnAction(event -> {
+            if (m_selectedItem != null) {
+                File fileToRename = m_selectedItem.getFile();
+                Path newPath = PromptUI.fileRename(fileToRename);
 
-                    if (newPath != null) {
-                        m_model.renameFile(fileToRename, newPath);
-                    }
+                if (newPath != null) {
+                    m_model.renameFile(fileToRename, newPath);
                 }
             }
         });
 
         //delete option
         MenuItem delete = new MenuItem(ContextMenuConstants.DELETE);
-        delete.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
-                if (m_selectedItem != null) {
-                    File fileToDelete = m_selectedItem.getFile();
-                    //confirmation dialog
-                    if (fileToDelete.isDirectory()) {
-                        if (!PromptUI.recycleLibrary(fileToDelete)) {
-                            return;
-                        }
-                    } else {
-                        if (!PromptUI.recycleSong(fileToDelete)) {
-                            return;
-                        }
+        delete.setOnAction(event -> {
+            if (m_selectedItem != null) {
+                File fileToDelete = m_selectedItem.getFile();
+                //confirmation dialog
+                if (fileToDelete.isDirectory()) {
+                    if (!PromptUI.recycleLibrary(fileToDelete)) {
+                        return;
                     }
-                    //try to actually delete (retry if FileSystemException happens)
-                    for (int i = 0; i < 2; i++) {
-                        try {
-                            m_model.deleteFile(fileToDelete);
-                            break;
-                        } catch (IOException ex) {
-                            m_musicPlayerManager.stopSong();
-                            m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
-
-                            if (m_musicPlayerManager.isThereANextSong()) {
-                                m_musicPlayerManager.playNextSong();
-                            } else if (!m_musicPlayerManager.getHistory().isEmpty()) {
-                                m_musicPlayerManager.playPreviousSong();
-                            }
-
-                            if (i == 1) { //if this exception still thrown after retry (for debugging)
-                                ex.printStackTrace();
-                            }
-                        } catch (Exception ex) {
-                            PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
-                            ex.printStackTrace();
-                            break;
-                        }
+                } else {
+                    if (!PromptUI.recycleSong(fileToDelete)) {
+                        return;
                     }
-                    m_databaseManager.removeLibrary(fileToDelete.getAbsolutePath());
                 }
+                //try to actually delete (retry if FileSystemException happens)
+                for (int i = 0; i < 2; i++) {
+                    try {
+                        m_model.deleteFile(fileToDelete);
+                        break;
+                    } catch (IOException ex) {
+                        m_musicPlayerManager.stopSong();
+                        m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
+
+                        if (m_musicPlayerManager.isThereANextSong()) {
+                            m_musicPlayerManager.playNextSong();
+                        } else if (!m_musicPlayerManager.getHistory().isEmpty()) {
+                            m_musicPlayerManager.playPreviousSong();
+                        }
+
+                        if (i == 1) { //if this exception still thrown after retry (for debugging)
+                            ex.printStackTrace();
+                        }
+                    } catch (Exception ex) {
+                        PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
+                        ex.printStackTrace();
+                        break;
+                    }
+                }
+                m_databaseManager.removeLibrary(fileToDelete.getAbsolutePath());
             }
         });
 
         //remove library
         MenuItem removeLibrary = new MenuItem(ContextMenuConstants.REMOVE_THIS_LIBRARY);
-        removeLibrary.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
-                if (m_selectedItem != null) {
-                    System.out.println("Remove library");
-                    m_model.removeLibrary(m_selectedItem.getFile());
+        removeLibrary.setOnAction(event -> {
+            if (m_selectedItem != null) {
+                System.out.println("Remove library");
+                m_model.removeLibrary(m_selectedItem.getFile());
 
-                    if (m_model.getM_rightFolderSelected() != null) {
-                        boolean isLibraryInRight = m_model.getM_rightFolderSelected().getAbsolutePath().contains(
-                                m_selectedItem.getFile().getAbsolutePath()
-                        );
-                        if (isLibraryInRight) {
-                            m_model.setM_rightFolderSelected(null);
-                        }
-                    }
-
-                    if (m_model.getM_selectedCenterFolder() != null) {
-                        boolean isLibraryInCenter = m_model.getM_selectedCenterFolder().getAbsolutePath().contains(
-                                m_selectedItem.getFile().getAbsolutePath()
-                        );
-                        if (isLibraryInCenter) {
-                            System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
-                            m_model.setM_selectedCenterFolder(null);
-                        }
-                    }
-
-                    m_databaseManager.removeLibrary(
+                if (m_model.getM_rightFolderSelected() != null) {
+                    boolean isLibraryInRight = m_model.getM_rightFolderSelected().getAbsolutePath().contains(
                             m_selectedItem.getFile().getAbsolutePath()
                     );
-                    m_model.setM_libraryAction(Actions.REMOVE_FROM_VIEW);
-                    m_model.notifyLibraryObservers();
+                    if (isLibraryInRight) {
+                        m_model.setM_rightFolderSelected(null);
+                    }
                 }
+
+                if (m_model.getM_selectedCenterFolder() != null) {
+                    boolean isLibraryInCenter = m_model.getM_selectedCenterFolder().getAbsolutePath().contains(
+                            m_selectedItem.getFile().getAbsolutePath()
+                    );
+                    if (isLibraryInCenter) {
+                        System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
+                        m_model.setM_selectedCenterFolder(null);
+                    }
+                }
+
+                m_databaseManager.removeLibrary(
+                        m_selectedItem.getFile().getAbsolutePath()
+                );
+                m_model.setM_libraryAction(Actions.REMOVE_FROM_VIEW);
+                m_model.notifyLibraryObservers();
             }
         });
 
         //open in right pane option
         MenuItem openInRightPane = new MenuItem(ContextMenuConstants.SHOW_IN_RIGHT_PANE);
-        openInRightPane.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
-                if (m_selectedItem != null) {
-                    File folderSelected = m_selectedItem.getFile();
-                    if (!folderSelected.isDirectory()) {
-                        PromptUI.customPromptError("Not a directory!", "", "Please select a directory.");
-                    } else {
-                        m_model.setM_rightFolderSelected(folderSelected);
-                        m_model.notifyRightFolderObservers();
-                    }
+        openInRightPane.setOnAction(event -> {
+            if (m_selectedItem != null) {
+                File folderSelected = m_selectedItem.getFile();
+                if (!folderSelected.isDirectory()) {
+                    PromptUI.customPromptError("Not a directory!", "", "Please select a directory.");
+                } else {
+                    m_model.setM_rightFolderSelected(folderSelected);
+                    m_model.notifyRightFolderObservers();
                 }
             }
         });
@@ -210,74 +198,59 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         }
 
         MenuItem addToPlaylist = new MenuItem(ContextMenuConstants.ADD_TO_PLAYLIST);
-        addToPlaylist.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (m_selectedItem != null) {
-                    Song selectedSong = (Song) m_selectedItem;
-                    List<Playlist> playlists = m_model.getM_playlists();
-                    if (playlists.isEmpty()) {
-                        PromptUI.customPromptError("Error", null, "No playlist exist!");
-                        return;
-                    }
-                    Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSong);
-                    if (selectedPlaylist != null) {
-                        m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
-                        m_musicPlayerManager.notifyQueingObserver();
-                    }
+        addToPlaylist.setOnAction(event -> {
+            if (m_selectedItem != null) {
+                Song selectedSong = (Song) m_selectedItem;
+                List<Playlist> playlists = m_model.getM_playlists();
+                if (playlists.isEmpty()) {
+                    PromptUI.customPromptError("Error", null, "No playlist exist!");
+                    return;
+                }
+                Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSong);
+                if (selectedPlaylist != null) {
+                    m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
+                    m_musicPlayerManager.notifyQueingObserver();
                 }
             }
         });
         menuItems.add(addToPlaylist);
 
         MenuItem addToCurrentPlaylist = new MenuItem(ContextMenuConstants.ADD_TO_CURRENT_PLAYLIST);
-        addToCurrentPlaylist.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                Song selectedSong = (Song) m_selectedItem;
-                if (selectedSong != null) {
-                    Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                    if (selectedPlaylist == null) {
-                        PromptUI.customPromptError("Error", null, "Please select a playlist!");
-                        return;
-                    }
-                    m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
-                    m_musicPlayerManager.notifyQueingObserver();
+        addToCurrentPlaylist.setOnAction(event -> {
+            Song selectedSong = (Song) m_selectedItem;
+            if (selectedSong != null) {
+                Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+                if (selectedPlaylist == null) {
+                    PromptUI.customPromptError("Error", null, "Please select a playlist!");
+                    return;
                 }
+                m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
+                m_musicPlayerManager.notifyQueingObserver();
             }
         });
         menuItems.add(addToCurrentPlaylist);
 
         MenuItem playSong = new MenuItem(ContextMenuConstants.MENU_ITEM_PLAY_SONG);
-        playSong.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (m_selectedItem != null) {
-                    Song song = (Song) m_selectedItem;
-                    m_musicPlayerManager.playSongRightNow(song);
-                }
+        playSong.setOnAction(event -> {
+            if (m_selectedItem != null) {
+                Song song = (Song) m_selectedItem;
+                m_musicPlayerManager.playSongRightNow(song);
             }
         });
 
         MenuItem placeSongAtStartOfQueue = new MenuItem(ContextMenuConstants.MENU_ITEM_PLAY_SONG_NEXT);
-        placeSongAtStartOfQueue.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (m_selectedItem != null) {
-                    Song song = (Song) m_selectedItem;
-                    m_musicPlayerManager.placeSongAtStartOfQueue(song);
-                }
+        placeSongAtStartOfQueue.setOnAction(event -> {
+            if (m_selectedItem != null) {
+                Song song = (Song) m_selectedItem;
+                m_musicPlayerManager.placeSongAtStartOfQueue(song);
             }
         });
 
         MenuItem placeSongOnBackOfQueue = new MenuItem(ContextMenuConstants.MENU_ITEM_PLACE_SONG_ON_QUEUE);
-        placeSongOnBackOfQueue.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (m_selectedItem != null) {
-                    Song song = (Song) m_selectedItem;
-                    m_musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
-                }
+        placeSongOnBackOfQueue.setOnAction(event -> {
+            if (m_selectedItem != null) {
+                Song song = (Song) m_selectedItem;
+                m_musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
             }
         });
 
@@ -285,32 +258,29 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         menuItems.add(placeSongAtStartOfQueue);
         menuItems.add(placeSongOnBackOfQueue);
 
-        m_contextMenu.setOnShown(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent event) {
-                // Disable paste if nothing is chosen to be copied
-                if (m_model.getM_itemToCopy() == null) {
-                    paste.setDisable(true);
-                    paste.setStyle("-fx-text-fill: gray;");
-                } else {
-                    paste.setDisable(false);
-                    paste.setStyle("-fx-text-fill: black;");
-                }
+        m_contextMenu.setOnShown(event -> {
+            // Disable paste if nothing is chosen to be copied
+            if (m_model.getM_itemToCopy() == null) {
+                paste.setDisable(true);
+                paste.setStyle("-fx-text-fill: gray;");
+            } else {
+                paste.setDisable(false);
+                paste.setStyle("-fx-text-fill: black;");
+            }
 
-                // Do not show remove library option if selected item is not a library
-                if (m_selectedItem == null || !m_selectedItem.isRootPath()) {
-                    removeLibrary.setDisable(true);
-                    removeLibrary.setVisible(false);
-                }
+            // Do not show remove library option if selected item is not a library
+            if (m_selectedItem == null || !m_selectedItem.isRootPath()) {
+                removeLibrary.setDisable(true);
+                removeLibrary.setVisible(false);
+            }
 
-                // Do not show song options if this is not a song
-                if ( !(m_selectedItem instanceof Song) ) {
-                    disableMenuItem(playSong);
-                    disableMenuItem(placeSongAtStartOfQueue);
-                    disableMenuItem(placeSongOnBackOfQueue);
-                    disableMenuItem(addToPlaylist);
-                    disableMenuItem(addToCurrentPlaylist);
-                }
+            // Do not show song options if this is not a song
+            if ( !(m_selectedItem instanceof Song) ) {
+                disableMenuItem(playSong);
+                disableMenuItem(placeSongAtStartOfQueue);
+                disableMenuItem(placeSongOnBackOfQueue);
+                disableMenuItem(addToPlaylist);
+                disableMenuItem(addToCurrentPlaylist);
             }
         });
 
@@ -336,113 +306,68 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
      * Set mouse events on this CustomTreeCell
      */
     private void setDragEvents() {
-        setOnDragDetected(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if (m_selectedItem != null) {
-                    System.out.println("Drag detected on " + m_selectedItem);
+        setOnDragDetected(mouseEvent -> {
+            if (m_selectedItem != null) {
+                System.out.println("Drag detected on " + m_selectedItem);
 
-                    //File selectedFile = m_selectedItem.getFile();
+                //update model
+                m_model.setM_itemToMove(m_selectedItem);
 
-                    //update model
-                    m_model.setM_itemToMove(m_selectedItem);
+                //update drag board
+                Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
+                dragBoard.setDragView(snapshot(null, null));
+                ClipboardContent content = new ClipboardContent();
+                content.put(DataFormat.PLAIN_TEXT, m_selectedItem.getFile().getAbsolutePath());
+                dragBoard.setContent(content);
 
-                    /*if (selectedFile instanceof Song) {
-                        Song songToAddInPlaylist = (Song) selectedFile;
-                        m_model.setM_songToAddToPlaylist(songToAddInPlaylist);
-                    }*/
+                mouseEvent.consume();
+            }
+        });
 
-                    //update drag board
-                    Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
-                    dragBoard.setDragView(snapshot(null, null));
-                    ClipboardContent content = new ClipboardContent();
-                    content.put(DataFormat.PLAIN_TEXT, m_selectedItem.getFile().getAbsolutePath());
-                    dragBoard.setContent(content);
-
-                    mouseEvent.consume();
+        setOnDragOver(dragEvent -> {
+            System.out.println("Drag over on " + m_selectedItem);
+            if (dragEvent.getDragboard().hasString()) {
+                String draggedItemPath = dragEvent.getDragboard().getString();
+                String destination = m_selectedItem.getFile().getAbsolutePath();
+                if (!draggedItemPath.equals(destination)) {
+                    dragEvent.acceptTransferModes(TransferMode.MOVE);
                 }
             }
+            dragEvent.consume();
         });
 
-        setOnDragOver(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                System.out.println("Drag over on " + m_selectedItem);
-                if (dragEvent.getDragboard().hasString()) {
-                    String draggedItemPath = dragEvent.getDragboard().getString();
-                    String destination = m_selectedItem.getFile().getAbsolutePath();
-                    if (!draggedItemPath.equals(destination)) {
-                        dragEvent.acceptTransferModes(TransferMode.MOVE);
-                    }
-                }
-                dragEvent.consume();
-            }
-        });
+        setOnDragDropped(dragEvent -> {
+            System.out.println("Drag dropped on " + m_selectedItem);
 
-        setOnDragDropped(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                System.out.println("Drag dropped on " + m_selectedItem);
-
-                //fetch item to be moved and destination
-                /*String draggedItemPath = dragEvent.getDragboard().getString();
-                TreeItem<Item> nodeToMove = searchTreeItem(draggedItemPath);
-                TreeItem<Item> targetNode = searchTreeItem(m_selectedItem.getFile().getAbsolutePath());*/
-
-                //move the item in UI (this have no effect because the file tree will be refreshed)
-                /*nodeToMove.getParent().getChildren().remove(nodeToMove);
-                targetNode.getChildren().add(nodeToMove);
-                targetNode.setExpanded(true);*/
-
-                try {
-                    //move in the file system
-                    File fileToMove = m_model.getFileToMove();
-                    File destination;
-                    if (!m_selectedItem.getFile().isDirectory()) {
-                        destination = m_selectedItem.getFile().getParentFile();
-                    } else {
-                        destination = m_selectedItem.getFile();
-                    }
-
-                    m_model.moveFile(fileToMove, destination);
-                } catch (FileAlreadyExistsException ex) {
-                    PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
-                } catch (AccessDeniedException ex) {
-                    PromptUI.customPromptError("Error", null, "AccessDeniedException: \n" + ex.getMessage());
-                    ex.printStackTrace();
-                } catch (IOException ex) {
-                    PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
-                    ex.printStackTrace();
+            try {
+                //move in the file system
+                File fileToMove = m_model.getFileToMove();
+                File destination;
+                if (!m_selectedItem.getFile().isDirectory()) {
+                    destination = m_selectedItem.getFile().getParentFile();
+                } else {
+                    destination = m_selectedItem.getFile();
                 }
 
-                dragEvent.consume();
+                m_model.moveFile(fileToMove, destination);
+            } catch (FileAlreadyExistsException ex) {
+                PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
+            } catch (AccessDeniedException ex) {
+                PromptUI.customPromptError("Error", null, "AccessDeniedException: \n" + ex.getMessage());
+                ex.printStackTrace();
+            } catch (IOException ex) {
+                PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
+                ex.printStackTrace();
             }
+
+            dragEvent.consume();
         });
 
-        setOnDragDone(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                System.out.println("Drag done");
-                m_model.setM_itemToMove(null);
-                dragEvent.consume();
-            }
+        setOnDragDone(dragEvent -> {
+            System.out.println("Drag done");
+            m_model.setM_itemToMove(null);
+            dragEvent.consume();
         });
-
-        /*setOnDragEntered(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                System.out.println("Drag entered on " + m_selectedItem);
-                dragEvent.consume();
-            }
-        });
-
-        setOnDragExited(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                System.out.println("Drag exited on " + m_selectedItem);
-                dragEvent.consume();
-            }
-        });*/
     }
 
     @Override
@@ -454,5 +379,4 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         createContextMenu();
         setContextMenu(m_contextMenu);
     }
-
 }

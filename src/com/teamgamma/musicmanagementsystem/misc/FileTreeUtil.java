@@ -267,17 +267,10 @@ public class FileTreeUtil {
 
         System.out.println("NEW FILE NAME: " + renamedFile);
 
-        //Item renamedItem = new Item(renamedFile, model.isLibrary(renamedFile));
-
-        //TreeItem<Item> renamedNode = generateTreeItems(renamedFile, renamedFile.getParent(), model.getM_menuOptions().getM_leftPanelShowFolder());
         TreeItem<Item> parentNode = nodeToRename.getParent();
 
         System.out.println("^^^^ RENAMING NODE: " + nodeToRename);
         System.out.println("^^^^ PARENT NODE: " + parentNode);
-        //System.out.println("^^^^ NEW NODE: " + renamedNode);
-
-        /*parentNode.getChildren().remove(nodeToRename);
-        parentNode.getChildren().add(renamedNode);*/
 
         recursivelyRenameNodes(nodeToRename, renamedFile.getAbsolutePath(), model);
     }

@@ -143,7 +143,7 @@ public class SongManager {
      * @param file
      * @return
      */
-    public boolean isLibrary(File file) {
+    /*public boolean isLibrary(File file) {
         String filePath = file.getAbsolutePath();
         for (Library library: m_libraries) {
             String libraryPath = library.getRootDirPath();
@@ -152,7 +152,7 @@ public class SongManager {
             }
         }
         return false;
-    }
+    }*/
 
     /**
      * Copy files in buffer to destination
@@ -393,9 +393,9 @@ public class SongManager {
         notifyFileObservers(action, file);
     }
 
-    public void fileDeleted(File fileToDelete) {
+    /*public void fileDeleted(File fileToDelete) {
 
-    }
+    }*/
 
 
     /**********

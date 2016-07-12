@@ -238,10 +238,8 @@ public class ContentListUI extends StackPane {
 
                 }
             });
-
-            row.setOnMouseEntered(event -> row.setStyle("-fx-background-color: #BFDCF5;"));
-
-            row.setOnMouseExited(event -> row.setStyle(null));
+            
+            UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
 
             row.setOnDragDetected(mouseEvent -> {
                 Song selectedItem = row.getItem();

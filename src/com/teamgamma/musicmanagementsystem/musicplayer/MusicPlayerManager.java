@@ -303,7 +303,7 @@ public class MusicPlayerManager {
      * @return The current playback time.
      */
     public Duration getCurrentPlayTime() {
-        if (m_currentSong == null ) {
+        if (m_currentSong == null) {
             return new Duration(0);
         }
         return  m_musicPlayer.getCurrentPlayTime();
