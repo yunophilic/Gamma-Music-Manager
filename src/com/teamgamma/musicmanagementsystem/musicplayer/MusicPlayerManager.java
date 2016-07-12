@@ -74,8 +74,7 @@ public class MusicPlayerManager {
      */
     public void playNextSong() {
         System.out.println("Play next song");
-
-        if (isThereNextSongOnHistory()) {
+        if (isThereNextSongOnHistory() && isPlayingSongOnFromHistoryList()) {
             m_historyIndex++;
             m_currentSong = m_songHistory.get(m_historyIndex);
             m_musicPlayer.playSong(m_currentSong);
@@ -109,6 +108,7 @@ public class MusicPlayerManager {
      * @param songToPlay
      */
     public void playSongRightNow(Song songToPlay) {
+        stopSong();
         m_currentSong = songToPlay;
         m_musicPlayer.playSong(songToPlay);
         updateHistory();
@@ -164,11 +164,6 @@ public class MusicPlayerManager {
      * @param playlistToPlay The playlist that we want to play.
      */
     public void playPlaylist(Playlist playlistToPlay) {
-        //prevent double song playing
-        if(isSomethingPlaying()) {
-            stopSong();
-        }
-
         if (playlistToPlay.getM_songList().isEmpty()){
             m_lastException = new Exception("Cannot play playlist " + playlistToPlay.getM_playlistName() +
                     " because there is no songs in there");
@@ -337,18 +332,22 @@ public class MusicPlayerManager {
      */
     public void playPreviousSong() {
         assert (m_songHistory.size() < m_historyIndex);
-        if (!m_songHistory.isEmpty()) {
-            m_isPlayingOnHistory = true;
-            if (m_historyIndex != 0 && (m_currentSong != null)) {
-                m_historyIndex--;
-            }
-            m_currentSong = m_songHistory.get(m_historyIndex);
+        if (getCurrentPlayTime().greaterThan(new Duration(MusicPlayerConstants.FIVE_SECONDS_IN_MILLISECONDS))) {
             m_musicPlayer.playSong(m_currentSong);
         } else {
-            // Set to inital state of the player
-            m_currentSong = null;
-            notifyNewSongObservers();
-            notifyPlaybackObservers();
+            if (!m_songHistory.isEmpty()) {
+                m_isPlayingOnHistory = true;
+                if (m_historyIndex != 0 && (m_currentSong != null)) {
+                    m_historyIndex--;
+                }
+                m_currentSong = m_songHistory.get(m_historyIndex);
+                m_musicPlayer.playSong(m_currentSong);
+            } else {
+                // Set to inital state of the player
+                m_currentSong = null;
+                notifyNewSongObservers();
+                notifyPlaybackObservers();
+            }
         }
     }
 
