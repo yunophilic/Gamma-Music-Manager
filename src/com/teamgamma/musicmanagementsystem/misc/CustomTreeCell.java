@@ -7,6 +7,7 @@ import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
+import com.teamgamma.musicmanagementsystem.ui.UserInterfaceUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventDispatcher;
 import javafx.event.EventHandler;
@@ -111,41 +112,7 @@ public class CustomTreeCell extends TextFieldTreeCell<TreeViewItem> {
             public void handle(ActionEvent e) {
                 if (m_selectedTreeViewItem != null) {
                     File fileToDelete = m_selectedTreeViewItem.getM_file();
-                    //confirmation dialog
-                    if (fileToDelete.isDirectory()) {
-                        if (!PromptUI.recycleLibrary(fileToDelete)) {
-                            return;
-                        }
-                    } else {
-                        if (!PromptUI.recycleSong(fileToDelete)) {
-                            return;
-                        }
-                    }
-                    //try to actually delete (retry if FileSystemException happens)
-                    for (int i = 0; i < 2; i++) {
-                        try {
-                            m_model.deleteFile(fileToDelete);
-                            break;
-                        } catch (IOException ex) {
-                            m_musicPlayerManager.stopSong();
-                            m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
-
-                            if (m_musicPlayerManager.isThereANextSong()) {
-                                m_musicPlayerManager.playNextSong();
-                            } else if (!m_musicPlayerManager.getHistory().isEmpty()) {
-                                m_musicPlayerManager.playPreviousSong();
-                            }
-
-                            if (i == 1) { //if this exception still thrown after retry (for debugging)
-                                ex.printStackTrace();
-                            }
-                        } catch (Exception ex) {
-                            PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
-                            ex.printStackTrace();
-                            break;
-                        }
-                    }
-                    m_databaseManager.removeLibrary(fileToDelete.getAbsolutePath());
+                    UserInterfaceUtils.deleteSong(fileToDelete, m_model, m_musicPlayerManager);
                 }
             }
         });
