@@ -143,7 +143,7 @@ public class Song implements Item {
     }
 
     @Override
-    public void renameFile(String newPath) {
+    public void changeFile(String newPath) {
         m_file = new File(newPath);
     }
 

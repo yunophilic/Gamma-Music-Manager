@@ -8,7 +8,7 @@ import java.io.File;
 public interface Item {
     File getFile();
 
-    void renameFile(String newPath);
+    void changeFile(String newPath);
 
     boolean isRootPath();
 

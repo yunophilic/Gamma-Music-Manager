@@ -2,13 +2,13 @@ package com.teamgamma.musicmanagementsystem.misc;
 
 import com.teamgamma.musicmanagementsystem.model.*;
 
+import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,12 +105,7 @@ public class FileTreeUtil {
     }
 
     private static File[] getFiles(File file) {
-        return file.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                return f.isDirectory() || FileManager.isAccept(f);
-            }
-        });
+        return file.listFiles(f -> f.isDirectory() || FileManager.isAccept(f));
     }
 
     /**
@@ -217,44 +212,59 @@ public class FileTreeUtil {
             case ADD: {
                 // Add new if it does not already exist (For watcher)
                 TreeItem<Item> searchedItem = searchTreeItem(tree, changedFile.getAbsolutePath());
-
                 if (searchedItem == null) {
                     addNewNode(tree, changedFile.getName(), changedFile.getParent());
                 }
                 break;
             }
+
             case DRAG: {
                 // Nothing to do for now...
                 break;
             }
+
             case DROP: {
                 // Add new node to destination file node
-                addNewNode(tree, model.getFileToMove().getName(), model.getM_moveDest().getAbsolutePath());
+                /*addNewNode(tree, model.getFileToMove().getName(), model.getM_moveDest().getAbsolutePath());
 
                 // Remove node from old folder it was in
                 String deletedFilePath = model.getFileToMove().getAbsolutePath();
                 TreeItem<Item> removedFile = searchTreeItem(tree, deletedFilePath);
 
-                removedFile.getParent().getChildren().remove(removedFile);
+                removedFile.getParent().getChildren().remove(removedFile);*/
+
+                TreeItem<Item> nodeToMove = searchTreeItem(tree, model.getFileToMove().getAbsolutePath());
+
+                System.out.println("...NODE TO MOVE: " + nodeToMove.getValue());
+
+                TreeItem<Item> destParentNode = searchTreeItem(tree, model.getM_moveDest().getAbsolutePath());
+
+                System.out.println("...DESTINATION PARENT: " + destParentNode.getValue());
+
+                moveNode(nodeToMove, destParentNode);
+
                 break;
             }
+
             case DELETE: {
                 String deletedFilePath = changedFile.getAbsolutePath();
-                TreeItem<Item> removedFile = searchTreeItem(tree, deletedFilePath);
-
-                if (removedFile != null) {
-                    removedFile.getParent().getChildren().remove(removedFile);
+                TreeItem<Item> removedNode = searchTreeItem(tree, deletedFilePath);
+                if (removedNode != null) {
+                    deleteNode(removedNode);
                 }
                 break;
             }
+
             case PASTE: {
                 addNewNode(tree, model.getFileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
                 break;
             }
+
             case RENAME: {
                 renameNode(changedFile, tree, model);
                 break;
             }
+
             default: {
                 throw new IOException("Invalid file action!");
             }
@@ -272,12 +282,12 @@ public class FileTreeUtil {
         System.out.println("^^^^ RENAMING NODE: " + nodeToRename);
         System.out.println("^^^^ PARENT NODE: " + parentNode);
 
-        recursivelyRenameNodes(nodeToRename, renamedFile.getAbsolutePath(), model);
+        recursivelyRenameNodes(nodeToRename, renamedFile.getAbsolutePath());
     }
 
-    private static void recursivelyRenameNodes(TreeItem<Item> node, String path, SongManager model) {
+    private static void recursivelyRenameNodes(TreeItem<Item> node, String path) {
         Item item = node.getValue();
-        item.renameFile(path);
+        item.changeFile(path);
 
         System.out.println("^^^^ CHANGED ITEM: " + item);
 
@@ -288,7 +298,7 @@ public class FileTreeUtil {
         if (children != null) {
             for (TreeItem<Item> child : children) {
                 String newPath = path + File.separator + child.getValue().getFile().getName();
-                recursivelyRenameNodes(child, newPath, model);
+                recursivelyRenameNodes(child, newPath);
             }
         }
     }
@@ -306,7 +316,39 @@ public class FileTreeUtil {
         }
     }
 
-    public static boolean isLibraryNodeInList(List<Library> libraries, Item libraryNode) {
+    private static void moveNode(TreeItem<Item> nodeToMove, TreeItem<Item> destParentNode) {
+        String fileName = nodeToMove.getValue().getFile().getName();
+        String destPath = destParentNode.getValue().getFile().getAbsolutePath();
+        String newPath = destPath + File.separator + fileName;
+
+        destParentNode.getChildren().add(moveNodesRecursively(nodeToMove, newPath));
+        deleteNode(nodeToMove);
+    }
+
+    private static TreeItem<Item> moveNodesRecursively(TreeItem<Item> nodeToMove, String path) {
+        Item item = nodeToMove.getValue();
+        item.changeFile(path);
+
+        TreeItem<Item> newNode = new TreeItem<>();
+        newNode.setValue(item);
+        newNode.setGraphic(nodeToMove.getGraphic());
+
+        List<TreeItem<Item>> children = nodeToMove.getChildren();
+        if (children != null) {
+            for (TreeItem<Item> child : children) {
+                String newPath = path + File.separator + child.getValue().getFile().getName();
+                newNode.getChildren().add(moveNodesRecursively(child, newPath));
+            }
+        }
+
+        return newNode;
+    }
+
+    private static void deleteNode(TreeItem<Item> nodeToDelete) {
+        nodeToDelete.getParent().getChildren().remove(nodeToDelete);
+    }
+
+    /*public static boolean isLibraryNodeInList(List<Library> libraries, Item libraryNode) {
         for (Library library : libraries) {
             String libraryNodePath = libraryNode.getFile().getAbsolutePath();
             if (libraryNodePath.equals(library.getRootDirPath())) {
@@ -321,7 +363,7 @@ public class FileTreeUtil {
         TreeItem<Item> root = tree.getRoot();
 
         root.getChildren().remove(libraryNode);
-    }
+    }*/
 
     /**
      * Function to get a song that was selected if possible.
