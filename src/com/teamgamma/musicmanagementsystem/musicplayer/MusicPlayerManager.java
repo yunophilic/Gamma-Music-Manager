@@ -40,7 +40,7 @@ public class MusicPlayerManager {
 
     private Exception m_lastException;
 
-    private double m_volumeLevel = 1.0;
+    private double m_volumeLevel = MusicPlayerConstants.MAX_VOLUME;
 
     private boolean m_isPlayingOnHistory = false;
 
@@ -150,10 +150,9 @@ public class MusicPlayerManager {
      * @param songToPlace The song to place in the queue
      */
     public void placeSongAtStartOfQueue(Song songToPlace) {
-        boolean isNoSongPlaying = isNoSongPlayingOrNext();
         m_playingQueue.addFirst(songToPlace);
         m_databaseManager.addToPlaybackQueueHead(songToPlace.getM_file().getAbsolutePath());
-        if (isNoSongPlaying){
+        if (isNoSongPlayingOrNext()){
             playNextSong();
         }
         notifyQueingObserver();
@@ -260,6 +259,7 @@ public class MusicPlayerManager {
         }
         m_songHistory.add(m_currentSong);
         m_databaseManager.addToHistory(m_currentSong.getM_file().getAbsolutePath());
+
         // On insertion of new song in history set the last played index to be the latest song in history list.
         m_historyIndex = m_songHistory.size() - 1;
         m_isPlayingOnHistory = false;
