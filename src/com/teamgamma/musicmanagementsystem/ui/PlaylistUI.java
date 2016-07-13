@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
+import com.teamgamma.musicmanagementsystem.misc.*;
+import com.teamgamma.musicmanagementsystem.misc.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -33,7 +34,6 @@ public class PlaylistUI extends VBox {
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private ContextMenu m_contextMenu;
-    private ContextMenu m_playbackContextMenu;
     private TableView<Song> m_table;
     private ComboBox<Playlist> m_dropDownMenu;
 
@@ -78,7 +78,6 @@ public class PlaylistUI extends VBox {
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         m_contextMenu = new ContextMenu();
-        m_playbackContextMenu = new ContextMenu();
         m_dropDownMenu = new ComboBox<>();
         initTopMenu(createSelectPlaylistLabel(),
                     createDropDownMenu(),
@@ -102,6 +101,7 @@ public class PlaylistUI extends VBox {
         m_model.addPlaylistObserver(() -> {
             m_dropDownMenu.getItems().clear();
             m_dropDownMenu.getItems().addAll(m_model.getM_playlists());
+            clearTable();
             updateTable();
         });
 
@@ -538,13 +538,12 @@ public class PlaylistUI extends VBox {
                 int selectedSongIndex = row.getIndex();
                 if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
                     Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                    selectedPlaylist.setM_currentSongIndex(selectedSongIndex);
-                    m_musicPlayerManager.playPlaylist(selectedPlaylist);
+                    if(selectedPlaylist.isValid(selectedSongIndex)) {
+                        selectedPlaylist.setM_currentSongIndex(selectedSongIndex);
+                        m_musicPlayerManager.playPlaylist(selectedPlaylist);
+                    }
                 } else if (event.getButton() == MouseButton.PRIMARY) {
                     m_contextMenu.hide();
-                    if (m_playbackContextMenu != null) {
-                        m_playbackContextMenu.hide();
-                    }
                 } else if (event.getButton() == MouseButton.SECONDARY) {
                     m_contextMenu.hide();
                     m_contextMenu = generateContextMenu(selectedSongIndex);
@@ -572,33 +571,10 @@ public class PlaylistUI extends VBox {
     }
 
     private ContextMenu generateContextMenu(int selectedSongIndex) {
-        ContextMenu contextMenu = new ContextMenu();
-
-        //remove from playlist option
-        MenuItem removeFromPlaylist = new MenuItem(ContextMenuConstants.REMOVE_FROM_PLAYLIST);
-        removeFromPlaylist.setOnAction(event -> {
-            Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-            if (PromptUI.removeSongFromPlaylist(selectedPlaylist,
-                                                selectedPlaylist.getSongByIndex(selectedSongIndex))) {
-                boolean songToRemoveIsPlaying = (selectedSongIndex == selectedPlaylist.getM_currentSongIndex());
-
-                selectedPlaylist.removeSong(selectedSongIndex);
-                m_model.notifyPlaylistSongsObservers();
-
-                if (!selectedPlaylist.isEmpty() && songToRemoveIsPlaying) {
-                    m_musicPlayerManager.playPlaylist(selectedPlaylist);
-                }
-
-                if (selectedPlaylist.isEmpty()) {
-                    m_musicPlayerManager.stopSong();
-                    m_musicPlayerManager.resetCurrentPlaylist();
-                }
-            }
-        });
-
-        contextMenu.getItems().add(removeFromPlaylist);
-
-        return contextMenu;
+        return ContextMenuBuilder.buildPlaylistContextMenu(m_model,
+                                                           m_musicPlayerManager,
+                                                           m_databaseManager,
+                                                           selectedSongIndex);
     }
 
     private void setCssStyle() {

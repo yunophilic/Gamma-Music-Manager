@@ -26,7 +26,7 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
     private boolean m_isLeftPane;
 
     // Static private member for making the control click menu be just a single instance.
-    private static ContextMenu m_playbackContextMenuInstance;
+    //private static ContextMenu m_playbackContextMenuInstance;
 
     public TreeMouseEventDispatcher(EventDispatcher originalDispatcher,
                                     SongManager model,
@@ -79,7 +79,7 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                 }
 
                 event.consume();
-            } else if (mouseEvent.isControlDown() && mouseEvent.isPrimaryButtonDown()) {
+            } /*else if (mouseEvent.isControlDown() && mouseEvent.isPrimaryButtonDown()) {
                 if (!event.isConsumed()) {
                     if (m_selectedItem instanceof Song) {
                         Song songSelected = (Song) m_selectedItem;
@@ -91,7 +91,7 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                     }
                 }
                 event.consume();
-            }
+            }*/
         }
         return m_originalDispatcher.dispatchEvent(event, tail);
     }

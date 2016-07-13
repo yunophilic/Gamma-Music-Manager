@@ -1,35 +1,23 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.misc.Actions;
-import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
+import com.teamgamma.musicmanagementsystem.misc.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
-import javafx.scene.control.*;
+import javafx.util.converter.IntegerStringConverter;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.List;
-
-import javafx.scene.control.MenuItem;
-
-
-import javafx.event.EventHandler;
-import javafx.stage.WindowEvent;
-import javafx.util.Callback;
-import javafx.util.converter.IntegerStringConverter;
 
 /**
  * UI class for list of songs in center of application
@@ -39,7 +27,7 @@ public class ContentListUI extends StackPane {
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private ContextMenu m_contextMenu;
-    private ContextMenu m_playbackContextMenu;
+    //private ContextMenu m_playbackContextMenu;
     private TableView<Song> m_table;
 
     //constants
@@ -202,21 +190,20 @@ public class ContentListUI extends StackPane {
                     m_musicPlayerManager.playSongRightNow(selectedSong);
                 } else if (event.getButton() == MouseButton.PRIMARY) {
                     m_contextMenu.hide();
-                    if (m_playbackContextMenu != null) {
+                    /*if (m_playbackContextMenu != null) {
                         m_playbackContextMenu.hide();
-                    }
+                    }*/
                 } else if (event.getButton() == MouseButton.SECONDARY) {
                     m_contextMenu.hide();
                     m_contextMenu = generateContextMenu(row.getItem());
                     m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
                 }
-                System.out.println("Selected song is " + selectedSong);
+                /*System.out.println("Selected song is " + selectedSong);
                 if (selectedSong != null && event.isControlDown() && event.getButton() == MouseButton.PRIMARY) {
                     System.out.println("The condition for the playback Conext menu is true");
                     m_playbackContextMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, selectedSong);
                     m_playbackContextMenu.show(m_table, event.getScreenX(), event.getScreenY());
-
-                }
+                }*/
             });
             
             UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
@@ -277,146 +264,7 @@ public class ContentListUI extends StackPane {
     }
 
     private ContextMenu generateContextMenu(Song selectedSong) {
-        ContextMenu contextMenu = new ContextMenu();
-
-        //copy option
-        MenuItem copy = new MenuItem(ContextMenuConstants.COPY);
-        copy.setOnAction(event -> {
-            if (selectedSong != null) {
-                m_model.setM_itemToCopy(selectedSong);
-            }
-        });
-
-        //paste option
-        MenuItem paste = new MenuItem(ContextMenuConstants.PASTE);
-        paste.setOnAction(event -> {
-            File dest = m_model.getM_selectedCenterFolder();
-            if (!dest.isDirectory()) {
-                PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
-                return;
-            }
-            try {
-                m_model.copyToDestination(dest);
-                m_model.notifyFileObservers(Actions.PASTE, null);
-            } catch (FileAlreadyExistsException ex) {
-                PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
-            } catch (IOException ex) {
-                PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
-            } catch (Exception ex) {
-                PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
-            }
-        });
-
-        //delete option
-        MenuItem delete = new MenuItem(ContextMenuConstants.DELETE);
-        delete.setOnAction(event -> {
-            if (selectedSong != null) {
-                File fileToDelete = selectedSong.getFile();
-                //confirmation dialog
-                if (fileToDelete.isDirectory()) {
-                    if (!PromptUI.recycleLibrary(fileToDelete)) {
-                        return;
-                    }
-                } else {
-                    if (!PromptUI.recycleSong(fileToDelete)) {
-                        return;
-                    }
-                }
-                //try to actually delete (retry if FileSystemException happens)
-                for (int i = 0; i < 2; i++) {
-                    try {
-                        m_model.deleteFile(fileToDelete);
-                        break;
-                    } catch (IOException ex) {
-                        m_musicPlayerManager.stopSong();
-                        m_musicPlayerManager.removeSongFromHistory(m_musicPlayerManager.getCurrentSongPlaying());
-
-                        if (m_musicPlayerManager.isThereANextSong()) {
-                            m_musicPlayerManager.playNextSong();
-                        } else if (!m_musicPlayerManager.getHistory().isEmpty()) {
-                            m_musicPlayerManager.playPreviousSong();
-                        }
-
-                        if (i == 1) { //if this exception still thrown after retry (for debugging)
-                            ex.printStackTrace();
-                        }
-                    } catch (Exception ex) {
-                        PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
-                        ex.printStackTrace();
-                        break;
-                    }
-                }
-            }
-        });
-
-        //edit properties option
-        MenuItem editProperties = new MenuItem(ContextMenuConstants.EDIT_PROPERTIES);
-        editProperties.setOnAction(event -> {
-            PromptUI.editMetadata(selectedSong);
-            m_model.notifyCenterFolderObservers();
-        });
-
-        //add to playlist option
-        MenuItem addToPlaylist = new MenuItem(ContextMenuConstants.ADD_TO_PLAYLIST);
-        addToPlaylist.setOnAction(event -> {
-            List<Playlist> playlists = m_model.getM_playlists();
-            if (playlists.isEmpty()) {
-                PromptUI.customPromptError("Error", null, "No playlist exist!");
-                return;
-            }
-            Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSong);
-            if (selectedPlaylist != null) {
-                m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
-                m_musicPlayerManager.notifyQueingObserver();
-            }
-        });
-
-        //add to current playlist option
-        MenuItem addToCurrentPlaylist = new MenuItem(ContextMenuConstants.ADD_TO_CURRENT_PLAYLIST);
-        addToCurrentPlaylist.setOnAction(event -> {
-            Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-            if (selectedPlaylist == null) {
-                PromptUI.customPromptError("Error", null, "Please select a playlist!");
-                return;
-            }
-            m_model.addSongToPlaylist(selectedSong, selectedPlaylist);
-            m_musicPlayerManager.notifyQueingObserver();
-        });
-
-        // Add file operation menu items
-        contextMenu.getItems().addAll(copy, paste, delete);
-
-        // Add playlist and playback menu items only if song is selected
-        if (selectedSong != null) {
-            contextMenu.getItems().addAll(editProperties, addToPlaylist, addToCurrentPlaylist);
-            ContextMenu playlistMenu = MusicPlayerHistoryUI.createSubmenu(m_musicPlayerManager, selectedSong);
-            contextMenu.getItems().addAll(playlistMenu.getItems());
-        }
-
-        contextMenu.setOnShown(event -> {
-            // Disable paste if nothing is chosen to be copied
-            if (m_model.getM_itemToCopy() == null) {
-                paste.setDisable(true);
-                paste.setStyle("-fx-text-fill: gray;");
-            } else {
-                paste.setDisable(false);
-                paste.setStyle("-fx-text-fill: black;");
-            }
-
-            // Disable copy, delete, editProperties, addSongToPlaylist if no song is selected in table
-            if (selectedSong == null) {
-                copy.setDisable(true);
-                copy.setStyle("-fx-text-fill: gray;");
-                delete.setDisable(true);
-                delete.setStyle("-fx-text-fill: gray;");
-                /*editProperties.setDisable(true);
-                editProperties.setStyle("-fx-text-fill: gray;");
-                addToPlaylist.setDisable(true);
-                addToPlaylist.setStyle("-fx-text-fill: gray;");*/
-            }
-        });
-
-        return contextMenu;
+        return ContextMenuBuilder.buildCenterPanelContextMenu(m_model, m_musicPlayerManager, m_databaseManager, selectedSong);
     }
 
     private void setCssStyle() {
