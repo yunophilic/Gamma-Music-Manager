@@ -148,6 +148,31 @@ public class FileTreeUtil {
     }
 
     /**
+     * Search for the TreeItem<Item> from the sub-tree rooted at the specified node based on the given item
+     *
+     * @param node the specified node
+     * @param item the specified item
+     * @return TreeItem<Item> or null if not found
+     */
+    public static TreeItem<Item> searchTreeItem(TreeItem<Item> node, Item item) {
+        //base case
+        if (node.getValue().equals(item)) {
+            //System.out.println("Returning node: " + node);
+            return node;
+        }
+
+        //recursive case
+        for (TreeItem<Item> child : node.getChildren()) {
+            TreeItem<Item> target = searchTreeItem(child, item);
+            if (target != null) {
+                return target;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Set all tree item icons to closed folder icon or a song icon
      *
      * @param treeItem

@@ -11,9 +11,6 @@ import java.util.List;
  * Class to maintain a library in a system.
  */
 public class Library {
-    /*private List<Song> m_songList;
-    private File m_rootDir;*/
-
     private TreeItem<Item> m_treeRoot;
 
     /**
@@ -22,8 +19,6 @@ public class Library {
      * @param folderPath: root path to folder
      */
     public Library(String folderPath) {
-        /*m_songList = FileManager.generateSongs(folderPath);*/
-
         File rootDir = new File(folderPath);
         m_treeRoot = FileTreeUtil.generateTreeItems(rootDir, rootDir.getAbsolutePath(), null);
     }
@@ -40,112 +35,14 @@ public class Library {
     }
 
     /**
-     * Add Song object to Library
+     * Get node containing item in this Library
      *
-     * @param songToAdd: Song object to add
-     * @return true on successful add
+     * @param item: Song object to retrieve
+     * @return Node if found, null if not found
      */
-    /*public boolean addSong(Song songToAdd) {
-        try {
-            return m_songList.add(songToAdd);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }*/
-
-    /**
-     * Remove song from Library and System
-     *
-     * @param songToRemove: Song object to remove
-     * @return true on successful remove
-     */
-    /*public boolean removeSong(Song songToRemove) {
-        try {
-            if (FileManager.removeFile(songToRemove)) {
-                m_songList.remove(songToRemove);
-                return true;
-            }
-        } catch (NoSuchFileException x) {
-            System.err.format("%s: no such" + " file or directory%n", songToRemove.getAbsolutePath());
-        } catch (DirectoryNotEmptyException x) {
-            System.err.format("%s not empty%n", songToRemove.getAbsolutePath());
-        } catch (IOException x) {
-            // File permission problems are caught here.
-            System.err.println(x);
-        } catch (Exception e) {
-            // if any other error occurs
-            e.printStackTrace();
-        }
-        return false;
-    }*/
-
-    /**
-     * Copy source Song object to destination path
-     *
-     * @param songToCopy: Song object to copy
-     * @param pathToDest: Directory to copy to
-     * @return true on successful copy
-     */
-    /*public boolean copySong(Song songToCopy, String pathToDest) {
-        try {
-            return FileManager.copyFile(songToCopy.getFile(), new File(pathToDest));
-        } catch (InvalidPathException x) {
-            System.err.format("Invalid path %s", pathToDest);
-        } catch (IOException x) {
-            System.err.println(x);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }*/
-
-    /**
-     * Get Song object in List
-     *
-     * @param songName: String of Song object name
-     * @return Song object if found in Library.
-     * Returns null if not found
-     */
-    /*public Song getSong(String songName) {
-        for (Song song : m_songList) {
-            if (song.getFileName().equals(songName)) {
-                return song;
-            }
-        }
-        return null;
-    }*/
-
-    /**
-     * Get Song object in List
-     *
-     * @param file: File object of the song to retrieve
-     * @return Song object if found in Library.
-     * Returns null if not found
-     */
-    /*public Song getSong(File file) {
-        for (Song song : m_songList) {
-            if (song.equals(file)) {
-                return song;
-            }
-        }
-        return null;
-    }*/
-
-    /**
-     * Get Song object in List
-     *
-     * @param song: Song object to retrieve
-     * @return Song object if found in Library.
-     * Returns null if not found
-     */
-    /*public Song getSong(Song song) {
-        if (m_songList.contains(song)) {
-            int index = m_songList.indexOf(song);
-            return m_songList.get(index);
-        }
-        return null;
-    }*/
+    public TreeItem<Item> getNode(Item item) {
+        return FileTreeUtil.searchTreeItem(m_treeRoot, item);
+    }
 
     /**
      * Get List of Song objects in Library
@@ -156,6 +53,11 @@ public class Library {
         return getSongs(m_treeRoot);
     }
 
+    /**
+     * Recursively fetch all songs under this node
+     *
+     * @return List of Song objects in Library
+     */
     private List<Song> getSongs(TreeItem<Item> node) {
         List<Song> songs = new ArrayList<>();
         if(node.getValue() instanceof Song) {
@@ -188,11 +90,14 @@ public class Library {
         return m_treeRoot.getValue().getFile();
     }
 
+    /**
+     * Getter for m_treeRoot
+     */
     public TreeItem<Item> getM_treeRoot() {
         return m_treeRoot;
     }
 
-    public Song getSong(File fileToMove) {
+    /*public Song getSong(File fileToMove) {
         return getSong(m_treeRoot, fileToMove);
     }
 
@@ -208,5 +113,5 @@ public class Library {
         }
 
         return song;
-    }
+    }*/
 }

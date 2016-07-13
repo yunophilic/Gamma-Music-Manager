@@ -137,39 +137,12 @@ public class SongManager {
     }
 
     /**
-     * Get Song object in a library
-     * @param songFile File object representing the song
-     * @param libraryRootDir File object representing the root dir of the the library
-     * @return list of songs
-     */
-    /*public Song getSongInLibrary(File songFile, File libraryRootDir) {
-        Library library = getLibrary(libraryRootDir);
-        return (library != null) ? library.getSong(songFile) : null;
-    }*/
-
-    /**
      * Get libraries
      * @return list of libraries
      */
     public List<Library> getM_libraries() {
         return m_libraries;
     }
-
-    /**
-     * Check if given file is a library
-     * @param file
-     * @return
-     */
-    /*public boolean isLibrary(File file) {
-        String filePath = file.getAbsolutePath();
-        for (Library library: m_libraries) {
-            String libraryPath = library.getRootDirPath();
-            if (libraryPath.equals(filePath)) {
-                return true;
-            }
-        }
-        return false;
-    }*/
 
     /**
      * Copy files in buffer to destination
@@ -386,7 +359,6 @@ public class SongManager {
         return null;
     }
 
-
     /**
      * Rename a file and notify file observers
      * @param fileToRename
@@ -409,10 +381,6 @@ public class SongManager {
         //updateLibraries();
         notifyFileObservers(action, file);
     }
-
-    /*public void fileDeleted(File fileToDelete) {
-
-    }*/
 
 
     /**********
