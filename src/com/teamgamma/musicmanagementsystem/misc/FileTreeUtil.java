@@ -235,6 +235,11 @@ public class FileTreeUtil {
 
                 TreeItem<Item> nodeToMove = searchTreeItem(tree, model.getFileToMove().getAbsolutePath());
 
+                // Create new node if it does not exists in current tree
+                if (nodeToMove == null) {
+                    nodeToMove = generateTreeItems(model.getFileToMove(), model.getFileToMove().getAbsolutePath(), null);
+                }
+
                 System.out.println("...NODE TO MOVE: " + nodeToMove.getValue());
 
                 TreeItem<Item> destParentNode = searchTreeItem(tree, model.getM_moveDest().getAbsolutePath());
