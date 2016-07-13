@@ -160,36 +160,8 @@ public class Watcher {
     }
 
     private void registerAsObserver() {
-        m_model.addSongManagerObserver(new SongManagerObserver() {
-            @Override
-            public void librariesChanged() {
-                restartWatcher();
-            }
-
-            @Override
-            public void centerFolderChanged() {
-                // Do nothing
-            }
-
-            @Override
-            public void rightFolderChanged() {
-                // Do nothing
-            }
-
-            @Override
-            public void songChanged() {
-                // Do nothing
-            }
-
-            @Override
-            public void fileChanged(Actions action, File file) {
-                restartWatcher();
-            }
-
-            @Override
-            public void leftPanelOptionsChanged() {
-                // Do nothing
-            }
+        m_model.addFileObserver((action, file) -> {
+            restartWatcher();
         });
     }
 

@@ -14,8 +14,15 @@ import java.util.List;
  * Class to manage libraries and playlists
  */
 public class SongManager {
-    private List<SongManagerObserver> m_songManagerObservers;
+    private List<SongManagerObserver> m_libraryObservers;
+    private List<SongManagerObserver> m_centerFolderObservers;
+    private List<SongManagerObserver> m_rightFolderObservers;
+    private List<SongManagerObserver> m_fileObservers;
+    private List<SongManagerObserver> m_leftPanelOptionsObservers;
+
+
     private List<PlaylistObserver> m_playlistObservers;
+
     private List<Library> m_libraries;
     private List<Playlist> m_playlists;
 
@@ -42,7 +49,11 @@ public class SongManager {
     private Actions m_rightPanelFileAction;
 
     public SongManager() {
-        m_songManagerObservers = new ArrayList<>();
+        m_libraryObservers = new ArrayList<>();
+        m_centerFolderObservers = new ArrayList<>();
+        m_rightFolderObservers = new ArrayList<>();
+        m_fileObservers = new ArrayList<>();
+        m_leftPanelOptionsObservers = new ArrayList<>();
         m_playlistObservers = new ArrayList<>();
         m_libraries = new ArrayList<>();
         m_playlists = new ArrayList<>();
@@ -503,45 +514,58 @@ public class SongManager {
      * Functions for observer pattern
      *************/
 
-    public void addSongManagerObserver(SongManagerObserver observer) {
-        m_songManagerObservers.add(observer);
+    public void addLibraryObserver(SongManagerObserver observer){
+        m_libraryObservers.add(observer);
+    }
+
+    public void addCenterFolderObserver(SongManagerObserver observer){
+        m_centerFolderObservers.add(observer);
+    }
+
+    public void addRightFolderObserver(SongManagerObserver observer){
+        m_rightFolderObservers.add(observer);
+    }
+
+    public void addFileObserver(SongManagerObserver observer){
+        m_fileObservers.add(observer);
+    }
+
+    public void addleftPanelOptionsObserver(SongManagerObserver observer){
+        m_leftPanelOptionsObservers.add(observer);
     }
 
     public void addPlaylistObserver(PlaylistObserver observer) {
         m_playlistObservers.add(observer);
     }
 
+
     public void notifyLibraryObservers() {
-        for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.librariesChanged();
+        for (SongManagerObserver observer : m_libraryObservers) {
+            observer.changed(Actions.NONE, null);
         }
     }
 
     public void notifyCenterFolderObservers() {
-        for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.centerFolderChanged();
+        for (SongManagerObserver observer : m_centerFolderObservers) {
+            observer.changed(Actions.NONE, null);
         }
     }
 
     public void notifyRightFolderObservers() {
-        for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.rightFolderChanged();
+        for (SongManagerObserver observer : m_rightFolderObservers) {
+            observer.changed(Actions.NONE, null);
         }
     }
 
-    /*public void notifySongObservers() {
-
-    }*/
-
     public void notifyFileObservers(Actions action, File file) {
-        for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.fileChanged(action, file);
+        for (SongManagerObserver observer : m_fileObservers) {
+            observer.changed(action, file);
         }
     }
 
     public void notifyLeftPanelObservers() {
-        for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.leftPanelOptionsChanged();
+        for (SongManagerObserver observer : m_leftPanelOptionsObservers) {
+            observer.changed(Actions.NONE, null);
         }
     }
 

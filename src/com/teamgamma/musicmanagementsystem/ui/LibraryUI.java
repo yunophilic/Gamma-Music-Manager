@@ -71,46 +71,24 @@ public class LibraryUI extends StackPane {
     }
 
     private void registerAsLibraryObserver() {
-        m_model.addSongManagerObserver(new SongManagerObserver() {
-            @Override
-            public void librariesChanged() {
-                System.out.println("Library changed in treeview");
-                //clearTreeView();
-                //updateTreeView();
+        m_model.addLibraryObserver((action, file) -> {
+            System.out.println("Library changed in treeview");
+            //clearTreeView();
+            //updateTreeView();
 
-                updateLibraryTrees(m_model.getM_libraryAction());
-            }
+            LibraryUI.this.updateLibraryTrees(m_model.getM_libraryAction());
+        });
+        m_model.addFileObserver((action, file) -> {
+            System.out.println("File changed in treeview");
+            //clearTreeView();
+            //updateTreeView();
 
-            @Override
-            public void centerFolderChanged() {
-
-            }
-
-            @Override
-            public void rightFolderChanged() {
-
-            }
-
-            @Override
-            public void songChanged() {
-
-            }
-
-            @Override
-            public void fileChanged(Actions action, File file) {
-                System.out.println("File changed in treeview");
-                //clearTreeView();
-                //updateTreeView();
-
-                updateFiles(action, file);
-            }
-
-            @Override
-            public void leftPanelOptionsChanged() {
-                System.out.println("Left panel options in treeview");
-                clearTreeView();
-                updateTreeView();
-            }
+            updateFiles(action, file);
+        });
+        m_model.addleftPanelOptionsObserver((action, file) -> {
+            System.out.println("Left panel options in treeview");
+            clearTreeView();
+            updateTreeView();
         });
     }
 

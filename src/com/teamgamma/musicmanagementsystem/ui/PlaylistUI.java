@@ -121,38 +121,14 @@ public class PlaylistUI extends VBox {
             }
         });
 
-        m_model.addSongManagerObserver(new SongManagerObserver() {
-            @Override
-            public void librariesChanged() {
-                clearTable();
-                updateTable();
-            }
+        m_model.addLibraryObserver((action, file) -> {
+            clearTable();
+            updateTable();
+        });
 
-            @Override
-            public void centerFolderChanged() {
-                /* Do nothing */
-            }
-
-            @Override
-            public void rightFolderChanged() {
-                /* Do nothing */
-            }
-
-            @Override
-            public void songChanged() {
-                /* Do nothing */
-            }
-
-            @Override
-            public void fileChanged(Actions action, File file) {
-                clearTable();
-                updateTable();
-            }
-
-            @Override
-            public void leftPanelOptionsChanged() {
-                /* Do nothing */
-            }
+        m_model.addFileObserver((action, file) -> {
+            clearTable();
+            updateTable();
         });
     }
 

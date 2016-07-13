@@ -63,39 +63,19 @@ public class ContentListUI extends StackPane {
      * Register as a observer to changes for the folder selected to be displayed here
      */
     private void registerAsCenterFolderObserver() {
-        m_model.addSongManagerObserver(new SongManagerObserver() {
-            @Override
-            public void librariesChanged() {
-                clearTable();
-                updateTable();
-            }
+        m_model.addLibraryObserver((action, file) -> {
+            clearTable();
+            updateTable();
+        });
 
-            @Override
-            public void centerFolderChanged() {
-                clearTable();
-                updateTable();
-            }
+        m_model.addCenterFolderObserver((action, file) -> {
+            clearTable();
+            updateTable();
+        });
 
-            @Override
-            public void rightFolderChanged() {
-                /* Do nothing */
-            }
-
-            @Override
-            public void songChanged() {
-                /* Do nothing */
-            }
-
-            @Override
-            public void fileChanged(Actions action, File file) {
-                clearTable();
-                updateTable();
-            }
-
-            @Override
-            public void leftPanelOptionsChanged() {
-                /* Do nothing */
-            }
+        m_model.addFileObserver((action, file) -> {
+            clearTable();
+            updateTable();
         });
     }
 

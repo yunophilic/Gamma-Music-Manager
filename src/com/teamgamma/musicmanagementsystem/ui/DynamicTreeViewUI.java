@@ -56,40 +56,18 @@ public class DynamicTreeViewUI extends StackPane {
 
 
     private void registerAsObserver() {
-        m_model.addSongManagerObserver(new SongManagerObserver() {
-            @Override
-            public void librariesChanged() {
-                clearTreeView();
-                updateTreeView(null);
-            }
-
-            @Override
-            public void centerFolderChanged() {
-
-            }
-
-            @Override
-            public void rightFolderChanged() {
-                System.out.println("File changed in treeview");
-                clearTreeView();
-                updateTreeView(null);
-            }
-
-            @Override
-            public void songChanged() {
-
-            }
-
-            @Override
-            public void fileChanged(Actions action, File file) {
-                System.out.println("File changed in treeview");
-                updateFiles(action, file);
-            }
-
-            @Override
-            public void leftPanelOptionsChanged() {
-                /* Do nothing */
-            }
+        m_model.addLibraryObserver((action, file) -> {
+            clearTreeView();
+            updateTreeView(null);
+        });
+        m_model.addRightFolderObserver((action, file) -> {
+            System.out.println("Right folder changed in treeview");
+            clearTreeView();
+            updateTreeView(null);
+        });
+        m_model.addFileObserver((action, file) -> {
+            System.out.println("File changed in treeview");
+            updateFiles(action, file);
         });
     }
 
