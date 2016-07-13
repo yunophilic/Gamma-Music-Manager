@@ -424,7 +424,7 @@ public class MusicPlayerUI extends VBox {
                         if (manager.isSomethingPlaying() || !manager.isSomethingPlaying()) {
                             final Song currentSongPlaying = manager.getCurrentSongPlaying();
                             if (currentSongPlaying != null) {
-                                manageRatingBar(currentSongPlaying);
+                                manageRatingBar(manager, currentSongPlaying);
                             }
                         }
                     }
@@ -454,7 +454,7 @@ public class MusicPlayerUI extends VBox {
      *
      * @param currentSongPlaying Current song playing in the player
      */
-    private void manageRatingBar(Song currentSongPlaying) {
+    private void manageRatingBar(MusicPlayerManager manager, Song currentSongPlaying) {
         final int currentSongRating = currentSongPlaying.getM_rating();
         for (int i = 0; i < m_ratingIcons.size(); i++) {
             int rating = i + 1;
@@ -492,11 +492,7 @@ public class MusicPlayerUI extends VBox {
             starIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
-                    currentSongPlaying.setRating(rating);
-                    m_model.notifyCenterFolderObservers();
-
-                    // Temporary
-                    manageRatingBar(currentSongPlaying);
+                    manager.setRating(rating);
                 }
             });
         }
