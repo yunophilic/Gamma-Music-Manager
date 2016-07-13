@@ -1,6 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.misc.Actions;
+import com.teamgamma.musicmanagementsystem.util.Actions;
 import com.teamgamma.musicmanagementsystem.model.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

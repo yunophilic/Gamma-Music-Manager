@@ -1,4 +1,4 @@
-package com.teamgamma.musicmanagementsystem.misc;
+package com.teamgamma.musicmanagementsystem.util;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Item;

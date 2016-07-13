@@ -1,6 +1,6 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.misc.Actions;
+import com.teamgamma.musicmanagementsystem.util.Actions;
 
 import java.io.File;
 import java.io.IOException;

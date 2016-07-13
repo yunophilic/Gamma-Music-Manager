@@ -1,7 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.misc.*;
-import com.teamgamma.musicmanagementsystem.misc.FileTreeUtil;
+import com.teamgamma.musicmanagementsystem.util.*;
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtil;
 import com.teamgamma.musicmanagementsystem.model.*;
 
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;

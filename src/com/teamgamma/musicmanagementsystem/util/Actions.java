@@ -1,4 +1,4 @@
-package com.teamgamma.musicmanagementsystem.misc;
+package com.teamgamma.musicmanagementsystem.util;
 
 /**
  * Constants for song/library actions

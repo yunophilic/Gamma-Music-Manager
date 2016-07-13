@@ -1,6 +1,6 @@
 package com.teamgamma.musicmanagementsystem.watchservice;
 
-import com.teamgamma.musicmanagementsystem.misc.Actions;
+import com.teamgamma.musicmanagementsystem.util.Actions;
 import com.teamgamma.musicmanagementsystem.model.*;
 import javafx.application.Platform;
 
