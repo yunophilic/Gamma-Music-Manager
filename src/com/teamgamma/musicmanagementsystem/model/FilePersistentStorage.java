@@ -89,11 +89,17 @@ public class FilePersistentStorage {
      * Save the config file settings.
      */
     public void saveConfigFile(File rightPanelFile, File centerPanelFile, MenuOptions menuOptions) {
+        System.out.println("RIGHT FOLDER: " + rightPanelFile);
+        System.out.println("CENTER FOLDER: " + centerPanelFile);
         if(rightPanelFile != null) {
             saveRightPanelFolder(rightPanelFile.getAbsolutePath());
+        } else {
+            saveRightPanelFolder("");
         }
         if(centerPanelFile != null) {
             saveCenterPanelFolder(centerPanelFile.getAbsolutePath());
+        } else {
+            saveCenterPanelFolder("");
         }
         saveCenterPanelOption(menuOptions.getM_centerPanelShowSubfolderFiles());
         saveLeftPanelOption(menuOptions.getM_leftPanelShowFolder());

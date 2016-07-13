@@ -1,6 +1,8 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -9,6 +11,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Class to hold some helper function for building UIs.
@@ -80,6 +83,54 @@ public class UserInterfaceUtils {
         }
         timeString += leftOverSeconds;
         return timeString;
+    }
+
+    /**
+     * Delete a song that has been selected by the user.
+     *
+     * @param selectedSong song selected
+     */
+    public static void deleteSong(File selectedSong, SongManager model, MusicPlayerManager musicPlayerManager) {
+        //confirmation dialog
+        if (selectedSong.isDirectory()) {
+            if (!PromptUI.recycleLibrary(selectedSong)) {
+                return;
+            }
+        } else {
+            if (!PromptUI.recycleSong(selectedSong)) {
+                return;
+            }
+        }
+        //try to actually delete (retry if FileSystemException happens)
+        final int NUM_TRIES = 2;
+        for (int i = 0; i < NUM_TRIES; i++) {
+            try {
+                model.deleteFile(selectedSong);
+                break;
+            } catch (IOException ex) {
+                musicPlayerManager.stopSong();
+                musicPlayerManager.removeSongFromHistory(musicPlayerManager.getCurrentSongPlaying());
+
+                if (musicPlayerManager.isThereANextSong()) {
+                    musicPlayerManager.playNextSong();
+                } else if (!musicPlayerManager.getHistory().isEmpty()) {
+                    musicPlayerManager.playPreviousSong();
+                } else {
+                    musicPlayerManager.unloadSong();
+                }
+
+                if (i == 1) { //if this exception still thrown after retry (for debugging)
+                    ex.printStackTrace();
+                }
+            } catch (Exception ex) {
+                PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
+                ex.printStackTrace();
+                break;
+            }
+        }
+        musicPlayerManager.notifyNewSongObservers();
+        musicPlayerManager.notifyQueingObserver();
+        musicPlayerManager.notifyChangeStateObservers();
     }
 
 

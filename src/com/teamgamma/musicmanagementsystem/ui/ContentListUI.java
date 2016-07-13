@@ -36,6 +36,13 @@ public class ContentListUI extends StackPane {
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
     //private String style = "";
 
+    /**
+     * Constructor
+     *
+     * @param model
+     * @param musicPlayerManager
+     * @param databaseManager
+     */
     public ContentListUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
         m_model = model;
@@ -67,6 +74,9 @@ public class ContentListUI extends StackPane {
         });
     }
 
+    /**
+     * Intitial table view
+     */
     private void initTableView() {
         m_table = new TableView<>();
         setTableColumns();
@@ -75,6 +85,9 @@ public class ContentListUI extends StackPane {
         updateTable();
     }
 
+    /**
+     * Set the various table column labels
+     */
     private void setTableColumns() {
         TableColumn<Song, String> filePathCol = new TableColumn<>("File Path");
         filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
@@ -94,11 +107,17 @@ public class ContentListUI extends StackPane {
         showOrHideTableColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
     }
 
+    /**
+     * Clear the song explorer table
+     */
     private void clearTable() {
         System.out.println("Clearing song explorer table...");
         m_table.getItems().clear();
     }
 
+    /**
+     * Update the song explorer table
+     */
     private void updateTable() {
         System.out.println("Updating song explorer table...");
         if (m_model.getM_selectedCenterFolder() != null) {
@@ -112,7 +131,17 @@ public class ContentListUI extends StackPane {
             m_table.setPlaceholder(new Label("Choose a folder to view its contents"));
         }
     }
-
+    /**
+     * Allows user to show or hide different columns
+     *
+     * @param filePathCol full path of the song file
+     * @param fileNameCol name of the song file
+     * @param titleCol title of the song
+     * @param artistCol artist of the song
+     * @param albumCol album of the song
+     * @param genreCol genre of the song
+     * @param ratingCol rating of the song
+     */
     private void showOrHideTableColumns(TableColumn<Song, String> filePathCol,
                                         TableColumn<Song, String> fileNameCol,
                                         TableColumn<Song, String> titleCol,
@@ -133,6 +162,17 @@ public class ContentListUI extends StackPane {
         ratingCol.setVisible(false);
     }
 
+    /**
+     * Create various columns for the table
+     *
+     * @param filePathCol full path of the song file
+     * @param fileNameCol name of the song file
+     * @param titleCol title of the song
+     * @param artistCol artist of the song
+     * @param albumCol album of the song
+     * @param genreCol genre of the song
+     * @param ratingCol rating of the song
+     */
     private void setTableColumnAttributes(TableColumn<Song, String> filePathCol,
                                           TableColumn<Song, String> fileNameCol,
                                           TableColumn<Song, String> titleCol,
@@ -181,6 +221,9 @@ public class ContentListUI extends StackPane {
         m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
+    /**
+     * Apply all of the different mouse actions on a selected song
+     */
     private void setTableRowMouseEvents() {
         m_table.setRowFactory(param -> {
             TableRow<Song> row = new TableRow<>();
@@ -205,7 +248,7 @@ public class ContentListUI extends StackPane {
                     m_playbackContextMenu.show(m_table, event.getScreenX(), event.getScreenY());
                 }*/
             });
-            
+
             UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
 
             row.setOnDragDetected(mouseEvent -> {
@@ -263,6 +306,12 @@ public class ContentListUI extends StackPane {
         });
     }
 
+    /**
+     * Generate all the different options when a song is right clicked
+     *
+     * @param selectedSong song selected
+     * @return context menu generated
+     */
     private ContextMenu generateContextMenu(Song selectedSong) {
         return ContextMenuBuilder.buildCenterPanelContextMenu(m_model, m_musicPlayerManager, m_databaseManager, selectedSong);
     }
