@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
@@ -64,15 +65,21 @@ public class MusicPlayerUI extends VBox {
 
     public static final String DEFAULT_TIME_STRING = "0:00";
     private SongManager m_model;
+    private DatabaseManager m_databaseManager;
+
     /**
      * Constructor
      *
      * @param manager The MusicPlayerManager to setup the actions for the UI panel.
      * @param config  The FilePersistentStorage to save the states for the UI panel.
      */
-    public MusicPlayerUI(MusicPlayerManager manager, FilePersistentStorage config, SongManager model) {
+    public MusicPlayerUI(SongManager model,
+                         MusicPlayerManager manager,
+                         DatabaseManager databaseManager,
+                         FilePersistentStorage config) {
         super();
         m_model = model;
+        m_databaseManager = databaseManager;
         VBox topWrapper = new VBox();
         topWrapper.setSpacing(0);
         topWrapper.getChildren().add(makeSongTitleHeader(manager));
@@ -436,7 +443,7 @@ public class MusicPlayerUI extends VBox {
                                 @Override
                                 public void handle(MouseEvent event) {
                                     if (currentSongPlaying != null) {
-                                        UserInterfaceUtils.deleteSong(currentSongPlaying.getFile(), m_model, manager);
+                                        UserInterfaceUtils.deleteFileAction(m_model, manager, m_databaseManager, currentSongPlaying.getFile());
                                     }
                                 }
                             });
@@ -445,6 +452,7 @@ public class MusicPlayerUI extends VBox {
                 });
             }
         });
+
         return deleteSongIcon;
     }
 

@@ -4,6 +4,7 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
+import com.teamgamma.musicmanagementsystem.ui.UserInterfaceUtils;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -356,44 +357,7 @@ public class ContextMenuBuilder {
         delete.setOnAction(event -> {
             if (selectedItem != null) {
                 File fileToDelete = selectedItem.getFile();
-
-                //confirmation dialog
-                if (fileToDelete.isDirectory()) {
-                    if (!PromptUI.recycleLibrary(fileToDelete)) {
-                        return;
-                    }
-                } else {
-                    if (!PromptUI.recycleSong(fileToDelete)) {
-                        return;
-                    }
-                }
-
-                //try to actually delete (retry if FileSystemException happens)
-                for (int i = 0; i < 2; i++) {
-                    try {
-                        model.deleteFile(fileToDelete);
-                        break;
-                    } catch (IOException ex) {
-                        musicPlayerManager.stopSong();
-                        musicPlayerManager.removeSongFromHistory(musicPlayerManager.getCurrentSongPlaying());
-
-                        if (musicPlayerManager.isThereANextSong()) {
-                            musicPlayerManager.playNextSong();
-                        } else if (!musicPlayerManager.getHistory().isEmpty()) {
-                            musicPlayerManager.playPreviousSong();
-                        }
-
-                        if (i == 1) { //if this exception still thrown after retry (for debugging)
-                            ex.printStackTrace();
-                        }
-                    } catch (Exception ex) {
-                        PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
-                        ex.printStackTrace();
-                        break;
-                    }
-                }
-
-                databaseManager.removeLibrary(fileToDelete.getAbsolutePath());
+                UserInterfaceUtils.deleteFileAction(model,musicPlayerManager, databaseManager, fileToDelete);
             }
         });
 
