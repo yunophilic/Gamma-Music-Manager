@@ -436,7 +436,7 @@ public class MusicPlayerUI extends VBox {
                                 @Override
                                 public void handle(MouseEvent event) {
                                     if (currentSongPlaying != null) {
-                                        UserInterfaceUtils.deleteSong(currentSongPlaying.getM_file(), m_model, manager);
+                                        UserInterfaceUtils.deleteSong(currentSongPlaying.getFile(), m_model, manager);
                                     }
                                 }
                             });

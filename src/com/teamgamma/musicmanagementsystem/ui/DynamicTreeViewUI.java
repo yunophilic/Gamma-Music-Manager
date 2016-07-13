@@ -40,7 +40,7 @@ public class DynamicTreeViewUI extends StackPane {
         if (m_model.getM_rightFolderSelected() == null) {
             this.getChildren().add(new Label("Choose a folder to view"));
         } else {
-            m_tree = createTrees(dynamicTreeViewExpandedPaths);
+            m_tree = createTrees(m_model.getM_libraries(), dynamicTreeViewExpandedPaths);
             this.getChildren().add(m_tree);
             setTreeCellFactory();
         }
