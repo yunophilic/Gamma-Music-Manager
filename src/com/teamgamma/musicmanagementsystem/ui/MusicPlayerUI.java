@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.model.Song;
@@ -67,12 +68,14 @@ public class MusicPlayerUI extends VBox {
     public static final String PAUSE_SONG_TOOL_TIP_MESSAGE = "Pause Song";
     public static final String RESUME_SONG_TOOL_TIP_MESSAGE = "Resume Song";
     public static final String DELETE_SONG_TOOL_TIP_MESSAGE = "Delete Song";
+    public static final String RATING_SONG_POOR_STAR_TOOL_TIP_MESSAGE = "1 Star";
+    public static final String RATING_SONG_HIGH_STAR_TOOL_TIP_MESSAGE = " Stars";
     public static final String DEFAULT_PLAY_BUTTON_TOOL_TIP_MESSAGE = "Pick a Song To Play!";
 
     public static final String DEFAULT_TIME_STRING = "0:00";
 
     private SongManager m_model;
-    private List<Button> m_updateRatingsMouseOver;
+    private List<Button> m_ratingIcons;
 
     /**
      * Constructor
@@ -369,7 +372,13 @@ public class MusicPlayerUI extends VBox {
         Button ratingIcon3 = createStarButton(manager);
         Button ratingIcon4 = createStarButton(manager);
         Button ratingIcon5 = createStarButton(manager);
-        activateRatingBar(manager, ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5);
+        m_ratingIcons = new ArrayList<>();
+        m_ratingIcons.add(ratingIcon1);
+        m_ratingIcons.add(ratingIcon2);
+        m_ratingIcons.add(ratingIcon3);
+        m_ratingIcons.add(ratingIcon4);
+        m_ratingIcons.add(ratingIcon5);
+        activateRatingBar(manager);
 
         otherControlBox.getChildren().addAll(volumeDownIcon, volumeControlSlider, volumeUpIcon, deleteSongIcon,
                 ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5);
@@ -403,15 +412,9 @@ public class MusicPlayerUI extends VBox {
     /**
      * Function to create the ratings bar in the player.
      *
-     * @param manager     The music manager to use register the observer.
-     * @param ratingIcon1 First star
-     * @param ratingIcon2 Second star
-     * @param ratingIcon3 Third star
-     * @param ratingIcon4 Fourth star
-     * @param ratingIcon5 Fifth star
+     * @param manager The music manager to use register the observer.
      */
-    private void activateRatingBar(MusicPlayerManager manager, Button ratingIcon1, Button ratingIcon2, Button ratingIcon3,
-                                   Button ratingIcon4, Button ratingIcon5) {
+    private void activateRatingBar(MusicPlayerManager manager) {
         manager.registerChangeStateObservers(new MusicPlayerObserver() {
             @Override
             public void updateUI() {
@@ -421,7 +424,7 @@ public class MusicPlayerUI extends VBox {
                         if (manager.isSomethingPlaying() || !manager.isSomethingPlaying()) {
                             final Song currentSongPlaying = manager.getCurrentSongPlaying();
                             if (currentSongPlaying != null) {
-                                manageRatingBar(currentSongPlaying, ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5);
+                                manageRatingBar(currentSongPlaying);
                             }
                         }
                     }
@@ -450,75 +453,67 @@ public class MusicPlayerUI extends VBox {
      * Helper function to set star rating icons and manage mouse events
      *
      * @param currentSongPlaying Current song playing in the player
-     * @param ratingIcon1        First star
-     * @param ratingIcon1        Second star
-     * @param ratingIcon1        Third star
-     * @param ratingIcon1        Fourth star
-     * @param ratingIcon1        Fifth star
      */
-    private void manageRatingBar(Song currentSongPlaying, Button ratingIcon1, Button ratingIcon2, Button ratingIcon3,
-                                 Button ratingIcon4, Button ratingIcon5) {
-        List<Button> ratings = new ArrayList<>();
-        ratings.add(ratingIcon1);
-        ratings.add(ratingIcon2);
-        ratings.add(ratingIcon3);
-        ratings.add(ratingIcon4);
-        ratings.add(ratingIcon5);
-        m_updateRatingsMouseOver = ratings;
+    private void manageRatingBar(Song currentSongPlaying) {
         final int currentSongRating = currentSongPlaying.getM_rating();
-        for (int i = 0; i < currentSongRating; i++) {
-            final Button button = ratings.get(i);
-            button.setOpacity(NOT_FADED);
-            button.setGraphic(UserInterfaceUtils.createImageViewForImage(RATED_STAR_ICON_PATH));
-        }
-        for (int i = currentSongRating; i < ratings.size(); i++) {
-            final Button button = ratings.get(i);
-            button.setOpacity(NOT_FADED);
-            button.setGraphic(UserInterfaceUtils.createImageViewForImage(UNRATED_STAR_ICON_PATH));
-        }
-        for (int i = 0; i < ratings.size(); i++) {
+        for (int i = 0; i < m_ratingIcons.size(); i++) {
             int rating = i + 1;
             int index = i;
-            Button button = ratings.get(i);
+            final Button starIcon = m_ratingIcons.get(i);
+            starIcon.setOpacity(NOT_FADED);
+            initializeRating(currentSongRating, i, starIcon);
+            Button button = starIcon;
             Node defaultGraphic = button.getGraphic();
-            ratings.get(i).setOnMouseEntered(new EventHandler<MouseEvent>() {
+            starIcon.setOnMouseEntered(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
-                    String tooltipMessage = "No Rating";
-                    if (rating == 1) {
-                        tooltipMessage = "1 Star";
-                    } else if (1 < rating) {
-                        tooltipMessage = rating + " Stars";
+                    String tooltipMessage = RATING_SONG_POOR_STAR_TOOL_TIP_MESSAGE;
+                    if (1 < rating) {
+                        tooltipMessage = rating + RATING_SONG_HIGH_STAR_TOOL_TIP_MESSAGE;
                     }
                     button.setTooltip(new Tooltip(tooltipMessage));
                     button.setGraphic(UserInterfaceUtils.createImageViewForImage(MOUSE_OVER_STAR_ICON_PATH));
                     for (int i = 0; i < rating - 1; i++) {
-                        final Button beforeMouseEnter = m_updateRatingsMouseOver.get(i);
+                        final Button beforeMouseEnter = m_ratingIcons.get(i);
                         beforeMouseEnter.setGraphic(UserInterfaceUtils.createImageViewForImage(MOUSE_OVER_STAR_ICON_PATH));
                     }
                 }
             });
-            ratings.get(i).setOnMouseExited(new EventHandler<MouseEvent>() {
+            starIcon.setOnMouseExited(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
                     button.setGraphic(defaultGraphic);
                     for (int i = 0; i < index; i++) {
-                        final Button beforeMouseExit = m_updateRatingsMouseOver.get(i);
-                        if (i < currentSongRating) {
-                            beforeMouseExit.setGraphic(UserInterfaceUtils.createImageViewForImage(RATED_STAR_ICON_PATH));
-                        } else {
-                            beforeMouseExit.setGraphic(UserInterfaceUtils.createImageViewForImage(UNRATED_STAR_ICON_PATH));
-                        }
+                        final Button beforeMouseExit = m_ratingIcons.get(i);
+                        initializeRating(currentSongRating, i, beforeMouseExit);
                     }
                 }
             });
-            ratings.get(i).setOnMouseClicked(new EventHandler<MouseEvent>() {
+            starIcon.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
                     currentSongPlaying.setRating(rating);
-                    manageRatingBar(currentSongPlaying, ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5);
+                    m_model.notifyCenterFolderObservers();
+
+                    // Temporary
+                    manageRatingBar(currentSongPlaying);
                 }
             });
+        }
+    }
+
+    /**
+     * Helper function to set star rating icon images based on song rating
+     *
+     * @param currentSongRating Current song rating
+     * @param iconIndex         Index of the star icon (in the loop)
+     * @param starIcon          Current button used in the loop
+     */
+    private void initializeRating(int currentSongRating, int iconIndex, Button starIcon) {
+        if (iconIndex < currentSongRating) {
+            starIcon.setGraphic(UserInterfaceUtils.createImageViewForImage(RATED_STAR_ICON_PATH));
+        } else {
+            starIcon.setGraphic(UserInterfaceUtils.createImageViewForImage(UNRATED_STAR_ICON_PATH));
         }
     }
 
