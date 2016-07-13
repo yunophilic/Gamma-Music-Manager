@@ -121,7 +121,7 @@ public class MenuUI extends MenuBar{
                 if (newPlaylistName != null) {
                     m_model.addAndCreatePlaylist(newPlaylistName);
                     m_databaseManager.addPlaylist(newPlaylistName);
-                    m_model.notifyPlaylistsObservers();
+                    m_model.notifyPlaylistObservers();
                 }
             }
         });
@@ -134,7 +134,7 @@ public class MenuUI extends MenuBar{
                 if (playlistToRemove != null) {
                     m_model.removePlaylist(playlistToRemove);
                     m_databaseManager.removePlaylist(playlistToRemove.getM_playlistName());
-                    m_model.notifyPlaylistsObservers();
+                    m_model.notifyPlaylistObservers();
                 }
             }
         });

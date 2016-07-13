@@ -14,14 +14,15 @@ import java.util.List;
  * Class to manage libraries and playlists
  */
 public class SongManager {
-    private List<SongManagerObserver> m_libraryObservers;
-    private List<SongManagerObserver> m_centerFolderObservers;
-    private List<SongManagerObserver> m_rightFolderObservers;
-    private List<SongManagerObserver> m_fileObservers;
-    private List<SongManagerObserver> m_leftPanelOptionsObservers;
-
-
+    private List<FileManagerObserver> m_libraryObservers;
+    private List<FileManagerObserver> m_centerFolderObservers;
+    private List<FileManagerObserver> m_rightFolderObservers;
+    private List<FileManagerObserver> m_fileObservers;
+    private List<FileManagerObserver> m_leftPanelOptionsObservers;
     private List<PlaylistObserver> m_playlistObservers;
+    private List<PlaylistObserver> m_playlistSongsObservers;
+
+    //private List<PlaylistObserver> m_playlistObservers;
 
     private List<Library> m_libraries;
     private List<Playlist> m_playlists;
@@ -54,7 +55,12 @@ public class SongManager {
         m_rightFolderObservers = new ArrayList<>();
         m_fileObservers = new ArrayList<>();
         m_leftPanelOptionsObservers = new ArrayList<>();
+
         m_playlistObservers = new ArrayList<>();
+        m_playlistSongsObservers = new ArrayList<>();
+
+        m_playlistObservers = new ArrayList<>();
+
         m_libraries = new ArrayList<>();
         m_playlists = new ArrayList<>();
 
@@ -514,23 +520,23 @@ public class SongManager {
      * Functions for observer pattern
      *************/
 
-    public void addLibraryObserver(SongManagerObserver observer){
+    public void addLibraryObserver(FileManagerObserver observer){
         m_libraryObservers.add(observer);
     }
 
-    public void addCenterFolderObserver(SongManagerObserver observer){
+    public void addCenterFolderObserver(FileManagerObserver observer){
         m_centerFolderObservers.add(observer);
     }
 
-    public void addRightFolderObserver(SongManagerObserver observer){
+    public void addRightFolderObserver(FileManagerObserver observer){
         m_rightFolderObservers.add(observer);
     }
 
-    public void addFileObserver(SongManagerObserver observer){
+    public void addFileObserver(FileManagerObserver observer){
         m_fileObservers.add(observer);
     }
 
-    public void addleftPanelOptionsObserver(SongManagerObserver observer){
+    public void addleftPanelOptionsObserver(FileManagerObserver observer){
         m_leftPanelOptionsObservers.add(observer);
     }
 
@@ -538,46 +544,50 @@ public class SongManager {
         m_playlistObservers.add(observer);
     }
 
+    public void addPlaylistSongObserver(PlaylistObserver observer) {
+        m_playlistSongsObservers.add(observer);
+    }
+
 
     public void notifyLibraryObservers() {
-        for (SongManagerObserver observer : m_libraryObservers) {
+        for (FileManagerObserver observer : m_libraryObservers) {
             observer.changed(Actions.NONE, null);
         }
     }
 
     public void notifyCenterFolderObservers() {
-        for (SongManagerObserver observer : m_centerFolderObservers) {
+        for (FileManagerObserver observer : m_centerFolderObservers) {
             observer.changed(Actions.NONE, null);
         }
     }
 
     public void notifyRightFolderObservers() {
-        for (SongManagerObserver observer : m_rightFolderObservers) {
+        for (FileManagerObserver observer : m_rightFolderObservers) {
             observer.changed(Actions.NONE, null);
         }
     }
 
     public void notifyFileObservers(Actions action, File file) {
-        for (SongManagerObserver observer : m_fileObservers) {
+        for (FileManagerObserver observer : m_fileObservers) {
             observer.changed(action, file);
         }
     }
 
     public void notifyLeftPanelObservers() {
-        for (SongManagerObserver observer : m_leftPanelOptionsObservers) {
+        for (FileManagerObserver observer : m_leftPanelOptionsObservers) {
             observer.changed(Actions.NONE, null);
         }
     }
 
     public void notifyPlaylistSongsObservers() {
-        for (PlaylistObserver observer : m_playlistObservers) {
-            observer.songsChanged();
+        for (PlaylistObserver observer : m_playlistSongsObservers) {
+            observer.changed();
         }
     }
 
-    public void notifyPlaylistsObservers() {
+    public void notifyPlaylistObservers() {
         for (PlaylistObserver observer : m_playlistObservers) {
-            observer.playlistsChanged();
+            observer.changed();
         }
     }
 

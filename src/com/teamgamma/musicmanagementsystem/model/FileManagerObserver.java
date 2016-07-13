@@ -4,9 +4,9 @@ import com.teamgamma.musicmanagementsystem.misc.Actions;
 
 import java.io.File;
 
-public interface SongManagerObserver {
+public interface FileManagerObserver {
 
-    // Update UI if file location is changed (ie. copy, paste, remove)
+    // Update UI if change is detected in the file manager
     void changed(Actions action, File file);
 
 }

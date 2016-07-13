@@ -1,19 +1,13 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.misc.Actions;
 import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
-import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -26,7 +20,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -106,19 +99,15 @@ public class PlaylistUI extends VBox {
      * Register as a observer to changes for the folder selected to be displayed here
      */
     private void registerAsPlaylistObserver() {
-        m_model.addPlaylistObserver(new PlaylistObserver() {
-            @Override
-            public void songsChanged() {
-                clearTable();
-                updateTable();
-            }
+        m_model.addPlaylistObserver(() -> {
+            m_dropDownMenu.getItems().clear();
+            m_dropDownMenu.getItems().addAll(m_model.getM_playlists());
+            updateTable();
+        });
 
-            @Override
-            public void playlistsChanged() {
-                m_dropDownMenu.getItems().clear();
-                m_dropDownMenu.getItems().addAll(m_model.getM_playlists());
-                updateTable();
-            }
+        m_model.addPlaylistSongObserver(() -> {
+            clearTable();
+            updateTable();
         });
 
         m_model.addLibraryObserver((action, file) -> {
@@ -194,7 +183,7 @@ public class PlaylistUI extends VBox {
             if (newPlaylistName != null) {
                 Playlist newPlaylist = m_model.addAndCreatePlaylist(newPlaylistName);
                 m_databaseManager.addPlaylist(newPlaylistName);
-                m_model.notifyPlaylistsObservers();
+                m_model.notifyPlaylistObservers();
                 m_dropDownMenu.getSelectionModel().select(newPlaylist);
             }
         });
@@ -232,7 +221,7 @@ public class PlaylistUI extends VBox {
             if (PromptUI.removePlaylist(selectedPlaylist)) {
                 m_model.removePlaylist(selectedPlaylist);
                 m_databaseManager.removePlaylist(selectedPlaylist.getM_playlistName());
-                m_model.notifyPlaylistsObservers();
+                m_model.notifyPlaylistObservers();
                 m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
             }
         });
@@ -272,7 +261,7 @@ public class PlaylistUI extends VBox {
             if (newPlaylistName != null) {
                 selectedPlaylist.setM_playlistName(newPlaylistName);
                 m_databaseManager.renamePlaylist(oldPlaylistName, newPlaylistName);
-                m_model.notifyPlaylistsObservers();
+                m_model.notifyPlaylistObservers();
                 m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
             }
         });
