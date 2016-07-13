@@ -13,6 +13,7 @@ import javafx.event.EventHandler;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
 
@@ -21,6 +22,9 @@ import javafx.scene.layout.*;
 
 import javafx.scene.text.Font;
 import javafx.util.Duration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class for Music Player MainUI. Acts as the controller for the media player.
@@ -49,10 +53,15 @@ public class MusicPlayerUI extends VBox {
     public static final String ADD_TO_PLAYLIST_ICON_PATH = "res/ic_playlist_add_black_48dp_1x.png";
     public static final String SONG_REPEAT_ICON_PATH = "res\\ic_repeat_one_black_48dp_1x.png";
     public static final String DELETE_SONG_ICON_PATH = "res\\delete-song-player.png";
+    public static final String DISABLED_STAR_ICON_PATH = "res\\disabled-star.png";
+    public static final String UNRATED_STAR_ICON_PATH = "res\\unrated-star.png";
+    public static final String RATED_STAR_ICON_PATH = "res\\rated-star.png";
+    public static final String MOUSE_OVER_STAR_ICON_PATH = "res\\mouseover-star.png";
 
     public static final String PREVIOUS_SONG_TOOL_TIP_DEFUALT = "No Previous Song";
     public static final String NEXT_SONG_TOOL_TIP_DEFAULT = "No Next Song";
     private static final String DELETE_SONG_TOOL_TIP_DEFAULT = "No Song to Delete";
+    private static final String RATE_SONG_TOOL_TIP_DEFAULT = "No Song to Rate";
     public static final String MAX_VOLUME_TOOL_TIP_MESSAGE = "Max Volume";
     public static final String MUTE_VOLUME_TOOL_TIP_MESSAGE = "Mute Volume";
     public static final String PAUSE_SONG_TOOL_TIP_MESSAGE = "Pause Song";
@@ -61,7 +70,10 @@ public class MusicPlayerUI extends VBox {
     public static final String DEFAULT_PLAY_BUTTON_TOOL_TIP_MESSAGE = "Pick a Song To Play!";
 
     public static final String DEFAULT_TIME_STRING = "0:00";
+
     private SongManager m_model;
+    private List<Button> m_updateRatingsMouseOver;
+
     /**
      * Constructor
      *
@@ -352,8 +364,15 @@ public class MusicPlayerUI extends VBox {
         volumeControlSlider.setMaxSize(VOLUME_MAX_WIDTH, VOLUME_MAX_HEIGHT);
 
         Button deleteSongIcon = createDeleteSongButton(manager);
+        Button ratingIcon1 = createStarButton(manager);
+        Button ratingIcon2 = createStarButton(manager);
+        Button ratingIcon3 = createStarButton(manager);
+        Button ratingIcon4 = createStarButton(manager);
+        Button ratingIcon5 = createStarButton(manager);
+        activateRatingBar(manager, ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5);
 
-        otherControlBox.getChildren().addAll(volumeDownIcon, volumeControlSlider, volumeUpIcon, deleteSongIcon);
+        otherControlBox.getChildren().addAll(volumeDownIcon, volumeControlSlider, volumeUpIcon, deleteSongIcon,
+                ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5);
         otherControlBox.setAlignment(Pos.BASELINE_CENTER);
         otherControlBox.setSpacing(0);
 
@@ -382,11 +401,40 @@ public class MusicPlayerUI extends VBox {
     }
 
     /**
+     * Function to create the ratings bar in the player.
+     *
+     * @param manager     The music manager to use register the observer.
+     * @param ratingIcon1 First star
+     * @param ratingIcon2 Second star
+     * @param ratingIcon3 Third star
+     * @param ratingIcon4 Fourth star
+     * @param ratingIcon5 Fifth star
+     */
+    private void activateRatingBar(MusicPlayerManager manager, Button ratingIcon1, Button ratingIcon2, Button ratingIcon3,
+                                   Button ratingIcon4, Button ratingIcon5) {
+        manager.registerChangeStateObservers(new MusicPlayerObserver() {
+            @Override
+            public void updateUI() {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (manager.isSomethingPlaying() || !manager.isSomethingPlaying()) {
+                            final Song currentSongPlaying = manager.getCurrentSongPlaying();
+                            if (currentSongPlaying != null) {
+                                manageRatingBar(currentSongPlaying, ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5);
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    /**
      * Helper function to create an volume icon.
      *
-     * @param iconPath          The path to the icon for the button.
-     * @param toolTipMessage    The message that will be displayed in the tooltip.
-     *
+     * @param iconPath       The path to the icon for the button.
+     * @param toolTipMessage The message that will be displayed in the tooltip.
      * @return The button with styling for volume control.
      */
     private Button makeVolumeIcon(String iconPath, String toolTipMessage) {
@@ -399,14 +447,89 @@ public class MusicPlayerUI extends VBox {
     }
 
     /**
+     * Helper function to set star rating icons and manage mouse events
+     *
+     * @param currentSongPlaying Current song playing in the player
+     * @param ratingIcon1        First star
+     * @param ratingIcon1        Second star
+     * @param ratingIcon1        Third star
+     * @param ratingIcon1        Fourth star
+     * @param ratingIcon1        Fifth star
+     */
+    private void manageRatingBar(Song currentSongPlaying, Button ratingIcon1, Button ratingIcon2, Button ratingIcon3,
+                                 Button ratingIcon4, Button ratingIcon5) {
+        List<Button> ratings = new ArrayList<>();
+        ratings.add(ratingIcon1);
+        ratings.add(ratingIcon2);
+        ratings.add(ratingIcon3);
+        ratings.add(ratingIcon4);
+        ratings.add(ratingIcon5);
+        m_updateRatingsMouseOver = ratings;
+        final int currentSongRating = currentSongPlaying.getM_rating();
+        for (int i = 0; i < currentSongRating; i++) {
+            final Button button = ratings.get(i);
+            button.setOpacity(NOT_FADED);
+            button.setGraphic(UserInterfaceUtils.createImageViewForImage(RATED_STAR_ICON_PATH));
+        }
+        for (int i = currentSongRating; i < ratings.size(); i++) {
+            final Button button = ratings.get(i);
+            button.setOpacity(NOT_FADED);
+            button.setGraphic(UserInterfaceUtils.createImageViewForImage(UNRATED_STAR_ICON_PATH));
+        }
+        for (int i = 0; i < ratings.size(); i++) {
+            int rating = i + 1;
+            int index = i;
+            Button button = ratings.get(i);
+            Node defaultGraphic = button.getGraphic();
+            ratings.get(i).setOnMouseEntered(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    String tooltipMessage = "No Rating";
+                    if (rating == 1) {
+                        tooltipMessage = "1 Star";
+                    } else if (1 < rating) {
+                        tooltipMessage = rating + " Stars";
+                    }
+                    button.setTooltip(new Tooltip(tooltipMessage));
+                    button.setGraphic(UserInterfaceUtils.createImageViewForImage(MOUSE_OVER_STAR_ICON_PATH));
+                    for (int i = 0; i < rating - 1; i++) {
+                        final Button beforeMouseEnter = m_updateRatingsMouseOver.get(i);
+                        beforeMouseEnter.setGraphic(UserInterfaceUtils.createImageViewForImage(MOUSE_OVER_STAR_ICON_PATH));
+                    }
+                }
+            });
+            ratings.get(i).setOnMouseExited(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    button.setGraphic(defaultGraphic);
+                    for (int i = 0; i < index; i++) {
+                        final Button beforeMouseExit = m_updateRatingsMouseOver.get(i);
+                        if (i < currentSongRating) {
+                            beforeMouseExit.setGraphic(UserInterfaceUtils.createImageViewForImage(RATED_STAR_ICON_PATH));
+                        } else {
+                            beforeMouseExit.setGraphic(UserInterfaceUtils.createImageViewForImage(UNRATED_STAR_ICON_PATH));
+                        }
+                    }
+                }
+            });
+            ratings.get(i).setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    currentSongPlaying.setRating(rating);
+                    manageRatingBar(currentSongPlaying, ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5);
+                }
+            });
+        }
+    }
+
+    /**
      * Function to create the delete Song button in the player.
      *
-     * @param manager   The music manager to use register the observer.
-     *
+     * @param manager The music manager to use register the observer.
      * @return The button that will contain the user action for deleting song in the music palyer
      */
     private Button createDeleteSongButton(final MusicPlayerManager manager) {
-        Button deleteSongIcon= UserInterfaceUtils.createIconButton(DELETE_SONG_ICON_PATH);
+        Button deleteSongIcon = UserInterfaceUtils.createIconButton(DELETE_SONG_ICON_PATH);
         UserInterfaceUtils.createMouseOverUIChange(deleteSongIcon, deleteSongIcon.getStyle());
         deleteSongIcon.setAlignment(Pos.BASELINE_RIGHT);
         deleteSongIcon.setOpacity(FADED);
@@ -443,6 +566,23 @@ public class MusicPlayerUI extends VBox {
             }
         });
         return deleteSongIcon;
+    }
+
+    /**
+     * Function to create the rating buttons in the player, displayed by stars
+     *
+     * @param manager The music manager to use register the observer.
+     * @return The button that will contain the user action for deleting song in the music palyer
+     */
+    private Button createStarButton(final MusicPlayerManager manager) {
+        Button starIcon = UserInterfaceUtils.createIconButton(DISABLED_STAR_ICON_PATH);
+        final int buttonSpace = 2;
+        starIcon.setPadding(new Insets(buttonSpace, buttonSpace, buttonSpace, buttonSpace));
+        starIcon.setAlignment(Pos.BASELINE_RIGHT);
+        starIcon.setOpacity(FADED);
+        starIcon.setTooltip(new Tooltip(RATE_SONG_TOOL_TIP_DEFAULT));
+
+        return starIcon;
     }
 
     /**
