@@ -62,7 +62,7 @@ public class ContentListUI extends StackPane {
         m_databaseManager = databaseManager;
         m_contextMenu = new ContextMenu();
         initTableView();
-        setCssStyle();
+        UserInterfaceUtils.applyBlackBoarder(this);
         registerAsCenterFolderObserver();
     }
 
@@ -540,8 +540,4 @@ public class ContentListUI extends StackPane {
         return contextMenu;
     }
 
-    private void setCssStyle() {
-        final String cssDefault = "-fx-border-color: black;\n";
-        this.setStyle(cssDefault);
-    }
 }

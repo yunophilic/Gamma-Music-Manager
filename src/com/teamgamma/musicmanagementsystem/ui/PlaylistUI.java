@@ -94,7 +94,7 @@ public class PlaylistUI extends VBox {
                     createRenamePlaylistButton(),
                     createShufflePlaylistButton());
         initTableView();
-        setCssStyle();
+        UserInterfaceUtils.applyBlackBoarder(this);
         registerAsPlaylistObserver();
         this.setSpacing(0);
         HBox playbackOptions = createPlaylistPlaybackOptions();
@@ -422,7 +422,7 @@ public class PlaylistUI extends VBox {
         m_table = new TableView<>();
         setTableColumns();
         setTableDragEvents();
-        setTableRowMouseEvents();
+        setupTableRowFactory();
         super.getChildren().add(m_table);
         StackPane.setMargin(m_table, TABLE_VIEW_MARGIN);
         updateTable();
@@ -469,6 +469,8 @@ public class PlaylistUI extends VBox {
         } else {
             m_table.setPlaceholder(new Label(SELECT_PLAYLIST_HEADER));
         }
+
+        m_table.refresh();
     }
 
     private void showOrHideTableColumns(TableColumn<Song, File> filePathCol,
@@ -577,11 +579,25 @@ public class PlaylistUI extends VBox {
         });
     }
 
-    private void setTableRowMouseEvents() {
+    /**
+     * Fucntion to set up the row factory for the table
+     */
+    private void setupTableRowFactory() {
         m_table.setRowFactory(new Callback<TableView<Song>, TableRow<Song>>() {
             @Override
             public TableRow<Song> call(TableView<Song> param) {
-                TableRow<Song> row = new TableRow<>();
+                // Idea taken from
+                // http://stackoverflow.com/questions/20350099/programmatically-change-the-tableview-row-appearance
+                TableRow<Song> row = new TableRow<Song>() {
+                    @Override
+                    protected void updateItem(Song song, boolean empty){
+                        super.updateItem(song, empty);
+                        if (!empty){
+                            setTableRowStyle(this);
+                        }
+                    }
+                };
+
                 row.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {
@@ -603,28 +619,39 @@ public class PlaylistUI extends VBox {
                     }
                 });
 
-                UserInterfaceUtils.createMouseOverUIChange(row, null);
+                setTableRowStyle(row);
 
                 m_musicPlayerManager.registerNewSongObserver(new MusicPlayerObserver() {
                     @Override
                     public void updateUI() {
-                        if (m_musicPlayerManager.getCurrentIndexOfPlaylistSong() == row.getIndex()){
-                            row.setStyle(UserInterfaceUtils.SELECTED_BACKGROUND_COLOUR);
-
-                            // Make it persist
-                            UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
-                            return;
-                        }
-
-                        row.setStyle(null);
-                        UserInterfaceUtils.createMouseOverUIChange(row, null);
+                        setTableRowStyle(row);
                     }
                 });
-
 
                 return row;
             }
         });
+    }
+
+    /**
+     * Helper function to style a row in the playlist. If the song is playing on the playlist then it should
+     * be highlighted.
+     *
+     * @param row The row to style
+     */
+    private void setTableRowStyle(TableRow<Song> row) {
+        boolean sameSong = m_musicPlayerManager.getCurrentPlaylistSong() == row.getItem();
+        boolean sameIndexLocation = m_musicPlayerManager.getCurrentIndexOfPlaylistSong() == row.getIndex();
+        if (row.getItem() != null && sameSong && sameIndexLocation){
+            row.setStyle(UserInterfaceUtils.SELECTED_BACKGROUND_COLOUR);
+
+            // Make it persist
+            UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
+            return;
+        }
+
+        row.setStyle(null);
+        UserInterfaceUtils.createMouseOverUIChange(row, null);
     }
 
     private ContextMenu generateContextMenu(int selectedSongIndex) {
@@ -660,8 +687,4 @@ public class PlaylistUI extends VBox {
         return contextMenu;
     }
 
-    private void setCssStyle() {
-        final String cssDefault = "-fx-border-color: black;\n";
-        this.setStyle(cssDefault);
-    }
 }

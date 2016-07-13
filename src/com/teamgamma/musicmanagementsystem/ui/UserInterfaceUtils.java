@@ -143,5 +143,8 @@ public class UserInterfaceUtils {
         musicPlayerManager.notifyChangeStateObservers();
     }
 
-
+    public static void applyBlackBoarder(Node element) {
+        final String cssDefault = "-fx-border-color: black;\n";
+        element.setStyle(cssDefault);
+    }
 }

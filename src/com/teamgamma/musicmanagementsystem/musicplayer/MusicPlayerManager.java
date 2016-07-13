@@ -108,7 +108,9 @@ public class MusicPlayerManager {
      * @param songToPlay
      */
     public void playSongRightNow(Song songToPlay) {
-        stopSong();
+        if (m_musicPlayer.isPlayingSong()){
+            stopSong();
+        }
         m_currentSong = songToPlay;
         m_musicPlayer.playSong(songToPlay);
         updateHistory();
