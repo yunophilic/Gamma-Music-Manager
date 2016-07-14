@@ -354,6 +354,14 @@ public class MusicPlayerManager {
     }
 
     /**
+     * Function to modify song rating.
+     */
+    public void setRating(int rating) {
+        m_currentSong.setRating(rating);
+        notifyChangeStateObservers();
+    }
+
+    /**
      * Function to register observer for notifying when player changes state from play/pause and vice versa.
      *
      * @param observer
