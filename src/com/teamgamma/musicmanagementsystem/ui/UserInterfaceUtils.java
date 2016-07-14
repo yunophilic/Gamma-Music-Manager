@@ -6,6 +6,7 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
@@ -146,5 +147,28 @@ public class UserInterfaceUtils {
     public static void applyBlackBoarder(Node element) {
         final String cssDefault = "-fx-border-color: black;\n";
         element.setStyle(cssDefault);
+    }
+
+    /**
+     * Function to set the button passed in to change its image when mouse over and exit.
+     *
+     * @param button                The button to set.
+     * @param mouseOverImagePath    The path to the image to show when mouse is over the button.
+     * @param mouseExitImagePath    The path to image to show when mouse leaves the button.
+     */
+    public static void setMouseOverImageChange(Button button, String mouseOverImagePath, String mouseExitImagePath) {
+        button.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                button.setGraphic(new ImageView(mouseOverImagePath));
+            }
+        });
+
+        button.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                button.setGraphic(new ImageView(mouseExitImagePath));
+            }
+        });
     }
 }

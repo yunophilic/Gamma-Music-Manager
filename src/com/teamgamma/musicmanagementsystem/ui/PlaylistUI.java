@@ -166,22 +166,13 @@ public class PlaylistUI extends VBox {
      * @return The create playlist button.
      */
     private Button createCreateNewPlaylistButton() {
-        Button createNewPlaylistButton = new Button();
-        createNewPlaylistButton.setTooltip(new Tooltip(ADD_PLAYLIST_TOOL_TIP_MESSAGE));
-        createNewPlaylistButton.setStyle("-fx-background-color: transparent");
-        createNewPlaylistButton.setGraphic(new ImageView(ADD_PLAYLIST_BUTTON_ICON_PATH));
-        createNewPlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                createNewPlaylistButton.setGraphic(new ImageView(ADD_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH));
-            }
-        });
-        createNewPlaylistButton.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                createNewPlaylistButton.setGraphic(new ImageView(ADD_PLAYLIST_BUTTON_ICON_PATH));
-            }
-        });
+        Button createNewPlaylistButton = buildButton(ADD_PLAYLIST_TOOL_TIP_MESSAGE, ADD_PLAYLIST_BUTTON_ICON_PATH);
+        UserInterfaceUtils.setMouseOverImageChange(
+                createNewPlaylistButton,
+                ADD_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH,
+                ADD_PLAYLIST_BUTTON_ICON_PATH);
+
+
         createNewPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -207,22 +198,12 @@ public class PlaylistUI extends VBox {
      * @return  The remove playlist button
      */
     private Button createRemovePlaylistButton() {
-        Button removePlaylistButton = new Button();
-        removePlaylistButton.setTooltip(new Tooltip(REMOVE_PLAYLIST_TOOLTIP_MESSAGE));
-        removePlaylistButton.setStyle("-fx-background-color: transparent");
-        removePlaylistButton.setGraphic(new ImageView(REMOVE_PLAYLIST_BUTTON_ICON_PATH));
-        removePlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                removePlaylistButton.setGraphic(new ImageView(REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON_PATH));
-            }
-        });
-        removePlaylistButton.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                removePlaylistButton.setGraphic(new ImageView(REMOVE_PLAYLIST_BUTTON_ICON_PATH));
-            }
-        });
+        Button removePlaylistButton = buildButton(REMOVE_PLAYLIST_TOOLTIP_MESSAGE, REMOVE_PLAYLIST_BUTTON_ICON_PATH);
+        UserInterfaceUtils.setMouseOverImageChange(
+                removePlaylistButton,
+                REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON_PATH,
+                REMOVE_PLAYLIST_BUTTON_ICON_PATH);
+
         removePlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -253,22 +234,12 @@ public class PlaylistUI extends VBox {
      * @return The edit playlist button
      */
     private Button createRenamePlaylistButton() {
-        Button editPlaylistButton = new Button();
-        editPlaylistButton.setTooltip(new Tooltip(RENAME_PLAYLIST_TOOL_TIP_MESSAGE));
-        editPlaylistButton.setStyle("-fx-background-color: transparent");
-        editPlaylistButton.setGraphic(new ImageView(EDIT_PLAYLIST_BUTTON_ICON_PATH));
-        editPlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                editPlaylistButton.setGraphic(new ImageView(EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH));
-            }
-        });
-        editPlaylistButton.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                editPlaylistButton.setGraphic(new ImageView(EDIT_PLAYLIST_BUTTON_ICON_PATH));
-            }
-        });
+        Button editPlaylistButton = buildButton(RENAME_PLAYLIST_TOOL_TIP_MESSAGE, EDIT_PLAYLIST_BUTTON_ICON_PATH);
+        UserInterfaceUtils.setMouseOverImageChange(
+                editPlaylistButton,
+                EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH,
+                EDIT_PLAYLIST_BUTTON_ICON_PATH);
+
         editPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -295,23 +266,18 @@ public class PlaylistUI extends VBox {
         return editPlaylistButton;
     }
 
+    /**
+     * Function to create teh shuffle playlist button.
+     *
+     * @return The button that will control the shuffle playlist.
+     */
     private Button createShufflePlaylistButton() {
-        Button shufflePlaylistButton = new Button();
-        shufflePlaylistButton.setTooltip(new Tooltip(SHUFFLE_PLAYLIST_TOOL_TIP_MESSAGE));
-        shufflePlaylistButton.setStyle("-fx-background-color: transparent");
-        shufflePlaylistButton.setGraphic(new ImageView(SHUFFLE_PLAYLIST_BUTTON_ICON_PATH));
-        shufflePlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                shufflePlaylistButton.setGraphic(new ImageView(SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH));
-            }
-        });
-        shufflePlaylistButton.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                shufflePlaylistButton.setGraphic(new ImageView(SHUFFLE_PLAYLIST_BUTTON_ICON_PATH));
-            }
-        });
+        Button shufflePlaylistButton = buildButton(SHUFFLE_PLAYLIST_TOOL_TIP_MESSAGE, SHUFFLE_PLAYLIST_BUTTON_ICON_PATH);
+        UserInterfaceUtils.setMouseOverImageChange(
+                shufflePlaylistButton,
+                SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH,
+                SHUFFLE_PLAYLIST_BUTTON_ICON_PATH);
+
         shufflePlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -324,7 +290,25 @@ public class PlaylistUI extends VBox {
                 m_model.notifyPlaylistSongsObservers();
             }
         });
+
         return shufflePlaylistButton;
+    }
+
+    /**
+     * Function to build a button with a static tooltip message that is an image.
+     *
+     * @param toolTipMessage    The tooltip message to display/
+     * @param iconPath
+     * @return
+     */
+    private Button buildButton(String toolTipMessage, String iconPath) {
+        Button button = new Button();
+
+        button.setTooltip(new Tooltip(toolTipMessage));
+        button.setStyle("-fx-background-color: transparent");
+        button.setGraphic(new ImageView(iconPath));
+
+        return button;
     }
 
     /**
@@ -397,6 +381,16 @@ public class PlaylistUI extends VBox {
         return wrapper;
     }
 
+    /**
+     * Function to initialize the menu above the table for playlist.
+     *
+     * @param selectPlaylistLabel
+     * @param dropDownMenu
+     * @param addPlaylistButton
+     * @param removePlaylistButton
+     * @param shufflePlaylistButton
+     * @param editPlaylistButton
+     */
     private void initTopMenu(Label selectPlaylistLabel,
                              ComboBox<Playlist> dropDownMenu,
                              Button addPlaylistButton,
@@ -418,6 +412,9 @@ public class PlaylistUI extends VBox {
         super.getChildren().add(menuWrapper);
     }
 
+    /**
+     * Function to initialize and build the table for the playlist.
+     */
     private void initTableView() {
         m_table = new TableView<>();
         setTableColumns();
@@ -429,6 +426,9 @@ public class PlaylistUI extends VBox {
         VBox.setVgrow(m_table, Priority.ALWAYS);
     }
 
+    /**
+     * Function to set the columns for the playlist table.
+     */
     private void setTableColumns() {
         TableColumn<Song, File> filePathCol = new TableColumn<>("File Path");
         filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
@@ -446,15 +446,32 @@ public class PlaylistUI extends VBox {
         ratingCol.setMinWidth(RATING_COLUMN_MIN_WIDTH);
         TableColumn<Song, String> lengthCol = new TableColumn<>("Length");
         lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
+
         setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
-        showOrHideTableColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
+        setDefaultVisibleColumnsInTable(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
+
+        m_table.getColumns().add(filePathCol);
+        m_table.getColumns().add(fileNameCol);
+        m_table.getColumns().add(titleCol);
+        m_table.getColumns().add(artistCol);
+        m_table.getColumns().add(albumCol);
+        m_table.getColumns().add(genreCol);
+        m_table.getColumns().add(ratingCol);
+        m_table.getColumns().add(lengthCol);
+        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
+    /**
+     * Function to clear the playlist table.
+     */
     private void clearTable() {
         //System.out.println("Clearing playlist panel...");
         m_table.getItems().clear();
     }
 
+    /**
+     * Function to update the table based on new values from the model.
+     */
     private void updateTable() {
         //System.out.println("Updating playlist panel...");
         Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
@@ -473,14 +490,26 @@ public class PlaylistUI extends VBox {
         m_table.refresh();
     }
 
-    private void showOrHideTableColumns(TableColumn<Song, File> filePathCol,
-                                        TableColumn<Song, String> fileNameCol,
-                                        TableColumn<Song, String> titleCol,
-                                        TableColumn<Song, String> artistCol,
-                                        TableColumn<Song, String> albumCol,
-                                        TableColumn<Song, String> genreCol,
-                                        TableColumn<Song, Integer> ratingCol,
-                                        TableColumn<Song, String> lengthCol) {
+    /**
+     * Function to set which columns will be shown in the playtlist UI table by default.
+     *
+     * @param filePathCol
+     * @param fileNameCol
+     * @param titleCol
+     * @param artistCol
+     * @param albumCol
+     * @param genreCol
+     * @param ratingCol
+     * @param lengthCol
+     */
+    private void setDefaultVisibleColumnsInTable(TableColumn<Song, File> filePathCol,
+                                                 TableColumn<Song, String> fileNameCol,
+                                                 TableColumn<Song, String> titleCol,
+                                                 TableColumn<Song, String> artistCol,
+                                                 TableColumn<Song, String> albumCol,
+                                                 TableColumn<Song, String> genreCol,
+                                                 TableColumn<Song, Integer> ratingCol,
+                                                 TableColumn<Song, String> lengthCol) {
         m_table.setTableMenuButtonVisible(true);
 
         //default columns
@@ -495,7 +524,19 @@ public class PlaylistUI extends VBox {
         ratingCol.setVisible(false);
     }
 
-
+    /**
+     * Function to set the column attribute for the playlist table.
+     *
+     * @param filePathCol
+     * @param fileNameCol
+     * @param titleCol
+     * @param artistCol
+     * @param albumCol
+     * @param genreCol
+     * @param ratingCol
+     * @param lengthCol
+     *
+     */
     private void setTableColumnAttributes(TableColumn<Song, File> filePathCol,
                                           TableColumn<Song, String> fileNameCol,
                                           TableColumn<Song, String> titleCol,
@@ -534,18 +575,11 @@ public class PlaylistUI extends VBox {
             }
         });
         lengthCol.setSortable(false);
-
-        m_table.getColumns().add(filePathCol);
-        m_table.getColumns().add(fileNameCol);
-        m_table.getColumns().add(titleCol);
-        m_table.getColumns().add(artistCol);
-        m_table.getColumns().add(albumCol);
-        m_table.getColumns().add(genreCol);
-        m_table.getColumns().add(ratingCol);
-        m_table.getColumns().add(lengthCol);
-        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
+    /**
+     * Function to set the drag events for the table.
+     */
     private void setTableDragEvents() {
         m_table.setOnDragOver(new EventHandler<DragEvent>() {
             @Override
@@ -580,7 +614,7 @@ public class PlaylistUI extends VBox {
     }
 
     /**
-     * Fucntion to set up the row factory for the table
+     * Function to set up the row factory for the table
      */
     private void setupTableRowFactory() {
         m_table.setRowFactory(new Callback<TableView<Song>, TableRow<Song>>() {
@@ -654,6 +688,13 @@ public class PlaylistUI extends VBox {
         UserInterfaceUtils.createMouseOverUIChange(row, null);
     }
 
+    /**
+     * Function to generate a context menu for the song specifed by the index of where it is in the playlist.
+     *
+     * @param selectedSongIndex The index of the song in the playlist.
+     *
+     * @return A context menu for that will work on the song at the index
+     */
     private ContextMenu generateContextMenu(int selectedSongIndex) {
         ContextMenu contextMenu = new ContextMenu();
 
