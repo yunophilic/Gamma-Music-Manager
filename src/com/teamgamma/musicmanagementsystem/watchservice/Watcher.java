@@ -160,6 +160,9 @@ public class Watcher {
     }
 
     private void registerAsObserver() {
+        m_model.addLibraryObserver((action, file) -> {
+            restartWatcher();
+        });
         m_model.addFileObserver((action, file) -> {
             restartWatcher();
         });
