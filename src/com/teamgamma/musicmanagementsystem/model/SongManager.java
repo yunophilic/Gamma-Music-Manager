@@ -247,7 +247,7 @@ public class SongManager {
                 for (Song song : library.getSongs()) {
                     if (m_menuOptions.getM_centerPanelShowSubfolderFiles()) {
                         String songFilePath = song.getFile().getAbsolutePath();
-                        if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath())) {
+                        if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath() + File.separator)) {
                             centerPanelSongs.add(song);
                         }
                     } else {

@@ -372,21 +372,23 @@ public class ContextMenuBuilder {
         removeLibrary.setOnAction(event -> {
             if (selectedItem != null) {
                 System.out.println("Remove library");
+
                 model.removeLibrary(selectedItem.getFile());
+                String selectedItemPath = selectedItem.getFile().getAbsolutePath();
 
                 if (model.getM_rightFolderSelected() != null) {
-                    boolean isLibraryInRight = model.getM_rightFolderSelected().getAbsolutePath().contains(
-                            selectedItem.getFile().getAbsolutePath()
-                    );
+                    String rightFolderPath = model.getM_rightFolderSelected().getAbsolutePath();
+                    boolean isLibraryInRight = rightFolderPath.equals(selectedItemPath) ||
+                                               rightFolderPath.contains(selectedItemPath + File.separator);
                     if (isLibraryInRight) {
                         model.setM_rightFolderSelected(null);
                     }
                 }
 
                 if (model.getM_selectedCenterFolder() != null) {
-                    boolean isLibraryInCenter = model.getM_selectedCenterFolder().getAbsolutePath().contains(
-                            selectedItem.getFile().getAbsolutePath()
-                    );
+                    String centerFolderPath = model.getM_selectedCenterFolder().getAbsolutePath();
+                    boolean isLibraryInCenter = centerFolderPath.equals(selectedItemPath) ||
+                                                centerFolderPath.contains(selectedItemPath + File.separator);
                     if (isLibraryInCenter) {
                         System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
                         model.setM_selectedCenterFolder(null);
@@ -394,7 +396,7 @@ public class ContextMenuBuilder {
                 }
 
                 databaseManager.removeLibrary(
-                        selectedItem.getFile().getAbsolutePath()
+                        selectedItemPath
                 );
                 model.setM_libraryAction(Actions.REMOVE_FROM_VIEW);
                 model.notifyLibraryObservers();
