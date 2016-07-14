@@ -6,7 +6,6 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Control;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
@@ -144,6 +143,11 @@ public class UserInterfaceUtils {
         musicPlayerManager.notifyChangeStateObservers();
     }
 
+    /**
+     * Function to apply a black boarder for the node passed in.
+     *
+     * @param element The element to style
+     */
     public static void applyBlackBoarder(Node element) {
         final String cssDefault = "-fx-border-color: black;\n";
         element.setStyle(cssDefault);
