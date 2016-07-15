@@ -54,6 +54,9 @@ public class DatabaseManager {
     private PreparedStatement m_getSongsInPlaylist;
     private PreparedStatement m_orderNumOfPlaylistLastPlayedSong;
     private PreparedStatement m_deleteFromPlaylistSongsByPlaylistName;
+    private PreparedStatement m_addToResumeTime;
+    private PreparedStatement m_updateResumeTime;
+    private PreparedStatement m_getResumeTime;
 
     public DatabaseManager() {
     }
@@ -169,6 +172,18 @@ public class DatabaseManager {
             m_deleteFromPlaylistSongsByPlaylistName = m_connection.prepareStatement("DELETE " +
                                                                                     "FROM PlaylistSongs " +
                                                                                     "WHERE playlistName = ?");
+
+            m_addToResumeTime = m_connection.prepareStatement("INSERT INTO ResumeTime (playlistName, resumeTime) " +
+                                                              "VALUES (?, ?) ");
+
+            m_updateResumeTime = m_connection.prepareStatement("UPDATE ResumeTime " +
+                                                               "SET resumeTime = ?" +
+                                                               "WHERE playlistName = ?");
+
+            m_getResumeTime = m_connection.prepareStatement("SELECT resumeTime " +
+                                                            "FROM ResumeTime " +
+                                                            "WHERE playlistName = ?");
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -283,6 +298,14 @@ public class DatabaseManager {
                                         "orderNumber INTEGER NOT NULL, " +
                                         "time        DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME'))," +
                                         "PRIMARY KEY (songPath, orderNumber, time)" +
+                                    ")");
+
+            // ResumeTime table, store time for each playlist when the application is closed
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS ResumeTime (" +
+                                        "playlistName   TEXT    NOT NULL, " +
+                                        "resumeTime     INTEGER, " +
+                                        "PRIMARY KEY (playlistName)," +
+                                        "FOREIGN KEY (playlistName) REFERENCES Playlist(playlistName) ON DELETE CASCADE" +
                                     ")");
 
             statement.close();
@@ -810,6 +833,54 @@ public class DatabaseManager {
                 m_updatePLaylistLastPlayedSong.executeUpdate();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Add a record of a playlist and the time of its current playing song when the application closes
+     * @param playlistName
+     * @param time
+     */
+    public void savePlaylistResumeTime(String playlistName, int time) {
+        try {
+            m_addToResumeTime.setString(1, playlistName);
+            m_addToResumeTime.setInt(2, time);
+            m_addToResumeTime.executeUpdate();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * To update the resume time of an record for a playlist
+     * @param playlistName
+     * @param time
+     */
+    public void updateResumeTime(String playlistName, int time) {
+        try {
+            m_updateResumeTime.setInt(1, time);
+            m_updateResumeTime.setString(2, playlistName);
+            m_updateResumeTime.executeUpdate();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Retrieve the time to resume for each playlist when application starts up
+     * @param playlistName
+     * @return
+     */
+    public int getResumeTime(String playlistName) {
+        try {
+            m_getResumeTime.setString(1, playlistName);
+            ResultSet resultSet = m_getResumeTime.executeQuery();
+            int resumeTime = resultSet.getInt("resumeTime");
+        }
+        catch (SQLException e) {
             e.printStackTrace();
         }
     }
