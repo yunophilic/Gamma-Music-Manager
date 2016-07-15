@@ -200,13 +200,9 @@ public class LibraryUI extends StackPane {
         this.setMaxWidth(Double.MAX_VALUE);
         this.setMaxHeight(Double.MAX_VALUE);
 
-        setCssStyle();
+        UserInterfaceUtils.applyBlackBoarder(this);
     }
 
-    private void setCssStyle() {
-        final String cssDefault = "-fx-border-color: black;\n";
-        this.setStyle(cssDefault);
-    }
 
     public List<String> getExpandedPaths() {
         if (m_tree != null) {

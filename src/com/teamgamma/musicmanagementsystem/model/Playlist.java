@@ -131,7 +131,7 @@ public class Playlist {
      * @return True if it is the last song in the playlist or false if it is not.
      */
     private boolean isLastSong() {
-        return !m_songList.isEmpty() && (m_songList.size() - 1 == m_currentSongIndex);
+        return !m_songList.isEmpty() && (m_songList.size() - 1 <= m_currentSongIndex);
     }
 
     /**

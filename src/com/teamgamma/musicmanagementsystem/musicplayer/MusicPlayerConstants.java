@@ -17,5 +17,7 @@ public class MusicPlayerConstants {
     public static final int NUMBER_OF_MILISECONDS_IN_SECOND = 1000;
 
     public static final int SECONDS_IN_MINUTE = 60;
+
+    public static final int FIVE_SECONDS_IN_MILLISECONDS = 5000;
 }
 

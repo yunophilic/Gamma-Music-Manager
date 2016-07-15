@@ -164,12 +164,7 @@ public class DynamicTreeViewUI extends StackPane {
         this.setMaxWidth(Double.MAX_VALUE);
         this.setMaxHeight(Double.MAX_VALUE);
 
-        setCssStyle();
-    }
-
-    private void setCssStyle() {
-        final String cssDefault = "-fx-border-color: black;\n";
-        this.setStyle(cssDefault);
+        UserInterfaceUtils.applyBlackBoarder(this);
     }
 
     /**

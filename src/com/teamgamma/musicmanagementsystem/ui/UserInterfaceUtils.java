@@ -27,18 +27,8 @@ public class UserInterfaceUtils {
      * @param element  The element to apply UI effect on.
      */
     public static void createMouseOverUIChange(final Node element, String defaultStyle) {
-        element.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                element.setStyle(SELECTED_BACKGROUND_COLOUR);
-            }
-        });
-        element.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                element.setStyle(defaultStyle);
-            }
-        });
+        element.setOnMouseEntered(event -> element.setStyle(SELECTED_BACKGROUND_COLOUR));
+        element.setOnMouseExited(event -> element.setStyle(defaultStyle));
     }
 
     /**
@@ -143,5 +133,25 @@ public class UserInterfaceUtils {
         musicPlayerManager.notifyChangeStateObservers();
     }
 
+    /**
+     * Function to apply a black boarder for the node passed in.
+     *
+     * @param element The element to style
+     */
+    public static void applyBlackBoarder(Node element) {
+        final String cssDefault = "-fx-border-color: black;\n";
+        element.setStyle(cssDefault);
+    }
 
+    /**
+     * Function to set the button passed in to change its image when mouse over and exit.
+     *
+     * @param button                The button to set.
+     * @param mouseOverImagePath    The path to the image to show when mouse is over the button.
+     * @param mouseExitImagePath    The path to image to show when mouse leaves the button.
+     */
+    public static void setMouseOverImageChange(Button button, String mouseOverImagePath, String mouseExitImagePath) {
+        button.setOnMouseEntered(event -> button.setGraphic(new ImageView(mouseOverImagePath)));
+        button.setOnMouseExited(event -> button.setGraphic(new ImageView(mouseExitImagePath)));
+    }
 }

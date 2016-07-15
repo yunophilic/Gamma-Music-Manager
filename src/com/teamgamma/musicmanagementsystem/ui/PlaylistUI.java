@@ -4,8 +4,8 @@ import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
+
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -94,7 +94,7 @@ public class PlaylistUI extends VBox {
                     createRenamePlaylistButton(),
                     createShufflePlaylistButton());
         initTableView();
-        setCssStyle();
+        UserInterfaceUtils.applyBlackBoarder(this);
         registerAsPlaylistObserver();
         this.setSpacing(0);
         HBox playbackOptions = createPlaylistPlaybackOptions();
@@ -143,12 +143,9 @@ public class PlaylistUI extends VBox {
         ComboBox<Playlist> dropDownMenu = new ComboBox<>();
         dropDownMenu.getItems().addAll(options);
 
-        dropDownMenu.valueProperty().addListener(new ChangeListener<Playlist>() {
-            @Override
-            public void changed(ObservableValue<? extends Playlist> observable, Playlist oldValue, Playlist newValue) {
-                m_model.setM_selectedPlaylist(newValue);
-                m_model.notifyPlaylistSongsObservers();
-            }
+        dropDownMenu.valueProperty().addListener((observable, oldValue, newValue) -> {
+            m_model.setM_selectedPlaylist(newValue);
+            m_model.notifyPlaylistSongsObservers();
         });
 
         dropDownMenu.setMinWidth(DROP_DOWN_MENU_MIN_WIDTH);
@@ -166,36 +163,24 @@ public class PlaylistUI extends VBox {
      * @return The create playlist button.
      */
     private Button createCreateNewPlaylistButton() {
-        Button createNewPlaylistButton = new Button();
-        createNewPlaylistButton.setTooltip(new Tooltip(ADD_PLAYLIST_TOOL_TIP_MESSAGE));
-        createNewPlaylistButton.setStyle("-fx-background-color: transparent");
-        createNewPlaylistButton.setGraphic(new ImageView(ADD_PLAYLIST_BUTTON_ICON_PATH));
-        createNewPlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                createNewPlaylistButton.setGraphic(new ImageView(ADD_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH));
+        Button createNewPlaylistButton = buildButton(ADD_PLAYLIST_TOOL_TIP_MESSAGE, ADD_PLAYLIST_BUTTON_ICON_PATH);
+        UserInterfaceUtils.setMouseOverImageChange(
+                createNewPlaylistButton,
+                ADD_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH,
+                ADD_PLAYLIST_BUTTON_ICON_PATH);
+
+
+        createNewPlaylistButton.setOnMouseClicked(event -> {
+            String newPlaylistName = PromptUI.createNewPlaylist();
+            if (m_model.playlistNameExist(newPlaylistName)) {
+                PromptUI.customPromptError("Error", null, "Playlist with name \"" + newPlaylistName + "\" already exist!");
+                return;
             }
-        });
-        createNewPlaylistButton.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                createNewPlaylistButton.setGraphic(new ImageView(ADD_PLAYLIST_BUTTON_ICON_PATH));
-            }
-        });
-        createNewPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                String newPlaylistName = PromptUI.createNewPlaylist();
-                if (m_model.playlistNameExist(newPlaylistName)) {
-                    PromptUI.customPromptError("Error", null, "Playlist with name \"" + newPlaylistName + "\" already exist!");
-                    return;
-                }
-                if (newPlaylistName != null) {
-                    Playlist newPlaylist = m_model.addAndCreatePlaylist(newPlaylistName);
-                    m_databaseManager.addPlaylist(newPlaylistName);
-                    m_model.notifyPlaylistsObservers();
-                    m_dropDownMenu.getSelectionModel().select(newPlaylist);
-                }
+            if (newPlaylistName != null) {
+                Playlist newPlaylist = m_model.addAndCreatePlaylist(newPlaylistName);
+                m_databaseManager.addPlaylist(newPlaylistName);
+                m_model.notifyPlaylistsObservers();
+                m_dropDownMenu.getSelectionModel().select(newPlaylist);
             }
         });
         return createNewPlaylistButton;
@@ -207,41 +192,28 @@ public class PlaylistUI extends VBox {
      * @return  The remove playlist button
      */
     private Button createRemovePlaylistButton() {
-        Button removePlaylistButton = new Button();
-        removePlaylistButton.setTooltip(new Tooltip(REMOVE_PLAYLIST_TOOLTIP_MESSAGE));
-        removePlaylistButton.setStyle("-fx-background-color: transparent");
-        removePlaylistButton.setGraphic(new ImageView(REMOVE_PLAYLIST_BUTTON_ICON_PATH));
-        removePlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                removePlaylistButton.setGraphic(new ImageView(REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON_PATH));
+        Button removePlaylistButton = buildButton(REMOVE_PLAYLIST_TOOLTIP_MESSAGE, REMOVE_PLAYLIST_BUTTON_ICON_PATH);
+        UserInterfaceUtils.setMouseOverImageChange(
+                removePlaylistButton,
+                REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON_PATH,
+                REMOVE_PLAYLIST_BUTTON_ICON_PATH);
+
+        removePlaylistButton.setOnMouseClicked(event -> {
+            if (m_dropDownMenu.getItems().isEmpty()) {
+                PromptUI.customPromptError("Error", null, "No playlist exist!");
+                return;
             }
-        });
-        removePlaylistButton.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                removePlaylistButton.setGraphic(new ImageView(REMOVE_PLAYLIST_BUTTON_ICON_PATH));
+            int selectedDropDownIndex = m_dropDownMenu.getSelectionModel().getSelectedIndex();
+            Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+            if (selectedPlaylist == null) {
+                PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
+                return;
             }
-        });
-        removePlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (m_dropDownMenu.getItems().isEmpty()) {
-                    PromptUI.customPromptError("Error", null, "No playlist exist!");
-                    return;
-                }
-                int selectedDropDownIndex = m_dropDownMenu.getSelectionModel().getSelectedIndex();
-                Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                if (selectedPlaylist == null) {
-                    PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
-                    return;
-                }
-                if (PromptUI.removePlaylist(selectedPlaylist)) {
-                    m_model.removePlaylist(selectedPlaylist);
-                    m_databaseManager.removePlaylist(selectedPlaylist.getM_playlistName());
-                    m_model.notifyPlaylistsObservers();
-                    m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
-                }
+            if (PromptUI.removePlaylist(selectedPlaylist)) {
+                m_model.removePlaylist(selectedPlaylist);
+                m_databaseManager.removePlaylist(selectedPlaylist.getM_playlistName());
+                m_model.notifyPlaylistsObservers();
+                m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
             }
         });
         return removePlaylistButton;
@@ -253,78 +225,75 @@ public class PlaylistUI extends VBox {
      * @return The edit playlist button
      */
     private Button createRenamePlaylistButton() {
-        Button editPlaylistButton = new Button();
-        editPlaylistButton.setTooltip(new Tooltip(RENAME_PLAYLIST_TOOL_TIP_MESSAGE));
-        editPlaylistButton.setStyle("-fx-background-color: transparent");
-        editPlaylistButton.setGraphic(new ImageView(EDIT_PLAYLIST_BUTTON_ICON_PATH));
-        editPlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                editPlaylistButton.setGraphic(new ImageView(EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH));
+        Button editPlaylistButton = buildButton(RENAME_PLAYLIST_TOOL_TIP_MESSAGE, EDIT_PLAYLIST_BUTTON_ICON_PATH);
+        UserInterfaceUtils.setMouseOverImageChange(
+                editPlaylistButton,
+                EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH,
+                EDIT_PLAYLIST_BUTTON_ICON_PATH);
+
+        editPlaylistButton.setOnMouseClicked(event -> {
+            if (m_dropDownMenu.getItems().isEmpty()) {
+                PromptUI.customPromptError("Error", null, "No playlist exist!");
+                return;
             }
-        });
-        editPlaylistButton.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                editPlaylistButton.setGraphic(new ImageView(EDIT_PLAYLIST_BUTTON_ICON_PATH));
+            int selectedDropDownIndex = m_dropDownMenu.getSelectionModel().getSelectedIndex();
+            Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+            if (selectedPlaylist == null) {
+                PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
+                return;
             }
-        });
-        editPlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (m_dropDownMenu.getItems().isEmpty()) {
-                    PromptUI.customPromptError("Error", null, "No playlist exist!");
-                    return;
-                }
-                int selectedDropDownIndex = m_dropDownMenu.getSelectionModel().getSelectedIndex();
-                Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                if (selectedPlaylist == null) {
-                    PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
-                    return;
-                }
-                String oldPlaylistName = selectedPlaylist.getM_playlistName();
-                String newPlaylistName = PromptUI.editPlaylist(selectedPlaylist);
-                if (newPlaylistName != null) {
-                    selectedPlaylist.setM_playlistName(newPlaylistName);
-                    m_databaseManager.renamePlaylist(oldPlaylistName, newPlaylistName);
-                    m_model.notifyPlaylistsObservers();
-                    m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
-                }
+            String oldPlaylistName = selectedPlaylist.getM_playlistName();
+            String newPlaylistName = PromptUI.editPlaylist(selectedPlaylist);
+            if (newPlaylistName != null) {
+                selectedPlaylist.setM_playlistName(newPlaylistName);
+                m_databaseManager.renamePlaylist(oldPlaylistName, newPlaylistName);
+                m_model.notifyPlaylistsObservers();
+                m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
             }
         });
         return editPlaylistButton;
     }
 
+    /**
+     * Function to create teh shuffle playlist button.
+     *
+     * @return The button that will control the shuffle playlist.
+     */
     private Button createShufflePlaylistButton() {
-        Button shufflePlaylistButton = new Button();
-        shufflePlaylistButton.setTooltip(new Tooltip(SHUFFLE_PLAYLIST_TOOL_TIP_MESSAGE));
-        shufflePlaylistButton.setStyle("-fx-background-color: transparent");
-        shufflePlaylistButton.setGraphic(new ImageView(SHUFFLE_PLAYLIST_BUTTON_ICON_PATH));
-        shufflePlaylistButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                shufflePlaylistButton.setGraphic(new ImageView(SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH));
+        Button shufflePlaylistButton = buildButton(SHUFFLE_PLAYLIST_TOOL_TIP_MESSAGE, SHUFFLE_PLAYLIST_BUTTON_ICON_PATH);
+        UserInterfaceUtils.setMouseOverImageChange(
+                shufflePlaylistButton,
+                SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH,
+                SHUFFLE_PLAYLIST_BUTTON_ICON_PATH);
+
+        shufflePlaylistButton.setOnMouseClicked(event -> {
+            Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+            if (selectedPlaylist == null) {
+                PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
+                return;
             }
+            selectedPlaylist.shuffleUnplayedSongs();
+            m_model.notifyPlaylistSongsObservers();
         });
-        shufflePlaylistButton.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                shufflePlaylistButton.setGraphic(new ImageView(SHUFFLE_PLAYLIST_BUTTON_ICON_PATH));
-            }
-        });
-        shufflePlaylistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                if (selectedPlaylist == null) {
-                    PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
-                    return;
-                }
-                selectedPlaylist.shuffleUnplayedSongs();
-                m_model.notifyPlaylistSongsObservers();
-            }
-        });
+
         return shufflePlaylistButton;
+    }
+
+    /**
+     * Function to build a button with a static tooltip message that is an image.
+     *
+     * @param toolTipMessage    The tooltip message to display/
+     * @param iconPath
+     * @return
+     */
+    private Button buildButton(String toolTipMessage, String iconPath) {
+        Button button = new Button();
+
+        button.setTooltip(new Tooltip(toolTipMessage));
+        button.setStyle("-fx-background-color: transparent");
+        button.setGraphic(new ImageView(iconPath));
+
+        return button;
     }
 
     /**
@@ -334,12 +303,9 @@ public class PlaylistUI extends VBox {
      */
     private Button createPlayPlaylistButton() {
         Button playlistButton = UserInterfaceUtils.createIconButton(PLAY_PLAYLIST_ICON);
-        playlistButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (m_model.getM_selectedPlaylist() != null) {
-                    m_musicPlayerManager.playPlaylist(m_model.getM_selectedPlaylist());
-                }
+        playlistButton.setOnMouseClicked(event -> {
+            if (m_model.getM_selectedPlaylist() != null) {
+                m_musicPlayerManager.playPlaylist(m_model.getM_selectedPlaylist());
             }
         });
         UserInterfaceUtils.createMouseOverUIChange(playlistButton, playlistButton.getStyle());
@@ -359,18 +325,15 @@ public class PlaylistUI extends VBox {
     private ToggleButton createPlaylistRepeatButton() {
         ToggleButton playlistRepeat = new ToggleButton();
         playlistRepeat.setStyle("-fx-background-color: transparent");
-        playlistRepeat.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (playlistRepeat.isSelected()){
-                    m_musicPlayerManager.setRepeat(true);
-                    playlistRepeat.setStyle("-fx-background-color: lightgray");
-                } else {
-                    m_musicPlayerManager.setRepeat(false);
-                    playlistRepeat.setStyle("-fx-background-color: transparent");
-                }
-                UserInterfaceUtils.createMouseOverUIChange(playlistRepeat, playlistRepeat.getStyle());
+        playlistRepeat.setOnMouseClicked(event -> {
+            if (playlistRepeat.isSelected()){
+                m_musicPlayerManager.setRepeat(true);
+                playlistRepeat.setStyle("-fx-background-color: lightgray");
+            } else {
+                m_musicPlayerManager.setRepeat(false);
+                playlistRepeat.setStyle("-fx-background-color: transparent");
             }
+            UserInterfaceUtils.createMouseOverUIChange(playlistRepeat, playlistRepeat.getStyle());
         });
 
         playlistRepeat.setGraphic(new ImageView(REPEAT_PLAYLIST_ICON));
@@ -397,6 +360,16 @@ public class PlaylistUI extends VBox {
         return wrapper;
     }
 
+    /**
+     * Function to initialize the menu above the table for playlist.
+     *
+     * @param selectPlaylistLabel
+     * @param dropDownMenu
+     * @param addPlaylistButton
+     * @param removePlaylistButton
+     * @param shufflePlaylistButton
+     * @param editPlaylistButton
+     */
     private void initTopMenu(Label selectPlaylistLabel,
                              ComboBox<Playlist> dropDownMenu,
                              Button addPlaylistButton,
@@ -418,17 +391,23 @@ public class PlaylistUI extends VBox {
         super.getChildren().add(menuWrapper);
     }
 
+    /**
+     * Function to initialize and build the table for the playlist.
+     */
     private void initTableView() {
         m_table = new TableView<>();
         setTableColumns();
         setTableDragEvents();
-        setTableRowMouseEvents();
+        setupTableRowFactory();
         super.getChildren().add(m_table);
         StackPane.setMargin(m_table, TABLE_VIEW_MARGIN);
         updateTable();
         VBox.setVgrow(m_table, Priority.ALWAYS);
     }
 
+    /**
+     * Function to set the columns for the playlist table.
+     */
     private void setTableColumns() {
         TableColumn<Song, File> filePathCol = new TableColumn<>("File Path");
         filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
@@ -446,15 +425,32 @@ public class PlaylistUI extends VBox {
         ratingCol.setMinWidth(RATING_COLUMN_MIN_WIDTH);
         TableColumn<Song, String> lengthCol = new TableColumn<>("Length");
         lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
+
         setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
-        showOrHideTableColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
+        setDefaultVisibleColumnsInTable(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
+
+        m_table.getColumns().add(filePathCol);
+        m_table.getColumns().add(fileNameCol);
+        m_table.getColumns().add(titleCol);
+        m_table.getColumns().add(artistCol);
+        m_table.getColumns().add(albumCol);
+        m_table.getColumns().add(genreCol);
+        m_table.getColumns().add(ratingCol);
+        m_table.getColumns().add(lengthCol);
+        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
+    /**
+     * Function to clear the playlist table.
+     */
     private void clearTable() {
         //System.out.println("Clearing playlist panel...");
         m_table.getItems().clear();
     }
 
+    /**
+     * Function to update the table based on new values from the model.
+     */
     private void updateTable() {
         //System.out.println("Updating playlist panel...");
         Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
@@ -469,16 +465,30 @@ public class PlaylistUI extends VBox {
         } else {
             m_table.setPlaceholder(new Label(SELECT_PLAYLIST_HEADER));
         }
+
+        m_table.refresh();
     }
 
-    private void showOrHideTableColumns(TableColumn<Song, File> filePathCol,
-                                        TableColumn<Song, String> fileNameCol,
-                                        TableColumn<Song, String> titleCol,
-                                        TableColumn<Song, String> artistCol,
-                                        TableColumn<Song, String> albumCol,
-                                        TableColumn<Song, String> genreCol,
-                                        TableColumn<Song, Integer> ratingCol,
-                                        TableColumn<Song, String> lengthCol) {
+    /**
+     * Function to set which columns will be shown in the playtlist UI table by default.
+     *
+     * @param filePathCol
+     * @param fileNameCol
+     * @param titleCol
+     * @param artistCol
+     * @param albumCol
+     * @param genreCol
+     * @param ratingCol
+     * @param lengthCol
+     */
+    private void setDefaultVisibleColumnsInTable(TableColumn<Song, File> filePathCol,
+                                                 TableColumn<Song, String> fileNameCol,
+                                                 TableColumn<Song, String> titleCol,
+                                                 TableColumn<Song, String> artistCol,
+                                                 TableColumn<Song, String> albumCol,
+                                                 TableColumn<Song, String> genreCol,
+                                                 TableColumn<Song, Integer> ratingCol,
+                                                 TableColumn<Song, String> lengthCol) {
         m_table.setTableMenuButtonVisible(true);
 
         //default columns
@@ -493,7 +503,19 @@ public class PlaylistUI extends VBox {
         ratingCol.setVisible(false);
     }
 
-
+    /**
+     * Function to set the column attribute for the playlist table.
+     *
+     * @param filePathCol
+     * @param fileNameCol
+     * @param titleCol
+     * @param artistCol
+     * @param albumCol
+     * @param genreCol
+     * @param ratingCol
+     * @param lengthCol
+     *
+     */
     private void setTableColumnAttributes(TableColumn<Song, File> filePathCol,
                                           TableColumn<Song, String> fileNameCol,
                                           TableColumn<Song, String> titleCol,
@@ -523,134 +545,136 @@ public class PlaylistUI extends VBox {
         ratingCol.setCellValueFactory(new PropertyValueFactory<>("m_rating"));
         ratingCol.setSortable(false);
 
-        lengthCol.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Song, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Song, String> param) {
-                Duration lengthOfSong = new Duration(
-                        param.getValue().getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
-                return new ReadOnlyObjectWrapper<>(UserInterfaceUtils.convertDurationToTimeString(lengthOfSong));
-            }
+        lengthCol.setCellValueFactory(param -> {
+            Duration lengthOfSong = new Duration(
+                    param.getValue().getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
+            return new ReadOnlyObjectWrapper<>(UserInterfaceUtils.convertDurationToTimeString(lengthOfSong));
         });
         lengthCol.setSortable(false);
-
-        m_table.getColumns().add(filePathCol);
-        m_table.getColumns().add(fileNameCol);
-        m_table.getColumns().add(titleCol);
-        m_table.getColumns().add(artistCol);
-        m_table.getColumns().add(albumCol);
-        m_table.getColumns().add(genreCol);
-        m_table.getColumns().add(ratingCol);
-        m_table.getColumns().add(lengthCol);
-        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
+    /**
+     * Function to set the drag events for the table.
+     */
     private void setTableDragEvents() {
-        m_table.setOnDragOver(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                // For Debugging
-                //System.out.println("Drag over on playlist");
-                if(m_model.getM_songToAddToPlaylist() != null && m_model.getM_selectedPlaylist() != null) {
-                    dragEvent.acceptTransferModes(TransferMode.MOVE);
-                }
-                dragEvent.consume();
+        m_table.setOnDragOver(dragEvent -> {
+            // For Debugging
+            //System.out.println("Drag over on playlist");
+            if(m_model.getM_songToAddToPlaylist() != null && m_model.getM_selectedPlaylist() != null) {
+                dragEvent.acceptTransferModes(TransferMode.MOVE);
             }
+            dragEvent.consume();
         });
 
-        m_table.setOnDragDropped(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                //System.out.println("Drag dropped on playlist");
-                m_model.addSongToPlaylist(m_model.getM_songToAddToPlaylist(), m_model.getM_selectedPlaylist());
-                m_musicPlayerManager.notifyQueingObserver();
-                dragEvent.consume();
-            }
+        m_table.setOnDragDropped(dragEvent -> {
+            //System.out.println("Drag dropped on playlist");
+            m_model.addSongToPlaylist(m_model.getM_songToAddToPlaylist(), m_model.getM_selectedPlaylist());
+            m_musicPlayerManager.notifyQueingObserver();
+            dragEvent.consume();
         });
 
-        m_table.setOnDragDone(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                //System.out.println("Drag done on playlist");
-                m_model.setM_songToAddToPlaylist(null);
-                dragEvent.consume();
-            }
+        m_table.setOnDragDone(dragEvent -> {
+            //System.out.println("Drag done on playlist");
+            m_model.setM_songToAddToPlaylist(null);
+            dragEvent.consume();
         });
     }
 
-    private void setTableRowMouseEvents() {
+    /**
+     * Function to set up the row factory for the table
+     */
+    private void setupTableRowFactory() {
         m_table.setRowFactory(new Callback<TableView<Song>, TableRow<Song>>() {
             @Override
             public TableRow<Song> call(TableView<Song> param) {
-                TableRow<Song> row = new TableRow<>();
-                row.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                // Idea taken from
+                // http://stackoverflow.com/questions/20350099/programmatically-change-the-tableview-row-appearance
+                TableRow<Song> row = new TableRow<Song>() {
                     @Override
-                    public void handle(MouseEvent event) {
-                        int selectedSongIndex = row.getIndex();
-                        if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
-                            Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                            selectedPlaylist.setM_currentSongIndex(selectedSongIndex);
-                            m_musicPlayerManager.playPlaylist(selectedPlaylist);
-                        } else if (event.getButton() == MouseButton.PRIMARY) {
-                            m_contextMenu.hide();
-                            if (m_playbackContextMenu != null) {
-                                m_playbackContextMenu.hide();
-                            }
-                        } else if (event.getButton() == MouseButton.SECONDARY) {
-                            m_contextMenu.hide();
-                            m_contextMenu = generateContextMenu(selectedSongIndex);
-                            m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
+                    protected void updateItem(Song song, boolean empty){
+                        super.updateItem(song, empty);
+                        if (!empty){
+                            setTableRowStyle(this);
                         }
+                    }
+                };
+
+                row.setOnMouseClicked(event -> {
+                    int selectedSongIndex = row.getIndex();
+                    if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+                        Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+                        selectedPlaylist.setM_currentSongIndex(selectedSongIndex);
+                        m_musicPlayerManager.playPlaylist(selectedPlaylist);
+                    } else if (event.getButton() == MouseButton.PRIMARY) {
+                        m_contextMenu.hide();
+                        if (m_playbackContextMenu != null) {
+                            m_playbackContextMenu.hide();
+                        }
+                    } else if (event.getButton() == MouseButton.SECONDARY) {
+                        m_contextMenu.hide();
+                        m_contextMenu = generateContextMenu(selectedSongIndex);
+                        m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
                     }
                 });
 
-                UserInterfaceUtils.createMouseOverUIChange(row, null);
+                setTableRowStyle(row);
 
-                m_musicPlayerManager.registerNewSongObserver(new MusicPlayerObserver() {
-                    @Override
-                    public void updateUI() {
-                        if (m_musicPlayerManager.getCurrentIndexOfPlaylistSong() == row.getIndex()){
-                            row.setStyle(UserInterfaceUtils.SELECTED_BACKGROUND_COLOUR);
-
-                            // Make it persist
-                            UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
-                            return;
-                        }
-
-                        row.setStyle(null);
-                        UserInterfaceUtils.createMouseOverUIChange(row, null);
-                    }
-                });
-
+                m_musicPlayerManager.registerNewSongObserver(() -> setTableRowStyle(row));
 
                 return row;
             }
         });
     }
 
+    /**
+     * Helper function to style a row in the playlist. If the song is playing on the playlist then it should
+     * be highlighted.
+     *
+     * @param row The row to style
+     */
+    private void setTableRowStyle(TableRow<Song> row) {
+        boolean sameSong = m_musicPlayerManager.getCurrentPlaylistSong() == row.getItem();
+        boolean sameIndexLocation = m_musicPlayerManager.getCurrentIndexOfPlaylistSong() == row.getIndex();
+        if (row.getItem() != null && sameSong && sameIndexLocation){
+            row.setStyle(UserInterfaceUtils.SELECTED_BACKGROUND_COLOUR);
+
+            // Make it persist
+            UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
+            return;
+        }
+
+        row.setStyle(null);
+        UserInterfaceUtils.createMouseOverUIChange(row, null);
+    }
+
+    /**
+     * Function to generate a context menu for the song specifed by the index of where it is in the playlist.
+     *
+     * @param selectedSongIndex The index of the song in the playlist.
+     *
+     * @return A context menu for that will work on the song at the index
+     */
     private ContextMenu generateContextMenu(int selectedSongIndex) {
         ContextMenu contextMenu = new ContextMenu();
 
         //remove from playlist option
         MenuItem removeFromPlaylist = new MenuItem(ContextMenuConstants.REMOVE_FROM_PLAYLIST);
-        removeFromPlaylist.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                if (PromptUI.removeSongFromPlaylist(selectedPlaylist,
-                                                    selectedPlaylist.getSongByIndex(selectedSongIndex))) {
-                    boolean songToRemoveIsPlaying = (selectedSongIndex == selectedPlaylist.getM_currentSongIndex());
+        removeFromPlaylist.setOnAction(e -> {
+            Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
+            if (PromptUI.removeSongFromPlaylist(selectedPlaylist,
+                                                selectedPlaylist.getSongByIndex(selectedSongIndex))) {
+                boolean songToRemoveIsPlaying = (selectedSongIndex == selectedPlaylist.getM_currentSongIndex());
 
-                    selectedPlaylist.removeSong(selectedSongIndex);
-                    m_model.notifyPlaylistSongsObservers();
+                selectedPlaylist.removeSong(selectedSongIndex);
+                m_model.notifyPlaylistSongsObservers();
 
-                    if (!selectedPlaylist.isEmpty() && songToRemoveIsPlaying) {
-                        m_musicPlayerManager.playPlaylist(selectedPlaylist);
-                    }
+                if (!selectedPlaylist.isEmpty() && songToRemoveIsPlaying) {
+                    m_musicPlayerManager.playPlaylist(selectedPlaylist);
+                }
 
-                    if (selectedPlaylist.isEmpty()) {
-                        m_musicPlayerManager.stopSong();
-                        m_musicPlayerManager.resetCurrentPlaylist();
-                    }
+                if (selectedPlaylist.isEmpty()) {
+                    m_musicPlayerManager.stopSong();
+                    m_musicPlayerManager.resetCurrentPlaylist();
                 }
             }
         });
@@ -660,8 +684,4 @@ public class PlaylistUI extends VBox {
         return contextMenu;
     }
 
-    private void setCssStyle() {
-        final String cssDefault = "-fx-border-color: black;\n";
-        this.setStyle(cssDefault);
-    }
 }
