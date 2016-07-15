@@ -41,7 +41,7 @@ public class MusicPlayerManager {
 
     private Exception m_lastException;
 
-    private double m_volumeLevel = 1.0;
+    private double m_volumeLevel = MusicPlayerConstants.MAX_VOLUME;
 
     private boolean m_isPlayingOnHistory = false;
 
@@ -75,8 +75,7 @@ public class MusicPlayerManager {
      */
     public void playNextSong() {
         System.out.println("Play next song");
-
-        if (isThereNextSongOnHistory()) {
+        if (isThereNextSongOnHistory() && isPlayingSongOnFromHistoryList()) {
             m_historyIndex++;
             m_currentSong = m_songHistory.get(m_historyIndex);
             m_musicPlayer.playSong(m_currentSong);
@@ -110,6 +109,9 @@ public class MusicPlayerManager {
      * @param songToPlay
      */
     public void playSongRightNow(Song songToPlay) {
+        if (m_musicPlayer.isPlayingSong()){
+            stopSong();
+        }
         m_currentSong = songToPlay;
         m_musicPlayer.playSong(songToPlay);
         updateHistory();
@@ -151,10 +153,9 @@ public class MusicPlayerManager {
      * @param songToPlace The song to place in the queue
      */
     public void placeSongAtStartOfQueue(Song songToPlace) {
-        boolean isNoSongPlaying = isNoSongPlayingOrNext();
         m_playingQueue.addFirst(songToPlace);
         m_databaseManager.addToPlaybackQueueHead(songToPlace.getFile().getAbsolutePath());
-        if (isNoSongPlaying){
+        if (isNoSongPlayingOrNext()){
             playNextSong();
         }
         notifyQueingObserver();
@@ -165,11 +166,6 @@ public class MusicPlayerManager {
      * @param playlistToPlay The playlist that we want to play.
      */
     public void playPlaylist(Playlist playlistToPlay) {
-        //prevent double song playing
-        if(isSomethingPlaying()) {
-            stopSong();
-        }
-
         if (playlistToPlay.getM_songList().isEmpty()){
             m_lastException = new Exception("Cannot play playlist " + playlistToPlay.getM_playlistName() +
                     " because there is no songs in there");
@@ -266,6 +262,7 @@ public class MusicPlayerManager {
         }
         m_songHistory.add(m_currentSong);
         m_databaseManager.addToHistory(m_currentSong.getFile().getAbsolutePath());
+
         // On insertion of new song in history set the last played index to be the latest song in history list.
         m_historyIndex = m_songHistory.size() - 1;
         m_isPlayingOnHistory = false;
@@ -338,19 +335,31 @@ public class MusicPlayerManager {
      */
     public void playPreviousSong() {
         assert (m_songHistory.size() < m_historyIndex);
-        if (!m_songHistory.isEmpty()) {
-            m_isPlayingOnHistory = true;
-            if (m_historyIndex != 0 && (m_currentSong != null)) {
-                m_historyIndex--;
-            }
-            m_currentSong = m_songHistory.get(m_historyIndex);
+        if (getCurrentPlayTime().greaterThan(new Duration(MusicPlayerConstants.FIVE_SECONDS_IN_MILLISECONDS))) {
             m_musicPlayer.playSong(m_currentSong);
         } else {
-            // Set to inital state of the player
-            m_currentSong = null;
-            notifyNewSongObservers();
-            notifyPlaybackObservers();
+            if (!m_songHistory.isEmpty()) {
+                m_isPlayingOnHistory = true;
+                if (m_historyIndex != 0 && (m_currentSong != null)) {
+                    m_historyIndex--;
+                }
+                m_currentSong = m_songHistory.get(m_historyIndex);
+                m_musicPlayer.playSong(m_currentSong);
+            } else {
+                // Set to inital state of the player
+                m_currentSong = null;
+                notifyNewSongObservers();
+                notifyPlaybackObservers();
+            }
         }
+    }
+
+    /**
+     * Function to modify song rating.
+     */
+    public void setRating(int rating) {
+        m_currentSong.setRating(rating);
+        notifyChangeStateObservers();
     }
 
     /**
