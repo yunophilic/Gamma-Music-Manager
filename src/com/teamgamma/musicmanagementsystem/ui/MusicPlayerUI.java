@@ -3,7 +3,6 @@ package com.teamgamma.musicmanagementsystem.ui;
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
-import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.model.Song;

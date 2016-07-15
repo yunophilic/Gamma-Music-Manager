@@ -21,6 +21,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -180,7 +181,7 @@ public class PlaylistUI extends VBox {
             if (newPlaylistName != null) {
                 Playlist newPlaylist = m_model.addAndCreatePlaylist(newPlaylistName);
                 m_databaseManager.addPlaylist(newPlaylistName);
-                m_model.notifyPlaylistsObservers();
+                m_model.notifyPlaylistObservers();
                 m_dropDownMenu.getSelectionModel().select(newPlaylist);
             }
         });
@@ -214,7 +215,7 @@ public class PlaylistUI extends VBox {
             if (PromptUI.removePlaylist(selectedPlaylist)) {
                 m_model.removePlaylist(selectedPlaylist);
                 m_databaseManager.removePlaylist(selectedPlaylist.getM_playlistName());
-                m_model.notifyPlaylistsObservers();
+                m_model.notifyPlaylistObservers();
                 m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
             }
         });
@@ -250,7 +251,7 @@ public class PlaylistUI extends VBox {
             if (newPlaylistName != null) {
                 selectedPlaylist.setM_playlistName(newPlaylistName);
                 m_databaseManager.renamePlaylist(oldPlaylistName, newPlaylistName);
-                m_model.notifyPlaylistsObservers();
+                m_model.notifyPlaylistObservers();
                 m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
             }
         });
@@ -286,9 +287,9 @@ public class PlaylistUI extends VBox {
     /**
      * Function to build a button with a static tooltip message that is an image.
      *
-     * @param toolTipMessage    The tooltip message to display/
-     * @param iconPath
-     * @return
+     * @param toolTipMessage The tooltip message to display/
+     * @param iconPath The path of the icon button
+     * @return The button built
      */
     private Button buildButton(String toolTipMessage, String iconPath) {
         Button button = new Button();
@@ -306,8 +307,8 @@ public class PlaylistUI extends VBox {
      * @return The play playlist button.
      */
     private Button createPlayPlaylistButton() {
-        Button playlistButton = UserInterfaceUtils.createIconButton(PLAY_PLAYLIST_ICON);
-        playlistButton.setOnMouseClicked(event -> {
+        Button playPlaylistButton = UserInterfaceUtils.createIconButton(PLAY_PLAYLIST_ICON);
+        playPlaylistButton.setOnMouseClicked(event -> {
             if (m_model.getM_selectedPlaylist() != null) {
                 m_musicPlayerManager.playPlaylist(m_model.getM_selectedPlaylist());
             }
@@ -488,14 +489,14 @@ public class PlaylistUI extends VBox {
      * @param ratingCol
      * @param lengthCol
      */
-    private void showOrHideTableColumns(TableColumn<Song, String> filePathCol,
-                                        TableColumn<Song, String> fileNameCol,
-                                        TableColumn<Song, String> titleCol,
-                                        TableColumn<Song, String> artistCol,
-                                        TableColumn<Song, String> albumCol,
-                                        TableColumn<Song, String> genreCol,
-                                        TableColumn<Song, Integer> ratingCol,
-                                        TableColumn<Song, String> lengthCol) {
+    private void setDefaultVisibleColumnsInTable(TableColumn<Song, String> filePathCol,
+                                                 TableColumn<Song, String> fileNameCol,
+                                                 TableColumn<Song, String> titleCol,
+                                                 TableColumn<Song, String> artistCol,
+                                                 TableColumn<Song, String> albumCol,
+                                                 TableColumn<Song, String> genreCol,
+                                                 TableColumn<Song, Integer> ratingCol,
+                                                 TableColumn<Song, String> lengthCol) {
         m_table.setTableMenuButtonVisible(true);
 
         //default columns
@@ -566,8 +567,8 @@ public class PlaylistUI extends VBox {
     private void setTableDragEvents() {
         m_table.setOnDragOver(dragEvent -> {
             // For Debugging
-            //System.out.println("Drag over on playlist");
-            if(m_model.getM_songToAddToPlaylist() != null && m_model.getM_selectedPlaylist() != null) {
+            System.out.println("Drag over on playlist");
+            if (m_model.getM_itemToMove() instanceof Song && m_model.getM_selectedPlaylist() != null) {
                 dragEvent.acceptTransferModes(TransferMode.MOVE);
             }
             dragEvent.consume();
@@ -575,14 +576,14 @@ public class PlaylistUI extends VBox {
 
         m_table.setOnDragDropped(dragEvent -> {
             //System.out.println("Drag dropped on playlist");
-            m_model.addSongToPlaylist(m_model.getM_songToAddToPlaylist(), m_model.getM_selectedPlaylist());
+            m_model.addSongToPlaylist( (Song) m_model.getM_itemToMove(), m_model.getM_selectedPlaylist() );
             m_musicPlayerManager.notifyQueingObserver();
             dragEvent.consume();
         });
 
         m_table.setOnDragDone(dragEvent -> {
             //System.out.println("Drag done on playlist");
-            m_model.setM_songToAddToPlaylist(null);
+            m_model.setM_itemToMove(null);
             dragEvent.consume();
         });
     }
@@ -614,9 +615,6 @@ public class PlaylistUI extends VBox {
                         m_musicPlayerManager.playPlaylist(selectedPlaylist);
                     } else if (event.getButton() == MouseButton.PRIMARY) {
                         m_contextMenu.hide();
-                        if (m_playbackContextMenu != null) {
-                            m_playbackContextMenu.hide();
-                        }
                     } else if (event.getButton() == MouseButton.SECONDARY) {
                         m_contextMenu.hide();
                         m_contextMenu = generateContextMenu(selectedSongIndex);
