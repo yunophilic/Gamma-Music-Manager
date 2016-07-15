@@ -230,7 +230,12 @@ public class MusicPlayerHistoryUI extends HBox{
                     @Override
                     public void handle(MouseEvent event) {
                         if (event.getButton() == MouseButton.SECONDARY) {
-                            createSubmenu(m_manager, songForRow).show(row, event.getScreenX(), event.getScreenY());
+                            ContextMenu playbackMenu = createSubmenu(m_manager, songForRow);
+
+                            MenuItem removeSong = new MenuItem("Remove Song");
+                            removeSong.setOnAction(event1 -> m_manager.removeSongFromPlaybackQueue(songNumber - 1));
+                            playbackMenu.getItems().add(removeSong);
+                            playbackMenu.show(row, event.getScreenX(), event.getScreenY());
                         }
                     }
                 });
