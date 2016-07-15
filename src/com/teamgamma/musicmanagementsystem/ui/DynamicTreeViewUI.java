@@ -1,12 +1,11 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.util.*;
-import com.teamgamma.musicmanagementsystem.util.FileTreeUtil;
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
-import javafx.util.Callback;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,14 +77,14 @@ public class DynamicTreeViewUI extends StackPane {
      * @param fileAction
      * @param file
      */
-    private void updateFiles(Actions fileAction, File file) {
+    private void updateFiles(Action fileAction, File file) {
         try {
-            if (fileAction != null && fileAction != Actions.NONE) {
+            if (fileAction != null && fileAction != Action.NONE) {
                 if (m_model.getM_rightFolderSelected() == null) {
                     this.getChildren().add(new Label("Choose a folder to view"));
                 } else {
-                    FileTreeUtil.updateTreeItems(fileAction, file, m_tree, m_model);
-                    m_model.setM_rightPanelFileAction(Actions.NONE);
+                    FileTreeUtils.updateTreeItems(fileAction, file, m_tree, m_model);
+                    m_model.setM_rightPanelFileAction(Action.NONE);
                 }
             }
         } catch (IOException ex) {
@@ -113,11 +112,11 @@ public class DynamicTreeViewUI extends StackPane {
             File dummyRootFile = new File(libraries.get(0).getRootDirPath());
             TreeItem<Item> root = new TreeItem<>(new Folder(dummyRootFile, true));
 
-            /*TreeItem<Item> rootItem = FileTreeUtil.generateTreeItems(
+            /*TreeItem<Item> rootItem = FileTreeUtils.generateTreeItems(
                     m_model.getM_rightFolderSelected(), m_model.getM_rightFolderSelected().getAbsolutePath(), dynamicTreeViewExpandedPaths
             );*/
 
-            TreeItem<Item> rootItem = FileTreeUtil.copyTree(m_model.search(m_model.getM_rightFolderSelected()));
+            TreeItem<Item> rootItem = FileTreeUtils.copyTree(m_model.search(m_model.getM_rightFolderSelected()));
 
             rootItem.setExpanded(true);
             if (rootItem.getValue() != null) {
@@ -145,7 +144,7 @@ public class DynamicTreeViewUI extends StackPane {
      */
     public List<String> getExpandedPaths() {
         if (m_tree != null) {
-            return FileTreeUtil.getExpandedPaths(m_tree);
+            return FileTreeUtils.getExpandedPaths(m_tree);
         } else {
             return null;
         }

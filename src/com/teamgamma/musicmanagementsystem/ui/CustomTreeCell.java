@@ -1,10 +1,12 @@
-package com.teamgamma.musicmanagementsystem.util;
+package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Item;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+import com.teamgamma.musicmanagementsystem.ui.CustomEventDispatcher;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
+import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import javafx.event.EventDispatcher;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TreeView;
@@ -130,7 +132,7 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         super.updateItem(item, empty);
         m_selectedItem = item;
         EventDispatcher originalDispatcher = getEventDispatcher();
-        setEventDispatcher(new TreeMouseEventDispatcher(originalDispatcher,
+        setEventDispatcher(new CustomEventDispatcher(originalDispatcher,
                                                         m_model,
                                                         m_musicPlayerManager,
                                                         m_tree,

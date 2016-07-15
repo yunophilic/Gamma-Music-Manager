@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.util.Actions;
+import com.teamgamma.musicmanagementsystem.util.Action;
+import com.teamgamma.musicmanagementsystem.util.FileManager;
 import javafx.scene.control.TreeItem;
 
 import java.io.File;
@@ -46,9 +47,9 @@ public class SongManager {
     private MenuOptions m_menuOptions;
 
     // For actions such as paste, delete
-    private Actions m_libraryAction;
-    private Actions m_libraryFileAction;
-    private Actions m_rightPanelFileAction;
+    private Action m_libraryAction;
+    private Action m_libraryFileAction;
+    private Action m_rightPanelFileAction;
 
     public SongManager() {
         m_libraryObservers = new ArrayList<>();
@@ -176,7 +177,7 @@ public class SongManager {
         //updateLibraries();
 
         m_moveDest = destDir;
-        notifyFileObservers(Actions.DROP, null);
+        notifyFileObservers(Action.DROP, null);
     }
 
     /**
@@ -198,7 +199,7 @@ public class SongManager {
         //updateLibraries();
 
         m_deletedFile = fileToDelete;
-        notifyFileObservers(Actions.DELETE, fileToDelete);
+        notifyFileObservers(Action.DELETE, fileToDelete);
 
         // Clear file to delete buffer
         m_deletedFile = null;
@@ -384,7 +385,7 @@ public class SongManager {
 
         //updateLibraries();
 
-        notifyFileObservers(Actions.RENAME, fileToRename);
+        notifyFileObservers(Action.RENAME, fileToRename);
     }
 
     /**
@@ -392,7 +393,7 @@ public class SongManager {
      * @param action
      * @param file
      */
-    public void fileSysChanged(Actions action, File file) {
+    public void fileSysChanged(Action action, File file) {
         //updateLibraries();
         notifyFileObservers(action, file);
     }
@@ -474,27 +475,27 @@ public class SongManager {
         m_menuOptions = options;
     }
 
-    public Actions getM_libraryAction() {
+    public Action getM_libraryAction() {
         return m_libraryAction;
     }
 
-    public void setM_libraryAction(Actions libraryAction) {
+    public void setM_libraryAction(Action libraryAction) {
         m_libraryAction = libraryAction;
     }
 
-    public Actions getM_libraryFileAction() {
+    public Action getM_libraryFileAction() {
         return m_libraryFileAction;
     }
 
-    public void setM_libraryFileAction(Actions fileAction) {
+    public void setM_libraryFileAction(Action fileAction) {
         m_libraryFileAction = fileAction;
     }
 
-    public Actions getM_rightPanelFileAction() {
+    public Action getM_rightPanelFileAction() {
         return m_rightPanelFileAction;
     }
 
-    public void setM_rightPanelFileAction(Actions fileAction) {
+    public void setM_rightPanelFileAction(Action fileAction) {
         m_rightPanelFileAction = fileAction;
     }
 
@@ -534,23 +535,23 @@ public class SongManager {
 
     public void notifyLibraryObservers() {
         for (FileManagerObserver observer : m_libraryObservers) {
-            observer.changed(Actions.NONE, null);
+            observer.changed(Action.NONE, null);
         }
     }
 
     public void notifyCenterFolderObservers() {
         for (FileManagerObserver observer : m_centerFolderObservers) {
-            observer.changed(Actions.NONE, null);
+            observer.changed(Action.NONE, null);
         }
     }
 
     public void notifyRightFolderObservers() {
         for (FileManagerObserver observer : m_rightFolderObservers) {
-            observer.changed(Actions.NONE, null);
+            observer.changed(Action.NONE, null);
         }
     }
 
-    public void notifyFileObservers(Actions action, File file) {
+    public void notifyFileObservers(Action action, File file) {
         for (FileManagerObserver observer : m_fileObservers) {
             observer.changed(action, file);
         }
@@ -558,7 +559,7 @@ public class SongManager {
 
     public void notifyLeftPanelObservers() {
         for (FileManagerObserver observer : m_leftPanelOptionsObservers) {
-            observer.changed(Actions.NONE, null);
+            observer.changed(Action.NONE, null);
         }
     }
 

@@ -1,6 +1,6 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.util.FileTreeUtil;
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import javafx.scene.control.TreeItem;
 
 import java.io.File;
@@ -20,7 +20,7 @@ public class Library {
      */
     public Library(String folderPath) {
         File rootDir = new File(folderPath);
-        m_treeRoot = FileTreeUtil.generateTreeItems(rootDir, rootDir.getAbsolutePath(), null);
+        m_treeRoot = FileTreeUtils.generateTreeItems(rootDir, rootDir.getAbsolutePath(), null);
     }
 
     /**
@@ -31,7 +31,7 @@ public class Library {
      */
     public Library(String folderPath, List<String> expandedPaths) {
         File rootDir = new File(folderPath);
-        m_treeRoot = FileTreeUtil.generateTreeItems(rootDir, rootDir.getAbsolutePath(), expandedPaths);
+        m_treeRoot = FileTreeUtils.generateTreeItems(rootDir, rootDir.getAbsolutePath(), expandedPaths);
     }
 
     /**
@@ -41,7 +41,7 @@ public class Library {
      * @return The tree node if found, null if not found
      */
     public TreeItem<Item> search(File file) {
-        return FileTreeUtil.searchTreeItem(m_treeRoot, file.getAbsolutePath());
+        return FileTreeUtils.searchTreeItem(m_treeRoot, file.getAbsolutePath());
     }
 
     /**

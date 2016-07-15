@@ -1,9 +1,11 @@
-package com.teamgamma.musicmanagementsystem.model;
+package com.teamgamma.musicmanagementsystem.util;
 
 import com.sun.jna.platform.FileUtils;
+import com.teamgamma.musicmanagementsystem.model.Song;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;

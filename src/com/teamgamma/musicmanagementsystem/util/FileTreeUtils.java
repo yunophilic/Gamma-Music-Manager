@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Utility class that provides functionality for the FileTree
  */
-public class FileTreeUtil {
+public class FileTreeUtils {
     private static final String OPEN_FOLDER_ICON_PATH = "res" + File.separator + "Status-folder-open-icon.png";
     private static final String FOLDER_ICON_PATH = "res" + File.separator + "folder-icon.png";
     private static final String SONG_ICON_PATH = "res" + File.separator + "music-file-icon.png";
@@ -183,7 +183,7 @@ public class FileTreeUtil {
      */
     public static void setOpenFolder(TreeView<Item> tree, String filePath) {
         System.out.println("^^^^^ Tree root: " + tree.getRoot());
-        TreeItem<Item> selectedTreeItem = FileTreeUtil.searchTreeItem(tree.getRoot(), filePath);
+        TreeItem<Item> selectedTreeItem = FileTreeUtils.searchTreeItem(tree.getRoot(), filePath);
 
         if(selectedTreeItem == null) {
             throw new IllegalArgumentException("file path specified not found in tree");
@@ -234,7 +234,7 @@ public class FileTreeUtil {
      * @param model
      * @throws IOException
      */
-    public static void updateTreeItems(Actions fileAction, File changedFile, TreeView<Item> tree, SongManager model) throws IOException {
+    public static void updateTreeItems(Action fileAction, File changedFile, TreeView<Item> tree, SongManager model) throws IOException {
         switch (fileAction) {
             case ADD: {
                 // Add new if it does not already exist (For watcher)

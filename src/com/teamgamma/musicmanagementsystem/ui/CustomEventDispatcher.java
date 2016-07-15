@@ -1,9 +1,10 @@
-package com.teamgamma.musicmanagementsystem.util;
+package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.model.Item;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;
@@ -15,7 +16,7 @@ import javafx.scene.input.MouseEvent;
  * Custom EventDispatcher class to override the default double-click behaviour of TreeView
  * This class is a modification of http://stackoverflow.com/questions/15509203/disable-treeitems-default-expand-collapse-on-double-click-javafx-2-2
  */
-public class TreeMouseEventDispatcher implements EventDispatcher {
+public class CustomEventDispatcher implements EventDispatcher {
     private final EventDispatcher m_originalDispatcher;
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
@@ -26,12 +27,12 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
     // Static private member for making the control click menu be just a single instance.
     //private static ContextMenu m_playbackContextMenuInstance;
 
-    public TreeMouseEventDispatcher(EventDispatcher originalDispatcher,
-                                    SongManager model,
-                                    MusicPlayerManager musicPlayerManager,
-                                    TreeView<Item> tree,
-                                    Item selectedItem,
-                                    boolean isLeftPane) {
+    public CustomEventDispatcher(EventDispatcher originalDispatcher,
+                                 SongManager model,
+                                 MusicPlayerManager musicPlayerManager,
+                                 TreeView<Item> tree,
+                                 Item selectedItem,
+                                 boolean isLeftPane) {
         m_originalDispatcher = originalDispatcher;
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
@@ -64,8 +65,8 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                             m_model.setM_selectedCenterFolder(m_selectedItem.getFile());
                             m_model.notifyCenterFolderObservers();
 
-                            FileTreeUtil.closeAllFoldersIcons(m_tree.getRoot());
-                            FileTreeUtil.setOpenFolder(m_tree, m_selectedItem.getFile().getAbsolutePath());
+                            FileTreeUtils.closeAllFoldersIcons(m_tree.getRoot());
+                            FileTreeUtils.setOpenFolder(m_tree, m_selectedItem.getFile().getAbsolutePath());
 
                         } else if (!isFolder) {
                             Song songToPlay = (Song) m_selectedItem;

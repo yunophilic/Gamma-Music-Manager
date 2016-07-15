@@ -1,9 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.util.Actions;
+import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.model.*;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -42,7 +40,7 @@ public class MenuUI extends MenuBar{
             }
             m_databaseManager.addLibrary(pathInput);
 
-            m_model.setM_libraryAction(Actions.ADD);
+            m_model.setM_libraryAction(Action.ADD);
             m_model.notifyLibraryObservers();
         });
         menuFile.getItems().addAll(addLibraryMenu);

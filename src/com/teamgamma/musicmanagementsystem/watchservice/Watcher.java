@@ -1,6 +1,6 @@
 package com.teamgamma.musicmanagementsystem.watchservice;
 
-import com.teamgamma.musicmanagementsystem.util.Actions;
+import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.model.*;
 import javafx.application.Platform;
 
@@ -48,7 +48,7 @@ public class Watcher {
             System.out.println("**** Watching...");
             boolean isFirst = true;
             File tempFile = null;
-            Actions action = Actions.NONE;
+            Action action = Action.NONE;
 
             while (true) {
                 try {
@@ -63,7 +63,7 @@ public class Watcher {
 
                     // WatchKey failed to grab more events
                     if (m_watchKey == null) {
-                        Actions finalAction = action;
+                        Action finalAction = action;
                         File finalTempFile = tempFile;
                         Platform.runLater(() ->
                                 m_model.fileSysChanged(finalAction, finalTempFile));
@@ -81,11 +81,11 @@ public class Watcher {
                         if(isFirst) {
                             isFirst = false;
                             if(kind == StandardWatchEventKind.ENTRY_CREATE) {
-                                action = Actions.ADD;
+                                action = Action.ADD;
                             } else if(kind == StandardWatchEventKind.ENTRY_DELETE) {
-                                action = Actions.DELETE;
+                                action = Action.DELETE;
                             } else {
-                                action = Actions.NONE;
+                                action = Action.NONE;
                             }
                             tempFile = new File(dir + File.separator + eventPath);
                         }
@@ -160,12 +160,8 @@ public class Watcher {
     }
 
     private void registerAsObserver() {
-        m_model.addLibraryObserver((action, file) -> {
-            restartWatcher();
-        });
-        m_model.addFileObserver((action, file) -> {
-            restartWatcher();
-        });
+        m_model.addLibraryObserver((action, file) -> restartWatcher());
+        m_model.addFileObserver((action, file) -> restartWatcher());
     }
 
 }

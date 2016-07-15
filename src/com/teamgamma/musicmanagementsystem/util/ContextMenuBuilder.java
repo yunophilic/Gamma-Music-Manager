@@ -4,7 +4,6 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
-import com.teamgamma.musicmanagementsystem.ui.UserInterfaceUtils;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -293,7 +292,7 @@ public class ContextMenuBuilder {
                 }
                 try {
                     model.copyToDestination(dest);
-                    model.notifyFileObservers(Actions.PASTE, null);
+                    model.notifyFileObservers(Action.PASTE, null);
                 } catch (FileAlreadyExistsException ex) {
                     PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
                 } catch (IOException ex) {
@@ -318,7 +317,7 @@ public class ContextMenuBuilder {
             }
             try {
                 model.copyToDestination(dest);
-                model.notifyFileObservers(Actions.PASTE, null);
+                model.notifyFileObservers(Action.PASTE, null);
             } catch (FileAlreadyExistsException ex) {
                 PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
             } catch (IOException ex) {
@@ -398,7 +397,7 @@ public class ContextMenuBuilder {
                 databaseManager.removeLibrary(
                         selectedItemPath
                 );
-                model.setM_libraryAction(Actions.REMOVE_FROM_VIEW);
+                model.setM_libraryAction(Action.REMOVE_FROM_VIEW);
                 model.notifyLibraryObservers();
             }
         });

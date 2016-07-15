@@ -1,9 +1,10 @@
-package com.teamgamma.musicmanagementsystem.ui;
+package com.teamgamma.musicmanagementsystem.util;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;

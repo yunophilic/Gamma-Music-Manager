@@ -1,13 +1,12 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.util.*;
-import com.teamgamma.musicmanagementsystem.util.FileTreeUtil;
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import com.teamgamma.musicmanagementsystem.model.*;
 
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
-import javafx.util.Callback;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +38,7 @@ public class LibraryUI extends StackPane {
     }
 
     private void setTreeExpandedState(List<String> expandedPaths) {
-        FileTreeUtil.setTreeExpandedState(m_tree.getRoot(), expandedPaths);
+        FileTreeUtils.setTreeExpandedState(m_tree.getRoot(), expandedPaths);
     }
 
     private void updateTreeView() {
@@ -91,11 +90,11 @@ public class LibraryUI extends StackPane {
      * @param fileAction
      * @param file
      */
-    private void updateFiles(Actions fileAction, File file) {
+    private void updateFiles(Action fileAction, File file) {
         try {
-            if (fileAction != null && fileAction != Actions.NONE) {
-                FileTreeUtil.updateTreeItems(fileAction, file, m_tree, m_model);
-                m_model.setM_libraryFileAction(Actions.NONE);
+            if (fileAction != null && fileAction != Action.NONE) {
+                FileTreeUtils.updateTreeItems(fileAction, file, m_tree, m_model);
+                m_model.setM_libraryFileAction(Action.NONE);
             }
         } catch (IOException ex) {
             PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
@@ -107,18 +106,18 @@ public class LibraryUI extends StackPane {
      * Update libraries depending on the action
      * @param libraryAction
      */
-    private void updateLibraryTrees(Actions libraryAction) {
-        if (libraryAction.equals(Actions.ADD)) {
+    private void updateLibraryTrees(Action libraryAction) {
+        if (libraryAction.equals(Action.ADD)) {
             // If this is not the first library added, add it without resetting the state of the other libraries
             // Else, simply reset the tree to show the library
             if (m_model.getM_libraries().size() > 1){
                 List<TreeItem<Item>> libraryNodes = m_tree.getRoot().getChildren();
-                List<Item> libraryItems = FileTreeUtil.getTreeViewItems(libraryNodes);
+                List<Item> libraryItems = FileTreeUtils.getTreeViewItems(libraryNodes);
                 List<Library> libraries = m_model.getM_libraries();
 
                 for (Library library : libraries) {
                     // If library is not in libraryItems, add new node
-                    if (!FileTreeUtil.isLibraryInList(libraryItems, library)) {
+                    if (!FileTreeUtils.isLibraryInList(libraryItems, library)) {
                         TreeItem<Item> newLibrary = library.getM_treeRoot();
                         newLibrary.setExpanded(true);
                         libraryNodes.add(newLibrary);
@@ -127,7 +126,7 @@ public class LibraryUI extends StackPane {
             } else {
                 updateTreeView();
             }
-        } else if (libraryAction.equals(Actions.REMOVE_FROM_VIEW) || libraryAction.equals(Actions.DELETE)) {
+        } else if (libraryAction.equals(Action.REMOVE_FROM_VIEW) || libraryAction.equals(Action.DELETE)) {
             TreeItem<Item> removedLibrary = m_tree.getSelectionModel().getSelectedItem();
             removedLibrary.getParent().getChildren().remove(removedLibrary);
 
@@ -155,7 +154,7 @@ public class LibraryUI extends StackPane {
         TreeItem<Item> root = new TreeItem<>(new Folder(dummyRootFile, true));
 
         for (Library library : libraries) {
-            /*TreeItem<Item> rootItem = FileTreeUtil.generateTreeItems(
+            /*TreeItem<Item> rootItem = FileTreeUtils.generateTreeItems(
                     library.getRootDir(), library.getRootDirPath(), m_model.getM_menuOptions().getM_leftPanelShowFolder(),
                     expandedPaths
             );*/
@@ -168,7 +167,7 @@ public class LibraryUI extends StackPane {
         tree.setShowRoot(false);
 
         if (m_model.getM_selectedCenterFolder() != null) {
-            FileTreeUtil.setOpenFolder(tree, m_model.getM_selectedCenterFolder().getAbsolutePath());
+            FileTreeUtils.setOpenFolder(tree, m_model.getM_selectedCenterFolder().getAbsolutePath());
         }
 
         return tree;
@@ -184,7 +183,7 @@ public class LibraryUI extends StackPane {
 
     public List<String> getExpandedPaths() {
         if (m_tree != null) {
-            return FileTreeUtil.getExpandedPaths(m_tree);
+            return FileTreeUtils.getExpandedPaths(m_tree);
         } else {
             return null;
         }
