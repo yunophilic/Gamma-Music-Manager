@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to maintain a library in a system.
+ * Class that defines a library in the system.
  */
 public class Library {
     private TreeItem<Item> m_treeRoot;
@@ -35,13 +35,13 @@ public class Library {
     }
 
     /**
-     * Get node containing item in this Library
+     * Search node containing the specified file in this Library
      *
-     * @param item: Song object to retrieve
-     * @return Node if found, null if not found
+     * @param file: The specified Item
+     * @return The tree node if found, null if not found
      */
-    public TreeItem<Item> getNode(Item item) {
-        return FileTreeUtil.searchTreeItem(m_treeRoot, item);
+    public TreeItem<Item> search(File file) {
+        return FileTreeUtil.searchTreeItem(m_treeRoot, file.getAbsolutePath());
     }
 
     /**
@@ -49,16 +49,16 @@ public class Library {
      *
      * @return List of Song objects in Library
      */
-    public List<Song> getSongs() {
-        return getSongs(m_treeRoot);
+    public List<Song> getSongsRecursively() {
+        return getSongsRecursively(m_treeRoot);
     }
 
     /**
      * Recursively fetch all songs under this node
      *
-     * @return List of Song objects in Library
+     * @return List of Song objects in specified node
      */
-    private List<Song> getSongs(TreeItem<Item> node) {
+    private List<Song> getSongsRecursively(TreeItem<Item> node) {
         List<Song> songs = new ArrayList<>();
         if(node.getValue() instanceof Song) {
             songs.add( (Song) node.getValue() );
@@ -66,7 +66,7 @@ public class Library {
 
         List<TreeItem<Item>> children = node.getChildren();
         for (TreeItem<Item> child : children) {
-            songs.addAll(getSongs(child));
+            songs.addAll(getSongsRecursively(child));
         }
 
         return songs;

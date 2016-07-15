@@ -4,7 +4,6 @@ import com.teamgamma.musicmanagementsystem.model.*;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.io.File;
@@ -16,9 +15,9 @@ import java.util.List;
  * Utility class that provides functionality for the FileTree
  */
 public class FileTreeUtil {
-    private static final Image openFolderImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "Status-folder-open-icon.png"));
-    private static final Image folderImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "folder-icon.png"));
-    private static final Image songImage = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "music-file-icon.png"));
+    private static final String OPEN_FOLDER_ICON_PATH = "res" + File.separator + "Status-folder-open-icon.png";
+    private static final String FOLDER_ICON_PATH = "res" + File.separator + "folder-icon.png";
+    private static final String SONG_ICON_PATH = "res" + File.separator + "music-file-icon.png";
 
     /*public static TreeItem<Item> generateTreeItems(File file, String dirPath, boolean showFolderOnly, List<String> expandedPaths) {
         System.out.println(file + ", " + dirPath);
@@ -29,7 +28,7 @@ public class FileTreeUtil {
         File treeItemFile = item.getValue().getFile();
         System.out.println("$$$" + treeItemFile + ", " + treeItemFile.isDirectory());
         if (treeItemFile.isDirectory()) {
-            item.setGraphic(new ImageView(folderImage));
+            item.setGraphic(new ImageView(FOLDER_ICON_PATH));
 
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
                 if (expandedPaths.contains(item.getValue().getFile().getAbsolutePath())) {
@@ -37,7 +36,7 @@ public class FileTreeUtil {
                 }
             }
         } else {
-            item.setGraphic(new ImageView(songImage));
+            item.setGraphic(new ImageView(SONG_ICON_PATH));
         }
 
         File[] children = getSubFiles(file, showFolderOnly);
@@ -77,13 +76,13 @@ public class FileTreeUtil {
         TreeItem<Item> item;
         if(!file.isDirectory()) {
             item = new TreeItem<>(new Song(file));
-            item.setGraphic(new ImageView(songImage));
+            item.setGraphic(new ImageView(SONG_ICON_PATH));
         } else {
             item = new TreeItem<>(
                     (file.getAbsolutePath().equals(dirPath)) ? new Folder(file, true) : new Folder(file, false)
             );
 
-            item.setGraphic(new ImageView(folderImage));
+            item.setGraphic(new ImageView(FOLDER_ICON_PATH));
 
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
                 if (expandedPaths.contains(item.getValue().getFile().getAbsolutePath())) {
@@ -113,16 +112,6 @@ public class FileTreeUtil {
     }
 
     /**
-     * Search for the TreeItem<Item> from the specified TreeView<Item> based on the given path
-     *
-     * @param path the specified path
-     * @return TreeItem<Item> or null if not found
-     */
-    public static TreeItem<Item> searchTreeItem(TreeView<Item> tree, String path) {
-        return searchTreeItem(tree.getRoot(), path);
-    }
-
-    /**
      * Search for the TreeItem<Item> from the sub-tree rooted at the specified node based on the given path
      *
      * @param node the specified node
@@ -148,28 +137,22 @@ public class FileTreeUtil {
     }
 
     /**
-     * Search for the TreeItem<Item> from the sub-tree rooted at the specified node based on the given item
+     * Copy tree rooted at node
      *
      * @param node the specified node
-     * @param item the specified item
-     * @return TreeItem<Item> or null if not found
+     * @return root node of the copied tree
      */
-    public static TreeItem<Item> searchTreeItem(TreeItem<Item> node, Item item) {
-        //base case
-        if (node.getValue().equals(item)) {
-            //System.out.println("Returning node: " + node);
-            return node;
-        }
+    public static TreeItem<Item> copyTree(final TreeItem<Item> node) {
+        TreeItem<Item> nodeCopy = new TreeItem<>();
+        Item item = node.getValue();
+        nodeCopy.setValue(item);
+        nodeCopy.setGraphic(new ImageView(item.getFile().isDirectory() ? FOLDER_ICON_PATH : SONG_ICON_PATH));
 
-        //recursive case
         for (TreeItem<Item> child : node.getChildren()) {
-            TreeItem<Item> target = searchTreeItem(child, item);
-            if (target != null) {
-                return target;
-            }
+            nodeCopy.getChildren().add(copyTree(child));
         }
 
-        return null;
+        return nodeCopy;
     }
 
     /**
@@ -180,9 +163,9 @@ public class FileTreeUtil {
     public static void closeAllFoldersIcons(TreeItem<Item> treeItem) {
         //System.out.println("#### closing file: " + treeItem.getValue());
         if (treeItem.getValue().getFile().isDirectory()) {
-            treeItem.setGraphic(new ImageView(folderImage));
+            treeItem.setGraphic(new ImageView(FOLDER_ICON_PATH));
         } else {
-            treeItem.setGraphic(new ImageView(songImage));
+            treeItem.setGraphic(new ImageView(SONG_ICON_PATH));
         }
         if (!treeItem.getChildren().isEmpty()) {
             List<TreeItem<Item>> childTreeItems = treeItem.getChildren();
@@ -195,15 +178,19 @@ public class FileTreeUtil {
     /**
      * Set selected tree item's icon to open folder icon
      *
-     * @param m_tree
+     * @param tree
      * @param filePath
      */
-    public static void setOpenFolder(TreeView<Item> m_tree, String filePath) {
-        System.out.println("^^^^^ Tree root: " + m_tree.getRoot());
-        TreeItem<Item> selectedTreeItem = FileTreeUtil.searchTreeItem(m_tree, filePath);
-        //System.out.println("@@@ Found treeitem: " + selectedTreeItem.getValue());
+    public static void setOpenFolder(TreeView<Item> tree, String filePath) {
+        System.out.println("^^^^^ Tree root: " + tree.getRoot());
+        TreeItem<Item> selectedTreeItem = FileTreeUtil.searchTreeItem(tree.getRoot(), filePath);
+
+        if(selectedTreeItem == null) {
+            throw new IllegalArgumentException("file path specified not found in tree");
+        }
+
         System.out.println("@@@ Found treeitem: " + selectedTreeItem);
-        selectedTreeItem.setGraphic(new ImageView(openFolderImage));
+        selectedTreeItem.setGraphic(new ImageView(OPEN_FOLDER_ICON_PATH));
     }
 
     /**
@@ -251,9 +238,9 @@ public class FileTreeUtil {
         switch (fileAction) {
             case ADD: {
                 // Add new if it does not already exist (For watcher)
-                TreeItem<Item> searchedItem = searchTreeItem(tree, changedFile.getAbsolutePath());
+                TreeItem<Item> searchedItem = searchTreeItem(tree.getRoot(), changedFile.getAbsolutePath());
                 if (searchedItem == null) {
-                    createNewNode(tree, changedFile.getName(), changedFile.getParent());
+                    createNewNodes(tree, changedFile.getName(), changedFile.getParent());
                 }
                 break;
             }
@@ -264,36 +251,22 @@ public class FileTreeUtil {
             }
 
             case DROP: {
-                // Add new node to destination file node
-                /*createNewNode(tree, model.getFileToMove().getName(), model.getM_moveDest().getAbsolutePath());
+                File fileToMove = model.getFileToMove();
+                TreeItem<Item> nodeToMove = searchTreeItem(tree.getRoot(), fileToMove.getAbsolutePath());
 
-                // Remove node from old folder it was in
-                String deletedFilePath = model.getFileToMove().getAbsolutePath();
-                TreeItem<Item> removedFile = searchTreeItem(tree, deletedFilePath);
-
-                removedFile.getParent().getChildren().remove(removedFile);*/
-
-                TreeItem<Item> nodeToMove = searchTreeItem(tree, model.getFileToMove().getAbsolutePath());
-
-                // Create new node if it does not exists in current tree
+                // Search in model if it does not exists in current tree
                 if (nodeToMove == null) {
-                    nodeToMove = generateTreeItems(model.getFileToMove(), model.getFileToMove().getAbsolutePath(), null);
+                    nodeToMove = model.search(fileToMove);
                 }
 
-                System.out.println("...NODE TO MOVE: " + nodeToMove.getValue());
-
-                TreeItem<Item> destParentNode = searchTreeItem(tree, model.getM_moveDest().getAbsolutePath());
-
-                System.out.println("...DESTINATION PARENT: " + destParentNode.getValue());
-
+                TreeItem<Item> destParentNode = searchTreeItem(tree.getRoot(), model.getM_moveDest().getAbsolutePath());
                 moveNode(nodeToMove, destParentNode);
-
                 break;
             }
 
             case DELETE: {
                 String deletedFilePath = changedFile.getAbsolutePath();
-                TreeItem<Item> removedNode = searchTreeItem(tree, deletedFilePath);
+                TreeItem<Item> removedNode = searchTreeItem(tree.getRoot(), deletedFilePath);
                 if (removedNode != null) {
                     deleteNode(removedNode);
                 }
@@ -301,7 +274,7 @@ public class FileTreeUtil {
             }
 
             case PASTE: {
-                createNewNode(tree, model.getFileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
+                createNewNodes(tree, model.getFileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
                 break;
             }
 
@@ -324,7 +297,7 @@ public class FileTreeUtil {
      * @param model the model
      */
     private static void renameNode(File changedFile, TreeView<Item> tree, SongManager model) {
-        TreeItem<Item> nodeToRename = searchTreeItem(tree, changedFile.getAbsolutePath());
+        TreeItem<Item> nodeToRename = searchTreeItem(tree.getRoot(), changedFile.getAbsolutePath());
         File renamedFile = model.getM_renamedFile();
 
         System.out.println("NEW FILE NAME: " + renamedFile);
@@ -362,18 +335,18 @@ public class FileTreeUtil {
     }
 
     /**
-     * Create fresh new nodes with a new Item references.
+     * Create fresh new nodes recursively with new Item references based on given fileName and newParentPath
      *
      * @param tree The tree where a new node is to be created
      * @param fileName The file name that the new node will contain
      * @param newParentPath The path of the new parent
      */
-    private static void createNewNode(TreeView<Item> tree, String fileName, String newParentPath) {
+    private static void createNewNodes(TreeView<Item> tree, String fileName, String newParentPath) {
         String newFilePath = newParentPath + File.separator + fileName;
         File copiedFile = new File(newFilePath);
 
         TreeItem<Item> newFileNode = generateTreeItems(copiedFile, newParentPath, null);
-        TreeItem<Item> parentFileNode = searchTreeItem(tree, newParentPath);
+        TreeItem<Item> parentFileNode = searchTreeItem(tree.getRoot(), newParentPath);
 
         if (newFileNode != null && parentFileNode != null) {
             parentFileNode.getChildren().add(newFileNode);
@@ -465,11 +438,11 @@ public class FileTreeUtil {
 
     /**
      * Get list of paths in tree that are expanded
-     * @param m_tree
+     * @param tree
      * @return Arraylist of paths as String
      */
-    public static List<String> getExpandedPaths(TreeView<Item> m_tree) {
-        return getExpandedPathsRecursively(m_tree.getRoot());
+    public static List<String> getExpandedPaths(TreeView<Item> tree) {
+        return getExpandedPathsRecursively(tree.getRoot());
     }
 
     /**

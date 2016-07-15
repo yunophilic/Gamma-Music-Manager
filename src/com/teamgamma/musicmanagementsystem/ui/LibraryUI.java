@@ -61,13 +61,7 @@ public class LibraryUI extends StackPane {
 
     private void setTreeCellFactory() {
         System.out.println("setting cell factory...");
-        m_tree.setCellFactory(new Callback<TreeView<Item>, TreeCell<Item>>() {
-            @Override
-            public TreeCell<Item> call(TreeView<Item> arg) {
-                // custom m_tree cell that defines a context menu for the root m_tree item
-                return new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, true);
-            }
-        });
+        m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, true));
     }
 
     private void registerAsLibraryObserver() {

@@ -51,13 +51,7 @@ public class DynamicTreeViewUI extends StackPane {
      */
     private void setTreeCellFactory() {
         System.out.println("setting cell factory...");
-        m_tree.setCellFactory(new Callback<TreeView<Item>, TreeCell<Item>>() {
-            @Override
-            public TreeCell<Item> call(TreeView<Item> arg) {
-                // custom m_tree cell that defines a context menu for the root m_tree item
-                return new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, false);
-            }
-        });
+        m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, false));
     }
 
     /**
@@ -119,15 +113,17 @@ public class DynamicTreeViewUI extends StackPane {
             File dummyRootFile = new File(libraries.get(0).getRootDirPath());
             TreeItem<Item> root = new TreeItem<>(new Folder(dummyRootFile, true));
 
-            TreeItem<Item> rootItem = FileTreeUtil.generateTreeItems(
+            /*TreeItem<Item> rootItem = FileTreeUtil.generateTreeItems(
                     m_model.getM_rightFolderSelected(), m_model.getM_rightFolderSelected().getAbsolutePath(), dynamicTreeViewExpandedPaths
-            );
+            );*/
 
-        rootItem.setExpanded(true);
-        if (rootItem.getValue() != null) {
-            System.out.println("Added new root path:" + rootItem.toString());
-        }
-        root.getChildren().add(rootItem);
+            TreeItem<Item> rootItem = FileTreeUtil.copyTree(m_model.search(m_model.getM_rightFolderSelected()));
+
+            rootItem.setExpanded(true);
+            if (rootItem.getValue() != null) {
+                System.out.println("Added new root path:" + rootItem.toString());
+            }
+            root.getChildren().add(rootItem);
 
             TreeView<Item> tree = new TreeView<>(root);
             tree.setShowRoot(false);

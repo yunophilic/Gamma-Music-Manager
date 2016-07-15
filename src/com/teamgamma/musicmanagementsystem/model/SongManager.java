@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.model;
 
 import com.teamgamma.musicmanagementsystem.util.Actions;
+import javafx.scene.control.TreeItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -231,7 +232,21 @@ public class SongManager {
      * @return list of songs
      */
     private List<Song> getSongs(Library library) {
-        return library.getSongs();
+        return library.getSongsRecursively();
+    }
+
+    /**
+     * Search node from all libraries based on the specified item
+     * @param file The item to search on
+     * @return node containing the item, or null if not founr
+     */
+    public TreeItem<Item> search(File file) {
+        for (Library lib : m_libraries) {
+            TreeItem<Item> node = lib.search(file);
+            if (node != null)
+                return node;
+        }
+        return null;
     }
 
     /**
@@ -244,7 +259,7 @@ public class SongManager {
 
         if (m_selectedCenterFolder != null) {
             for (Library library : m_libraries) {
-                for (Song song : library.getSongs()) {
+                for (Song song : library.getSongsRecursively()) {
                     if (m_menuOptions.getM_centerPanelShowSubfolderFiles()) {
                         String songFilePath = song.getFile().getAbsolutePath();
                         if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath() + File.separator)) {
