@@ -879,9 +879,11 @@ public class DatabaseManager {
             m_getResumeTime.setString(1, playlistName);
             ResultSet resultSet = m_getResumeTime.executeQuery();
             int resumeTime = resultSet.getInt("resumeTime");
+            return resumeTime;
         }
         catch (SQLException e) {
             e.printStackTrace();
         }
+        return 0;
     }
 }
