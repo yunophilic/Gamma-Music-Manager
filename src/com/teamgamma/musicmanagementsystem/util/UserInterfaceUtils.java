@@ -1,8 +1,10 @@
-package com.teamgamma.musicmanagementsystem.ui;
+package com.teamgamma.musicmanagementsystem.util;
 
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -88,24 +90,28 @@ public class UserInterfaceUtils {
     /**
      * Delete a song that has been selected by the user.
      *
-     * @param selectedSong song selected
+     * @param fileToDelete song selected
      */
-    public static void deleteSong(File selectedSong, SongManager model, MusicPlayerManager musicPlayerManager) {
+    public static void deleteFileAction(SongManager model,
+                                        MusicPlayerManager musicPlayerManager,
+                                        DatabaseManager databaseManager,
+                                        File fileToDelete) {
         //confirmation dialog
-        if (selectedSong.isDirectory()) {
-            if (!PromptUI.recycleLibrary(selectedSong)) {
+        if (fileToDelete.isDirectory()) {
+            if (!PromptUI.recycleLibrary(fileToDelete)) {
                 return;
             }
         } else {
-            if (!PromptUI.recycleSong(selectedSong)) {
+            if (!PromptUI.recycleSong(fileToDelete)) {
                 return;
             }
         }
+
         //try to actually delete (retry if FileSystemException happens)
         final int NUM_TRIES = 2;
         for (int i = 0; i < NUM_TRIES; i++) {
             try {
-                model.deleteFile(selectedSong);
+                model.deleteFile(fileToDelete);
                 break;
             } catch (IOException ex) {
                 musicPlayerManager.stopSong();
@@ -128,9 +134,12 @@ public class UserInterfaceUtils {
                 break;
             }
         }
+
         musicPlayerManager.notifyNewSongObservers();
         musicPlayerManager.notifyQueingObserver();
         musicPlayerManager.notifyChangeStateObservers();
+
+        databaseManager.removeLibrary(fileToDelete.getAbsolutePath()); //only succeed if fileToDelete is library folder
     }
 
     /**

@@ -85,7 +85,7 @@ public class JlayerMP3Player implements IMusicPlayer{
     private void setUpMusicPlayer(Song songToPlay) throws Exception{
         try {
             m_isUserInterrupted = false;
-            m_fs = new FileInputStream(songToPlay.getM_file());
+            m_fs = new FileInputStream(songToPlay.getFile());
             m_bufferedStream = new BufferedInputStream(m_fs);
             m_audioDevice = FactoryRegistry.systemRegistry().createAudioDevice();
 
@@ -161,17 +161,14 @@ public class JlayerMP3Player implements IMusicPlayer{
      * @return  A Thread that can be used to terminate the thread in the parameter.
      */
     private Thread createTerminationThread(Thread threadToTerminate) {
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    threadToTerminate.interrupt();
-                    threadToTerminate.join();
+        return new Thread(() -> {
+            try {
+                threadToTerminate.interrupt();
+                threadToTerminate.join();
 
-                } catch (InterruptedException e) {
-                    m_manager.setError(e);
-                    m_manager.notifyError();
-                }
+            } catch (InterruptedException e) {
+                m_manager.setError(e);
+                m_manager.notifyError();
             }
         });
     }
@@ -181,34 +178,31 @@ public class JlayerMP3Player implements IMusicPlayer{
      * @return  A thread that will play the song from the beginning.
      */
     private Thread createPlayBackThread() {
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    m_isPlaying = true;
-                    m_player.play();
+        return new Thread(() -> {
+            try {
+                m_isPlaying = true;
+                m_player.play();
 
-                } catch (BitstreamException bistreamError) {
-                    // Ignore since this exception would be for when we want to interrupt the music player so we can
-                    // the thread.
-                    return;
-                } catch (ArrayIndexOutOfBoundsException arrayOutOfBounds) {
-                    // Need to reset the player as we hit the 0.01% case that this exception happen as said in their
-                    // documentation
+            } catch (BitstreamException bistreamError) {
+                // Ignore since this exception would be for when we want to interrupt the music player so we can
+                // the thread.
+                return;
+            } catch (ArrayIndexOutOfBoundsException arrayOutOfBounds) {
+                // Need to reset the player as we hit the 0.01% case that this exception happen as said in their
+                // documentation
 
-                    stopSong();
+                stopSong();
 
-                    arrayOutOfBounds.printStackTrace();
-                    return;
-                    //m_manager.resume();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    m_manager.setError(e);
-                    m_manager.notifyError();
-                    return;
-                }
-
+                arrayOutOfBounds.printStackTrace();
+                return;
+                //m_manager.resume();
+            } catch (Exception e) {
+                e.printStackTrace();
+                m_manager.setError(e);
+                m_manager.notifyError();
+                return;
             }
+
         });
     }
 
@@ -236,30 +230,27 @@ public class JlayerMP3Player implements IMusicPlayer{
      * @return
      */
     private Thread createResumePlaybackThread() {
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // Using integer max as specified in source of the AdvancePlayer play()
-                    m_player.play((int) convertMilisecondsToFrame(m_CurrentPlaybackTimeInMiliseconds), Integer.MAX_VALUE);
+        return new Thread(() -> {
+            try {
+                // Using integer max as specified in source of the AdvancePlayer play()
+                m_player.play((int) convertMilisecondsToFrame(m_CurrentPlaybackTimeInMiliseconds), Integer.MAX_VALUE);
 
-                } catch (BitstreamException bistreamError) {
-                    // Ignore since this exception would be for when we want to interrupt the music player so we can
-                    // the thread.
-                    return;
-                } catch (ArrayIndexOutOfBoundsException arrayOutOfBounds) {
-                    // Need to reset the player as we hit the 0.01% case that this exception happen as said in their
-                    // documentation
-                    stopPlayer();
+            } catch (BitstreamException bistreamError) {
+                // Ignore since this exception would be for when we want to interrupt the music player so we can
+                // the thread.
+                return;
+            } catch (ArrayIndexOutOfBoundsException arrayOutOfBounds) {
+                // Need to reset the player as we hit the 0.01% case that this exception happen as said in their
+                // documentation
+                stopPlayer();
 
-                    arrayOutOfBounds.printStackTrace();
-                    return;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    m_manager.setError(e);
-                    m_manager.notifyError();
-                    return;
-                }
+                arrayOutOfBounds.printStackTrace();
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+                m_manager.setError(e);
+                m_manager.notifyError();
+                return;
             }
         });
     }
@@ -377,27 +368,24 @@ public class JlayerMP3Player implements IMusicPlayer{
      * @return  A thread containing the logic to notify the updates.
      */
     private Runnable createUpdateUIThread() {
-        return (new Runnable() {
-            @Override
-            public void run() {
-                Task task = new Task<Void>() {
-                    @Override
-                    public Void call() {
-                        while (m_isPlaying) {
-                            m_manager.notifyPlaybackObservers();
-                            try{
-                                Thread.sleep(MusicPlayerConstants.UPDATE_INTERVAL_IN_MILLISECONDS);
-                            } catch (Exception e) {
-                                // It is alright if we get interrupted while we sleep.
-                                // Make sure to return and stop the thread.
-                                return null;
-                            }
+        return (() -> {
+            Task task = new Task<Void>() {
+                @Override
+                public Void call() {
+                    while (m_isPlaying) {
+                        m_manager.notifyPlaybackObservers();
+                        try{
+                            Thread.sleep(MusicPlayerConstants.UPDATE_INTERVAL_IN_MILLISECONDS);
+                        } catch (Exception e) {
+                            // It is alright if we get interrupted while we sleep.
+                            // Make sure to return and stop the thread.
+                            return null;
                         }
-                        return null;
                     }
-                };
-                task.run();
-            }
+                    return null;
+                }
+            };
+            task.run();
         });
     }
 

@@ -1,9 +1,11 @@
-package com.teamgamma.musicmanagementsystem.model;
+package com.teamgamma.musicmanagementsystem.util;
 
 import com.sun.jna.platform.FileUtils;
+import com.teamgamma.musicmanagementsystem.model.Song;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -31,7 +33,7 @@ public class FileManager {
 
         // Create Song object and add to array list
         for (File musicFile : musicFiles) {
-            listOfSongs.add(new Song(musicFile.getAbsolutePath()));
+            listOfSongs.add(new Song(musicFile));
         }
 
         return listOfSongs;
@@ -150,7 +152,7 @@ public class FileManager {
         assert dest.isDirectory();
         if (src.isDirectory() && src.equals(dest)) {
             throw new IOException("Cannot copy a directory to itself!");
-        } else if (src.isDirectory() && dest.getAbsolutePath().contains(src.getAbsolutePath())) {
+        } else if (src.isDirectory() && dest.getAbsolutePath().contains(src.getAbsolutePath() + File.separator)) {
             throw new IOException("Cannot copy a directory into its subfolder!");
         } else if (dest.getAbsolutePath().equals(src.getParent())){
             throw new IOException("Source and destination folders are the same!");

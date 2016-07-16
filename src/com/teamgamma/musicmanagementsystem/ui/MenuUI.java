@@ -1,9 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.misc.Actions;
+import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.model.*;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -31,21 +29,19 @@ public class MenuUI extends MenuBar{
     private Menu getMenuFile() {
         final Menu menuFile = new Menu("File");
         MenuItem addLibraryMenu = new MenuItem("Add Library");
-        addLibraryMenu.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent t) {
-                String pathInput = PromptUI.addNewLibrary();
-                if (pathInput == null) {
-                    return;
-                }
-                if (!m_model.addLibrary(pathInput)) {
-                    PromptUI.customPromptError("Error", null, "Path doesn't exist or duplicate library added");
-                    return;
-                }
-                m_databaseManager.addLibrary(pathInput);
-
-                m_model.setM_libraryAction(Actions.ADD);
-                m_model.notifyLibraryObservers();
+        addLibraryMenu.setOnAction(event -> {
+            String pathInput = PromptUI.addNewLibrary();
+            if (pathInput == null) {
+                return;
             }
+            if (!m_model.addLibrary(pathInput)) {
+                PromptUI.customPromptError("Error", null, "Path doesn't exist or duplicate library added");
+                return;
+            }
+            m_databaseManager.addLibrary(pathInput);
+
+            m_model.setM_libraryAction(Action.ADD);
+            m_model.notifyLibraryObservers();
         });
         menuFile.getItems().addAll(addLibraryMenu);
         return menuFile;
@@ -55,6 +51,10 @@ public class MenuUI extends MenuBar{
         final Menu menuOptions = new Menu("Options");
         Menu leftPanelSubMenu = getLeftPanelSubMenu(filePersistentStorage);
         Menu centerPanelSubMenu = getCenterPanelSubMenu(filePersistentStorage);
+
+        //hide left panel option for now
+        leftPanelSubMenu.setVisible(false);
+        leftPanelSubMenu.setDisable(true);
 
         menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu);
         return menuOptions;
@@ -76,7 +76,7 @@ public class MenuUI extends MenuBar{
                 menuManager.setM_leftPanelShowFolder(false);
             }
 
-            m_model.notifyLeftPanelObservers();
+            m_model.notifyLeftPanelOptionsObservers();
         });
 
         leftPanelSubMenu.getItems().addAll(showFoldersOnly);
@@ -110,32 +110,26 @@ public class MenuUI extends MenuBar{
         Menu playlistSubMenu = new Menu("Playlist");
 
         MenuItem createNewPlaylistMenu = new MenuItem("Create New Playlist");
-        createNewPlaylistMenu.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                String newPlaylistName = PromptUI.createNewPlaylist();
-                if (m_model.playlistNameExist(newPlaylistName)) {
-                    PromptUI.customPromptError("Error", null, "Playlist with name \"" + newPlaylistName + "\" already exist!");
-                    return;
-                }
-                if (newPlaylistName != null) {
-                    m_model.addAndCreatePlaylist(newPlaylistName);
-                    m_databaseManager.addPlaylist(newPlaylistName);
-                    m_model.notifyPlaylistsObservers();
-                }
+        createNewPlaylistMenu.setOnAction(event -> {
+            String newPlaylistName = PromptUI.createNewPlaylist();
+            if (m_model.playlistNameExist(newPlaylistName)) {
+                PromptUI.customPromptError("Error", null, "Playlist with name \"" + newPlaylistName + "\" already exist!");
+                return;
+            }
+            if (newPlaylistName != null) {
+                m_model.addAndCreatePlaylist(newPlaylistName);
+                m_databaseManager.addPlaylist(newPlaylistName);
+                m_model.notifyPlaylistObservers();
             }
         });
 
         MenuItem removePlaylistMenu = new MenuItem("Remove Existing Playlist");
-        removePlaylistMenu.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                Playlist playlistToRemove = PromptUI.removePlaylistSelection(m_model.getM_playlists());
-                if (playlistToRemove != null) {
-                    m_model.removePlaylist(playlistToRemove);
-                    m_databaseManager.removePlaylist(playlistToRemove.getM_playlistName());
-                    m_model.notifyPlaylistsObservers();
-                }
+        removePlaylistMenu.setOnAction(event -> {
+            Playlist playlistToRemove = PromptUI.removePlaylistSelection(m_model.getM_playlists());
+            if (playlistToRemove != null) {
+                m_model.removePlaylist(playlistToRemove);
+                m_databaseManager.removePlaylist(playlistToRemove.getM_playlistName());
+                m_model.notifyPlaylistObservers();
             }
         });
 

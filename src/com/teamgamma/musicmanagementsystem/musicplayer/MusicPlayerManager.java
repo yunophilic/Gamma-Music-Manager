@@ -7,6 +7,7 @@ import com.teamgamma.musicmanagementsystem.model.Song;
 import javafx.util.Duration;
 
 import javax.sound.sampled.*;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -114,7 +115,7 @@ public class MusicPlayerManager {
         m_currentSong = songToPlay;
         m_musicPlayer.playSong(songToPlay);
         updateHistory();
-        m_databaseManager.deleteFromPlaybackQueue(songToPlay.getM_file().getAbsolutePath());
+        m_databaseManager.deleteFromPlaybackQueue(songToPlay.getFile().getAbsolutePath());
 
         notifyQueingObserver();
     }
@@ -131,7 +132,7 @@ public class MusicPlayerManager {
             m_musicPlayer.playSong(nextSong);
         } else {
             m_playingQueue.add(nextSong);
-            m_databaseManager.addToPlaybackQueueTail(nextSong.getM_file().getAbsolutePath());
+            m_databaseManager.addToPlaybackQueueTail(nextSong.getFile().getAbsolutePath());
         }
 
         notifyQueingObserver();
@@ -153,7 +154,7 @@ public class MusicPlayerManager {
      */
     public void placeSongAtStartOfQueue(Song songToPlace) {
         m_playingQueue.addFirst(songToPlace);
-        m_databaseManager.addToPlaybackQueueHead(songToPlace.getM_file().getAbsolutePath());
+        m_databaseManager.addToPlaybackQueueHead(songToPlace.getFile().getAbsolutePath());
         if (isNoSongPlayingOrNext()){
             playNextSong();
         }
@@ -260,7 +261,7 @@ public class MusicPlayerManager {
             }
         }
         m_songHistory.add(m_currentSong);
-        m_databaseManager.addToHistory(m_currentSong.getM_file().getAbsolutePath());
+        m_databaseManager.addToHistory(m_currentSong.getFile().getAbsolutePath());
 
         // On insertion of new song in history set the last played index to be the latest song in history list.
         m_historyIndex = m_songHistory.size() - 1;
@@ -299,7 +300,7 @@ public class MusicPlayerManager {
      * @return The current playback time.
      */
     public Duration getCurrentPlayTime() {
-        if (m_currentSong == null ) {
+        if (m_currentSong == null) {
             return new Duration(0);
         }
         return  m_musicPlayer.getCurrentPlayTime();
@@ -451,8 +452,8 @@ public class MusicPlayerManager {
 
         int songHistorySize = m_songHistory.size();
         for (int songIndex = 0; songIndex < songHistorySize; ++songIndex) {
-            if (m_songHistory.get(songIndex).getM_file().getAbsolutePath().equals(
-                    m_currentSong.getM_file().getAbsolutePath())) {
+            if (m_songHistory.get(songIndex).getFile().getAbsolutePath().equals(
+                    m_currentSong.getFile().getAbsolutePath())) {
 
                 m_songHistory.remove(songIndex);
                 if (songIndex == 0 || m_songHistory.isEmpty()){
@@ -531,7 +532,8 @@ public class MusicPlayerManager {
         }
         Deque<Song> queueFromDB = new LinkedBlockingDeque<>();
         for (int i = 0; i < queuedSongs.size(); i++) {
-            Song song = new Song(queuedSongs.get(i));
+            File newFile = new File(queuedSongs.get(i));
+            Song song = new Song(newFile);
             queueFromDB.add(song);
         }
         m_playingQueue = queueFromDB;
@@ -543,7 +545,8 @@ public class MusicPlayerManager {
     private void loadHistory() {
         List<String> songsFromHistory = m_databaseManager.getHistory();
         for (String songPath : songsFromHistory){
-            m_songHistory.add(new Song(songPath));
+            File newFile = new File(songPath);
+            m_songHistory.add(new Song(newFile));
         }
 
         // TODO: Will have to set the history index to actual location that was left off
@@ -619,7 +622,7 @@ public class MusicPlayerManager {
             }
             m_songHistory.remove(songToDelete);
         }
-        m_databaseManager.deleteFromHistory(songToDelete.getM_file().getAbsolutePath());
+        m_databaseManager.deleteFromHistory(songToDelete.getFile().getAbsolutePath());
     }
 
     /**

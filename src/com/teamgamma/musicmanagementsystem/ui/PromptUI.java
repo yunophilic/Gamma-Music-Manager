@@ -4,6 +4,7 @@ import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
+import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
@@ -422,7 +423,7 @@ public class PromptUI {
         if (CONVERT_TO_NEXT_SIZE_TYPE <= sizeInKB) {
             fileSize = String.format("%,d", sizeInMB) + " megabytes";
         }
-        Song songInfo = new Song(mediaFile.getAbsolutePath());
+        Song songInfo = new Song(mediaFile);
         String songArtist = songInfo.getM_artist();
         if (songArtist.isEmpty()) {
             songArtist = UNKNOWN_ARTIST;
@@ -500,7 +501,7 @@ public class PromptUI {
         if (CONVERT_TO_NEXT_SIZE_TYPE <= sizeInKB) {
             fileSize = String.format("%,d", sizeInMB) + " megabytes";
         }
-        Song songInfo = new Song(mediaFile.getAbsolutePath());
+        Song songInfo = new Song(mediaFile);
         String songArtist = songInfo.getM_artist();
         if (songArtist.isEmpty()) {
             songArtist = UNKNOWN_ARTIST;
@@ -903,7 +904,7 @@ public class PromptUI {
         Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
         stage.getIcons().add(PROMPT_ICON);
         dialog.setTitle(ADD_TO_PLAYLIST_TITLE);
-        final String ADD_TO_PLAYLIST = "Add \"" + songToAdd.getM_fileName() + "\" to playlist";
+        final String ADD_TO_PLAYLIST = "Add \"" + songToAdd.getFileName() + "\" to playlist";
         dialog.setHeaderText(ADD_TO_PLAYLIST);
         setDialogIcon(dialog, "add-song-playlist.png");
         dialog.setContentText(SELECT_PLAYLIST_LABEL);
@@ -923,7 +924,7 @@ public class PromptUI {
      * @return true if user confirms dialog, false otherwise
      */
     public static boolean removeSongFromPlaylist(Playlist playlist, Song songName) {
-        final String DIALOG_MESSAGE = "Remove \"" + songName.getM_fileName() + "\" from " + playlist.getM_playlistName();
+        final String DIALOG_MESSAGE = "Remove \"" + songName.getFileName() + "\" from " + playlist.getM_playlistName();
         Dialog dialog = makeDialog(PROMPT_ICON, REMOVE_FROM_PLAYLIST_TITLE, "remove-song-playlist.png", DIALOG_MESSAGE, REMOVE_SONG_PLAYLIST_CONFIRMATION);
         ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButton, ButtonType.CANCEL);
@@ -1050,12 +1051,12 @@ public class PromptUI {
     /**
      * Get the total folder size
      *
-     * @param library folder
+     * @param folder folder
      * @return size of the folder
      */
-    private static long folderSize(File library) {
+    private static long folderSize(File folder) {
         long length = 0;
-        for (File file : library.listFiles()) {
+        for (File file : folder.listFiles()) {
             if (file.isFile())
                 length += file.length();
             else
@@ -1111,7 +1112,7 @@ public class PromptUI {
      * Renames or a library folder.
      *
      * @param fileToRename file to rename
-     * @param extension    file name extension. If a library, extension should be an emptry string
+     * @param extension    file name extension. If a library, extension should be an empty string
      * @param result       button result
      * @return null if failed to rename
      */
@@ -1145,5 +1146,4 @@ public class PromptUI {
         }
         return null;
     }
-
 }

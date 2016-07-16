@@ -1,6 +1,8 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.misc.Actions;
+import com.teamgamma.musicmanagementsystem.util.Action;
+import com.teamgamma.musicmanagementsystem.util.FileManager;
+import javafx.scene.control.TreeItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,21 +16,26 @@ import java.util.List;
  * Class to manage libraries and playlists
  */
 public class SongManager {
-    private List<SongManagerObserver> m_songManagerObservers;
-    private List<PlaylistObserver> m_playlistObservers;
     private List<Library> m_libraries;
     private List<Playlist> m_playlists;
 
-    private File m_fileToCopy;
+    // Observers
+    private List<FileObserver> m_libraryObservers;
+    private List<FileObserver> m_centerFolderObservers;
+    private List<FileObserver> m_rightFolderObservers;
+    private List<FileObserver> m_fileObservers;
+    private List<FileObserver> m_leftPanelOptionsObservers;
+    private List<PlaylistObserver> m_playlistObservers;
+    private List<PlaylistObserver> m_playlistSongsObservers;
+
+    // Buffers
+    private Item m_itemToCopy;
+    private Item m_itemToMove;
     private File m_copyDest;
-    private File m_fileToMove;
     private File m_moveDest;
-
-    private File m_deletedFile;
     private File m_addedFile;
+    private File m_deletedFile;
     private File m_renamedFile;
-
-    private Song m_songToAddToPlaylist;
 
     // For observer pattern
     private File m_selectedCenterFolder;
@@ -39,26 +46,32 @@ public class SongManager {
     private MenuOptions m_menuOptions;
 
     // For actions such as paste, delete
-    private Actions m_libraryAction;
-    private Actions m_libraryFileAction;
-    private Actions m_rightPanelFileAction;
+    private Action m_libraryAction;
+    private Action m_libraryFileAction;
+    private Action m_rightPanelFileAction;
 
     public SongManager() {
-        m_songManagerObservers = new ArrayList<>();
+        m_libraryObservers = new ArrayList<>();
+        m_centerFolderObservers = new ArrayList<>();
+        m_rightFolderObservers = new ArrayList<>();
+        m_fileObservers = new ArrayList<>();
+        m_leftPanelOptionsObservers = new ArrayList<>();
+
         m_playlistObservers = new ArrayList<>();
+        m_playlistSongsObservers = new ArrayList<>();
+
+        m_playlistObservers = new ArrayList<>();
+
         m_libraries = new ArrayList<>();
         m_playlists = new ArrayList<>();
 
-        m_fileToCopy = null;
+        m_itemToCopy = null;
+        m_itemToMove = null;
         m_copyDest = null;
-        m_fileToMove = null;
         m_moveDest = null;
-
-        m_deletedFile = null;
         m_addedFile = null;
+        m_deletedFile = null;
         m_renamedFile = null;
-
-        m_songToAddToPlaylist = null;
 
         m_selectedCenterFolder = null;
         m_rightFolderSelected = null;
@@ -79,7 +92,7 @@ public class SongManager {
         }
         try {
             Library newLibrary = new Library(directoryPath);
-            if (!newLibrary.getM_rootDir().exists()) {
+            if (!newLibrary.getRootDir().exists()) {
                 return false;
             }
             m_libraries.add(newLibrary);
@@ -102,7 +115,7 @@ public class SongManager {
 
     private boolean isInLibrary(String directoryPath) {
         for (Library library : m_libraries) {
-            if (library.getM_rootDirPath().equals(directoryPath)) {
+            if (library.getRootDirPath().equals(directoryPath)) {
                 return true;
             }
         }
@@ -116,27 +129,17 @@ public class SongManager {
      * @return true if found, null otherwise
      */
     private Library getLibrary(File file) {
-        for (Library l : m_libraries) {
-            if (file.getAbsolutePath().startsWith(l.getM_rootDirPath())) {
-                return l;
+        for (Library library : m_libraries) {
+            if (file.getAbsolutePath().startsWith(library.getRootDirPath())) {
+                return library;
             }
         }
         return null;
     }
 
     /**
-     * Get Song object in a library
-     * @param songFile File object representing the song
-     * @param libraryRootDir File object representing the root dir of the the library
-     * @return list of songs
-     */
-    public Song getSongInLibrary(File songFile, File libraryRootDir) {
-        Library library = getLibrary(libraryRootDir);
-        return (library != null) ? library.getSong(songFile) : null;
-    }
-
-    /**
      * Get libraries
+     *
      * @return list of libraries
      */
     public List<Library> getM_libraries() {
@@ -144,73 +147,41 @@ public class SongManager {
     }
 
     /**
-     * Check if given file is a library
-     * @param file
-     * @return
-     */
-    public boolean isLibrary(File file) {
-        String filePath = file.getAbsolutePath();
-        for (Library library: m_libraries) {
-            String libraryPath = library.getM_rootDirPath();
-            if (libraryPath.equals(filePath)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Set file/folder to be copied
-     * @param m_fileToCopy
-     */
-    public void setM_fileToCopy(File m_fileToCopy) {
-        this.m_fileToCopy = m_fileToCopy;
-    }
-
-    /**
-     * Set file/folder to be moved
-     * @param m_fileToMove
-     */
-    public void setM_fileToMove(File m_fileToMove) {
-        this.m_fileToMove = m_fileToMove;
-    }
-
-    /**
      * Copy files in buffer to destination
+     *
      * @param dest the destination folder
      * @throws IOException
      * @throws InvalidPathException
      */
     public void copyToDestination(File dest) throws Exception {
-        if (m_fileToCopy == null) {
+        if (m_itemToCopy == null) {
             throw new Exception("File to copy should not be null");
         }
 
-        if (!FileManager.copyFilesRecursively(m_fileToCopy, dest)) {
+        if (!FileManager.copyFilesRecursively(m_itemToCopy.getFile(), dest)) {
             throw new IOException("Fail to copy");
         }
 
         m_copyDest = dest;
-
-        updateLibraries();
     }
 
     /**
      * Update UI and move file from source to destination
+     *
      * @param fileToMove
      * @param destDir
      * @throws IOException
      */
     public void moveFile(File fileToMove, File destDir) throws IOException {
         FileManager.moveFile(fileToMove, destDir);
-        updateLibraries();
 
         m_moveDest = destDir;
-        notifyFileObservers(Actions.DROP, null);
+        notifyFileObservers(Action.DROP, null);
     }
 
     /**
      * Delete a file
+     *
      * @param fileToDelete
      * @throws Exception
      */
@@ -225,35 +196,12 @@ public class SongManager {
         if (!FileManager.removeFile(fileToDelete)) {
             throw new FileSystemException("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
         }
-        updateLibraries();
 
         m_deletedFile = fileToDelete;
-        notifyFileObservers(Actions.DELETE, fileToDelete);
+        notifyFileObservers(Action.DELETE, fileToDelete);
 
         // Clear file to delete buffer
         m_deletedFile = null;
-    }
-
-    /**
-     * Update the list of libraries
-     */
-    private void updateLibraries() {
-        // Delete current libraries and create new libraries with same paths
-        // to update songs in libraries when files are moved
-        List<String> libraryPaths = new ArrayList<>();
-
-        for (Library library : m_libraries) {
-            libraryPaths.add(library.getM_rootDirPath());
-        }
-
-        m_libraries.clear();
-
-        for (String libraryPath : libraryPaths) {
-            File tempFile = new File(libraryPath);
-            if (tempFile.exists()) {
-                this.addLibrary(libraryPath);
-            }
-        }
     }
 
     /**
@@ -262,7 +210,21 @@ public class SongManager {
      * @return list of songs
      */
     private List<Song> getSongs(Library library) {
-        return library.getM_songList();
+        return library.getSongs();
+    }
+
+    /**
+     * Search node from all libraries based on the specified item
+     * @param file The item to search on
+     * @return node containing the item, or null if not founr
+     */
+    public TreeItem<Item> search(File file) {
+        for (Library lib : m_libraries) {
+            TreeItem<Item> node = lib.search(file);
+            if (node != null)
+                return node;
+        }
+        return null;
     }
 
     /**
@@ -275,14 +237,14 @@ public class SongManager {
 
         if (m_selectedCenterFolder != null) {
             for (Library library : m_libraries) {
-                for (Song song : getSongs(library)) {
+                for (Song song : library.getSongs()) {
                     if (m_menuOptions.getM_centerPanelShowSubfolderFiles()) {
-                        String songFilePath = song.getM_file().getAbsolutePath();
-                        if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath())) {
+                        String songFilePath = song.getFile().getAbsolutePath();
+                        if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath() + File.separator)) {
                             centerPanelSongs.add(song);
                         }
                     } else {
-                        String songParentPath = song.getM_file().getParent();
+                        String songParentPath = song.getFile().getParent();
                         //System.out.println("== Song parent path: " + songParentPath);
                         if (songParentPath.equals(m_selectedCenterFolder.getAbsolutePath())) {
                             centerPanelSongs.add(song);
@@ -321,9 +283,15 @@ public class SongManager {
         return newPlaylist;
     }
 
+    /**
+     * Add playlist object to m_playlists
+     *
+     * @param playlist the playlist object to be added
+     */
     public void addPlaylist(Playlist playlist) {
         m_playlists.add(playlist);
     }
+
     /**
      * Remove existing playlist
      *
@@ -390,61 +358,61 @@ public class SongManager {
         return null;
     }
 
-
     /**
      * Rename a file and notify file observers
+     *
      * @param fileToRename
      * @param newPath
      */
     public void renameFile(File fileToRename, Path newPath) {
         m_renamedFile = new File(newPath.toString());
-
-        updateLibraries();
-
-        notifyFileObservers(Actions.RENAME, fileToRename);
+        notifyFileObservers(Action.RENAME, fileToRename);
     }
 
     /**
      * Notify file changes detected from File system
+     *
      * @param action
      * @param file
      */
-    public void fileSysChanged(Actions action, File file) {
-        updateLibraries();
+    public void fileSysChanged(Action action, File file) {
         notifyFileObservers(action, file);
     }
 
-    public void fileDeleted(File fileToDelete) {
-
+    /**
+     * Get the File object in item to copy
+     */
+    public File getFileToCopy() {
+        return m_itemToCopy.getFile();
     }
 
-    public Song getM_songToAddToPlaylist() {
-        return m_songToAddToPlaylist;
+    /**
+     * Get the File object in item to move
+     */
+    public File getFileToMove() {
+        return m_itemToMove.getFile();
     }
 
-    public void setM_songToAddToPlaylist(Song m_songToAddToPlaylist) {
-        this.m_songToAddToPlaylist = m_songToAddToPlaylist;
+
+    /**********
+     * Getters and setters
+     *************/
+
+    public File getM_addedFile(){
+        return m_addedFile;
+    }
+
+    public File getM_deletedFile() {
+        return m_deletedFile;
     }
 
     public File getM_renamedFile() {
         return m_renamedFile;
     }
 
-    public File getM_addedFile(){
-        return m_addedFile;
-    }
-
-    public void setM_addedFile(File addedFile) {
-        m_addedFile = addedFile;
-    }
-
     public File getM_moveDest() {
         return m_moveDest;
     }
-
-    /*public void setM_moveDest(File dest) {
-        m_moveDest = dest;
-    }*/
 
     public File getM_copyDest() {
         return m_copyDest;
@@ -474,12 +442,20 @@ public class SongManager {
         this.m_selectedPlaylist = m_selectedPlaylist;
     }
 
-    public File getM_fileToCopy() {
-        return m_fileToCopy;
+    public Item getM_itemToCopy() {
+        return m_itemToCopy;
     }
 
-    public File getM_fileToMove() {
-        return m_fileToMove;
+    public void setM_itemToCopy(Item m_itemToCopy) {
+        this.m_itemToCopy = m_itemToCopy;
+    }
+
+    public Item getM_itemToMove() {
+        return m_itemToMove;
+    }
+
+    public void setM_itemToMove(Item m_itemToMove) {
+        this.m_itemToMove = m_itemToMove;
     }
 
     public List<Playlist> getM_playlists() {
@@ -494,37 +470,28 @@ public class SongManager {
         m_menuOptions = options;
     }
 
-    public void setM_libraryAction(Actions libraryAction) {
-        m_libraryAction = libraryAction;
-    }
-
-
-    public Actions getM_libraryAction() {
+    public Action getM_libraryAction() {
         return m_libraryAction;
     }
 
-    public void setM_libraryFileAction(Actions fileAction) {
-        m_libraryFileAction = fileAction;
+    public void setM_libraryAction(Action libraryAction) {
+        m_libraryAction = libraryAction;
     }
-    
-    public Actions getM_libraryFileAction() {
+
+    public Action getM_libraryFileAction() {
         return m_libraryFileAction;
     }
 
-    public void setM_rightPanelFileAction(Actions fileAction) {
-        m_rightPanelFileAction = fileAction;
+    public void setM_libraryFileAction(Action fileAction) {
+        m_libraryFileAction = fileAction;
     }
 
-    public Actions getM_rightPanelFileAction() {
+    public Action getM_rightPanelFileAction() {
         return m_rightPanelFileAction;
     }
 
-    /*public void setM_deletedFile(File deletedFile) {
-        m_deletedFile = deletedFile;
-    }*/
-
-    public File getM_deletedFile() {
-        return m_deletedFile;
+    public void setM_rightPanelFileAction(Action fileAction) {
+        m_rightPanelFileAction = fileAction;
     }
 
 
@@ -532,57 +499,71 @@ public class SongManager {
      * Functions for observer pattern
      *************/
 
-    public void addSongManagerObserver(SongManagerObserver observer) {
-        m_songManagerObservers.add(observer);
+    public void addLibraryObserver(FileObserver observer){
+        m_libraryObservers.add(observer);
+    }
+
+    public void addCenterFolderObserver(FileObserver observer){
+        m_centerFolderObservers.add(observer);
+    }
+
+    public void addRightFolderObserver(FileObserver observer){
+        m_rightFolderObservers.add(observer);
+    }
+
+    public void addFileObserver(FileObserver observer){
+        m_fileObservers.add(observer);
+    }
+
+    public void addLeftPanelOptionsObserver(FileObserver observer){
+        m_leftPanelOptionsObservers.add(observer);
     }
 
     public void addPlaylistObserver(PlaylistObserver observer) {
         m_playlistObservers.add(observer);
     }
 
+    public void addPlaylistSongObserver(PlaylistObserver observer) {
+        m_playlistSongsObservers.add(observer);
+    }
+
     public void notifyLibraryObservers() {
-        for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.librariesChanged();
-        }
+        notifySpecifiedFileObservers(m_libraryObservers, Action.NONE, null);
     }
 
     public void notifyCenterFolderObservers() {
-        for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.centerFolderChanged();
-        }
+        notifySpecifiedFileObservers(m_centerFolderObservers, Action.NONE, null);
     }
 
     public void notifyRightFolderObservers() {
-        for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.rightFolderChanged();
-        }
+        notifySpecifiedFileObservers(m_rightFolderObservers, Action.NONE, null);
     }
 
-    public void notifySongObservers() {
-
+    public void notifyFileObservers(Action action, File file) {
+        notifySpecifiedFileObservers(m_fileObservers, action, file);
     }
 
-    public void notifyFileObservers(Actions action, File file) {
-        for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.fileChanged(action, file);
-        }
-    }
-
-    public void notifyLeftPanelObservers() {
-        for (SongManagerObserver observer : m_songManagerObservers) {
-            observer.leftPanelOptionsChanged();
-        }
+    public void notifyLeftPanelOptionsObservers() {
+        notifySpecifiedFileObservers(m_leftPanelOptionsObservers, Action.NONE, null);
     }
 
     public void notifyPlaylistSongsObservers() {
-        for (PlaylistObserver observer : m_playlistObservers) {
-            observer.songsChanged();
+        notifySpecifiedPlaylistObservers(m_playlistSongsObservers);
+    }
+
+    public void notifyPlaylistObservers() {
+        notifySpecifiedPlaylistObservers(m_playlistObservers);
+    }
+
+    private void notifySpecifiedFileObservers(List<FileObserver> observers, Action action, File file) {
+        for (FileObserver observer : observers) {
+            observer.changed(action, file);
         }
     }
 
-    public void notifyPlaylistsObservers() {
-        for (PlaylistObserver observer : m_playlistObservers) {
-            observer.playlistsChanged();
+    private void notifySpecifiedPlaylistObservers(List<PlaylistObserver> observers) {
+        for (PlaylistObserver observer : observers) {
+            observer.changed();
         }
     }
 }

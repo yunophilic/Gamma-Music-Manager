@@ -1,19 +1,17 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
-import com.teamgamma.musicmanagementsystem.model.Playlist;
+import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
+
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.stage.WindowEvent;
 
 import java.util.Collection;
 
@@ -151,46 +149,6 @@ public class MusicPlayerHistoryUI extends HBox{
         return styledLabel;
     }
 
-
-    /**
-     * Function to create a submenu for that will be shown when the user right clicks on a element.
-     *
-     * @param song The song that is selected
-     *
-     * @return  A context menu containing actions to do.
-     */
-    public static ContextMenu createSubmenu(MusicPlayerManager manager, Song song) {
-        ContextMenu playbackMenu = new ContextMenu();
-        playbackMenu.setAutoHide(true);
-
-        MenuItem playSong = new MenuItem(ContextMenuConstants.MENU_ITEM_PLAY_SONG);
-        playSong.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                manager.playSongRightNow(song);
-            }
-        });
-
-        MenuItem placeSongAtStartOfQueue = new MenuItem(ContextMenuConstants.MENU_ITEM_PLAY_SONG_NEXT);
-        placeSongAtStartOfQueue.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                manager.placeSongAtStartOfQueue(song);
-            }
-        });
-
-        MenuItem placeSongOnBackOfQueue = new MenuItem(ContextMenuConstants.MENU_ITEM_PLACE_SONG_ON_QUEUE);
-        placeSongOnBackOfQueue.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                manager.placeSongOnBackOfPlaybackQueue(song);
-            }
-        });
-
-        playbackMenu.getItems().addAll(playSong, placeSongAtStartOfQueue, placeSongOnBackOfQueue);
-        return playbackMenu;
-    }
-
     /**
      * Interface to abstract the logic needed to build a row for displaying a collection of songs. This will be used
      * so that we can have less duplicate code for displaying songs from a collection.
@@ -214,14 +172,14 @@ public class MusicPlayerHistoryUI extends HBox{
                 if (songNumber == FIRST_SONG) {
                     row.getChildren().add(createOldestStyleLabel(Integer.toString(songNumber)));
 
-                    Label fileName = createOldestStyleLabel(songForRow.getM_fileName());
+                    Label fileName = createOldestStyleLabel(songForRow.getFileName());
                     row.getChildren().add(fileName);
                     HBox.setHgrow(fileName, Priority.ALWAYS);
 
                 } else {
                     row.getChildren().add(new Label(Integer.toString(songNumber)));
 
-                    Label fileName = new Label(songForRow.getM_fileName());
+                    Label fileName = new Label(songForRow.getFileName());
                     row.getChildren().add(fileName);
                     HBox.setHgrow(fileName, Priority.ALWAYS);
                 }
@@ -230,7 +188,7 @@ public class MusicPlayerHistoryUI extends HBox{
                     @Override
                     public void handle(MouseEvent event) {
                         if (event.getButton() == MouseButton.SECONDARY) {
-                            createSubmenu(m_manager, songForRow).show(row, event.getScreenX(), event.getScreenY());
+                            ContextMenuBuilder.buildPlaybackContextMenu(m_manager, songForRow).show(row, event.getScreenX(), event.getScreenY());
                         }
                     }
                 });
@@ -254,13 +212,13 @@ public class MusicPlayerHistoryUI extends HBox{
                 if (songNumber == FIRST_SONG) {
                     row.getChildren().add(createOldestStyleLabel(Integer.toString(songNumber)));
 
-                    Label fileName = createOldestStyleLabel(songForRow.getM_fileName());
+                    Label fileName = createOldestStyleLabel(songForRow.getFileName());
                     row.getChildren().add(fileName);
                     HBox.setHgrow(fileName, Priority.ALWAYS);
                 } else {
                     row.getChildren().add(new Label(Integer.toString(songNumber)));
 
-                    Label fileName = new Label(songForRow.getM_fileName());
+                    Label fileName = new Label(songForRow.getFileName());
                     row.getChildren().add(fileName);
                     HBox.setHgrow(fileName, Priority.ALWAYS);
                 }
@@ -270,7 +228,7 @@ public class MusicPlayerHistoryUI extends HBox{
                     row.setStyle("-fx-background-color: lightblue");
                 }
 
-                ContextMenu playbackMenu = createSubmenu(m_manager, songForRow);
+                ContextMenu playbackMenu = ContextMenuBuilder.buildPlaybackContextMenu(m_manager, songForRow);
                 row.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
                     @Override
                     public void handle(ContextMenuEvent event) {
