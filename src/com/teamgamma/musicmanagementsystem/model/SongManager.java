@@ -207,7 +207,7 @@ public class SongManager {
      * @return list of songs
      */
     private List<Song> getSongs(Library library) {
-        return library.getSongsRecursively();
+        return library.getSongs();
     }
 
     /**
@@ -234,7 +234,7 @@ public class SongManager {
 
         if (m_selectedCenterFolder != null) {
             for (Library library : m_libraries) {
-                for (Song song : library.getSongsRecursively()) {
+                for (Song song : library.getSongs()) {
                     if (m_menuOptions.getM_centerPanelShowSubfolderFiles()) {
                         String songFilePath = song.getFile().getAbsolutePath();
                         if (songFilePath.contains(m_selectedCenterFolder.getAbsolutePath() + File.separator)) {

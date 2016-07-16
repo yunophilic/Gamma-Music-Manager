@@ -49,7 +49,7 @@ public class Library {
      *
      * @return List of Song objects in Library
      */
-    public List<Song> getSongsRecursively() {
+    public List<Song> getSongs() {
         return getSongsRecursively(m_treeRoot);
     }
 
@@ -96,22 +96,4 @@ public class Library {
     public TreeItem<Item> getM_treeRoot() {
         return m_treeRoot;
     }
-
-    /*public Song getSong(File fileToMove) {
-        return getSong(m_treeRoot, fileToMove);
-    }
-
-    private Song getSong(TreeItem<Item> node, File fileToMove) {
-        if (node.getValue().getFile().getAbsolutePath().equals(fileToMove.getAbsolutePath())) {
-            return (Song) node.getValue();
-        }
-
-        Song song = null;
-        List<TreeItem<Item>> children = node.getChildren();
-        for (TreeItem<Item> child : children) {
-            song = getSong(child, fileToMove);
-        }
-
-        return song;
-    }*/
 }
