@@ -306,9 +306,10 @@ public class Song implements Item {
         return fileNameFull.substring(0, beforeExtension);
     }
 
+
     /**********
      * Getters
-     *************/
+     **********/
 
     public String getM_title() {
         return m_title;
