@@ -359,38 +359,6 @@ public class FileTreeUtils {
         nodeToDelete.getParent().getChildren().remove(nodeToDelete);
     }
 
-    /*public static boolean isLibraryNodeInList(List<Library> libraries, Item libraryNode) {
-        for (Library library : libraries) {
-            String libraryNodePath = libraryNode.getFile().getAbsolutePath();
-            if (libraryNodePath.equals(library.getRootDirPath())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public static void deleteLibrary(TreeView<Item> tree, TreeItem<Item> libraryNode) {
-        TreeItem<Item> root = tree.getRoot();
-
-        root.getChildren().remove(libraryNode);
-    }
-
-    public static Song getSongSelected(TreeView<Item> tree, Item selectedItem, SongManager model) {
-        //get library song is in
-        if (selectedItem != null && tree.getSelectionModel().getSelectedItem() != null) {
-            TreeItem<Item> selectedTreeItem = tree.getSelectionModel().getSelectedItem();
-            while (!selectedTreeItem.getValue().isM_isRootPath()) {
-                selectedTreeItem = selectedTreeItem.getParent();
-            }
-            //play song
-            return model.getSongInLibrary(
-                    selectedItem.getFile(), selectedTreeItem.getValue().getFile()
-            );
-        }
-        return null;
-    }*/
-
     /**
      * Get list of paths in tree that are expanded
      * @param tree
