@@ -202,29 +202,6 @@ public class SongManager {
     }
 
     /**
-     * Update the list of libraries (deprecated due to proven being inefficient and very slow)
-     */
-    @Deprecated
-    private void updateLibraries() {
-        // Delete current libraries and create new libraries with same paths
-        // to update songs in libraries when files are moved
-        List<String> libraryPaths = new ArrayList<>();
-
-        for (Library library : m_libraries) {
-            libraryPaths.add(library.getRootDirPath());
-        }
-
-        m_libraries.clear();
-
-        for (String libraryPath : libraryPaths) {
-            File tempFile = new File(libraryPath);
-            if (tempFile.exists()) {
-                this.addLibrary(libraryPath);
-            }
-        }
-    }
-
-    /**
      * Get list of songs in a certain library within the library list
      * @param library
      * @return list of songs
