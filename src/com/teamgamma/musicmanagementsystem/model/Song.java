@@ -67,7 +67,7 @@ public class Song implements Item {
         return tag;
     }
 
-    private static int convertRatingFromFiveStarScale(int value) {
+    private int convertRatingFromFiveStarScale(int value) {
         if (value < 0 || value > 5)
             throw new IllegalArgumentException("convertRatingFromFiveStarScale() accepts values from 0 to 5 not: " + value);
 
@@ -101,7 +101,7 @@ public class Song implements Item {
         return newValue;
     }
 
-    private static int convertRatingToFiveStarScale(int value) {
+    private int convertRatingToFiveStarScale(int value) {
         int newValue = 0;
         if (value <= 0)
             newValue = 0;
