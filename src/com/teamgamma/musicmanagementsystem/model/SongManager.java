@@ -162,8 +162,6 @@ public class SongManager {
         }
 
         m_copyDest = dest;
-
-        //updateLibraries();
     }
 
     /**
@@ -174,7 +172,6 @@ public class SongManager {
      */
     public void moveFile(File fileToMove, File destDir) throws IOException {
         FileManager.moveFile(fileToMove, destDir);
-        //updateLibraries();
 
         m_moveDest = destDir;
         notifyFileObservers(Action.DROP, null);
@@ -196,7 +193,6 @@ public class SongManager {
         if (!FileManager.removeFile(fileToDelete)) {
             throw new FileSystemException("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
         }
-        //updateLibraries();
 
         m_deletedFile = fileToDelete;
         notifyFileObservers(Action.DELETE, fileToDelete);
@@ -206,9 +202,10 @@ public class SongManager {
     }
 
     /**
-     * Update the list of libraries
+     * Update the list of libraries (deprecated due to proven being inefficient and very slow)
      */
-    /*private void updateLibraries() {
+    @Deprecated
+    private void updateLibraries() {
         // Delete current libraries and create new libraries with same paths
         // to update songs in libraries when files are moved
         List<String> libraryPaths = new ArrayList<>();
@@ -225,7 +222,7 @@ public class SongManager {
                 this.addLibrary(libraryPath);
             }
         }
-    }*/
+    }
 
     /**
      * Get list of songs in a certain library within the library list
@@ -382,9 +379,6 @@ public class SongManager {
      */
     public void renameFile(File fileToRename, Path newPath) {
         m_renamedFile = new File(newPath.toString());
-
-        //updateLibraries();
-
         notifyFileObservers(Action.RENAME, fileToRename);
     }
 
@@ -394,7 +388,6 @@ public class SongManager {
      * @param file
      */
     public void fileSysChanged(Action action, File file) {
-        //updateLibraries();
         notifyFileObservers(action, file);
     }
 
