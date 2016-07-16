@@ -76,7 +76,7 @@ public class MenuUI extends MenuBar{
                 menuManager.setM_leftPanelShowFolder(false);
             }
 
-            m_model.notifyLeftPanelObservers();
+            m_model.notifyLeftPanelOptionsObservers();
         });
 
         leftPanelSubMenu.getItems().addAll(showFoldersOnly);

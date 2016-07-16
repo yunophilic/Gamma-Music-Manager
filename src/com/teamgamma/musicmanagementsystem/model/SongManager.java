@@ -16,18 +16,17 @@ import java.util.List;
  * Class to manage libraries and playlists
  */
 public class SongManager {
-    private List<FileManagerObserver> m_libraryObservers;
-    private List<FileManagerObserver> m_centerFolderObservers;
-    private List<FileManagerObserver> m_rightFolderObservers;
-    private List<FileManagerObserver> m_fileObservers;
-    private List<FileManagerObserver> m_leftPanelOptionsObservers;
-    private List<PlaylistObserver> m_playlistObservers;
-    private List<PlaylistObserver> m_playlistSongsObservers;
-
-    //private List<PlaylistObserver> m_playlistObservers;
-
     private List<Library> m_libraries;
     private List<Playlist> m_playlists;
+
+    // Observers
+    private List<FileObserver> m_libraryObservers;
+    private List<FileObserver> m_centerFolderObservers;
+    private List<FileObserver> m_rightFolderObservers;
+    private List<FileObserver> m_fileObservers;
+    private List<FileObserver> m_leftPanelOptionsObservers;
+    private List<PlaylistObserver> m_playlistObservers;
+    private List<PlaylistObserver> m_playlistSongsObservers;
 
     // Buffers
     private Item m_itemToCopy;
@@ -130,9 +129,9 @@ public class SongManager {
      * @return true if found, null otherwise
      */
     private Library getLibrary(File file) {
-        for (Library l : m_libraries) {
-            if (file.getAbsolutePath().startsWith(l.getRootDirPath())) {
-                return l;
+        for (Library library : m_libraries) {
+            if (file.getAbsolutePath().startsWith(library.getRootDirPath())) {
+                return library;
             }
         }
         return null;
@@ -140,6 +139,7 @@ public class SongManager {
 
     /**
      * Get libraries
+     *
      * @return list of libraries
      */
     public List<Library> getM_libraries() {
@@ -148,6 +148,7 @@ public class SongManager {
 
     /**
      * Copy files in buffer to destination
+     *
      * @param dest the destination folder
      * @throws IOException
      * @throws InvalidPathException
@@ -166,6 +167,7 @@ public class SongManager {
 
     /**
      * Update UI and move file from source to destination
+     *
      * @param fileToMove
      * @param destDir
      * @throws IOException
@@ -179,6 +181,7 @@ public class SongManager {
 
     /**
      * Delete a file
+     *
      * @param fileToDelete
      * @throws Exception
      */
@@ -351,6 +354,7 @@ public class SongManager {
 
     /**
      * Rename a file and notify file observers
+     *
      * @param fileToRename
      * @param newPath
      */
@@ -361,11 +365,26 @@ public class SongManager {
 
     /**
      * Notify file changes detected from File system
+     *
      * @param action
      * @param file
      */
     public void fileSysChanged(Action action, File file) {
         notifyFileObservers(action, file);
+    }
+
+    /**
+     * Get the File object in item to copy
+     */
+    public File getFileToCopy() {
+        return m_itemToCopy.getFile();
+    }
+
+    /**
+     * Get the File object in item to move
+     */
+    public File getFileToMove() {
+        return m_itemToMove.getFile();
     }
 
 
@@ -474,23 +493,23 @@ public class SongManager {
      * Functions for observer pattern
      *************/
 
-    public void addLibraryObserver(FileManagerObserver observer){
+    public void addLibraryObserver(FileObserver observer){
         m_libraryObservers.add(observer);
     }
 
-    public void addCenterFolderObserver(FileManagerObserver observer){
+    public void addCenterFolderObserver(FileObserver observer){
         m_centerFolderObservers.add(observer);
     }
 
-    public void addRightFolderObserver(FileManagerObserver observer){
+    public void addRightFolderObserver(FileObserver observer){
         m_rightFolderObservers.add(observer);
     }
 
-    public void addFileObserver(FileManagerObserver observer){
+    public void addFileObserver(FileObserver observer){
         m_fileObservers.add(observer);
     }
 
-    public void addleftPanelOptionsObserver(FileManagerObserver observer){
+    public void addLeftPanelOptionsObserver(FileObserver observer){
         m_leftPanelOptionsObservers.add(observer);
     }
 
@@ -502,54 +521,43 @@ public class SongManager {
         m_playlistSongsObservers.add(observer);
     }
 
-
     public void notifyLibraryObservers() {
-        for (FileManagerObserver observer : m_libraryObservers) {
-            observer.changed(Action.NONE, null);
-        }
+        notifySpecifiedFileObservers(m_libraryObservers, Action.NONE, null);
     }
 
     public void notifyCenterFolderObservers() {
-        for (FileManagerObserver observer : m_centerFolderObservers) {
-            observer.changed(Action.NONE, null);
-        }
+        notifySpecifiedFileObservers(m_centerFolderObservers, Action.NONE, null);
     }
 
     public void notifyRightFolderObservers() {
-        for (FileManagerObserver observer : m_rightFolderObservers) {
-            observer.changed(Action.NONE, null);
-        }
+        notifySpecifiedFileObservers(m_rightFolderObservers, Action.NONE, null);
     }
 
     public void notifyFileObservers(Action action, File file) {
-        for (FileManagerObserver observer : m_fileObservers) {
+        notifySpecifiedFileObservers(m_fileObservers, action, file);
+    }
+
+    public void notifyLeftPanelOptionsObservers() {
+        notifySpecifiedFileObservers(m_leftPanelOptionsObservers, Action.NONE, null);
+    }
+
+    public void notifyPlaylistSongsObservers() {
+        notifySpecifiedPlaylistObservers(m_playlistSongsObservers);
+    }
+
+    public void notifyPlaylistObservers() {
+        notifySpecifiedPlaylistObservers(m_playlistObservers);
+    }
+
+    private void notifySpecifiedFileObservers(List<FileObserver> observers, Action action, File file) {
+        for (FileObserver observer : observers) {
             observer.changed(action, file);
         }
     }
 
-    public void notifyLeftPanelObservers() {
-        for (FileManagerObserver observer : m_leftPanelOptionsObservers) {
-            observer.changed(Action.NONE, null);
-        }
-    }
-
-    public void notifyPlaylistSongsObservers() {
-        for (PlaylistObserver observer : m_playlistSongsObservers) {
+    private void notifySpecifiedPlaylistObservers(List<PlaylistObserver> observers) {
+        for (PlaylistObserver observer : observers) {
             observer.changed();
         }
-    }
-
-    public void notifyPlaylistObservers() {
-        for (PlaylistObserver observer : m_playlistObservers) {
-            observer.changed();
-        }
-    }
-
-    public File getFileToCopy() {
-        return m_itemToCopy.getFile();
-    }
-
-    public File getFileToMove() {
-        return m_itemToMove.getFile();
     }
 }

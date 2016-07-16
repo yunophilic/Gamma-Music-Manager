@@ -122,7 +122,7 @@ public class LibraryUI extends StackPane {
             System.out.println("File changed in treeview");
             updateFiles(action, file);
         });
-        m_model.addleftPanelOptionsObserver((action, file) -> {
+        m_model.addLeftPanelOptionsObserver((action, file) -> {
             System.out.println("Left panel options in treeview");
             updateFiles(action, file);
         });
