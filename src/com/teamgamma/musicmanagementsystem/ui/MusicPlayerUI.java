@@ -405,16 +405,16 @@ public class MusicPlayerUI extends VBox {
                 }
                 starIcon.setTooltip(new Tooltip(tooltipMessage));
                 starIcon.setGraphic(UserInterfaceUtils.createImageViewForImage(MOUSE_OVER_STAR_ICON_PATH));
-                for (int i1 = 0; i1 < rating - 1; i1++) {
-                    final Button beforeMouseEnter = m_ratingIcons.get(i1);
+                for (int idx = 0; idx < rating - 1; idx++) {
+                    final Button beforeMouseEnter = m_ratingIcons.get(idx);
                     beforeMouseEnter.setGraphic(UserInterfaceUtils.createImageViewForImage(MOUSE_OVER_STAR_ICON_PATH));
                 }
             });
             starIcon.setOnMouseExited(event -> {
                 starIcon.setGraphic(defaultGraphic);
-                for (int i12 = 0; i12 < index; i12++) {
-                    final Button beforeMouseExit = m_ratingIcons.get(i12);
-                    initializeRating(currentSongRating, i12, beforeMouseExit);
+                for (int idx = 0; idx < index; idx++) {
+                    final Button beforeMouseExit = m_ratingIcons.get(idx);
+                    initializeRating(currentSongRating, idx, beforeMouseExit);
                 }
             });
             starIcon.setOnMouseClicked(event -> manager.setRating(rating));
