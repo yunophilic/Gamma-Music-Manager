@@ -153,7 +153,7 @@ public class FileTreeUtils {
      *
      * @param treeItems the list to be converted
      */
-    public static List<Item> getTreeViewItems(List<TreeItem<Item>> treeItems) {
+    public static List<Item> getItems(List<TreeItem<Item>> treeItems) {
         List<Item> items = new ArrayList<>();
 
         for (TreeItem<Item> treeItem : treeItems) {
@@ -183,13 +183,14 @@ public class FileTreeUtils {
     /**
      * Update items of the tree depending on the action
      *
-     * @param fileAction
-     * @param changedFile Until a better implementation is found, this file is only used by the ADD, DELETE and RENAME action for now (because of watcher)
-     * @param tree
-     * @param model
+     * @param model the model
+     * @param tree the tree to be updated
+     * @param fileAction the file action
+     * @param changedFile the changed file
+     *
      * @throws IOException
      */
-    public static void updateTreeItems(Action fileAction, File changedFile, TreeView<Item> tree, SongManager model) throws IOException {
+    public static void updateTreeItems(SongManager model, TreeView<Item> tree, Action fileAction, File changedFile) throws IOException {
         switch (fileAction) {
             case ADD: {
                 // Add new if it does not already exist (For watcher)
@@ -361,7 +362,7 @@ public class FileTreeUtils {
 
     /**
      * Get list of paths in tree that are expanded
-     * @param tree
+     * @param tree the tree
      * @return Arraylist of paths as String
      */
     public static List<String> getExpandedPaths(TreeView<Item> tree) {
@@ -369,13 +370,13 @@ public class FileTreeUtils {
     }
 
     /**
-     * Recursively get list of paths that are expanded
-     * @param currentItem
-     * @return Arraylist of paths as String
+     * Recursively get list of paths that are expanded in the sub-tree rooted at node
+     * @param node the root node
+     * @return list of paths as String
      */
-    private static List<String> getExpandedPathsRecursively(TreeItem<Item> currentItem) {
+    private static List<String> getExpandedPathsRecursively(TreeItem<Item> node) {
         List<String> expandedPaths = new ArrayList<>();
-        List<TreeItem<Item>> children = currentItem.getChildren();
+        List<TreeItem<Item>> children = node.getChildren();
 
         // Base case
         if (children.isEmpty()) {
@@ -383,15 +384,14 @@ public class FileTreeUtils {
         }
 
         // Add to list if this path is expanded
-        if (currentItem.isExpanded()) {
-            File file = currentItem.getValue().getFile();
+        if (node.isExpanded()) {
+            File file = node.getValue().getFile();
             expandedPaths.add(file.getAbsolutePath());
         }
 
         // Recursive case
         for (TreeItem<Item> child : children) {
             List<String> childExpandedPaths = getExpandedPathsRecursively(child);
-
             expandedPaths.addAll(childExpandedPaths);
         }
 

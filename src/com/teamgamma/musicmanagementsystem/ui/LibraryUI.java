@@ -130,13 +130,13 @@ public class LibraryUI extends StackPane {
 
     /**
      * Update the files in the tree
-     * @param fileAction
-     * @param file
+     * @param fileAction the file action
+     * @param file the changed file
      */
     private void updateFiles(Action fileAction, File file) {
         try {
             if (fileAction != null && fileAction != Action.NONE) {
-                FileTreeUtils.updateTreeItems(fileAction, file, m_tree, m_model);
+                FileTreeUtils.updateTreeItems(m_model, m_tree, fileAction, file);
                 m_model.setM_libraryFileAction(Action.NONE);
             }
         } catch (IOException ex) {
@@ -147,7 +147,7 @@ public class LibraryUI extends StackPane {
 
     /**
      * Update libraries depending on the action
-     * @param libraryAction
+     * @param libraryAction the library action
      */
     private void updateLibraryTrees(Action libraryAction) {
         if (libraryAction.equals(Action.ADD)) {
@@ -155,7 +155,7 @@ public class LibraryUI extends StackPane {
             // Else, simply reset the tree to show the library
             if (m_model.getM_libraries().size() > 1){
                 List<TreeItem<Item>> libraryNodes = m_tree.getRoot().getChildren();
-                List<Item> libraryItems = FileTreeUtils.getTreeViewItems(libraryNodes);
+                List<Item> libraryItems = FileTreeUtils.getItems(libraryNodes);
                 List<Library> libraries = m_model.getM_libraries();
 
                 for (Library library : libraries) {

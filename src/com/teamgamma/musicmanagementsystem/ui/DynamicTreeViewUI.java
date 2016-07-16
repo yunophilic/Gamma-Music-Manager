@@ -31,7 +31,7 @@ public class DynamicTreeViewUI extends StackPane {
 
     /**
      * Update the tree view and load previously expanded paths if applicable
-     * @param dynamicTreeViewExpandedPaths
+     * @param dynamicTreeViewExpandedPaths list of expanded paths
      */
     private void updateTreeView(List<String> dynamicTreeViewExpandedPaths) {
         System.out.println("updating treeview...");
@@ -74,8 +74,8 @@ public class DynamicTreeViewUI extends StackPane {
 
     /**
      * Update the files to show in this tree
-     * @param fileAction
-     * @param file
+     * @param fileAction the file action
+     * @param file the changed file
      */
     private void updateFiles(Action fileAction, File file) {
         try {
@@ -83,7 +83,7 @@ public class DynamicTreeViewUI extends StackPane {
                 if (m_model.getM_rightFolderSelected() == null) {
                     this.getChildren().add(new Label("Choose a folder to view"));
                 } else {
-                    FileTreeUtils.updateTreeItems(fileAction, file, m_tree, m_model);
+                    FileTreeUtils.updateTreeItems(m_model, m_tree, fileAction, file);
                     m_model.setM_rightPanelFileAction(Action.NONE);
                 }
             }
