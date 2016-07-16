@@ -6,11 +6,20 @@ import java.io.File;
  * Interface for file tree objects
  */
 public interface Item {
+    /**
+     * Get the File object associated with this Item
+     */
     File getFile();
 
-    void changeFile(String newPath);
+    /**
+     * Change the File object depending on the specified path
+     */
+    void changeFile(String path);
 
-    boolean isRootPath();
+    /**
+     * Check if Item is root in the tree it's created in
+     */
+    boolean isRootItem();
 
     @Override
     String toString();

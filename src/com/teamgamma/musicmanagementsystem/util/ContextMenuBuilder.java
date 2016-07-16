@@ -104,7 +104,7 @@ public class ContextMenuBuilder {
             }
 
             // Do not show remove library option if selected item is not a library
-            if (!selectedItem.isRootPath()) {
+            if (!selectedItem.isRootItem()) {
                 hideMenuItem(removeLibrary);
             }
 

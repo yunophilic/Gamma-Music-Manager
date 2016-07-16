@@ -143,12 +143,12 @@ public class Song implements Item {
     }
 
     @Override
-    public void changeFile(String newPath) {
-        m_file = new File(newPath);
+    public void changeFile(String path) {
+        m_file = new File(path);
     }
 
     @Override
-    public boolean isRootPath() {
+    public boolean isRootItem() {
         return false;
     }
 
