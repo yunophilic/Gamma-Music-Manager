@@ -29,7 +29,7 @@ public class LibraryUI extends StackPane {
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
-        updateTreeView();
+        initTreeView();
         if (m_tree != null) {
             setTreeExpandedState(expandedPaths);
         }
@@ -37,51 +37,94 @@ public class LibraryUI extends StackPane {
         registerAsLibraryObserver();
     }
 
-    private void setTreeExpandedState(List<String> expandedPaths) {
-        FileTreeUtils.setTreeExpandedState(m_tree.getRoot(), expandedPaths);
-    }
-
-    private void updateTreeView() {
-        System.out.println("updating treeview...");
+    /**
+     * Initialize the tree view
+     */
+    private void initTreeView() {
+        System.out.println("initializing treeview...");
         List<Library> libraries = m_model.getM_libraries();
 
         if (libraries.isEmpty()) {
             setEmptyLibraryUI();
         } else {
-            m_tree = createTrees(libraries);
+            m_tree = buildTreeView(libraries);
             this.getChildren().add(m_tree);
             setTreeCellFactory();
         }
     }
 
+    /**
+     * Set nodes of the tree that are expanded based on the list of expanded paths given
+     *
+     * @param expandedPaths list of expanded paths
+     */
+    private void setTreeExpandedState(List<String> expandedPaths) {
+        FileTreeUtils.setTreeExpandedState(m_tree.getRoot(), expandedPaths);
+    }
+
+    /**
+     * Construct the tree view
+     *
+     * @return TreeView<String>
+     */
+    private TreeView<Item> buildTreeView(List<Library> libraries) {
+        File dummyRootFile = new File(System.getProperty("user.dir"));
+        TreeItem<Item> root = new TreeItem<>(new Folder(dummyRootFile, true));
+
+        for (Library library : libraries) {
+            TreeItem<Item> rootItem = library.getM_treeRoot();
+            rootItem.setExpanded(true);
+            System.out.println("Added new root path:" + rootItem.toString());
+            root.getChildren().add(rootItem);
+        }
+        TreeView<Item> tree = new TreeView<>(root);
+        tree.setShowRoot(false);
+
+        if (m_model.getM_selectedCenterFolder() != null) {
+            FileTreeUtils.setOpenFolder(tree, m_model.getM_selectedCenterFolder().getAbsolutePath());
+        }
+
+        return tree;
+    }
+
+    /**
+     * Clear the tree view
+     */
+    private void clearTreeView() {
+        System.out.println("clearing treeview...");
+        this.getChildren().clear();
+    }
+
+    /**
+     * Set placeholder text if no library exist
+     */
     private void setEmptyLibraryUI() {
         this.getChildren().add(new Label("Add a library"));
     }
 
+    /**
+     * Set custom tree cell factory for the tree view
+     */
     private void setTreeCellFactory() {
         System.out.println("setting cell factory...");
         m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, true));
     }
 
+    /**
+     * Register as observer to update any changes made
+     */
     private void registerAsLibraryObserver() {
         m_model.addLibraryObserver((action, file) -> {
             System.out.println("Library changed in treeview");
-            //clearTreeView();
-            //updateTreeView();
-
             LibraryUI.this.updateLibraryTrees(m_model.getM_libraryAction());
         });
         m_model.addFileObserver((action, file) -> {
             System.out.println("File changed in treeview");
-            //clearTreeView();
-            //updateTreeView();
-
             updateFiles(action, file);
         });
         m_model.addleftPanelOptionsObserver((action, file) -> {
             System.out.println("Left panel options in treeview");
-            clearTreeView();
-            updateTreeView();
+            updateFiles(action, file);
         });
     }
 
@@ -124,7 +167,7 @@ public class LibraryUI extends StackPane {
                     }
                 }
             } else {
-                updateTreeView();
+                initTreeView();
             }
         } else if (libraryAction.equals(Action.REMOVE_FROM_VIEW) || libraryAction.equals(Action.DELETE)) {
             TreeItem<Item> removedLibrary = m_tree.getSelectionModel().getSelectedItem();
@@ -138,41 +181,9 @@ public class LibraryUI extends StackPane {
 
     }
 
-    private void clearTreeView() {
-        //m_tree.setRoot(null);
-        System.out.println("clearing treeview...");
-        this.getChildren().clear();
-    }
-
     /**
-     * Construct the m_tree view
-     *
-     * @return TreeView<String>
+     * Set pane style
      */
-    private TreeView<Item> createTrees(List<Library> libraries) {
-        File dummyRootFile = new File(System.getProperty("user.dir"));
-        TreeItem<Item> root = new TreeItem<>(new Folder(dummyRootFile, true));
-
-        for (Library library : libraries) {
-            /*TreeItem<Item> rootItem = FileTreeUtils.generateTreeItems(
-                    library.getRootDir(), library.getRootDirPath(), m_model.getM_menuOptions().getM_leftPanelShowFolder(),
-                    expandedPaths
-            );*/
-            TreeItem<Item> rootItem = library.getM_treeRoot();
-            rootItem.setExpanded(true);
-            System.out.println("Added new root path:" + rootItem.toString());
-            root.getChildren().add(rootItem);
-        }
-        TreeView<Item> tree = new TreeView<>(root);
-        tree.setShowRoot(false);
-
-        if (m_model.getM_selectedCenterFolder() != null) {
-            FileTreeUtils.setOpenFolder(tree, m_model.getM_selectedCenterFolder().getAbsolutePath());
-        }
-
-        return tree;
-    }
-
     private void setPaneStyle() {
         this.setMaxWidth(Double.MAX_VALUE);
         this.setMaxHeight(Double.MAX_VALUE);
@@ -180,7 +191,9 @@ public class LibraryUI extends StackPane {
         UserInterfaceUtils.applyBlackBoarder(this);
     }
 
-
+    /**
+     * Get list of expanded paths
+     */
     public List<String> getExpandedPaths() {
         if (m_tree != null) {
             return FileTreeUtils.getExpandedPaths(m_tree);

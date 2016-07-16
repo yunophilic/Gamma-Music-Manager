@@ -96,7 +96,7 @@ public class PlaylistUI extends VBox {
     }
 
     /**
-     * Register as a observer to changes for the folder selected to be displayed here
+     * Register as observer to update any changes made
      */
     private void registerAsPlaylistObserver() {
         m_model.addPlaylistObserver(() -> {
