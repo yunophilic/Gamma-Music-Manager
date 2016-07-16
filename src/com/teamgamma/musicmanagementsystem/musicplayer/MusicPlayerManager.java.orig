@@ -153,8 +153,13 @@ public class MusicPlayerManager {
      * @param songToPlace The song to place in the queue
      */
     public void placeSongAtStartOfQueue(Song songToPlace) {
+<<<<<<< HEAD
         m_playingQueue.add(0, songToPlace);
+        m_databaseManager.addToPlaybackQueueHead(songToPlace.getM_file().getAbsolutePath());
+=======
+        m_playingQueue.addFirst(songToPlace);
         m_databaseManager.addToPlaybackQueueHead(songToPlace.getFile().getAbsolutePath());
+>>>>>>> 635f3ba616be3541dd212e82d07ab25a2d271db8
         if (isNoSongPlayingOrNext()){
             playNextSong();
         }

@@ -155,6 +155,17 @@ public class Playlist {
     }
 
     /**
+     * Function to validate index
+     *
+     * @param index The index to be checked
+     *
+     * @return true if the index is in bounds, false otherwise
+     */
+    public boolean isValid(int index) {
+        return (index >= 0) && (index < m_songList.size());
+    }
+
+    /**
      * Function to tell you if there is a song loaded in the playlist.
      *
      * @return True if there is, false other wise.

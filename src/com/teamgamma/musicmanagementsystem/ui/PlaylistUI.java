@@ -1,18 +1,14 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.misc.ContextMenuConstants;
+import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
 
+import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -35,12 +31,10 @@ import java.util.List;
  * UI class for list of songs in center of application
  */
 public class PlaylistUI extends VBox {
-
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private ContextMenu m_contextMenu;
-    private ContextMenu m_playbackContextMenu;
     private TableView<Song> m_table;
     private ComboBox<Playlist> m_dropDownMenu;
 
@@ -55,7 +49,7 @@ public class PlaylistUI extends VBox {
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
     private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
-    public static final double PLAYLIST_PLAYBACK_BUTTON_SCALE = 0.75;
+    private static final double PLAYLIST_PLAYBACK_BUTTON_SCALE = 0.75;
 
     private static final Insets TABLE_VIEW_MARGIN = new Insets(30, 0, 0, 0);
 
@@ -70,14 +64,14 @@ public class PlaylistUI extends VBox {
     private static final String PLAY_PLAYLIST_ICON = "res" + File.separator + "ic_play_circle_filled_black_48dp_1x.png";
     private static final String REPEAT_PLAYLIST_ICON = "res" + File.separator + "ic_repeat_black_48dp_1x.png";
 
-    public static final String SELECT_PLAYLIST_HEADER = " Select Playlist:";
-    public static final String ADD_PLAYLIST_TOOL_TIP_MESSAGE = "Add Playlist";
-    public static final String REMOVE_PLAYLIST_TOOLTIP_MESSAGE = "Remove Playlist";
-    public static final String RENAME_PLAYLIST_TOOL_TIP_MESSAGE = "Rename Playlist";
-    public static final String SHUFFLE_PLAYLIST_TOOL_TIP_MESSAGE = "Shuffle Playlist";
-    public static final String PLAY_PLAYLIST_TOOL_TIP_MESSAGE = "Play Playlist";
-    public static final String REPEAT_PLAYLIST_TOOL_TIP_BUTTON = "Repeat Playlist Mode";
-    public static final String EMPTY_PLAYLIST_MESSAGE = "Playlist empty";
+    private static final String SELECT_PLAYLIST_HEADER = " Select Playlist:";
+    private static final String ADD_PLAYLIST_TOOL_TIP_MESSAGE = "Add Playlist";
+    private static final String REMOVE_PLAYLIST_TOOLTIP_MESSAGE = "Remove Playlist";
+    private static final String RENAME_PLAYLIST_TOOL_TIP_MESSAGE = "Rename Playlist";
+    private static final String SHUFFLE_PLAYLIST_TOOL_TIP_MESSAGE = "Shuffle Playlist";
+    private static final String PLAY_PLAYLIST_TOOL_TIP_MESSAGE = "Play Playlist";
+    private static final String REPEAT_PLAYLIST_TOOL_TIP_BUTTON = "Repeat Playlist Mode";
+    private static final String EMPTY_PLAYLIST_MESSAGE = "Playlist empty";
 
     public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
@@ -85,7 +79,6 @@ public class PlaylistUI extends VBox {
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         m_contextMenu = new ContextMenu();
-        m_playbackContextMenu = new ContextMenu();
         m_dropDownMenu = new ComboBox<>();
         initTopMenu(createSelectPlaylistLabel(),
                     createDropDownMenu(),
@@ -103,22 +96,29 @@ public class PlaylistUI extends VBox {
     }
 
     /**
-     * Register as a observer to changes for the folder selected to be displayed here
+     * Register as observer to update any changes made
      */
     private void registerAsPlaylistObserver() {
-        m_model.addPlaylistObserver(new PlaylistObserver() {
-            @Override
-            public void songsChanged() {
-                clearTable();
-                updateTable();
-            }
+        m_model.addPlaylistObserver(() -> {
+            m_dropDownMenu.getItems().clear();
+            m_dropDownMenu.getItems().addAll(m_model.getM_playlists());
+            clearTable();
+            updateTable();
+        });
 
-            @Override
-            public void playlistsChanged() {
-                m_dropDownMenu.getItems().clear();
-                m_dropDownMenu.getItems().addAll(m_model.getM_playlists());
-                updateTable();
-            }
+        m_model.addPlaylistSongObserver(() -> {
+            clearTable();
+            updateTable();
+        });
+
+        m_model.addLibraryObserver((action, file) -> {
+            clearTable();
+            updateTable();
+        });
+
+        m_model.addFileObserver((action, file) -> {
+            clearTable();
+            updateTable();
         });
     }
 
@@ -140,6 +140,7 @@ public class PlaylistUI extends VBox {
      */
     private ComboBox<Playlist> createDropDownMenu() {
         ObservableList<Playlist> options = FXCollections.observableList(m_model.getM_playlists());
+
         ComboBox<Playlist> dropDownMenu = new ComboBox<>();
         dropDownMenu.getItems().addAll(options);
 
@@ -154,6 +155,7 @@ public class PlaylistUI extends VBox {
         if (!options.isEmpty()) {
             dropDownMenu.setValue(options.get(0));
         }
+
         return dropDownMenu;
     }
 
@@ -179,10 +181,11 @@ public class PlaylistUI extends VBox {
             if (newPlaylistName != null) {
                 Playlist newPlaylist = m_model.addAndCreatePlaylist(newPlaylistName);
                 m_databaseManager.addPlaylist(newPlaylistName);
-                m_model.notifyPlaylistsObservers();
+                m_model.notifyPlaylistObservers();
                 m_dropDownMenu.getSelectionModel().select(newPlaylist);
             }
         });
+
         return createNewPlaylistButton;
     }
 
@@ -212,10 +215,11 @@ public class PlaylistUI extends VBox {
             if (PromptUI.removePlaylist(selectedPlaylist)) {
                 m_model.removePlaylist(selectedPlaylist);
                 m_databaseManager.removePlaylist(selectedPlaylist.getM_playlistName());
-                m_model.notifyPlaylistsObservers();
+                m_model.notifyPlaylistObservers();
                 m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
             }
         });
+
         return removePlaylistButton;
     }
 
@@ -247,10 +251,11 @@ public class PlaylistUI extends VBox {
             if (newPlaylistName != null) {
                 selectedPlaylist.setM_playlistName(newPlaylistName);
                 m_databaseManager.renamePlaylist(oldPlaylistName, newPlaylistName);
-                m_model.notifyPlaylistsObservers();
+                m_model.notifyPlaylistObservers();
                 m_dropDownMenu.getSelectionModel().select(selectedDropDownIndex);
             }
         });
+
         return editPlaylistButton;
     }
 
@@ -282,9 +287,9 @@ public class PlaylistUI extends VBox {
     /**
      * Function to build a button with a static tooltip message that is an image.
      *
-     * @param toolTipMessage    The tooltip message to display/
-     * @param iconPath
-     * @return
+     * @param toolTipMessage The tooltip message to display/
+     * @param iconPath The path of the icon button
+     * @return The button built
      */
     private Button buildButton(String toolTipMessage, String iconPath) {
         Button button = new Button();
@@ -299,22 +304,24 @@ public class PlaylistUI extends VBox {
     /**
      * Function to create the play playlist button
      *
-     * @return The play palylist button.
+     * @return The play playlist button.
      */
     private Button createPlayPlaylistButton() {
-        Button playlistButton = UserInterfaceUtils.createIconButton(PLAY_PLAYLIST_ICON);
-        playlistButton.setOnMouseClicked(event -> {
+        Button playPlaylistButton = UserInterfaceUtils.createIconButton(PLAY_PLAYLIST_ICON);
+        playPlaylistButton.setOnMouseClicked(event -> {
             if (m_model.getM_selectedPlaylist() != null) {
                 m_musicPlayerManager.playPlaylist(m_model.getM_selectedPlaylist());
             }
         });
-        UserInterfaceUtils.createMouseOverUIChange(playlistButton, playlistButton.getStyle());
-        playlistButton.setTooltip(new Tooltip(PLAY_PLAYLIST_TOOL_TIP_MESSAGE));
 
-        playlistButton.setScaleY(PLAYLIST_PLAYBACK_BUTTON_SCALE);
-        playlistButton.setScaleX(PLAYLIST_PLAYBACK_BUTTON_SCALE);
-        playlistButton.setPadding(new Insets(0));
-        return playlistButton;
+        UserInterfaceUtils.createMouseOverUIChange(playPlaylistButton, playPlaylistButton.getStyle());
+        playPlaylistButton.setTooltip(new Tooltip(PLAY_PLAYLIST_TOOL_TIP_MESSAGE));
+
+        playPlaylistButton.setScaleY(PLAYLIST_PLAYBACK_BUTTON_SCALE);
+        playPlaylistButton.setScaleX(PLAYLIST_PLAYBACK_BUTTON_SCALE);
+        playPlaylistButton.setPadding(new Insets(0));
+
+        return playPlaylistButton;
     }
 
     /**
@@ -343,6 +350,7 @@ public class PlaylistUI extends VBox {
         playlistRepeat.setScaleY(PLAYLIST_PLAYBACK_BUTTON_SCALE);
         playlistRepeat.setScaleX(PLAYLIST_PLAYBACK_BUTTON_SCALE);
         playlistRepeat.setPadding(new Insets(0));
+
         return playlistRepeat;
     }
 
@@ -409,7 +417,7 @@ public class PlaylistUI extends VBox {
      * Function to set the columns for the playlist table.
      */
     private void setTableColumns() {
-        TableColumn<Song, File> filePathCol = new TableColumn<>("File Path");
+        TableColumn<Song, String> filePathCol = new TableColumn<>("File Path");
         filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
         TableColumn<Song, String> fileNameCol = new TableColumn<>("File Name");
         fileNameCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
@@ -481,7 +489,7 @@ public class PlaylistUI extends VBox {
      * @param ratingCol
      * @param lengthCol
      */
-    private void setDefaultVisibleColumnsInTable(TableColumn<Song, File> filePathCol,
+    private void setDefaultVisibleColumnsInTable(TableColumn<Song, String> filePathCol,
                                                  TableColumn<Song, String> fileNameCol,
                                                  TableColumn<Song, String> titleCol,
                                                  TableColumn<Song, String> artistCol,
@@ -516,7 +524,7 @@ public class PlaylistUI extends VBox {
      * @param lengthCol
      *
      */
-    private void setTableColumnAttributes(TableColumn<Song, File> filePathCol,
+    private void setTableColumnAttributes(TableColumn<Song, String> filePathCol,
                                           TableColumn<Song, String> fileNameCol,
                                           TableColumn<Song, String> titleCol,
                                           TableColumn<Song, String> artistCol,
@@ -524,10 +532,10 @@ public class PlaylistUI extends VBox {
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, Integer> ratingCol,
                                           TableColumn<Song, String> lengthCol) {
-        filePathCol.setCellValueFactory(new PropertyValueFactory<>("m_file"));
+        filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().toString()));
         filePathCol.setSortable(false);
 
-        fileNameCol.setCellValueFactory(new PropertyValueFactory<>("m_fileName"));
+        fileNameCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFileName()));
         fileNameCol.setSortable(false);
 
         titleCol.setCellValueFactory(new PropertyValueFactory<>("m_title"));
@@ -559,8 +567,8 @@ public class PlaylistUI extends VBox {
     private void setTableDragEvents() {
         m_table.setOnDragOver(dragEvent -> {
             // For Debugging
-            //System.out.println("Drag over on playlist");
-            if(m_model.getM_songToAddToPlaylist() != null && m_model.getM_selectedPlaylist() != null) {
+            System.out.println("Drag over on playlist");
+            if (m_model.getM_itemToMove() instanceof Song && m_model.getM_selectedPlaylist() != null) {
                 dragEvent.acceptTransferModes(TransferMode.MOVE);
             }
             dragEvent.consume();
@@ -568,14 +576,14 @@ public class PlaylistUI extends VBox {
 
         m_table.setOnDragDropped(dragEvent -> {
             //System.out.println("Drag dropped on playlist");
-            m_model.addSongToPlaylist(m_model.getM_songToAddToPlaylist(), m_model.getM_selectedPlaylist());
+            m_model.addSongToPlaylist( (Song) m_model.getM_itemToMove(), m_model.getM_selectedPlaylist() );
             m_musicPlayerManager.notifyQueingObserver();
             dragEvent.consume();
         });
 
         m_table.setOnDragDone(dragEvent -> {
             //System.out.println("Drag done on playlist");
-            m_model.setM_songToAddToPlaylist(null);
+            m_model.setM_itemToMove(null);
             dragEvent.consume();
         });
     }
@@ -607,9 +615,6 @@ public class PlaylistUI extends VBox {
                         m_musicPlayerManager.playPlaylist(selectedPlaylist);
                     } else if (event.getButton() == MouseButton.PRIMARY) {
                         m_contextMenu.hide();
-                        if (m_playbackContextMenu != null) {
-                            m_playbackContextMenu.hide();
-                        }
                     } else if (event.getButton() == MouseButton.SECONDARY) {
                         m_contextMenu.hide();
                         m_contextMenu = generateContextMenu(selectedSongIndex);
@@ -655,33 +660,10 @@ public class PlaylistUI extends VBox {
      * @return A context menu for that will work on the song at the index
      */
     private ContextMenu generateContextMenu(int selectedSongIndex) {
-        ContextMenu contextMenu = new ContextMenu();
-
-        //remove from playlist option
-        MenuItem removeFromPlaylist = new MenuItem(ContextMenuConstants.REMOVE_FROM_PLAYLIST);
-        removeFromPlaylist.setOnAction(e -> {
-            Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-            if (PromptUI.removeSongFromPlaylist(selectedPlaylist,
-                                                selectedPlaylist.getSongByIndex(selectedSongIndex))) {
-                boolean songToRemoveIsPlaying = (selectedSongIndex == selectedPlaylist.getM_currentSongIndex());
-
-                selectedPlaylist.removeSong(selectedSongIndex);
-                m_model.notifyPlaylistSongsObservers();
-
-                if (!selectedPlaylist.isEmpty() && songToRemoveIsPlaying) {
-                    m_musicPlayerManager.playPlaylist(selectedPlaylist);
-                }
-
-                if (selectedPlaylist.isEmpty()) {
-                    m_musicPlayerManager.stopSong();
-                    m_musicPlayerManager.resetCurrentPlaylist();
-                }
-            }
-        });
-
-        contextMenu.getItems().add(removeFromPlaylist);
-
-        return contextMenu;
+        return ContextMenuBuilder.buildPlaylistContextMenu(m_model,
+                                                           m_musicPlayerManager,
+                                                           m_databaseManager,
+                                                           selectedSongIndex);
     }
 
 }

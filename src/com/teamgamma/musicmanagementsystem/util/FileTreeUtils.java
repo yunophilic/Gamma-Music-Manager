@@ -1,0 +1,421 @@
+package com.teamgamma.musicmanagementsystem.util;
+
+import com.teamgamma.musicmanagementsystem.model.*;
+
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
+import javafx.scene.image.ImageView;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Utility class that provides functionality for the FileTree
+ */
+public class FileTreeUtils {
+    private static final String OPEN_FOLDER_ICON_PATH = "res" + File.separator + "Status-folder-open-icon.png";
+    private static final String FOLDER_ICON_PATH = "res" + File.separator + "folder-icon.png";
+    private static final String SONG_ICON_PATH = "res" + File.separator + "music-file-icon.png";
+
+    /**
+     * Recursively create tree items from the files in a directory and return a reference to the root item,
+     * Set nodes in expandedPaths to expanded state
+     *
+     * @return TreeItem<Item> to the root item
+     */
+    public static TreeItem<Item> generateTreeItems(File file, String dirPath, List<String> expandedPaths) {
+        System.out.println(file + ", " + dirPath);
+        System.out.println("$$$" + file + ", " + file.isDirectory());
+
+        TreeItem<Item> item;
+        if(file.isFile()) {
+            item = new TreeItem<>(new Song(file));
+            item.setGraphic(new ImageView(SONG_ICON_PATH));
+        } else {
+            item = new TreeItem<>(
+                    (file.getAbsolutePath().equals(dirPath)) ? new Folder(file, true) : new Folder(file, false)
+            );
+
+            item.setGraphic(new ImageView(FOLDER_ICON_PATH));
+
+            if (expandedPaths != null && !expandedPaths.isEmpty()) {
+                if (expandedPaths.contains(item.getValue().getFile().getAbsolutePath())) {
+                    item.setExpanded(true);
+                }
+            }
+        }
+
+        File[] children = getSubFiles(file);
+
+        if (children != null) {
+            for (File child : children) {
+                item.getChildren().add(generateTreeItems(child, dirPath, expandedPaths)); //recursion here
+            }
+        }
+
+        return item;
+    }
+
+    /**
+     * Helper function for generateTreeItems()
+     *
+     * @param file The file specified to get the sub files
+     */
+    private static File[] getSubFiles(File file) {
+        return file.listFiles(f -> f.isDirectory() || FileManager.isAccept(f));
+    }
+
+    /**
+     * Search for the TreeItem<Item> from the sub-tree rooted at the specified node based on the given path
+     *
+     * @param node the specified node
+     * @param path the specified path
+     * @return TreeItem<Item> or null if not found
+     */
+    public static TreeItem<Item> searchTreeItem(TreeItem<Item> node, String path) {
+        //base case
+        if (node.getValue().getFile().getAbsolutePath().equals(path)) {
+            return node;
+        }
+
+        //recursive case
+        for (TreeItem<Item> child : node.getChildren()) {
+            TreeItem<Item> target = searchTreeItem(child, path);
+            if (target != null) {
+                return target;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Copy tree rooted at node
+     *
+     * @param node the specified node
+     * @return root node of the copied tree
+     */
+    public static TreeItem<Item> copyTree(final TreeItem<Item> node) {
+        TreeItem<Item> nodeCopy = new TreeItem<>();
+        Item item = node.getValue();
+        nodeCopy.setValue(item);
+        nodeCopy.setGraphic(new ImageView(item.getFile().isDirectory() ? FOLDER_ICON_PATH : SONG_ICON_PATH));
+
+        for (TreeItem<Item> child : node.getChildren()) {
+            nodeCopy.getChildren().add(copyTree(child));
+        }
+
+        return nodeCopy;
+    }
+
+    /**
+     * Set all tree item icons to closed folder icon or a song icon
+     *
+     * @param treeItem
+     */
+    public static void closeAllFoldersIcons(TreeItem<Item> treeItem) {
+        //System.out.println("#### closing file: " + treeItem.getValue());
+        if (treeItem.getValue().getFile().isDirectory()) {
+            treeItem.setGraphic(new ImageView(FOLDER_ICON_PATH));
+        } else {
+            treeItem.setGraphic(new ImageView(SONG_ICON_PATH));
+        }
+        if (!treeItem.getChildren().isEmpty()) {
+            List<TreeItem<Item>> childTreeItems = treeItem.getChildren();
+            for (TreeItem<Item> child : childTreeItems) {
+                closeAllFoldersIcons(child);
+            }
+        }
+    }
+
+    /**
+     * Set selected tree item's icon to open folder icon
+     *
+     * @param tree
+     * @param filePath
+     */
+    public static void setOpenFolder(TreeView<Item> tree, String filePath) {
+        System.out.println("^^^^^ Tree root: " + tree.getRoot());
+        TreeItem<Item> selectedTreeItem = FileTreeUtils.searchTreeItem(tree.getRoot(), filePath);
+
+        if(selectedTreeItem == null) {
+            throw new IllegalArgumentException("file path specified not found in tree");
+        }
+
+        System.out.println("@@@ Found treeitem: " + selectedTreeItem);
+        selectedTreeItem.setGraphic(new ImageView(OPEN_FOLDER_ICON_PATH));
+    }
+
+    /**
+     * Convert list of <TreeItem<Item>> to list of Item
+     *
+     * @param treeItems the list to be converted
+     */
+    public static List<Item> getItems(List<TreeItem<Item>> treeItems) {
+        List<Item> items = new ArrayList<>();
+
+        for (TreeItem<Item> treeItem : treeItems) {
+            items.add(treeItem.getValue());
+        }
+
+        return items;
+    }
+
+    /**
+     * Check if library is in the list of nodes
+     *
+     * @param libraryNodes the list of library nodes
+     * @param library the library to check
+     */
+    public static boolean isLibraryInList(List<Item> libraryNodes, Library library) {
+        for (Item libraryNode : libraryNodes) {
+            String libraryNodePath = libraryNode.getFile().getAbsolutePath();
+            if (libraryNodePath.equals(library.getRootDirPath())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Update items of the tree depending on the action
+     *
+     * @param model the model
+     * @param tree the tree to be updated
+     * @param fileAction the file action
+     * @param changedFile the changed file
+     *
+     * @throws IOException
+     */
+    public static void updateTreeItems(SongManager model, TreeView<Item> tree, Action fileAction, File changedFile) throws IOException {
+        switch (fileAction) {
+            case ADD: {
+                // Add new if it does not already exist (For watcher)
+                TreeItem<Item> searchedItem = searchTreeItem(tree.getRoot(), changedFile.getAbsolutePath());
+                if (searchedItem == null) {
+                    createNewNodes(tree, changedFile.getName(), changedFile.getParent());
+                }
+                break;
+            }
+
+            case DRAG: {
+                // Nothing to do for now...
+                break;
+            }
+
+            case DROP: {
+                File fileToMove = model.getFileToMove();
+                TreeItem<Item> nodeToMove = searchTreeItem(tree.getRoot(), fileToMove.getAbsolutePath());
+
+                // Search in model if it does not exists in current tree
+                if (nodeToMove == null) {
+                    nodeToMove = model.search(fileToMove);
+                }
+
+                TreeItem<Item> destParentNode = searchTreeItem(tree.getRoot(), model.getM_moveDest().getAbsolutePath());
+                moveNode(nodeToMove, destParentNode);
+                break;
+            }
+
+            case DELETE: {
+                String deletedFilePath = changedFile.getAbsolutePath();
+                TreeItem<Item> removedNode = searchTreeItem(tree.getRoot(), deletedFilePath);
+                if (removedNode != null) {
+                    deleteNode(removedNode);
+                }
+                break;
+            }
+
+            case PASTE: {
+                createNewNodes(tree, model.getFileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
+                break;
+            }
+
+            case RENAME: {
+                renameNode(changedFile, tree, model);
+                break;
+            }
+
+            default: {
+                throw new IOException("Invalid file action!");
+            }
+        }
+    }
+
+    /**
+     * Rename node based on the changed file
+     *
+     * @param changedFile the changed file
+     * @param tree the tree view
+     * @param model the model
+     */
+    private static void renameNode(File changedFile, TreeView<Item> tree, SongManager model) {
+        TreeItem<Item> nodeToRename = searchTreeItem(tree.getRoot(), changedFile.getAbsolutePath());
+        File renamedFile = model.getM_renamedFile();
+
+        System.out.println("NEW FILE NAME: " + renamedFile);
+
+        TreeItem<Item> parentNode = nodeToRename.getParent();
+
+        System.out.println("^^^^ RENAMING NODE: " + nodeToRename);
+        System.out.println("^^^^ PARENT NODE: " + parentNode);
+
+        recursivelyRenameNodes(nodeToRename, renamedFile.getAbsolutePath());
+    }
+
+    /**
+     * Helper function for renameNode(), rename nodes recursively starting from the root
+     *
+     * @param node the root node to be renamed
+     * @param path the new path
+     */
+    private static void recursivelyRenameNodes(TreeItem<Item> node, String path) {
+        Item item = node.getValue();
+        item.changeFile(path);
+
+        System.out.println("^^^^ CHANGED ITEM: " + item);
+
+        node.setValue(null); //this line ensures the renamed node display string gets refreshed
+        node.setValue(item);
+
+        List<TreeItem<Item>> children = node.getChildren();
+        if (children != null) {
+            for (TreeItem<Item> child : children) {
+                String newPath = path + File.separator + child.getValue().getFile().getName();
+                recursivelyRenameNodes(child, newPath);
+            }
+        }
+    }
+
+    /**
+     * Create fresh new nodes recursively with new Item references based on given fileName and newParentPath
+     *
+     * @param tree The tree where a new node is to be created
+     * @param fileName The file name that the new node will contain
+     * @param newParentPath The path of the new parent
+     */
+    private static void createNewNodes(TreeView<Item> tree, String fileName, String newParentPath) {
+        String newFilePath = newParentPath + File.separator + fileName;
+        File copiedFile = new File(newFilePath);
+
+        TreeItem<Item> newFileNode = generateTreeItems(copiedFile, newParentPath, null);
+        TreeItem<Item> parentFileNode = searchTreeItem(tree.getRoot(), newParentPath);
+
+        if (newFileNode != null && parentFileNode != null) {
+            parentFileNode.getChildren().add(newFileNode);
+            parentFileNode.setExpanded(true);
+        }
+    }
+
+    /**
+     * Recursively move nodeToMove to destParentNode while keeping the same Item object reference on all nodes
+     *
+     * @param nodeToMove the node intended to be moved
+     * @param destParentNode the destination parent node
+     */
+    private static void moveNode(TreeItem<Item> nodeToMove, TreeItem<Item> destParentNode) {
+        String fileName = nodeToMove.getValue().getFile().getName();
+        String destPath = destParentNode.getValue().getFile().getAbsolutePath();
+        String newPath = destPath + File.separator + fileName;
+
+        destParentNode.getChildren().add(moveNodesRecursively(nodeToMove, newPath));
+        deleteNode(nodeToMove);
+    }
+
+    /**
+     * Helper function for moveNode(), doesn't actually move the nodes, create nodes with the changed file while
+     * keeping the same Item reference for all nodes
+     *
+     * @param nodeToMove node intended to be moved
+     * @param path the new path after moving the files
+     */
+    private static TreeItem<Item> moveNodesRecursively(TreeItem<Item> nodeToMove, String path) {
+        Item item = nodeToMove.getValue();
+        item.changeFile(path);
+
+        TreeItem<Item> newNode = new TreeItem<>();
+        newNode.setValue(item);
+        newNode.setGraphic(nodeToMove.getGraphic());
+
+        List<TreeItem<Item>> children = nodeToMove.getChildren();
+        if (children != null) {
+            for (TreeItem<Item> child : children) {
+                String newPath = path + File.separator + child.getValue().getFile().getName();
+                newNode.getChildren().add(moveNodesRecursively(child, newPath));
+            }
+        }
+
+        return newNode;
+    }
+
+    /**
+     * Delete node recursively
+     *
+     * @param nodeToDelete node to be deleted
+     */
+    private static void deleteNode(TreeItem<Item> nodeToDelete) {
+        nodeToDelete.getParent().getChildren().remove(nodeToDelete);
+    }
+
+    /**
+     * Get list of paths in tree that are expanded
+     * @param tree the tree
+     * @return Arraylist of paths as String
+     */
+    public static List<String> getExpandedPaths(TreeView<Item> tree) {
+        return getExpandedPathsRecursively(tree.getRoot());
+    }
+
+    /**
+     * Recursively get list of paths that are expanded in the sub-tree rooted at node
+     * @param node the root node
+     * @return list of paths as String
+     */
+    private static List<String> getExpandedPathsRecursively(TreeItem<Item> node) {
+        List<String> expandedPaths = new ArrayList<>();
+        List<TreeItem<Item>> children = node.getChildren();
+
+        // Base case
+        if (children.isEmpty()) {
+            return expandedPaths;
+        }
+
+        // Add to list if this path is expanded
+        if (node.isExpanded()) {
+            File file = node.getValue().getFile();
+            expandedPaths.add(file.getAbsolutePath());
+        }
+
+        // Recursive case
+        for (TreeItem<Item> child : children) {
+            List<String> childExpandedPaths = getExpandedPathsRecursively(child);
+            expandedPaths.addAll(childExpandedPaths);
+        }
+
+        return expandedPaths;
+    }
+
+    /**
+     * Copy tree rooted at rootNode, newly created tree hold the same reference for the values
+     *
+     * @param node the root tree item
+     * @param expandedPaths list of expanded paths
+     */
+    public static void setTreeExpandedState(TreeItem<Item> node, List<String> expandedPaths) {
+        File file = node.getValue().getFile();
+        if (file.isDirectory())
+            if (expandedPaths != null && !expandedPaths.isEmpty()) {
+                if (expandedPaths.contains(file.getAbsolutePath())) {
+                    node.setExpanded(true);
+                }
+            }
+
+        List<TreeItem<Item>> children = node.getChildren();
+        for(TreeItem<Item> child : children) {
+            setTreeExpandedState(child, expandedPaths);
+        }
+    }
+}

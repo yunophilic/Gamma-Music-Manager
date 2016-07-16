@@ -73,7 +73,7 @@ public class ApplicationController extends Application {
             Playlist playlist = new Playlist(playlistName, lastSongPlayedIndex);
             List<String> songPaths = m_databaseManager.getSongsInPlaylist(playlist.getM_playlistName());
             for(String songPath : songPaths) {
-                playlist.addSong(new Song(songPath));
+                playlist.addSong(new Song(new File(songPath)));
             }
             m_songManager.addPlaylist(playlist);
         }
@@ -212,15 +212,16 @@ public class ApplicationController extends Application {
      */
     private void createRootUI(SongManager songManager, MusicPlayerManager musicPlayerManager) {
         // Get previous expanded states
-        List<String> libraryUIExpandedPaths = new ArrayList<>();
-        libraryUIExpandedPaths = m_databaseManager.getExpandedLeftTreeViewItems();
-
-        List<String> rightPanelExpandedPaths = new ArrayList<>();
-        rightPanelExpandedPaths = m_databaseManager.getExpandedRightTreeViewItems();
+        List<String> libraryUIExpandedPaths = m_databaseManager.getExpandedLeftTreeViewItems();
+        List<String> rightPanelExpandedPaths = m_databaseManager.getExpandedRightTreeViewItems();
 
         // Create main UI
-        m_rootUI = new MainUI(songManager, musicPlayerManager, m_databaseManager,
-                m_filePersistentStorage, libraryUIExpandedPaths, rightPanelExpandedPaths);
+        m_rootUI = new MainUI(songManager,
+                              musicPlayerManager,
+                              m_databaseManager,
+                              m_filePersistentStorage,
+                              libraryUIExpandedPaths,
+                              rightPanelExpandedPaths);
     }
 
     /**

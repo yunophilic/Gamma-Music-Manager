@@ -1,18 +1,12 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.misc.Actions;
-import com.teamgamma.musicmanagementsystem.misc.TreeViewUtil;
-import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
-import com.teamgamma.musicmanagementsystem.model.Library;
-import com.teamgamma.musicmanagementsystem.model.SongManager;
-import com.teamgamma.musicmanagementsystem.model.SongManagerObserver;
-import com.teamgamma.musicmanagementsystem.misc.CustomTreeCell;
-import com.teamgamma.musicmanagementsystem.misc.TreeViewItem;
+import com.teamgamma.musicmanagementsystem.util.*;
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
+import com.teamgamma.musicmanagementsystem.model.*;
 
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
-import javafx.util.Callback;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,100 +19,125 @@ public class LibraryUI extends StackPane {
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
-    private TreeView<TreeViewItem> m_tree;
+    private TreeView<Item> m_tree;
 
-    public LibraryUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager, List<String> expandedPaths) {
+    public LibraryUI(SongManager model,
+                     MusicPlayerManager musicPlayerManager,
+                     DatabaseManager databaseManager,
+                     List<String> expandedPaths) {
         super();
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
-        updateTreeView(expandedPaths);
+        initTreeView();
+        if (m_tree != null) {
+            setTreeExpandedState(expandedPaths);
+        }
         setPaneStyle();
         registerAsLibraryObserver();
     }
 
-    private void updateTreeView(List<String> expandedPaths) {
-        System.out.println("updating treeview...");
+    /**
+     * Initialize the tree view
+     */
+    private void initTreeView() {
+        System.out.println("initializing treeview...");
         List<Library> libraries = m_model.getM_libraries();
 
         if (libraries.isEmpty()) {
             setEmptyLibraryUI();
         } else {
-            m_tree = createTrees(libraries, expandedPaths);
+            m_tree = buildTreeView(libraries);
             this.getChildren().add(m_tree);
             setTreeCellFactory();
         }
     }
 
+    /**
+     * Set nodes of the tree that are expanded based on the list of expanded paths given
+     *
+     * @param expandedPaths list of expanded paths
+     */
+    private void setTreeExpandedState(List<String> expandedPaths) {
+        FileTreeUtils.setTreeExpandedState(m_tree.getRoot(), expandedPaths);
+    }
+
+    /**
+     * Construct the tree view
+     *
+     * @return TreeView<String>
+     */
+    private TreeView<Item> buildTreeView(List<Library> libraries) {
+        File dummyRootFile = new File(System.getProperty("user.dir"));
+        TreeItem<Item> root = new TreeItem<>(new Folder(dummyRootFile, true));
+
+        for (Library library : libraries) {
+            TreeItem<Item> rootItem = library.getM_treeRoot();
+            rootItem.setExpanded(true);
+            System.out.println("Added new root path:" + rootItem.toString());
+            root.getChildren().add(rootItem);
+        }
+        TreeView<Item> tree = new TreeView<>(root);
+        tree.setShowRoot(false);
+
+        if (m_model.getM_selectedCenterFolder() != null) {
+            FileTreeUtils.setOpenFolder(tree, m_model.getM_selectedCenterFolder().getAbsolutePath());
+        }
+
+        return tree;
+    }
+
+    /**
+     * Clear the tree view
+     */
+    private void clearTreeView() {
+        System.out.println("clearing treeview...");
+        this.getChildren().clear();
+    }
+
+    /**
+     * Set placeholder text if no library exist
+     */
     private void setEmptyLibraryUI() {
         this.getChildren().add(new Label("Add a library"));
     }
 
+    /**
+     * Set custom tree cell factory for the tree view
+     */
     private void setTreeCellFactory() {
         System.out.println("setting cell factory...");
-        m_tree.setCellFactory(new Callback<TreeView<TreeViewItem>, TreeCell<TreeViewItem>>() {
-            @Override
-            public TreeCell<TreeViewItem> call(TreeView<TreeViewItem> arg) {
-                // custom m_tree cell that defines a context menu for the root m_tree item
-                return new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, true);
-            }
-        });
+        m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, true));
     }
 
+    /**
+     * Register as observer to update any changes made
+     */
     private void registerAsLibraryObserver() {
-        m_model.addSongManagerObserver(new SongManagerObserver() {
-            @Override
-            public void librariesChanged() {
-                System.out.println("Library changed in treeview");
-                //clearTreeView();
-                //updateTreeView();
-
-                updateLibraryTrees(m_model.getM_libraryAction());
-            }
-
-            @Override
-            public void centerFolderChanged() {
-
-            }
-
-            @Override
-            public void rightFolderChanged() {
-
-            }
-
-            @Override
-            public void songChanged() {
-
-            }
-
-            @Override
-            public void fileChanged(Actions action, File file) {
-                System.out.println("File changed in treeview");
-                //clearTreeView();
-                //updateTreeView();
-
-                updateFiles(action, file);
-            }
-
-            @Override
-            public void leftPanelOptionsChanged() {
-                System.out.println("Left panel options in treeview");
-                clearTreeView();
-                updateTreeView(null);
-            }
+        m_model.addLibraryObserver((action, file) -> {
+            System.out.println("Library changed in treeview");
+            LibraryUI.this.updateLibraryTrees(m_model.getM_libraryAction());
+        });
+        m_model.addFileObserver((action, file) -> {
+            System.out.println("File changed in treeview");
+            updateFiles(action, file);
+        });
+        m_model.addLeftPanelOptionsObserver((action, file) -> {
+            System.out.println("Left panel options in treeview");
+            updateFiles(action, file);
         });
     }
 
     /**
      * Update the files in the tree
-     * @param fileAction
-     * @param file
+     * @param fileAction the file action
+     * @param file the changed file
      */
-    private void updateFiles(Actions fileAction, File file) {
+    private void updateFiles(Action fileAction, File file) {
         try {
-            if (fileAction != null && fileAction != Actions.NONE) {
-                TreeViewUtil.updateTreeItems(fileAction, file, m_tree, m_model);
-                m_model.setM_libraryFileAction(Actions.NONE);
+            if (fileAction != null && fileAction != Action.NONE) {
+                FileTreeUtils.updateTreeItems(m_model, m_tree, fileAction, file);
+                m_model.setM_libraryFileAction(Action.NONE);
             }
         } catch (IOException ex) {
             PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
@@ -128,30 +147,30 @@ public class LibraryUI extends StackPane {
 
     /**
      * Update libraries depending on the action
-     * @param libraryAction
+     * @param libraryAction the library action
      */
-    private void updateLibraryTrees(Actions libraryAction) {
-        if (libraryAction.equals(Actions.ADD)) {
+    private void updateLibraryTrees(Action libraryAction) {
+        if (libraryAction.equals(Action.ADD)) {
             // If this is not the first library added, add it without resetting the state of the other libraries
             // Else, simply reset the tree to show the library
             if (m_model.getM_libraries().size() > 1){
-                List<TreeItem<TreeViewItem>> libraryNodes = m_tree.getRoot().getChildren();
-                List<TreeViewItem> libraryItems = TreeViewUtil.getTreeViewItems(libraryNodes);
+                List<TreeItem<Item>> libraryNodes = m_tree.getRoot().getChildren();
+                List<Item> libraryItems = FileTreeUtils.getItems(libraryNodes);
                 List<Library> libraries = m_model.getM_libraries();
 
                 for (Library library : libraries) {
                     // If library is not in libraryItems, add new node
-                    if (!TreeViewUtil.isLibraryInList(libraryItems, library)) {
-                        TreeItem<TreeViewItem> newLibrary = TreeViewUtil.generateTreeItems(library.getM_rootDir(), library.getM_rootDirPath(), m_model.getM_menuOptions().getM_leftPanelShowFolder(), null);
+                    if (!FileTreeUtils.isLibraryInList(libraryItems, library)) {
+                        TreeItem<Item> newLibrary = library.getM_treeRoot();
                         newLibrary.setExpanded(true);
                         libraryNodes.add(newLibrary);
                     }
                 }
             } else {
-                updateTreeView(null);
+                initTreeView();
             }
-        } else if (libraryAction.equals(Actions.REMOVE_FROM_VIEW) || libraryAction.equals(Actions.DELETE)) {
-            TreeItem<TreeViewItem> removedLibrary = m_tree.getSelectionModel().getSelectedItem();
+        } else if (libraryAction.equals(Action.REMOVE_FROM_VIEW) || libraryAction.equals(Action.DELETE)) {
+            TreeItem<Item> removedLibrary = m_tree.getSelectionModel().getSelectedItem();
             removedLibrary.getParent().getChildren().remove(removedLibrary);
 
             // If there are no more libraries, show a text label
@@ -162,40 +181,9 @@ public class LibraryUI extends StackPane {
 
     }
 
-    private void clearTreeView() {
-        //m_tree.setRoot(null);
-        System.out.println("clearing treeview...");
-        this.getChildren().clear();
-    }
-
     /**
-     * Construct the m_tree view
-     *
-     * @return TreeView<String>
+     * Set pane style
      */
-    private TreeView<TreeViewItem> createTrees(List<Library> libraries, List<String> expandedPaths) {
-        File dummyRootFile = new File(System.getProperty("user.dir"));
-        TreeItem<TreeViewItem> root = new TreeItem<>(new TreeViewItem(dummyRootFile, true));
-
-        for (Library library : libraries) {
-            TreeItem<TreeViewItem> rootItem = TreeViewUtil.generateTreeItems(
-                    library.getM_rootDir(), library.getM_rootDirPath(), m_model.getM_menuOptions().getM_leftPanelShowFolder(),
-                    expandedPaths
-            );
-            rootItem.setExpanded(true);
-            System.out.println("Added new root path:" + rootItem.toString());
-            root.getChildren().add(rootItem);
-        }
-        TreeView<TreeViewItem> tree = new TreeView<>(root);
-        tree.setShowRoot(false);
-
-        if (m_model.getM_selectedCenterFolder() != null) {
-            TreeViewUtil.setOpenFolder(tree, m_model.getM_selectedCenterFolder().getAbsolutePath());
-        }
-
-        return tree;
-    }
-
     private void setPaneStyle() {
         this.setMaxWidth(Double.MAX_VALUE);
         this.setMaxHeight(Double.MAX_VALUE);
@@ -203,10 +191,14 @@ public class LibraryUI extends StackPane {
         UserInterfaceUtils.applyBlackBoarder(this);
     }
 
-
+    /**
+     * Get list of file paths that are expanded in this tree
+     *
+     * @return list of expanded paths
+     */
     public List<String> getExpandedPaths() {
         if (m_tree != null) {
-            return TreeViewUtil.getExpandedPaths(m_tree);
+            return FileTreeUtils.getExpandedPaths(m_tree);
         } else {
             return null;
         }

@@ -1,49 +1,43 @@
-package com.teamgamma.musicmanagementsystem.misc;
+package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.Item;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import com.teamgamma.musicmanagementsystem.ui.MusicPlayerHistoryUI;
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * Custom EventDispatcher class to override the default double-click behaviour of TreeView
  * This class is a modification of http://stackoverflow.com/questions/15509203/disable-treeitems-default-expand-collapse-on-double-click-javafx-2-2
  */
-public class TreeMouseEventDispatcher implements EventDispatcher {
+public class CustomEventDispatcher implements EventDispatcher {
     private final EventDispatcher m_originalDispatcher;
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
-    private TreeViewItem m_selectedTreeViewItem;
-    private TreeView<TreeViewItem> m_tree;
+    private Item m_selectedItem;
+    private TreeView<Item> m_tree;
     private boolean m_isLeftPane;
 
     // Static private member for making the control click menu be just a single instance.
-    private static ContextMenu m_playbackContextMenuInstance;
+    //private static ContextMenu m_playbackContextMenuInstance;
 
-    public TreeMouseEventDispatcher(EventDispatcher originalDispatcher,
-                                    SongManager model,
-                                    MusicPlayerManager musicPlayerManager,
-                                    TreeView<TreeViewItem> tree,
-                                    TreeViewItem selectedTreeViewItem,
-                                    boolean isLeftPane) {
+    public CustomEventDispatcher(EventDispatcher originalDispatcher,
+                                 SongManager model,
+                                 MusicPlayerManager musicPlayerManager,
+                                 TreeView<Item> tree,
+                                 Item selectedItem,
+                                 boolean isLeftPane) {
         m_originalDispatcher = originalDispatcher;
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_tree = tree;
-        m_selectedTreeViewItem = selectedTreeViewItem;
+        m_selectedItem = selectedItem;
         m_isLeftPane = isLeftPane;
     }
 
@@ -62,36 +56,32 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
 
             if (isPrimaryMouseButton && isDoubleClick) {
                 if (!event.isConsumed()) {
-                    if (m_selectedTreeViewItem != null) {
-                        boolean isFolder = m_selectedTreeViewItem.getM_file().isDirectory();
+                    if (m_selectedItem != null) {
+                        boolean isFolder = m_selectedItem.getFile().isDirectory();
 
                         //Only notify center panel if this is a left panel and if this is a directory
                         if (m_isLeftPane && isFolder) {
-                            System.out.println("Selected Item: " + m_selectedTreeViewItem);
-                            m_model.setM_selectedCenterFolder(m_selectedTreeViewItem.getM_file());
+                            System.out.println("Selected Item: " + m_selectedItem);
+                            m_model.setM_selectedCenterFolder(m_selectedItem.getFile());
                             m_model.notifyCenterFolderObservers();
 
-                            TreeViewUtil.closeAllFoldersIcons(m_tree.getRoot());
+                            FileTreeUtils.closeAllFoldersIcons(m_tree.getRoot());
+                            FileTreeUtils.setOpenFolder(m_tree, m_selectedItem.getFile().getAbsolutePath());
 
-                            TreeViewUtil.setOpenFolder(m_tree, m_selectedTreeViewItem.getM_file().getAbsolutePath());
                         } else if (!isFolder) {
-                            Song songToPlay = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
-                            if (songToPlay != null) {
-                                if (!songToPlay.equals(m_musicPlayerManager.getCurrentSongPlaying())) {
-                                    m_musicPlayerManager.playSongRightNow(songToPlay);
-                                }
-                            } else {
-                                System.out.println("SOMETHING WRONG!!!");
+                            Song songToPlay = (Song) m_selectedItem;
+                            if (!songToPlay.equals(m_musicPlayerManager.getCurrentSongPlaying())) {
+                                m_musicPlayerManager.playSongRightNow(songToPlay);
                             }
                         }
                     }
                 }
 
                 event.consume();
-            } else if (mouseEvent.isControlDown() && (mouseEvent.isPrimaryButtonDown())){
+            } /*else if (mouseEvent.isControlDown() && mouseEvent.isPrimaryButtonDown()) {
                 if (!event.isConsumed()) {
-                    Song songSelected = TreeViewUtil.getSongSelected(m_tree, m_selectedTreeViewItem, m_model);
-                    if (songSelected != null) {
+                    if (m_selectedItem instanceof Song) {
+                        Song songSelected = (Song) m_selectedItem;
                         if (m_playbackContextMenuInstance != null) {
                             m_playbackContextMenuInstance.hide();
                         }
@@ -100,7 +90,7 @@ public class TreeMouseEventDispatcher implements EventDispatcher {
                     }
                 }
                 event.consume();
-            }
+            }*/
         }
         return m_originalDispatcher.dispatchEvent(event, tail);
     }

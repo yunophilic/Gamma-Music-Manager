@@ -1,6 +1,6 @@
 package com.teamgamma.musicmanagementsystem.watchservice;
 
-import com.teamgamma.musicmanagementsystem.misc.Actions;
+import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.model.*;
 import javafx.application.Platform;
 
@@ -48,7 +48,7 @@ public class Watcher {
             System.out.println("**** Watching...");
             boolean isFirst = true;
             File tempFile = null;
-            Actions action = Actions.NONE;
+            Action action = Action.NONE;
 
             while (true) {
                 try {
@@ -63,7 +63,7 @@ public class Watcher {
 
                     // WatchKey failed to grab more events
                     if (m_watchKey == null) {
-                        Actions finalAction = action;
+                        Action finalAction = action;
                         File finalTempFile = tempFile;
                         Platform.runLater(() ->
                                 m_model.fileSysChanged(finalAction, finalTempFile));
@@ -81,11 +81,11 @@ public class Watcher {
                         if(isFirst) {
                             isFirst = false;
                             if(kind == StandardWatchEventKind.ENTRY_CREATE) {
-                                action = Actions.ADD;
+                                action = Action.ADD;
                             } else if(kind == StandardWatchEventKind.ENTRY_DELETE) {
-                                action = Actions.DELETE;
+                                action = Action.DELETE;
                             } else {
-                                action = Actions.NONE;
+                                action = Action.NONE;
                             }
                             tempFile = new File(dir + File.separator + eventPath);
                         }
@@ -126,10 +126,10 @@ public class Watcher {
         List<File> deletedDirs = new ArrayList<>();
         for (Library lib : m_model.getM_libraries()) {
             try {
-                if(lib.getM_rootDir().exists()) {
-                    addWatchDir(lib.getM_rootDirPath());
+                if(lib.getRootDir().exists()) {
+                    addWatchDir(lib.getRootDirPath());
                 } else {
-                    deletedDirs.add(lib.getM_rootDir());
+                    deletedDirs.add(lib.getRootDir());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -160,37 +160,8 @@ public class Watcher {
     }
 
     private void registerAsObserver() {
-        m_model.addSongManagerObserver(new SongManagerObserver() {
-            @Override
-            public void librariesChanged() {
-                restartWatcher();
-            }
-
-            @Override
-            public void centerFolderChanged() {
-                // Do nothing
-            }
-
-            @Override
-            public void rightFolderChanged() {
-                // Do nothing
-            }
-
-            @Override
-            public void songChanged() {
-                // Do nothing
-            }
-
-            @Override
-            public void fileChanged(Actions action, File file) {
-                restartWatcher();
-            }
-
-            @Override
-            public void leftPanelOptionsChanged() {
-                // Do nothing
-            }
-        });
+        m_model.addLibraryObserver((action, file) -> restartWatcher());
+        m_model.addFileObserver((action, file) -> restartWatcher());
     }
 
 }
