@@ -192,7 +192,9 @@ public class LibraryUI extends StackPane {
     }
 
     /**
-     * Get list of expanded paths
+     * Get list of file paths that are expanded in this tree
+     *
+     * @return list of expanded paths
      */
     public List<String> getExpandedPaths() {
         if (m_tree != null) {
