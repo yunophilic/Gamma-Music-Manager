@@ -283,9 +283,15 @@ public class SongManager {
         return newPlaylist;
     }
 
+    /**
+     * Add playlist object to m_playlists
+     *
+     * @param playlist the playlist object to be added
+     */
     public void addPlaylist(Playlist playlist) {
         m_playlists.add(playlist);
     }
+
     /**
      * Remove existing playlist
      *
