@@ -12,12 +12,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Builder class to create context menu
  */
 public class ContextMenuBuilder {
+
+    // Constants
     private static final String COPY = "Copy";
     private static final String PASTE = "Paste";
     private static final String DELETE = "Delete";
@@ -40,12 +43,12 @@ public class ContextMenuBuilder {
     /**
      * Construct file tree context menu
      *
-     * @param model The model
-     * @param musicPlayerManager The music player manager
-     * @param databaseManager The db manager
-     * @param selectedItem The selected item in the file tree
+     * @param model                 The model
+     * @param musicPlayerManager    The music player manager
+     * @param databaseManager       The db manager
+     * @param selectedItem          The selected item in the file tree
      *
-     * @return ContextMenu for file tree
+     * @return                      ContextMenu for file tree
      */
     public static ContextMenu buildFileTreeContextMenu(SongManager model,
                                                        MusicPlayerManager musicPlayerManager,
@@ -99,6 +102,7 @@ public class ContextMenuBuilder {
 
             // Only show the show in right pane option if it is in left pane
             if (!isLeftPane) {
+                hideMenuItem(fileOptionsSeparator);
                 hideMenuItem(removeLibrary);
                 hideMenuItem(showInRightPane);
             }
@@ -128,12 +132,12 @@ public class ContextMenuBuilder {
     /**
      * Construct center panel context menu
      *
-     * @param model The model
-     * @param musicPlayerManager The music player manager
-     * @param databaseManager The db manager
-     * @param selectedItem The selected song in the center panel (in Item interface form)
+     * @param model                 The model
+     * @param musicPlayerManager    The music player manager
+     * @param databaseManager       The db manager
+     * @param selectedItem          The selected song in the center panel (in Item interface form)
      *
-     * @return ContextMenu for center panel
+     * @return                      ContextMenu for center panel
      */
     public static ContextMenu buildCenterPanelContextMenu(SongManager model,
                                                           MusicPlayerManager musicPlayerManager,
@@ -189,12 +193,12 @@ public class ContextMenuBuilder {
     /**
      * Construct playlist context menu
      *
-     * @param model The model
-     * @param musicPlayerManager The music player manager
-     * @param databaseManager The db manager
-     * @param selectedSongIndex The selected song index in the playlist
+     * @param model                 The model
+     * @param musicPlayerManager    The music player manager
+     * @param databaseManager       The db manager
+     * @param selectedSongIndex     The selected song index in the playlist
      *
-     * @return ContextMenu for playlist
+     * @return                      ContextMenu for playlist
      */
     public static ContextMenu buildPlaylistContextMenu(SongManager model,
                                                        MusicPlayerManager musicPlayerManager,
@@ -240,10 +244,10 @@ public class ContextMenuBuilder {
     /**
      * Construct playback context menu
      *
-     * @param musicPlayerManager The music player manager
-     * @param selectedItem The selected song (in Item interface form)
+     * @param musicPlayerManager        The music player manager
+     * @param selectedItem              The selected song (in Item interface form)
      *
-     * @return Playback context menu for music player history UI
+     * @return                          Playback context menu for music player history UI
      */
     public static ContextMenu buildPlaybackContextMenu(MusicPlayerManager musicPlayerManager, Item selectedItem) {
         ContextMenu playbackMenu = new ContextMenu();
@@ -258,16 +262,27 @@ public class ContextMenuBuilder {
         return playbackMenu;
     }
 
-
     /**
      * Helper functions
      */
 
+    /**
+     * Function to hide a menu item.
+     *
+     * @param item      The item to hide
+     */
     private static void hideMenuItem(MenuItem item) {
         item.setVisible(false);
         item.setDisable(true);
     }
 
+    /**
+     * Function to create the menu item for copying a file.
+     *
+     * @param model             The model set the item that is to be copied
+     * @param selectedItem      The item to copy
+     * @return                  A menu item containing the logic copy a song.
+     */
     private static MenuItem createCopyMenuItem(SongManager model, Item selectedItem) {
         MenuItem copy = new MenuItem(COPY);
 
@@ -280,6 +295,13 @@ public class ContextMenuBuilder {
         return copy;
     }
 
+    /**
+     * Function to create the paste menu item option.
+     *
+     * @param model             The model to get the file that is to be copied.
+     * @param selectedItem      The location to paste the file to.
+     * @return                  A menu item containing the logic for this operation.
+     */
     private static MenuItem createFileTreePasteMenuItem(SongManager model, Item selectedItem) {
         MenuItem paste = new MenuItem(PASTE);
 
@@ -306,6 +328,12 @@ public class ContextMenuBuilder {
         return paste;
     }
 
+    /**
+     * Function to create the menu item to set what folder is in the center panel.
+     *
+     * @param model     The model to set the center panel folder to show.
+     * @return          A menu item containing the logic to set the center panel.
+     */
     private static MenuItem createCenterPanelPasteMenuItem(SongManager model) {
         MenuItem paste = new MenuItem(PASTE);
 
@@ -330,6 +358,13 @@ public class ContextMenuBuilder {
         return paste;
     }
 
+    /**
+     * Function to create a menu item for renaming a item.
+     *
+     * @param model             The model to carry out the renaming
+     * @param selectedItem      The item to rename.
+     * @return                  A menu item to rename a file or folder
+     */
     private static MenuItem createRenameMenuItem(SongManager model, Item selectedItem) {
         MenuItem rename = new MenuItem(RENAME);
 
@@ -347,6 +382,15 @@ public class ContextMenuBuilder {
         return rename;
     }
 
+    /**
+     * Function to create the delete menu option based on the selected item
+     *
+     * @param model                 The model to do the operation.
+     * @param musicPlayerManager    The music player manager to update if the song is currently playing
+     * @param databaseManager       The database to update
+     * @param selectedItem          The item to delete.
+     * @return                      A menu item containing the logic to delete a item.
+     */
     private static MenuItem createDeleteMenuItem(SongManager model,
                                                  MusicPlayerManager musicPlayerManager,
                                                  DatabaseManager databaseManager,
@@ -356,13 +400,21 @@ public class ContextMenuBuilder {
         delete.setOnAction(event -> {
             if (selectedItem != null) {
                 File fileToDelete = selectedItem.getFile();
-                UserInterfaceUtils.deleteFileAction(model,musicPlayerManager, databaseManager, fileToDelete);
+                UserInterfaceUtils.deleteFileAction(model, musicPlayerManager, databaseManager, fileToDelete);
             }
         });
 
         return delete;
     }
 
+    /**
+     * Function to create the remove from library menu option.
+     *
+     * @param model                 The model that will update the backend
+     * @param databaseManager       The database to update
+     * @param selectedItem          The item to remove from the library
+     * @return                      A menu item containing the logic to remove something from the library
+     */
     private static MenuItem createRemoveLibraryMenuItem(SongManager model,
                                                         DatabaseManager databaseManager,
                                                         Item selectedItem) {
@@ -405,6 +457,13 @@ public class ContextMenuBuilder {
         return removeLibrary;
     }
 
+    /**
+     * Function to build the show in right pane menu option.
+     *
+     * @param model             The model to set what is in the right pane.
+     * @param selectedItem      The item to show in the right pane.
+     * @return                  A menu item that will contain the logic to show something in the right pane.
+     */
     private static MenuItem createShowInRightPaneMenuItem(SongManager model, Item selectedItem) {
         MenuItem showInRightPane = new MenuItem(SHOW_IN_RIGHT_PANE);
 
@@ -423,6 +482,13 @@ public class ContextMenuBuilder {
         return showInRightPane;
     }
 
+    /**
+     * Function to create a menu item for editing the songs metadata via prompt.
+     *
+     * @param model             The model to update UI.
+     * @param selectedItem      The song to edit.
+     * @return                  A menu item containing the logic to edit a song metadata.
+     */
     private static MenuItem createEditPropertiesMenuItem(SongManager model, Item selectedItem) {
         MenuItem editProperties = new MenuItem(EDIT_PROPERTIES);
 
@@ -437,6 +503,14 @@ public class ContextMenuBuilder {
         return editProperties;
     }
 
+    /**
+     * A function to create a menu item that will add a Song to the playlist via prompt.
+     *
+     * @param model                 The model to get all the playlist from.
+     * @param musicPlayerManager    The music player manager to notify updates.
+     * @param selectedItem          The selected song to add in.
+     * @return                      A menu item setup with the logic to add a song to a playlist via prompt.
+     */
     private static MenuItem createAddToPlaylistMenuItem(SongManager model,
                                                         MusicPlayerManager musicPlayerManager,
                                                         Item selectedItem) {
@@ -461,6 +535,14 @@ public class ContextMenuBuilder {
         return addToPlaylist;
     }
 
+    /**
+     * Function to create a menu item that will allow the user to add a song to the current playlist.
+     *
+     * @param model                 The model to select the current playlist.
+     * @param musicPlayerManager    The music player manager to updating UI.
+     * @param selectedItem          The song to add to the playlist.
+     * @return                      A menu item containing the logic to add a song to the current playlist.
+     */
     private static MenuItem createAddToCurrentPlaylistMenuItem(SongManager model,
                                                                MusicPlayerManager musicPlayerManager,
                                                                Item selectedItem) {
@@ -482,6 +564,14 @@ public class ContextMenuBuilder {
         return addToCurrentPlaylist;
     }
 
+    /**
+     * Function to create a menu item to remove the song from the playlist based on the index value it is.
+     *
+     * @param model                     The model to get the selected playlist being shown.
+     * @param musicPlayerManager        The music player manager to update what is playing after removing.
+     * @param selectedSongIndex         The index of the song to remove in the playlist.
+     * @return                          A menu item containing the logic to do this.
+     */
     private static MenuItem createRemoveFromPlaylistMenuItem(SongManager model,
                                                              MusicPlayerManager musicPlayerManager,
                                                              int selectedSongIndex) {
@@ -510,6 +600,13 @@ public class ContextMenuBuilder {
         return removeFromPlaylist;
     }
 
+    /**
+     * Fucnction to create a menu item with logic to play the song passed in to the music player.
+     *
+     * @param musicPlayerManager    The music player manager to use
+     * @param selectedItem          The song to add to the queue
+     * @return                      A menu item containing the logic to play a song on the music player
+     */
     private static MenuItem createPlaySongMenuItem(MusicPlayerManager musicPlayerManager, Item selectedItem) {
         MenuItem playSong = new MenuItem(PLAY_SONG);
 
@@ -523,6 +620,13 @@ public class ContextMenuBuilder {
         return playSong;
     }
 
+    /**
+     * Function to create a menu item with the logic to add a song to the front of the playback queue
+     *
+     * @param musicPlayerManager    The music player manager to use
+     * @param selectedItem          The song to add to the queue
+     * @return                      A menu item containing logic needed to add a song to the front of the queue.
+     */
     private static MenuItem createPlaySongNextMenuItem(MusicPlayerManager musicPlayerManager, Item selectedItem) {
         MenuItem playSongNext = new MenuItem(PLAY_SONG_NEXT);
 
@@ -536,6 +640,13 @@ public class ContextMenuBuilder {
         return playSongNext;
     }
 
+    /**
+     * Function to create a menu item to place a song on the playback queue
+     *
+     * @param musicPlayerManager    The music player manager to use
+     * @param selectedItem          The song to add to the queue
+     * @return                      The menu item containing logic to add a song to the playback queue
+     */
     private static MenuItem createPlaceSongOnQueueMenuItem(MusicPlayerManager musicPlayerManager, Item selectedItem) {
         MenuItem placeSongOnQueue = new MenuItem(PLACE_SONG_ON_QUEUE);
 
@@ -548,4 +659,5 @@ public class ContextMenuBuilder {
 
         return placeSongOnQueue;
     }
+
 }

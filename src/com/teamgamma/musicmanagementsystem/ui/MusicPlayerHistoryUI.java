@@ -184,16 +184,11 @@ public class MusicPlayerHistoryUI extends HBox{
                 row.getChildren().add(fileName);
                 HBox.setHgrow(fileName, Priority.ALWAYS);
             }
+
             ContextMenu playbackMenu = ContextMenuBuilder.buildPlaybackContextMenu(m_manager, songForRow);
-
             MenuItem removeSong = new MenuItem(REMOVE_SONG_FROM_QUEUE_MENU_MESSAGE);
-            removeSong.setOnAction(event1 -> m_manager.removeSongFromPlaybackQueue(songNumber - 1));
+            removeSong.setOnAction(event -> m_manager.removeSongFromPlaybackQueue(songNumber - 1));
             playbackMenu.getItems().add(removeSong);
-
-
-                    Label fileName = new Label(songForRow.getFileName());
-                    row.getChildren().add(fileName);
-                    HBox.setHgrow(fileName, Priority.ALWAYS);
 
             row.setOnMouseClicked(event -> {
                 if (event.getButton() == MouseButton.SECONDARY) {
