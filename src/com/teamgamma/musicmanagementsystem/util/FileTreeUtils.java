@@ -19,50 +19,6 @@ public class FileTreeUtils {
     private static final String FOLDER_ICON_PATH = "res" + File.separator + "folder-icon.png";
     private static final String SONG_ICON_PATH = "res" + File.separator + "music-file-icon.png";
 
-    /*public static TreeItem<Item> generateTreeItems(File file, String dirPath, boolean showFolderOnly, List<String> expandedPaths) {
-        System.out.println(file + ", " + dirPath);
-        TreeItem<Item> item = new TreeItem<>(
-                (file.getAbsolutePath().equals(dirPath)) ? new Item(file, true) : new Item(file, false)
-        );
-
-        File treeItemFile = item.getValue().getFile();
-        System.out.println("$$$" + treeItemFile + ", " + treeItemFile.isDirectory());
-        if (treeItemFile.isDirectory()) {
-            item.setGraphic(new ImageView(FOLDER_ICON_PATH));
-
-            if (expandedPaths != null && !expandedPaths.isEmpty()) {
-                if (expandedPaths.contains(item.getValue().getFile().getAbsolutePath())) {
-                    item.setExpanded(true);
-                }
-            }
-        } else {
-            item.setGraphic(new ImageView(SONG_ICON_PATH));
-        }
-
-        File[] children = getSubFiles(file, showFolderOnly);
-
-        if (children != null) {
-            for (File child : children) {
-                item.getChildren().add(generateTreeItems(child, dirPath, showFolderOnly, expandedPaths)); //recursion here
-            }
-        }
-
-        return item;
-    }
-
-    private static File[] getSubFiles(File file, final boolean showFolderOnly) {
-        return file.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File f) {
-                    if (showFolderOnly) {
-                        return f.isDirectory();
-                    } else {
-                        return f.isDirectory() || FileManager.isAccept(f);
-                    }
-                }
-            });
-    }*/
-
     /**
      * Recursively create tree items from the files in a directory and return a reference to the root item,
      * Set nodes in expandedPaths to expanded state
@@ -74,7 +30,7 @@ public class FileTreeUtils {
         System.out.println("$$$" + file + ", " + file.isDirectory());
 
         TreeItem<Item> item;
-        if(!file.isDirectory()) {
+        if(file.isFile()) {
             item = new TreeItem<>(new Song(file));
             item.setGraphic(new ImageView(SONG_ICON_PATH));
         } else {
@@ -121,7 +77,6 @@ public class FileTreeUtils {
     public static TreeItem<Item> searchTreeItem(TreeItem<Item> node, String path) {
         //base case
         if (node.getValue().getFile().getAbsolutePath().equals(path)) {
-            //System.out.println("Returning node: " + node);
             return node;
         }
 
