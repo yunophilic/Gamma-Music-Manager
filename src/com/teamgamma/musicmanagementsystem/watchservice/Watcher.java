@@ -11,6 +11,7 @@ import name.pachler.nio.file.ext.ExtendedWatchEventModifier;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * Class to monitor the file system changes
  */
 public class Watcher {
-    private int m_timeout = 2000;
+    private int m_timeout = 1000;
     private WatchService m_watcher;
     private WatchKey m_watchKey;
     private Thread m_watcherThread;
@@ -50,10 +51,9 @@ public class Watcher {
     public void startWatcher() {
         m_watcherThread = new Thread(() -> {
             System.out.println("**** Watching...");
-            boolean isFirst = true;
             List<Pair<Action, File>> fileActions = new ArrayList<>();
 
-            watcherRoutine(isFirst, fileActions);
+            watcherRoutine(fileActions);
             System.out.println("**** Watcher thread terminated...");
         });
 
@@ -63,15 +63,16 @@ public class Watcher {
     /**
      * The main routine of the Watcher class.
      *
-     * @param isFirst Boolean value indicating if the Watcher is notified for the first time.
-     * @param fileActions
+     * @param fileActions The list of actions and files changed.
      */
-    private void watcherRoutine(boolean isFirst, List<Pair<Action, File>> fileActions) {
+    private void watcherRoutine(List<Pair<Action, File>> fileActions) {
+        boolean isFirst = true;
         while (true) {
             try {
                 if (isFirst) {
-                    System.out.println("**** File system changed...");
                     m_watchKey = m_watcher.take();
+
+                    System.out.println("**** File system changed...");
                     isFirst = false;
                 } else {
                     // Try for more events with timeout
@@ -106,8 +107,30 @@ public class Watcher {
                     + " [ " + dir + File.separator + eventPath + " ]");
 
             File file = new File(dir + File.separator + eventPath);
-            fileActions.add(new Pair<>(handleAction(kind), file));
+            Action action = handleAction(kind);
+            if(isValidEvent(file, action)) {
+                fileActions.add(new Pair<>(action, file));
+            }
         }
+    }
+
+    /**
+     * Checks if the event is a valid event.
+     * @param file The file of the event.
+     * @param action The action to take for the event.
+     * @return true if valid, false otherwise.
+     */
+    private boolean isValidEvent(File file, Action action) {
+        if(!file.exists() && action.equals(Action.DELETE)) {
+            return true;
+        }
+        else if(file.toString().endsWith(".mp3")) {
+            return true;
+        }
+        else if (file.isDirectory()) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -117,14 +140,14 @@ public class Watcher {
      */
     private Action handleAction(WatchEvent.Kind<?> eventKind) {
         Action action;
-        if(eventKind == StandardWatchEventKind.ENTRY_CREATE) {
+        if(eventKind.equals(StandardWatchEventKind.ENTRY_CREATE)) {
             action = Action.ADD;
-        } else if(eventKind == StandardWatchEventKind.ENTRY_DELETE) {
+        } else if(eventKind.equals(StandardWatchEventKind.ENTRY_DELETE)) {
             action = Action.DELETE;
-        } else if(eventKind == ExtendedWatchEventKind.ENTRY_RENAME_FROM) {
-            action = Action.RENAME;
-        } else if(eventKind == ExtendedWatchEventKind.ENTRY_RENAME_TO) {
-            action = Action.RENAME;
+        } else if(eventKind.equals(ExtendedWatchEventKind.ENTRY_RENAME_FROM)) {
+            action = Action.DELETE;
+        } else if(eventKind.equals(ExtendedWatchEventKind.ENTRY_RENAME_TO)) {
+            action = Action.ADD;
         } else {
             action = Action.NONE;
         }
@@ -185,7 +208,6 @@ public class Watcher {
         WatchEvent.Kind[] eventKinds = {
                 StandardWatchEventKind.ENTRY_CREATE,
                 StandardWatchEventKind.ENTRY_DELETE,
-                StandardWatchEventKind.ENTRY_MODIFY,
                 ExtendedWatchEventKind.ENTRY_RENAME_FROM,
                 ExtendedWatchEventKind.ENTRY_RENAME_TO
         };
