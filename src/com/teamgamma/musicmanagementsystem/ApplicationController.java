@@ -125,7 +125,7 @@ public class ApplicationController extends Application {
 
         createRootUI(m_songManager, m_MusicPlayerManager);
 
-        Watcher watcher = new Watcher(m_songManager, m_databaseManager);
+        Watcher watcher = new Watcher(m_songManager);
         watcher.startWatcher();
 
         primaryStage.setOnCloseRequest(e -> {

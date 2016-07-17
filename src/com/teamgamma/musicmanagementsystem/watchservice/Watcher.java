@@ -11,7 +11,6 @@ import name.pachler.nio.file.ext.ExtendedWatchEventModifier;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,22 +21,18 @@ import java.util.concurrent.TimeUnit;
  * Class to monitor the file system changes
  */
 public class Watcher {
-    private int m_timeout = 1000;
     private WatchService m_watcher;
     private WatchKey m_watchKey;
     private Thread m_watcherThread;
     private Map<WatchKey, Path> m_keyMaps;
     private SongManager m_model;
-    private DatabaseManager m_databaseManager;
 
     /**
      * Constructor for Watcher class
      * @param model: SongManager model
-     * @param databaseManager: DatabaseManager manager
      */
-    public Watcher(SongManager model, DatabaseManager databaseManager) {
+    public Watcher(SongManager model) {
         m_model = model;
-        m_databaseManager = databaseManager;
         m_keyMaps = new HashMap<>();
 
         registerAsObserver();
@@ -76,7 +71,8 @@ public class Watcher {
                     isFirst = false;
                 } else {
                     // Try for more events with timeout
-                    m_watchKey = m_watcher.poll(m_timeout, TimeUnit.MILLISECONDS);
+                    int timeout = 1000;
+                    m_watchKey = m_watcher.poll(timeout, TimeUnit.MILLISECONDS);
                 }
 
                 // WatchKey failed to grab more events
