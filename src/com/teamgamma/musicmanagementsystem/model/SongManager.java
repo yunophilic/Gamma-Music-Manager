@@ -116,7 +116,8 @@ public class SongManager {
 
     private boolean isInLibrary(String directoryPath) {
         for (Library library : m_libraries) {
-            if (library.getRootDirPath().equals(directoryPath)) {
+            String libRootDirPath = library.getRootDirPath();
+            if (directoryPath.equals(libRootDirPath) || directoryPath.contains(libRootDirPath)) {
                 return true;
             }
         }
