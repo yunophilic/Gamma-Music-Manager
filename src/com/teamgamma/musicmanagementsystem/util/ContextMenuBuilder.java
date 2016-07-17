@@ -5,7 +5,6 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
@@ -68,7 +67,7 @@ public class ContextMenuBuilder {
 
         MenuItem removeLibrary = createRemoveLibraryMenuItem(model, databaseManager, selectedItem);
         MenuItem showInRightPane = createShowInRightPaneMenuItem(model, selectedItem);
-        MenuItem openFileLocation = showInExplorerMenuItem(selectedItem);
+        MenuItem openFileLocation = createShowInExplorerMenuItem(selectedItem);
 
         //separators (non functional menu items, just for display)
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
@@ -156,7 +155,7 @@ public class ContextMenuBuilder {
         MenuItem rename = createRenameMenuItem(model, selectedItem);
         MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedItem);
 
-        MenuItem openFileLocation = showInExplorerMenuItem(selectedItem);
+        MenuItem openFileLocation = createShowInExplorerMenuItem(selectedItem);
 
         //separators (non functional menu items, just for display)
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
@@ -220,7 +219,7 @@ public class ContextMenuBuilder {
         MenuItem rename = createRenameMenuItem(model, selectedSong);
         MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedSong);
 
-        MenuItem openFileLocation = showInExplorerMenuItem(selectedSong);
+        MenuItem openFileLocation = createShowInExplorerMenuItem(selectedSong);
 
         //separators (non functional menu items, just for display)
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
@@ -432,7 +431,12 @@ public class ContextMenuBuilder {
         return showInRightPane;
     }
 
-    private static MenuItem showInExplorerMenuItem(Item selectedItem) {
+    /**
+     * Menu option to open the selected file or folder's location in the file explorer
+     * @param selectedItem the file or folder selected in the tree view
+     * @return the menu item which opens the file or folder's location
+     */
+    private static MenuItem createShowInExplorerMenuItem(Item selectedItem) {
         MenuItem showInExplorer = new MenuItem(SHOW_IN_EXPLORER);
 
         showInExplorer.setOnAction(event -> {
