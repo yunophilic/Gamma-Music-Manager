@@ -104,7 +104,6 @@ public class ContextMenuBuilder {
 
             // Only show the show in right pane option if it is in left pane
             if (!isLeftPane) {
-                hideMenuItem(fileOptionsSeparator);
                 hideMenuItem(removeLibrary);
                 hideMenuItem(showInRightPane);
             }
