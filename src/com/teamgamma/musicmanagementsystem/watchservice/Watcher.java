@@ -2,19 +2,17 @@ package com.teamgamma.musicmanagementsystem.watchservice;
 
 import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.model.*;
+import com.teamgamma.musicmanagementsystem.util.ConcreteFileActions;
+import com.teamgamma.musicmanagementsystem.util.FileActions;
 import javafx.application.Platform;
 
-import javafx.util.Pair;
 import name.pachler.nio.file.*;
 import name.pachler.nio.file.ext.ExtendedWatchEventKind;
 import name.pachler.nio.file.ext.ExtendedWatchEventModifier;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,7 +44,7 @@ public class Watcher {
     public void startWatcher() {
         m_watcherThread = new Thread(() -> {
             System.out.println("**** Watching...");
-            List<Pair<Action, File>> fileActions = new ArrayList<>();
+            FileActions fileActions = new ConcreteFileActions();
 
             watcherRoutine(fileActions);
             System.out.println("**** Watcher thread terminated...");
@@ -60,7 +58,7 @@ public class Watcher {
      *
      * @param fileActions The list of actions and files changed.
      */
-    private void watcherRoutine(List<Pair<Action, File>> fileActions) {
+    private void watcherRoutine(FileActions fileActions) {
         boolean isFirst = true;
         while (true) {
             try {
@@ -94,7 +92,7 @@ public class Watcher {
      * Handle the WatchKey events.
      * @param fileActions List of action and file pairs.
      */
-    private void handleEvents(List<Pair<Action, File>> fileActions) {
+    private void handleEvents(FileActions fileActions) {
         Path dir = m_keyMaps.get(m_watchKey);
         for (WatchEvent<?> event : m_watchKey.pollEvents()) {
             WatchEvent.Kind<?> kind = event.kind();
@@ -105,7 +103,7 @@ public class Watcher {
             File file = new File(dir + File.separator + eventPath);
             Action action = handleAction(kind);
             if(isValidEvent(file, action)) {
-                fileActions.add(new Pair<>(action, file));
+                fileActions.add(action, file);
             }
         }
     }
@@ -215,8 +213,8 @@ public class Watcher {
      * Register model observers.
      */
     private void registerAsObserver() {
-        m_model.addLibraryObserver((action, file) -> restartWatcher());
-        m_model.addFileObserver((action, file) -> restartWatcher());
+        m_model.addLibraryObserver((FileActions fileActions) -> restartWatcher());
+        m_model.addFileObserver((FileActions fileActions) -> restartWatcher());
     }
 
 }

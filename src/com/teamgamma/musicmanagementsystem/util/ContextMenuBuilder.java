@@ -292,7 +292,6 @@ public class ContextMenuBuilder {
                 }
                 try {
                     model.copyToDestination(dest);
-                    model.notifyFileObservers(Action.PASTE, null);
                 } catch (FileAlreadyExistsException ex) {
                     PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
                 } catch (IOException ex) {
@@ -317,7 +316,6 @@ public class ContextMenuBuilder {
             }
             try {
                 model.copyToDestination(dest);
-                model.notifyFileObservers(Action.PASTE, null);
             } catch (FileAlreadyExistsException ex) {
                 PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
             } catch (IOException ex) {

@@ -5,6 +5,7 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
+import com.teamgamma.musicmanagementsystem.util.FileActions;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -111,12 +112,12 @@ public class PlaylistUI extends VBox {
             updateTable();
         });
 
-        m_model.addLibraryObserver((action, file) -> {
+        m_model.addLibraryObserver((FileActions fileActions) -> {
             clearTable();
             updateTable();
         });
 
-        m_model.addFileObserver((action, file) -> {
+        m_model.addFileObserver((FileActions fileActions) -> {
             clearTable();
             updateTable();
         });
