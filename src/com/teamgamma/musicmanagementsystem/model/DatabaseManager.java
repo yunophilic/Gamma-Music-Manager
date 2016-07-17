@@ -53,6 +53,7 @@ public class DatabaseManager {
     private PreparedStatement m_addToResumeTime;
     private PreparedStatement m_updateResumeTime;
     private PreparedStatement m_getResumeTime;
+    private PreparedStatement m_clearResumeTime;
 
     public DatabaseManager() {
     }
@@ -180,6 +181,8 @@ public class DatabaseManager {
                                                             "FROM ResumeTime " +
                                                             "WHERE playlistName = ?");
 
+            m_clearResumeTime = m_connection.prepareStatement("DELETE FROM ResumeTime");
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -299,7 +302,7 @@ public class DatabaseManager {
             // ResumeTime table, store time for each playlist when the application is closed
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS ResumeTime (" +
                                         "playlistName   TEXT    NOT NULL, " +
-                                        "resumeTime     INTEGER, " +
+                                        "resumeTime     REAL, " +
                                         "PRIMARY KEY (playlistName)," +
                                         "FOREIGN KEY (playlistName) REFERENCES Playlist(playlistName) ON DELETE CASCADE" +
                                     ")");
@@ -838,11 +841,23 @@ public class DatabaseManager {
      * @param playlistName
      * @param time
      */
-    public void savePlaylistResumeTime(String playlistName, int time) {
+    public void savePlaylistResumeTime(String playlistName, double time) {
         try {
             m_addToResumeTime.setString(1, playlistName);
-            m_addToResumeTime.setInt(2, time);
+            m_addToResumeTime.setDouble(2, time);
             m_addToResumeTime.executeUpdate();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Empty the ResumeTime table
+     */
+    public void clearResumeTime() {
+        try {
+            m_clearResumeTime.executeUpdate();
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -854,9 +869,9 @@ public class DatabaseManager {
      * @param playlistName
      * @param time
      */
-    public void updateResumeTime(String playlistName, int time) {
+    public void updateResumeTime(String playlistName, double time) {
         try {
-            m_updateResumeTime.setInt(1, time);
+            m_updateResumeTime.setDouble(1, time);
             m_updateResumeTime.setString(2, playlistName);
             m_updateResumeTime.executeUpdate();
         }
@@ -870,11 +885,11 @@ public class DatabaseManager {
      * @param playlistName
      * @return
      */
-    public int getResumeTime(String playlistName) {
+    public double getResumeTime(String playlistName) {
         try {
             m_getResumeTime.setString(1, playlistName);
             ResultSet resultSet = m_getResumeTime.executeQuery();
-            int resumeTime = resultSet.getInt("resumeTime");
+            double resumeTime = resultSet.getInt("resumeTime");
             return resumeTime;
         }
         catch (SQLException e) {
