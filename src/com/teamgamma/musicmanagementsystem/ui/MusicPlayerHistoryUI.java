@@ -53,11 +53,17 @@ public class MusicPlayerHistoryUI extends HBox{
         HBox.setHgrow(accordion, Priority.ALWAYS);
         this.getChildren().add(accordion);
 
-        manager.registerNewSongObserver(() -> Platform.runLater(
-                () -> playbackHistory.setContent(createUIList(manager.getHistory(), createHistoryAction()))));
+        manager.registerNewSongObserver(
+                () -> Platform.runLater(
+                    () -> playbackHistory.setContent(createUIList(manager.getHistory(), createHistoryAction()))
+                )
+        );
 
-        manager.registerQueingObserver(() -> Platform.runLater(
-                () -> queuingList.setContent(createUIList(manager.getPlayingQueue(), createPlaybackQueueAction()))));
+        manager.registerQueingObserver(
+                () -> Platform.runLater(
+                    () -> queuingList.setContent(createUIList(manager.getPlayingQueue(), createPlaybackQueueAction()))
+                )
+        );
     }
 
     /**
