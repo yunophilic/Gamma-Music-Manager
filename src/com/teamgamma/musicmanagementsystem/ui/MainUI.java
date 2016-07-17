@@ -58,7 +58,7 @@ public class MainUI extends BorderPane {
 
         VBox musicPlayerWrapper = new VBox();
         musicPlayerWrapper.getChildren().add(new MusicPlayerUI(m_model, m_musicPlayerManager, m_databaseManager, m_filePersistentStorage));
-        musicPlayerWrapper.getChildren().add(new MusicPlayerHistoryUI(m_musicPlayerManager));
+        musicPlayerWrapper.getChildren().add(new MusicPlayerHistoryUI(m_musicPlayerManager, m_model));
 
         BorderPane rightPane = new BorderPane();
         rightPane.setCenter(playlistUI);
