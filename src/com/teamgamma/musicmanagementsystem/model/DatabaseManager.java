@@ -843,10 +843,21 @@ public class DatabaseManager {
      */
     public void savePlaylistResumeTime(String playlistName, double time) {
         try {
-            clearResumeTime();
             m_addToResumeTime.setString(1, playlistName);
             m_addToResumeTime.setDouble(2, time);
             m_addToResumeTime.executeUpdate();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Empty the ResumeTime table
+     */
+    public void clearResumeTime() {
+        try {
+            m_clearResumeTime.executeUpdate();
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -885,17 +896,5 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return 0;
-    }
-
-    /**
-     * Empty the ResumeTime table
-     */
-    public void clearResumeTime() {
-        try {
-            m_clearResumeTime.executeUpdate();
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 }
