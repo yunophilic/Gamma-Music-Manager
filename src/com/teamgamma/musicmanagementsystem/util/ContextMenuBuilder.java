@@ -434,7 +434,7 @@ public class ContextMenuBuilder {
                 try {
                     Runtime.getRuntime().exec("explorer.exe /select," + folderSelected.getAbsolutePath());
                 } catch (IOException e) {
-                    PromptUI.customPromptError("Failed to Show in Explorer", null, "The file or folder location cannot be opened.");
+                    PromptUI.customPromptError("Failed to Show in Explorer", null, "The file or folder location could not be opened.");
                 }
             }
         });
