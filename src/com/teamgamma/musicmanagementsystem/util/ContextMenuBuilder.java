@@ -5,6 +5,7 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
@@ -155,17 +156,20 @@ public class ContextMenuBuilder {
         MenuItem rename = createRenameMenuItem(model, selectedItem);
         MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedItem);
 
+        MenuItem openFileLocation = showInExplorerMenuItem(selectedItem);
+
         //separators (non functional menu items, just for display)
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
         MenuItem playlistOptionsSeparator = new SeparatorMenuItem();
         MenuItem editPropertiesOptionSeparator = new SeparatorMenuItem();
+        MenuItem explorerOptionsSeparator = new SeparatorMenuItem();
 
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setAutoHide(true);
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, songOptionsSeparator,
                                       addToPlaylist, addToCurrentPlaylist, playlistOptionsSeparator,
                                       editProperties, editPropertiesOptionSeparator,
-                                      copy, paste, rename, delete);
+                                      copy, paste, rename, delete, explorerOptionsSeparator, openFileLocation);
 
         contextMenu.setOnShown(event -> {
             // Hide all except paste if selected item is null
@@ -216,16 +220,19 @@ public class ContextMenuBuilder {
         MenuItem rename = createRenameMenuItem(model, selectedSong);
         MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedSong);
 
+        MenuItem openFileLocation = showInExplorerMenuItem(selectedSong);
+
         //separators (non functional menu items, just for display)
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
         MenuItem playlistOptionsSeparator = new SeparatorMenuItem();
         MenuItem editPropertiesOptionSeparator = new SeparatorMenuItem();
+        MenuItem explorerOptionsSeparator = new SeparatorMenuItem();
 
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, songOptionsSeparator,
                                       removeFromPlaylist, playlistOptionsSeparator,
                                       editProperties, editPropertiesOptionSeparator,
-                                      rename, delete);
+                                      rename, delete, explorerOptionsSeparator, openFileLocation);
 
         contextMenu.setOnShown(event -> {
             // Hide all if selectedSongIndex out of bounds
