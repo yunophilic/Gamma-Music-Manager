@@ -15,9 +15,9 @@ import java.util.List;
  * Utility class that provides functionality for the FileTree
  */
 public class FileTreeUtils {
-    private static final String OPEN_FOLDER_ICON_PATH = "res" + File.separator + "Status-folder-open-icon.png";
-    private static final String FOLDER_ICON_PATH = "res" + File.separator + "folder-icon.png";
-    private static final String SONG_ICON_PATH = "res" + File.separator + "music-file-icon.png";
+    private static final String OPEN_FOLDER_ICON_URL = "res" + File.separator + "Status-folder-open-icon.png";
+    private static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
+    private static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
 
     /**
      * Recursively create tree items from the files in a directory and return a reference to the root item,
@@ -32,13 +32,13 @@ public class FileTreeUtils {
         TreeItem<Item> item;
         if(file.isFile()) {
             item = new TreeItem<>(new Song(file));
-            item.setGraphic(new ImageView(SONG_ICON_PATH));
+            item.setGraphic(new ImageView(SONG_ICON_URL));
         } else {
             item = new TreeItem<>(
                     (file.getAbsolutePath().equals(dirPath)) ? new Folder(file, true) : new Folder(file, false)
             );
 
-            item.setGraphic(new ImageView(FOLDER_ICON_PATH));
+            item.setGraphic(new ImageView(FOLDER_ICON_URL));
 
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
                 if (expandedPaths.contains(item.getValue().getFile().getAbsolutePath())) {
@@ -101,7 +101,7 @@ public class FileTreeUtils {
         TreeItem<Item> nodeCopy = new TreeItem<>();
         Item item = node.getValue();
         nodeCopy.setValue(item);
-        nodeCopy.setGraphic(new ImageView(item.getFile().isDirectory() ? FOLDER_ICON_PATH : SONG_ICON_PATH));
+        nodeCopy.setGraphic(new ImageView(item.getFile().isDirectory() ? FOLDER_ICON_URL : SONG_ICON_URL));
 
         for (TreeItem<Item> child : node.getChildren()) {
             nodeCopy.getChildren().add(copyTree(child));
@@ -118,9 +118,9 @@ public class FileTreeUtils {
     public static void closeAllFoldersIcons(TreeItem<Item> treeItem) {
         //System.out.println("#### closing file: " + treeItem.getValue());
         if (treeItem.getValue().getFile().isDirectory()) {
-            treeItem.setGraphic(new ImageView(FOLDER_ICON_PATH));
+            treeItem.setGraphic(new ImageView(FOLDER_ICON_URL));
         } else {
-            treeItem.setGraphic(new ImageView(SONG_ICON_PATH));
+            treeItem.setGraphic(new ImageView(SONG_ICON_URL));
         }
         if (!treeItem.getChildren().isEmpty()) {
             List<TreeItem<Item>> childTreeItems = treeItem.getChildren();
@@ -145,7 +145,7 @@ public class FileTreeUtils {
         }
 
         System.out.println("@@@ Found treeitem: " + selectedTreeItem);
-        selectedTreeItem.setGraphic(new ImageView(OPEN_FOLDER_ICON_PATH));
+        selectedTreeItem.setGraphic(new ImageView(OPEN_FOLDER_ICON_URL));
     }
 
     /**
