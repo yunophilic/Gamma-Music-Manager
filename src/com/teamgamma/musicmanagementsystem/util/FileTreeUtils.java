@@ -253,10 +253,15 @@ public class FileTreeUtils {
      * @param model the model
      */
     private static void renameNode(File changedFile, TreeView<Item> tree, SongManager model) {
-        TreeItem<Item> nodeToRename = searchTreeItem(tree.getRoot(), changedFile.getAbsolutePath());
         File renamedFile = model.getM_renamedFile();
 
         System.out.println("NEW FILE NAME: " + renamedFile);
+
+        TreeItem<Item> nodeToRename = searchTreeItem(tree.getRoot(), changedFile.getAbsolutePath());
+
+        if (nodeToRename == null) {
+            return;
+        }
 
         TreeItem<Item> parentNode = nodeToRename.getParent();
 
@@ -264,6 +269,8 @@ public class FileTreeUtils {
         System.out.println("^^^^ PARENT NODE: " + parentNode);
 
         recursivelyRenameNodes(nodeToRename, renamedFile.getAbsolutePath());
+
+        model.notifyRightFolderObservers();
     }
 
     /**

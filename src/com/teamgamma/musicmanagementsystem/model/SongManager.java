@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem.model;
 
 import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.util.FileManager;
+
 import javafx.scene.control.TreeItem;
 
 import java.io.File;
@@ -206,7 +207,8 @@ public class SongManager {
 
     /**
      * Get list of songs in a certain library within the library list
-     * @param library
+     *
+     * @param library specified library
      * @return list of songs
      */
     private List<Song> getSongs(Library library) {
@@ -214,7 +216,37 @@ public class SongManager {
     }
 
     /**
+     * Get all songs in the system
+     *
+     * @return list of all songs
+     */
+    public List<Song> getAllSongs() {
+        List<Song> songs = new ArrayList<>();
+        for (Library library : m_libraries) {
+            songs.addAll(library.getSongs());
+        }
+        return songs;
+    }
+
+    /**
+     * Get song object in the model based on the specified file
+     *
+     * @return song object in the model
+     */
+    public Song getSong(File file) {
+        for (Library library : m_libraries) {
+            TreeItem<Item> node = library.search(file);
+            if (node != null) {
+                Item item = node.getValue();
+                return (item instanceof Song) ? (Song) item : null;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Search node from all libraries based on the specified item
+     *
      * @param file The item to search on
      * @return node containing the item, or null if not founr
      */
@@ -229,6 +261,7 @@ public class SongManager {
 
     /**
      * Get songs to display in center panel
+     *
      * @return list of songs
      */
     public List<Song> getCenterPanelSongs() {

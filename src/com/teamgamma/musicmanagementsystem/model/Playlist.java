@@ -45,6 +45,15 @@ public class Playlist {
     }
 
     /**
+     * Add songs to playlist
+     * @param songsToAdd list of songs to be added
+     * @return boolean
+     */
+    public boolean addSongs(List<Song> songsToAdd) {
+        return m_songList.addAll(songsToAdd);
+    }
+
+    /**
      * Remove song from playlist
      * @param songToRemoveIndex index of song to be removed
      */
