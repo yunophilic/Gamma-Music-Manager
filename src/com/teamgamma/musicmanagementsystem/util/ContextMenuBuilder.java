@@ -77,12 +77,12 @@ public class ContextMenuBuilder {
 
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue,
-                                      songOptionsSeparator,
-                                      addToPlaylist, addToCurrentPlaylist,
-                                      playlistOptionsSeparator,
-                                      copy, paste, rename, delete,
-                                      fileOptionsSeparator,
-                                      removeLibrary, showInRightPane, openFileLocation);
+                songOptionsSeparator,
+                addToPlaylist, addToCurrentPlaylist,
+                playlistOptionsSeparator,
+                copy, paste, rename, delete,
+                fileOptionsSeparator,
+                removeLibrary, showInRightPane, openFileLocation);
 
         contextMenu.setOnShown(event -> {
             // Hide all if selected item is null
@@ -167,9 +167,9 @@ public class ContextMenuBuilder {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setAutoHide(true);
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, songOptionsSeparator,
-                                      addToPlaylist, addToCurrentPlaylist, playlistOptionsSeparator,
-                                      editProperties, editPropertiesOptionSeparator,
-                                      copy, paste, rename, delete, explorerOptionsSeparator, openFileLocation);
+                addToPlaylist, addToCurrentPlaylist, playlistOptionsSeparator,
+                editProperties, editPropertiesOptionSeparator,
+                copy, paste, rename, delete, explorerOptionsSeparator, openFileLocation);
 
         contextMenu.setOnShown(event -> {
             // Hide all except paste if selected item is null
@@ -230,9 +230,9 @@ public class ContextMenuBuilder {
 
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, songOptionsSeparator,
-                                      removeFromPlaylist, playlistOptionsSeparator,
-                                      editProperties, editPropertiesOptionSeparator,
-                                      rename, delete, explorerOptionsSeparator, openFileLocation);
+                removeFromPlaylist, playlistOptionsSeparator,
+                editProperties, editPropertiesOptionSeparator,
+                rename, delete, explorerOptionsSeparator, openFileLocation);
 
         contextMenu.setOnShown(event -> {
             // Hide all if selectedSongIndex out of bounds
@@ -387,7 +387,7 @@ public class ContextMenuBuilder {
                 if (model.getM_rightFolderSelected() != null) {
                     String rightFolderPath = model.getM_rightFolderSelected().getAbsolutePath();
                     boolean isLibraryInRight = rightFolderPath.equals(selectedItemPath) ||
-                                               rightFolderPath.contains(selectedItemPath + File.separator);
+                            rightFolderPath.contains(selectedItemPath + File.separator);
                     if (isLibraryInRight) {
                         model.setM_rightFolderSelected(null);
                     }
@@ -396,7 +396,7 @@ public class ContextMenuBuilder {
                 if (model.getM_selectedCenterFolder() != null) {
                     String centerFolderPath = model.getM_selectedCenterFolder().getAbsolutePath();
                     boolean isLibraryInCenter = centerFolderPath.equals(selectedItemPath) ||
-                                                centerFolderPath.contains(selectedItemPath + File.separator);
+                            centerFolderPath.contains(selectedItemPath + File.separator);
                     if (isLibraryInCenter) {
                         System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
                         model.setM_selectedCenterFolder(null);
@@ -433,9 +433,9 @@ public class ContextMenuBuilder {
     }
 
     private static MenuItem showInExplorerMenuItem(Item selectedItem) {
-        MenuItem showInRightPane = new MenuItem(SHOW_IN_EXPLORER);
+        MenuItem showInExplorer = new MenuItem(SHOW_IN_EXPLORER);
 
-        showInRightPane.setOnAction(event -> {
+        showInExplorer.setOnAction(event -> {
             if (selectedItem != null) {
                 File folderSelected = selectedItem.getFile();
                 try {
@@ -446,7 +446,7 @@ public class ContextMenuBuilder {
             }
         });
 
-        return showInRightPane;
+        return showInExplorer;
     }
 
     private static MenuItem createEditPropertiesMenuItem(SongManager model, Item selectedItem) {
