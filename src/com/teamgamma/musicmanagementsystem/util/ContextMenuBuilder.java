@@ -36,6 +36,7 @@ public class ContextMenuBuilder {
     private static final String PLAY_SONG = "Play Song";
     private static final String PLAY_SONG_NEXT = "Play Song Next";
     private static final String PLACE_SONG_ON_QUEUE = "Place Song On Queue";
+    private static final String SHOW_IN_EXPLORER = "Show in Explorer";
 
     /**
      * Construct file tree context menu
@@ -66,6 +67,7 @@ public class ContextMenuBuilder {
 
         MenuItem removeLibrary = createRemoveLibraryMenuItem(model, databaseManager, selectedItem);
         MenuItem showInRightPane = createShowInRightPaneMenuItem(model, selectedItem);
+        MenuItem openFileLocation = showInExplorerMenuItem(selectedItem);
 
         //separators (non functional menu items, just for display)
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
@@ -79,7 +81,7 @@ public class ContextMenuBuilder {
                                       playlistOptionsSeparator,
                                       copy, paste, rename, delete,
                                       fileOptionsSeparator,
-                                      removeLibrary, showInRightPane);
+                                      removeLibrary, showInRightPane, openFileLocation);
 
         contextMenu.setOnShown(event -> {
             // Hide all if selected item is null
@@ -287,18 +289,18 @@ public class ContextMenuBuilder {
             if (selectedItem != null) {
                 File dest = selectedItem.getFile();
                 if (!dest.isDirectory()) {
-                    PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
+                    PromptUI.customPromptError("Not a directory!", null, "Please select a directory as the paste target.");
                     return;
                 }
                 try {
                     model.copyToDestination(dest);
                     model.notifyFileObservers(Action.PASTE, null);
                 } catch (FileAlreadyExistsException ex) {
-                    PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
+                    PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
                 } catch (IOException ex) {
-                    PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
+                    PromptUI.customPromptError("Error", null, "IOException: " + ex.getMessage());
                 } catch (Exception ex) {
-                    PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
+                    PromptUI.customPromptError("Error", null, "Exception: " + ex.getMessage());
                 }
             }
         });
@@ -312,18 +314,18 @@ public class ContextMenuBuilder {
         paste.setOnAction(event -> {
             File dest = model.getM_selectedCenterFolder();
             if (!dest.isDirectory()) {
-                PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
+                PromptUI.customPromptError("Not a directory!", null, "Please select a directory as the paste target.");
                 return;
             }
             try {
                 model.copyToDestination(dest);
                 model.notifyFileObservers(Action.PASTE, null);
             } catch (FileAlreadyExistsException ex) {
-                PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
+                PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
             } catch (IOException ex) {
-                PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
+                PromptUI.customPromptError("Error", null, "IOException: " + ex.getMessage());
             } catch (Exception ex) {
-                PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
+                PromptUI.customPromptError("Error", null, "Exception: " + ex.getMessage());
             }
         });
 
@@ -412,10 +414,27 @@ public class ContextMenuBuilder {
             if (selectedItem != null) {
                 File folderSelected = selectedItem.getFile();
                 if (!folderSelected.isDirectory()) {
-                    PromptUI.customPromptError("Not a directory!", "", "Please select a directory.");
+                    PromptUI.customPromptError("Not a directory!", null, "Please select a directory.");
                 } else {
                     model.setM_rightFolderSelected(folderSelected);
                     model.notifyRightFolderObservers();
+                }
+            }
+        });
+
+        return showInRightPane;
+    }
+
+    private static MenuItem showInExplorerMenuItem(Item selectedItem) {
+        MenuItem showInRightPane = new MenuItem(SHOW_IN_EXPLORER);
+
+        showInRightPane.setOnAction(event -> {
+            if (selectedItem != null) {
+                File folderSelected = selectedItem.getFile();
+                try {
+                    Runtime.getRuntime().exec("explorer.exe /select," + folderSelected.getAbsolutePath());
+                } catch (IOException e) {
+                    PromptUI.customPromptError("Failed to Show in Explorer", null, "The file or folder location cannot be opened.");
                 }
             }
         });
