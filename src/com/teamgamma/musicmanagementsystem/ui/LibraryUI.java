@@ -68,8 +68,8 @@ public class LibraryUI extends StackPane {
      * @return TreeView<String>
      */
     private TreeView<Item> buildTreeView(List<Library> libraries) {
-        File dummyRootFile = new File(System.getProperty("user.dir"));
-        TreeItem<Item> root = new TreeItem<>(new Folder(dummyRootFile, true));
+        //File dummyRootFile = new File(System.getProperty("user.dir"));
+        TreeItem<Item> root = new TreeItem<>(new DummyItem());
 
         for (Library library : libraries) {
             TreeItem<Item> rootItem = library.getM_treeRoot();

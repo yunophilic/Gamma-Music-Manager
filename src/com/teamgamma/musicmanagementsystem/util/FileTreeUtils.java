@@ -216,7 +216,10 @@ public class FileTreeUtils {
                 }
 
                 TreeItem<Item> destParentNode = searchTreeItem(tree.getRoot(), model.getM_moveDest().getAbsolutePath());
-                moveNode(nodeToMove, destParentNode);
+
+                if(destParentNode != null && !(destParentNode.getValue() instanceof DummyItem)) {
+                    moveNode(nodeToMove, destParentNode);
+                }
                 break;
             }
 
