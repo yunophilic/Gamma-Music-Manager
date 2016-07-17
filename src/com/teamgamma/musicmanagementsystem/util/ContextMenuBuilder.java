@@ -39,6 +39,7 @@ public class ContextMenuBuilder {
     private static final String PLAY_SONG = "Play Song";
     private static final String PLAY_SONG_NEXT = "Play Song Next";
     private static final String PLACE_SONG_ON_QUEUE = "Place Song On Queue";
+    private static final String SHOW_IN_EXPLORER = "Show in Explorer";
 
     /**
      * Construct file tree context menu
@@ -69,6 +70,7 @@ public class ContextMenuBuilder {
 
         MenuItem removeLibrary = createRemoveLibraryMenuItem(model, databaseManager, selectedItem);
         MenuItem showInRightPane = createShowInRightPaneMenuItem(model, selectedItem);
+        MenuItem openFileLocation = createShowInExplorerMenuItem(selectedItem);
 
         //separators (non functional menu items, just for display)
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
@@ -77,12 +79,12 @@ public class ContextMenuBuilder {
 
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue,
-                                      songOptionsSeparator,
-                                      addToPlaylist, addToCurrentPlaylist,
-                                      playlistOptionsSeparator,
-                                      copy, paste, rename, delete,
-                                      fileOptionsSeparator,
-                                      removeLibrary, showInRightPane);
+                songOptionsSeparator,
+                addToPlaylist, addToCurrentPlaylist,
+                playlistOptionsSeparator,
+                copy, paste, rename, delete,
+                fileOptionsSeparator,
+                removeLibrary, showInRightPane, openFileLocation);
 
         contextMenu.setOnShown(event -> {
             // Hide all if selected item is null
@@ -102,7 +104,6 @@ public class ContextMenuBuilder {
 
             // Only show the show in right pane option if it is in left pane
             if (!isLeftPane) {
-                hideMenuItem(fileOptionsSeparator);
                 hideMenuItem(removeLibrary);
                 hideMenuItem(showInRightPane);
             }
@@ -157,17 +158,20 @@ public class ContextMenuBuilder {
         MenuItem rename = createRenameMenuItem(model, selectedItem);
         MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedItem);
 
+        MenuItem openFileLocation = createShowInExplorerMenuItem(selectedItem);
+
         //separators (non functional menu items, just for display)
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
         MenuItem playlistOptionsSeparator = new SeparatorMenuItem();
         MenuItem editPropertiesOptionSeparator = new SeparatorMenuItem();
+        MenuItem explorerOptionsSeparator = new SeparatorMenuItem();
 
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setAutoHide(true);
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, songOptionsSeparator,
-                                      addToPlaylist, addToCurrentPlaylist, playlistOptionsSeparator,
-                                      editProperties, editPropertiesOptionSeparator,
-                                      copy, paste, rename, delete);
+                addToPlaylist, addToCurrentPlaylist, playlistOptionsSeparator,
+                editProperties, editPropertiesOptionSeparator,
+                copy, paste, rename, delete, explorerOptionsSeparator, openFileLocation);
 
         contextMenu.setOnShown(event -> {
             // Hide all except paste if selected item is null
@@ -218,16 +222,19 @@ public class ContextMenuBuilder {
         MenuItem rename = createRenameMenuItem(model, selectedSong);
         MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedSong);
 
+        MenuItem openFileLocation = createShowInExplorerMenuItem(selectedSong);
+
         //separators (non functional menu items, just for display)
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
         MenuItem playlistOptionsSeparator = new SeparatorMenuItem();
         MenuItem editPropertiesOptionSeparator = new SeparatorMenuItem();
+        MenuItem explorerOptionsSeparator = new SeparatorMenuItem();
 
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, songOptionsSeparator,
-                                      removeFromPlaylist, playlistOptionsSeparator,
-                                      editProperties, editPropertiesOptionSeparator,
-                                      rename, delete);
+                removeFromPlaylist, playlistOptionsSeparator,
+                editProperties, editPropertiesOptionSeparator,
+                rename, delete, explorerOptionsSeparator, openFileLocation);
 
         contextMenu.setOnShown(event -> {
             // Hide all if selectedSongIndex out of bounds
@@ -309,18 +316,18 @@ public class ContextMenuBuilder {
             if (selectedItem != null) {
                 File dest = selectedItem.getFile();
                 if (!dest.isDirectory()) {
-                    PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
+                    PromptUI.customPromptError("Not a directory!", null, "Please select a directory as the paste target.");
                     return;
                 }
                 try {
                     model.copyToDestination(dest);
                     model.notifyFileObservers(Action.PASTE, null);
                 } catch (FileAlreadyExistsException ex) {
-                    PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
+                    PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
                 } catch (IOException ex) {
-                    PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
+                    PromptUI.customPromptError("Error", null, "IOException: " + ex.getMessage());
                 } catch (Exception ex) {
-                    PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
+                    PromptUI.customPromptError("Error", null, "Exception: " + ex.getMessage());
                 }
             }
         });
@@ -340,18 +347,18 @@ public class ContextMenuBuilder {
         paste.setOnAction(event -> {
             File dest = model.getM_selectedCenterFolder();
             if (!dest.isDirectory()) {
-                PromptUI.customPromptError("Not a directory!", "", "Please select a directory as the paste target.");
+                PromptUI.customPromptError("Not a directory!", null, "Please select a directory as the paste target.");
                 return;
             }
             try {
                 model.copyToDestination(dest);
                 model.notifyFileObservers(Action.PASTE, null);
             } catch (FileAlreadyExistsException ex) {
-                PromptUI.customPromptError("Error", "", "The following file or folder already exist!\n" + ex.getMessage());
+                PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
             } catch (IOException ex) {
-                PromptUI.customPromptError("Error", "", "IOException: " + ex.getMessage());
+                PromptUI.customPromptError("Error", null, "IOException: " + ex.getMessage());
             } catch (Exception ex) {
-                PromptUI.customPromptError("Error", "", "Exception: " + ex.getMessage());
+                PromptUI.customPromptError("Error", null, "Exception: " + ex.getMessage());
             }
         });
 
@@ -430,7 +437,7 @@ public class ContextMenuBuilder {
                 if (model.getM_rightFolderSelected() != null) {
                     String rightFolderPath = model.getM_rightFolderSelected().getAbsolutePath();
                     boolean isLibraryInRight = rightFolderPath.equals(selectedItemPath) ||
-                                               rightFolderPath.contains(selectedItemPath + File.separator);
+                            rightFolderPath.contains(selectedItemPath + File.separator);
                     if (isLibraryInRight) {
                         model.setM_rightFolderSelected(null);
                     }
@@ -439,7 +446,7 @@ public class ContextMenuBuilder {
                 if (model.getM_selectedCenterFolder() != null) {
                     String centerFolderPath = model.getM_selectedCenterFolder().getAbsolutePath();
                     boolean isLibraryInCenter = centerFolderPath.equals(selectedItemPath) ||
-                                                centerFolderPath.contains(selectedItemPath + File.separator);
+                            centerFolderPath.contains(selectedItemPath + File.separator);
                     if (isLibraryInCenter) {
                         System.out.println("SELECTED CENTER FOLDER REMOVED!!!");
                         model.setM_selectedCenterFolder(null);
@@ -471,7 +478,7 @@ public class ContextMenuBuilder {
             if (selectedItem != null) {
                 File folderSelected = selectedItem.getFile();
                 if (!folderSelected.isDirectory()) {
-                    PromptUI.customPromptError("Not a directory!", "", "Please select a directory.");
+                    PromptUI.customPromptError("Not a directory!", null, "Please select a directory.");
                 } else {
                     model.setM_rightFolderSelected(folderSelected);
                     model.notifyRightFolderObservers();
@@ -481,6 +488,30 @@ public class ContextMenuBuilder {
 
         return showInRightPane;
     }
+
+    /**
+     * Function that creates menu option to open the selected file or folder's location in the file explorer.
+     *
+     * @param selectedItem the file or folder selected in the tree view.
+     * @return the menu item which opens the file or folder's location.
+     */
+    private static MenuItem createShowInExplorerMenuItem(Item selectedItem) {
+        MenuItem showInExplorer = new MenuItem(SHOW_IN_EXPLORER);
+
+        showInExplorer.setOnAction(event -> {
+            if (selectedItem != null) {
+                File folderSelected = selectedItem.getFile();
+                try {
+                    Runtime.getRuntime().exec("explorer.exe /select," + folderSelected.getAbsolutePath());
+                } catch (IOException e) {
+                    PromptUI.customPromptError("Failed to Show in Explorer", null, "The file or folder location could not be opened.");
+                }
+            }
+        });
+
+        return showInExplorer;
+    }
+
 
     /**
      * Function to create a menu item for editing the songs metadata via prompt.
