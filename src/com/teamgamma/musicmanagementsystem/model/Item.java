@@ -21,6 +21,13 @@ public interface Item {
      */
     boolean isRootItem();
 
+    /**
+     * Set this item as the root
+     */
+    default void setAsRootItem() {
+        return;
+    }
+
     @Override
     String toString();
 

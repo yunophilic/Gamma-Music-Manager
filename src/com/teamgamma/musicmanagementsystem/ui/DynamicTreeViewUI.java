@@ -113,6 +113,7 @@ public class DynamicTreeViewUI extends StackPane {
             TreeItem<Item> root = new TreeItem<>(new Folder(dummyRootFile, true));
 
             TreeItem<Item> rootItem = FileTreeUtils.copyTree(m_model.search(m_model.getM_rightFolderSelected()));
+            rootItem.getValue().setAsRootItem();
             rootItem.setExpanded(true);
 
             FileTreeUtils.setTreeExpandedState(rootItem, dynamicTreeViewExpandedPaths);
