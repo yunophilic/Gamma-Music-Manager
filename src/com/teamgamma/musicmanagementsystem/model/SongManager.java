@@ -3,6 +3,7 @@ package com.teamgamma.musicmanagementsystem.model;
 import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.util.FileManager;
 import javafx.scene.control.TreeItem;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -377,6 +378,17 @@ public class SongManager {
      */
     public void fileSysChanged(Action action, File file) {
         notifyFileObservers(action, file);
+    }
+
+    /**
+     * Notify file changes detected from File system
+     *
+     * @param fileActions
+     */
+    public void fileSysChanged(List<Pair<Action, File>> fileActions) {
+        for (Pair<Action, File> fileAction : fileActions) {
+            notifyFileObservers(fileAction.getKey(), fileAction.getValue());
+        }
     }
 
     /**
