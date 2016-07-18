@@ -55,10 +55,8 @@ public class MusicPlayerManager {
         m_databaseManager = databaseManager;
 
         m_playingQueue = new ArrayList<>();
-        //loadPlaybackQueue();
 
         m_songHistory = new ArrayList<>();
-        //loadHistory();
 
         m_newSongObservers = new ArrayList<>();
         m_playbackObservers = new ArrayList<>();
@@ -525,31 +523,14 @@ public class MusicPlayerManager {
      * Helper fucntion to reterieve what ever is in the playback queue in the DB and set it to be what is in the playback queue.
      */
     public void loadPlaybackQueue(List<Song> songs) {
-        /*List<String> queuedSongs = m_databaseManager.getPlaybackQueue();
-        if (queuedSongs == null) {
-            // Nothing in the DB.
-            return;
-        }
-        List<Song> queueFromDB = new ArrayList<>();
-        for (int i = 0; i < queuedSongs.size(); i++) {
-            File newFile = new File(queuedSongs.get(i));
-            Song song = new Song(newFile);
-            queueFromDB.add(song);
-        }
-        m_playingQueue = queueFromDB;*/
-
-        for (Song song : songs) {
-            m_playingQueue.add(song);
-        }
+        m_playingQueue.addAll(songs);
     }
 
     /**
      * Function to load songs that are from the history that is retrieved from the DB.
      */
     public void loadHistory(List<Song> songs) {
-        for (Song song : songs){
-            m_songHistory.add(song);
-        }
+        m_songHistory.addAll(songs);
 
         // TODO: Will have to set the history index to actual location that was left off
         if (!m_songHistory.isEmpty()) {

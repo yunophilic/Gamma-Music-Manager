@@ -24,7 +24,6 @@ public class FileManager {
      * @param pathToDirectory: the directory path
      * @return ArrayList of Song objects
      */
-    @Deprecated
     public static List<Song> generateSongs(String pathToDirectory) {
         List<Song> listOfSongs = new ArrayList<>();
 

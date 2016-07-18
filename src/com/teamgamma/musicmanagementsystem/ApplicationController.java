@@ -114,7 +114,7 @@ public class ApplicationController extends Application {
 
         System.out.println("loading playback queue");
         List<String> playbackQueueSongPaths = m_databaseManager.getHistory();
-        m_musicPlayerManager.loadHistory(filterSongs(allSongsInModel, playbackQueueSongPaths));
+        m_musicPlayerManager.loadPlaybackQueue(filterSongs(allSongsInModel, playbackQueueSongPaths));
     }
 
     /**
