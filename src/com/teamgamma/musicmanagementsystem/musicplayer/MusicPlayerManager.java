@@ -10,7 +10,6 @@ import javax.sound.sampled.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * Class to manage the the MusicPlayer.
@@ -19,7 +18,7 @@ public class MusicPlayerManager {
 
     private IMusicPlayer m_musicPlayer;
 
-    private Deque<Song> m_playingQueue;
+    private List<Song> m_playingQueue;
 
     private List<Song> m_songHistory;
 
@@ -55,7 +54,7 @@ public class MusicPlayerManager {
     public MusicPlayerManager(DatabaseManager databaseManager) {
         m_databaseManager = databaseManager;
 
-        m_playingQueue = new LinkedBlockingDeque<>();
+        m_playingQueue = new ArrayList<>();
         //loadPlaybackQueue();
 
         m_songHistory = new ArrayList<>();
@@ -82,7 +81,8 @@ public class MusicPlayerManager {
         } else if (!m_playingQueue.isEmpty()){
             m_historyIndex = m_songHistory.size() - 1;
             m_isPlayingOnHistory = false;
-            Song nextSong = m_playingQueue.poll();
+            Song nextSong = m_playingQueue.get(0);
+            m_playingQueue.remove(0);
             playSongRightNow(nextSong);
 
         } else if (isThereNextSongOnPlaylist()) {
@@ -153,7 +153,7 @@ public class MusicPlayerManager {
      * @param songToPlace The song to place in the queue
      */
     public void placeSongAtStartOfQueue(Song songToPlace) {
-        m_playingQueue.addFirst(songToPlace);
+        m_playingQueue.add(0, songToPlace);
         m_databaseManager.addToPlaybackQueueHead(songToPlace.getFile().getAbsolutePath());
         if (isNoSongPlayingOrNext()){
             playNextSong();
@@ -530,7 +530,7 @@ public class MusicPlayerManager {
             // Nothing in the DB.
             return;
         }
-        Deque<Song> queueFromDB = new LinkedBlockingDeque<>();
+        List<Song> queueFromDB = new ArrayList<>();
         for (int i = 0; i < queuedSongs.size(); i++) {
             File newFile = new File(queuedSongs.get(i));
             Song song = new Song(newFile);
@@ -653,7 +653,7 @@ public class MusicPlayerManager {
             return m_songHistory.get(m_historyIndex + 1);
         }
         if (!m_playingQueue.isEmpty()) {
-            return m_playingQueue.getFirst();
+            return m_playingQueue.get(0);
         } else if (isThereNextSongOnPlaylist()){
             return m_currentPlayList.getNextSong();
         }
@@ -749,5 +749,16 @@ public class MusicPlayerManager {
             return m_currentPlayList.getM_currentSongIndex();
         }
         return -1;
+    }
+
+    /**
+     * Function to remove a song from the playback queue based on the index of its location.
+     * @param index
+     */
+    public void removeSongFromPlaybackQueue(int index){
+        if (m_playingQueue.size() > index) {
+            m_playingQueue.remove(index);
+        }
+        notifyQueingObserver();
     }
 }
