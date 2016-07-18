@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -12,6 +13,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.io.File;
@@ -34,6 +36,7 @@ public class ContentListUI extends StackPane {
     private static final int FILE_COLUMN_MIN_WIDTH = 80;
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
+    private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
 
     /**
      * Constructor
@@ -102,8 +105,10 @@ public class ContentListUI extends StackPane {
         genreCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, Integer> ratingCol = new TableColumn<>("Rating");
         ratingCol.setMinWidth(RATING_COLUMN_MIN_WIDTH);
-        setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
-        showOrHideTableColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol);
+        TableColumn<Song, String> lengthCol = new TableColumn<>("Length");
+        lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
+        setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, lengthCol, ratingCol);
+        showOrHideTableColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, lengthCol, ratingCol);
     }
 
     /**
@@ -139,6 +144,7 @@ public class ContentListUI extends StackPane {
      * @param artistCol artist of the song
      * @param albumCol album of the song
      * @param genreCol genre of the song
+     * @param lengthCol length of the song
      * @param ratingCol rating of the song
      */
     private void showOrHideTableColumns(TableColumn<Song, String> filePathCol,
@@ -147,6 +153,7 @@ public class ContentListUI extends StackPane {
                                         TableColumn<Song, String> artistCol,
                                         TableColumn<Song, String> albumCol,
                                         TableColumn<Song, String> genreCol,
+                                        TableColumn<Song, String> lengthCol,
                                         TableColumn<Song, Integer> ratingCol) {
         m_table.setTableMenuButtonVisible(true);
 
@@ -158,6 +165,7 @@ public class ContentListUI extends StackPane {
         titleCol.setVisible(false);
         albumCol.setVisible(false);
         genreCol.setVisible(false);
+        lengthCol.setVisible(false);
         ratingCol.setVisible(false);
     }
 
@@ -170,6 +178,7 @@ public class ContentListUI extends StackPane {
      * @param artistCol artist of the song
      * @param albumCol album of the song
      * @param genreCol genre of the song
+     * @param lengthCol length of the song
      * @param ratingCol rating of the song
      */
     private void setTableColumnAttributes(TableColumn<Song, String> filePathCol,
@@ -178,6 +187,7 @@ public class ContentListUI extends StackPane {
                                           TableColumn<Song, String> artistCol,
                                           TableColumn<Song, String> albumCol,
                                           TableColumn<Song, String> genreCol,
+                                          TableColumn<Song, String> lengthCol,
                                           TableColumn<Song, Integer> ratingCol) {
         filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().getAbsolutePath()));
 
@@ -199,6 +209,12 @@ public class ContentListUI extends StackPane {
         genreCol.setCellFactory(TextFieldTableCell.forTableColumn());
         genreCol.setOnEditCommit(t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setGenre(t.getNewValue()));
 
+        lengthCol.setCellValueFactory(param -> {
+            Duration lengthOfSong = new Duration(
+                    param.getValue().getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
+            return new ReadOnlyObjectWrapper<>(UserInterfaceUtils.convertDurationToTimeString(lengthOfSong));
+        });
+
         ratingCol.setCellValueFactory(new PropertyValueFactory<>("m_rating"));
         ratingCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         ratingCol.setOnEditCommit(t -> {
@@ -216,6 +232,7 @@ public class ContentListUI extends StackPane {
         m_table.getColumns().add(artistCol);
         m_table.getColumns().add(albumCol);
         m_table.getColumns().add(genreCol);
+        m_table.getColumns().add(lengthCol);
         m_table.getColumns().add(ratingCol);
         m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
