@@ -37,6 +37,7 @@ public class Playlist {
 
     /**
      * Add song to playlist
+     *
      * @param songToAdd song object to be added
      * @return boolean
      */
@@ -46,6 +47,7 @@ public class Playlist {
 
     /**
      * Add songs to playlist
+     *
      * @param songsToAdd list of songs to be added
      * @return boolean
      */
@@ -55,6 +57,7 @@ public class Playlist {
 
     /**
      * Remove song from playlist
+     *
      * @param songToRemoveIndex index of song to be removed
      */
     public void removeSong(int songToRemoveIndex) {
@@ -123,6 +126,7 @@ public class Playlist {
 
     /**
      * Function to move to the next song in the playlist.
+     *
      * @return  The song that is to be played next.
      */
     public Song moveToNextSong(){
@@ -257,7 +261,8 @@ public class Playlist {
 
     /**
      * Function to get the index of the current song in the playlist.
-     * @return
+     *
+     * @return The current song index
      */
     public int getM_currentSongIndex() {
         return m_currentSongIndex;
