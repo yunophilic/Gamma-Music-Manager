@@ -17,6 +17,7 @@ public class DynamicTreeViewUI extends StackPane {
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private TreeView<Item> m_tree;
+    private final static String LABEL_DEFAULT = "Choose a folder to view";
 
     public DynamicTreeViewUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager,
                              List<String> dynamicTreeViewExpandedPaths) {
@@ -32,13 +33,14 @@ public class DynamicTreeViewUI extends StackPane {
 
     /**
      * Update the tree view and load previously expanded paths if applicable
+     *
      * @param dynamicTreeViewExpandedPaths list of expanded paths
      */
     private void updateTreeView(List<String> dynamicTreeViewExpandedPaths) {
         System.out.println("updating treeview...");
 
         if (m_model.getM_rightFolderSelected() == null) {
-            this.getChildren().add(new Label("Choose a folder to view"));
+            this.getChildren().add(new Label(LABEL_DEFAULT));
         } else {
             m_tree = createTrees(m_model.getM_libraries(), dynamicTreeViewExpandedPaths);
             this.getChildren().add(m_tree);
@@ -75,6 +77,7 @@ public class DynamicTreeViewUI extends StackPane {
 
     /**
      * Update the files to show in this tree
+     *
      * @param fileActions the file actions
      */
     private void updateFiles(FileActions fileActions) {
@@ -83,7 +86,7 @@ public class DynamicTreeViewUI extends StackPane {
                 Action action = fileAction.getKey();
                 if (fileAction != null && action != Action.NONE) {
                     if (m_model.getM_rightFolderSelected() == null) {
-                        this.getChildren().add(new Label("Choose a folder to view"));
+                        this.getChildren().add(new Label(LABEL_DEFAULT));
                     } else {
                         FileTreeUtils.updateTreeItems(m_model, m_tree, action, fileAction.getValue());
                         m_model.setM_rightPanelFileAction(Action.NONE);

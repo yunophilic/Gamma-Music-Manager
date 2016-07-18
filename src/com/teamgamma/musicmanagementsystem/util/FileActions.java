@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 
 /**
  * FileActions abstract class
- * Contains a list of
+ * Contains a list of pairs of actions and files.
  */
 public abstract class FileActions extends ArrayList<Pair<Action, File>> {
     /**

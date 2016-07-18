@@ -27,6 +27,7 @@ public class Watcher {
 
     /**
      * Constructor for Watcher class
+     *
      * @param model: SongManager model
      */
     public Watcher(SongManager model) {
@@ -90,6 +91,7 @@ public class Watcher {
 
     /**
      * Handle the WatchKey events.
+     *
      * @param fileActions List of action and file pairs.
      */
     private void handleEvents(FileActions fileActions) {
@@ -102,7 +104,7 @@ public class Watcher {
 
             File file = new File(dir + File.separator + eventPath);
             Action action = handleAction(kind);
-            if(isValidEvent(file, action)) {
+            if (isValidEvent(file, action)) {
                 fileActions.add(action, file);
             }
         }
@@ -110,18 +112,17 @@ public class Watcher {
 
     /**
      * Checks if the event is a valid event.
+     *
      * @param file The file of the event.
      * @param action The action to take for the event.
      * @return true if valid, false otherwise.
      */
     private boolean isValidEvent(File file, Action action) {
-        if(!file.exists() && action.equals(Action.DELETE)) {
+        if (!file.exists() && action.equals(Action.DELETE)) {
             return true;
-        }
-        else if(file.toString().endsWith(".mp3")) {
+        } else if (file.toString().endsWith(".mp3")) {
             return true;
-        }
-        else if (file.isDirectory()) {
+        } else if (file.isDirectory()) {
             return true;
         }
         return false;
@@ -129,18 +130,19 @@ public class Watcher {
 
     /**
      * Set the Action of the event.
+     *
      * @param eventKind The type of the event.
      * @return The resulting Action.
      */
     private Action handleAction(WatchEvent.Kind<?> eventKind) {
         Action action;
-        if(eventKind.equals(StandardWatchEventKind.ENTRY_CREATE)) {
+        if (eventKind.equals(StandardWatchEventKind.ENTRY_CREATE)) {
             action = Action.ADD;
-        } else if(eventKind.equals(StandardWatchEventKind.ENTRY_DELETE)) {
+        } else if (eventKind.equals(StandardWatchEventKind.ENTRY_DELETE)) {
             action = Action.DELETE;
-        } else if(eventKind.equals(ExtendedWatchEventKind.ENTRY_RENAME_FROM)) {
+        } else if (eventKind.equals(ExtendedWatchEventKind.ENTRY_RENAME_FROM)) {
             action = Action.DELETE;
-        } else if(eventKind.equals(ExtendedWatchEventKind.ENTRY_RENAME_TO)) {
+        } else if (eventKind.equals(ExtendedWatchEventKind.ENTRY_RENAME_TO)) {
             action = Action.ADD;
         } else {
             action = Action.NONE;

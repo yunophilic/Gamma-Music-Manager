@@ -385,9 +385,6 @@ public class SongManager {
      * @param fileActions
      */
     public void fileSysChanged(FileActions fileActions) {
-        /*for (Map.Entry<Action, File> fileAction : fileActions.entrySet()) {
-            notifyFileObservers(fileAction.getKey(), fileAction.getValue());
-        }*/
         notifyFileObservers(fileActions);
     }
 
