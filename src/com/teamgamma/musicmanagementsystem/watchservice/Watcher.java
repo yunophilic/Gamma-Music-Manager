@@ -69,7 +69,7 @@ public class Watcher {
                     isFirst = false;
                 } else {
                     // Try for more events with timeout
-                    int timeout = 1000;
+                    int timeout = 2000;
                     m_watchKey = m_watcher.poll(timeout, TimeUnit.MILLISECONDS);
                 }
 
