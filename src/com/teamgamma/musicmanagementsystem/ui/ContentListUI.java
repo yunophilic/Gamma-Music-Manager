@@ -224,6 +224,7 @@ public class ContentListUI extends StackPane {
      * Apply all of the different mouse actions on a selected song
      */
     private void setTableRowMouseEvents() {
+        m_table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         m_table.setRowFactory(param -> {
             TableRow<Song> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
