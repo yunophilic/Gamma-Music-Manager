@@ -261,6 +261,7 @@ public class ContextMenuBuilder {
         playbackMenu.setAutoHide(true);
 
         MenuItem playSong = createPlaySongMenuItem(musicPlayerManager, selectedItem);
+        playSong.setStyle("-fx-font-weight: bold");
         MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, selectedItem);
         MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedItem);
 
