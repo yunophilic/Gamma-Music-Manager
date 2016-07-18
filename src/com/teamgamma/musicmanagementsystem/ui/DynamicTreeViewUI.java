@@ -109,8 +109,7 @@ public class DynamicTreeViewUI extends StackPane {
      */
     private TreeView<Item> createTrees(List<Library> libraries, List<String> dynamicTreeViewExpandedPaths) {
         if (!libraries.isEmpty()) {
-            File dummyRootFile = new File(libraries.get(0).getRootDirPath());
-            TreeItem<Item> root = new TreeItem<>(new Folder(dummyRootFile, true));
+            TreeItem<Item> root = new TreeItem<>(new DummyItem());
 
             TreeItem<Item> rootItem = FileTreeUtils.copyTree(m_model.search(m_model.getM_rightFolderSelected()));
             rootItem.setExpanded(true);
