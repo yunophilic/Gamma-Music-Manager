@@ -14,9 +14,6 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
-
-import java.util.Collection;
-
 /**
  * Class to show the MusicPlayer Playback queue UI .
  */
@@ -42,9 +39,21 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
         setQueuingDragActions(manager, songManager, queuingList);
 
         this.getPanes().add(queuingList);
+
         manager.registerQueingObserver(
                 () -> Platform.runLater(
-                    () -> queuingList.setContent(UserInterfaceUtils.createUIList(manager.getPlayingQueue(), createPlaybackQueueAction()))
+                    () -> queuingList.setContent(UserInterfaceUtils.createUIList(manager.getPlayingQueue(),
+                            createPlaybackQueueAction()))
+                )
+        );
+
+        manager.registerNewSongObserver(
+                () -> Platform.runLater(
+                    () -> {
+                        if (!m_manager.isPlayingSongOnFromHistoryList() && !m_manager.getPlayingQueue().isEmpty()){
+                            this.setExpandedPane(queuingList);
+                        }
+                    }
                 )
         );
     }
@@ -94,7 +103,6 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
             Label fileName = new Label(songForRow.getFileName());
             row.getChildren().add(fileName);
             HBox.setHgrow(fileName, Priority.ALWAYS);
-
 
             ContextMenu playbackMenu = ContextMenuBuilder.buildPlaybackContextMenu(m_manager, songForRow);
             MenuItem removeSong = new MenuItem(REMOVE_SONG_FROM_QUEUE_MENU_MESSAGE);

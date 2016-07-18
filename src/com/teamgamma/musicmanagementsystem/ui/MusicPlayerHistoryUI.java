@@ -1,7 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
-import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils.ILabelAction;
@@ -26,9 +25,8 @@ public class MusicPlayerHistoryUI extends Accordion{
     /**
      * Constructor
      * @param manager       The music player manager
-     * @param songManager   The song manager
      */
-    public MusicPlayerHistoryUI(MusicPlayerManager manager, SongManager songManager) {
+    public MusicPlayerHistoryUI(MusicPlayerManager manager) {
         m_manager = manager;
 
         TitledPane playbackHistory = UserInterfaceUtils.createTitlePane(PLAYBACK_HISTORY_HEADER, m_manager.getHistory(),
@@ -38,7 +36,8 @@ public class MusicPlayerHistoryUI extends Accordion{
 
         manager.registerNewSongObserver(
                 () -> Platform.runLater(
-                    () -> playbackHistory.setContent(UserInterfaceUtils.createUIList(manager.getHistory(), createHistoryAction()))
+                    () -> playbackHistory.setContent(UserInterfaceUtils.createUIList(manager.getHistory(),
+                            createHistoryAction()))
                 )
         );
 
