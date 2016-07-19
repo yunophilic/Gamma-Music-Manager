@@ -62,7 +62,11 @@ public class ApplicationController extends Application {
     }
 
     /**
+<<<<<<< HEAD
      * Load the previous state of the application
+=======
+     * Load saved session state
+>>>>>>> e44b043c3113ec66a3e3e3173acc67206f5e7307
      */
     private void loadSessionState() {
         System.out.println("loading libraries...");
@@ -132,7 +136,8 @@ public class ApplicationController extends Application {
         return filteredSongs;
     }
 
-     /** Starting routine of the application
+    /**
+     * Starting routine of the application
      *
      * @param primaryStage
      */
@@ -221,8 +226,11 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save songs in all playlist
+<<<<<<< HEAD
      * Save Playlist songs to database
+=======
+     * Save songs in all playlist
+>>>>>>> e44b043c3113ec66a3e3e3173acc67206f5e7307
      */
     private void savePlaylistSongs() {
         for (Playlist playlist : m_songManager.getM_playlists()) {
@@ -259,10 +267,15 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save left file tree expanded states
+<<<<<<< HEAD
      * Save left panel file tree expanded state
      */
+    private void saveLibraryUIExpandedState() {
+=======
+     * Save left file tree expanded states
+     */
     private void saveLeftFileTreeExpandedState() {
+>>>>>>> e44b043c3113ec66a3e3e3173acc67206f5e7307
         List<String> libraryUIExpandedPaths = m_rootUI.getLibraryUIExpandedPaths();
         if (libraryUIExpandedPaths != null) {
             m_databaseManager.saveLeftTreeViewState(libraryUIExpandedPaths);
@@ -273,10 +286,15 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save right file tree expanded states
+<<<<<<< HEAD
      * Save right panel file tree expanded state
      */
+    private void saveRightPanelExpandedState() {
+=======
+     * Save right file tree expanded states
+     */
     private void saveRightFileTreeExpandedState() {
+>>>>>>> e44b043c3113ec66a3e3e3173acc67206f5e7307
         List<String> dynamicTreeViewUIExpandedPaths = m_rootUI.getDynamicTreeViewUIExpandedPaths();
         if (dynamicTreeViewUIExpandedPaths != null) {
             m_databaseManager.saveRightTreeViewState(dynamicTreeViewUIExpandedPaths);
