@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.model;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -29,6 +30,13 @@ public class Song implements Item {
     public Song(File file) {
         m_file = file;
 
+        readFileData();
+    }
+
+    /**
+     * Read the contents of the file.
+     */
+    private void readFileData() {
         try {
             AudioFile audioFile = AudioFileIO.read(m_file);
             Tag tag = audioFile.getTag();
@@ -38,7 +46,7 @@ public class Song implements Item {
             parseTags(tag);
 
             MP3File mp3File = new MP3File(m_file);
-            m_length =  mp3File.getMP3AudioHeader().getPreciseTrackLength();
+            m_length = mp3File.getMP3AudioHeader().getPreciseTrackLength();
             m_frames = mp3File.getMP3AudioHeader().getNumberOfFrames();
         } catch (Exception e) {
             e.printStackTrace(); //for now

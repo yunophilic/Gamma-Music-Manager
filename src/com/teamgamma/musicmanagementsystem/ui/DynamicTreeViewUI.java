@@ -6,6 +6,7 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +17,7 @@ public class DynamicTreeViewUI extends StackPane {
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private TreeView<Item> m_tree;
+    private final static String LABEL_DEFAULT = "Choose a folder to view";
 
     public DynamicTreeViewUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager,
                              List<String> dynamicTreeViewExpandedPaths) {
@@ -31,13 +33,14 @@ public class DynamicTreeViewUI extends StackPane {
 
     /**
      * Update the tree view and load previously expanded paths if applicable
+     *
      * @param dynamicTreeViewExpandedPaths list of expanded paths
      */
     private void updateTreeView(List<String> dynamicTreeViewExpandedPaths) {
         System.out.println("updating treeview...");
 
         if (m_model.getM_rightFolderSelected() == null) {
-            this.getChildren().add(new Label("Choose a folder to view"));
+            this.getChildren().add(new Label(LABEL_DEFAULT));
         } else {
             m_tree = createTrees(m_model.getM_libraries(), dynamicTreeViewExpandedPaths);
             this.getChildren().add(m_tree);
@@ -57,34 +60,37 @@ public class DynamicTreeViewUI extends StackPane {
      * Register as a Song Manager Observer and define actions upon receiving notifications
      */
     private void registerAsObserver() {
-        m_model.addLibraryObserver((action, file) -> {
+        m_model.addLibraryObserver((FileActions fileActions) -> {
             clearTreeView();
             updateTreeView(null);
         });
-        m_model.addRightFolderObserver((action, file) -> {
+        m_model.addRightFolderObserver((FileActions fileActions) -> {
             System.out.println("Right folder changed in treeview");
             clearTreeView();
             updateTreeView(null);
         });
-        m_model.addFileObserver((action, file) -> {
+        m_model.addFileObserver((FileActions fileActions) -> {
             System.out.println("File changed in treeview");
-            updateFiles(action, file);
+            updateFiles(fileActions);
         });
     }
 
     /**
      * Update the files to show in this tree
-     * @param fileAction the file action
-     * @param file the changed file
+     *
+     * @param fileActions the file actions
      */
-    private void updateFiles(Action fileAction, File file) {
+    private void updateFiles(FileActions fileActions) {
         try {
-            if (fileAction != null && fileAction != Action.NONE) {
-                if (m_model.getM_rightFolderSelected() == null) {
-                    this.getChildren().add(new Label("Choose a folder to view"));
-                } else {
-                    FileTreeUtils.updateTreeItems(m_model, m_tree, fileAction, file);
-                    m_model.setM_rightPanelFileAction(Action.NONE);
+            for (Pair<Action, File> fileAction: fileActions) {
+                Action action = fileAction.getKey();
+                if (fileAction != null && action != Action.NONE) {
+                    if (m_model.getM_rightFolderSelected() == null) {
+                        this.getChildren().add(new Label(LABEL_DEFAULT));
+                    } else {
+                        FileTreeUtils.updateTreeItems(m_model, m_tree, action, fileAction.getValue());
+                        m_model.setM_rightPanelFileAction(Action.NONE);
+                    }
                 }
             }
         } catch (IOException ex) {

@@ -62,7 +62,7 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Load saved session state
+     * Load the previous state of the application
      */
     private void loadSessionState() {
         System.out.println("loading libraries...");
@@ -132,6 +132,10 @@ public class ApplicationController extends Application {
         return filteredSongs;
     }
 
+     * Starting routine of the application
+     *
+     * @param primaryStage
+     */
     @Override
     public void start(Stage primaryStage) {
         //disable jaudiotagger logging
@@ -153,7 +157,7 @@ public class ApplicationController extends Application {
 
         createRootUI(m_songManager, m_musicPlayerManager);
 
-        Watcher watcher = new Watcher(m_songManager, m_databaseManager);
+        Watcher watcher = new Watcher(m_songManager);
         watcher.startWatcher();
 
         primaryStage.setOnCloseRequest(e -> closeApp(m_musicPlayerManager, watcher));
@@ -218,6 +222,7 @@ public class ApplicationController extends Application {
 
     /**
      * Save songs in all playlist
+     * Save Playlist songs to database
      */
     private void savePlaylistSongs() {
         for (Playlist playlist : m_songManager.getM_playlists()) {
@@ -255,6 +260,7 @@ public class ApplicationController extends Application {
 
     /**
      * Save left file tree expanded states
+     * Save left panel file tree expanded state
      */
     private void saveLeftFileTreeExpandedState() {
         List<String> libraryUIExpandedPaths = m_rootUI.getLibraryUIExpandedPaths();
@@ -268,6 +274,7 @@ public class ApplicationController extends Application {
 
     /**
      * Save right file tree expanded states
+     * Save right panel file tree expanded state
      */
     private void saveRightFileTreeExpandedState() {
         List<String> dynamicTreeViewUIExpandedPaths = m_rootUI.getDynamicTreeViewUIExpandedPaths();

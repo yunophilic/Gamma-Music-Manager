@@ -275,7 +275,6 @@ public class ContextMenuBuilder {
     /**
      * Helper functions
      */
-
     /**
      * Function to hide a menu item.
      *
@@ -324,7 +323,6 @@ public class ContextMenuBuilder {
                 }
                 try {
                     model.copyToDestination(dest);
-                    model.notifyFileObservers(Action.PASTE, null);
                 } catch (FileAlreadyExistsException ex) {
                     PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
                 } catch (IOException ex) {
@@ -355,7 +353,6 @@ public class ContextMenuBuilder {
             }
             try {
                 model.copyToDestination(dest);
-                model.notifyFileObservers(Action.PASTE, null);
             } catch (FileAlreadyExistsException ex) {
                 PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
             } catch (IOException ex) {

@@ -7,10 +7,12 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * UI for the user's or external library
@@ -113,30 +115,33 @@ public class LibraryUI extends StackPane {
      * Register as observer to update any changes made
      */
     private void registerAsLibraryObserver() {
-        m_model.addLibraryObserver((action, file) -> {
+        m_model.addLibraryObserver((FileActions fileActions) -> {
             System.out.println("Library changed in treeview");
             LibraryUI.this.updateLibraryTrees(m_model.getM_libraryAction());
         });
-        m_model.addFileObserver((action, file) -> {
+        m_model.addFileObserver((FileActions fileActions) -> {
             System.out.println("File changed in treeview");
-            updateFiles(action, file);
+            updateFiles(fileActions);
         });
-        m_model.addLeftPanelOptionsObserver((action, file) -> {
+        m_model.addLeftPanelOptionsObserver((FileActions fileActions) -> {
             System.out.println("Left panel options in treeview");
-            updateFiles(action, file);
+            updateFiles(fileActions);
         });
     }
 
     /**
      * Update the files in the tree
-     * @param fileAction the file action
-     * @param file the changed file
+     *
+     * @param fileActions the file action
      */
-    private void updateFiles(Action fileAction, File file) {
+    private void updateFiles(FileActions fileActions) {
         try {
-            if (fileAction != null && fileAction != Action.NONE) {
-                FileTreeUtils.updateTreeItems(m_model, m_tree, fileAction, file);
-                m_model.setM_libraryFileAction(Action.NONE);
+            for (Pair<Action, File> fileAction: fileActions) {
+                Action action = fileAction.getKey();
+                if (fileAction != null && action != Action.NONE) {
+                    FileTreeUtils.updateTreeItems(m_model, m_tree, action, fileAction.getValue());
+                    m_model.setM_libraryFileAction(Action.NONE);
+                }
             }
         } catch (IOException ex) {
             PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
@@ -146,6 +151,7 @@ public class LibraryUI extends StackPane {
 
     /**
      * Update libraries depending on the action
+     *
      * @param libraryAction the library action
      */
     private void updateLibraryTrees(Action libraryAction) {
