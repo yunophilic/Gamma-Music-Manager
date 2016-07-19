@@ -611,8 +611,10 @@ public class PlaylistUI extends VBox {
                     int selectedSongIndex = row.getIndex();
                     if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
                         Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                        selectedPlaylist.setM_currentSongIndex(selectedSongIndex);
-                        m_musicPlayerManager.playPlaylist(selectedPlaylist);
+                        if (selectedPlaylist.isValid(selectedSongIndex)) {
+                            selectedPlaylist.setM_currentSongIndex(selectedSongIndex);
+                            m_musicPlayerManager.playPlaylist(selectedPlaylist);
+                        }
                     } else if (event.getButton() == MouseButton.PRIMARY) {
                         m_contextMenu.hide();
                     } else if (event.getButton() == MouseButton.SECONDARY) {
