@@ -17,6 +17,7 @@ public class ConcreteFileActions extends FileActions{
 
     /**
      * Constructor accepting initial values for the first Pair in the list
+     *
      * @param action
      * @param file
      */
@@ -26,7 +27,8 @@ public class ConcreteFileActions extends FileActions{
     }
 
     /**
-     * Add a new Action, Fie pair
+     * Add a new Action, File pair
+     *
      * @param action
      * @param file
      */

@@ -215,6 +215,7 @@ public class SongManager {
 
     /**
      * Get list of songs in a certain library within the library list
+     *
      * @param library
      * @return list of songs
      */
@@ -224,6 +225,7 @@ public class SongManager {
 
     /**
      * Search node from all libraries based on the specified item
+     *
      * @param file The item to search on
      * @return node containing the item, or null if not founr
      */
@@ -238,6 +240,7 @@ public class SongManager {
 
     /**
      * Get songs to display in center panel
+     *
      * @return list of songs
      */
     public List<Song> getCenterPanelSongs() {

@@ -44,6 +44,7 @@ public class ApplicationController extends Application {
     /**
      * Load previously saved session states
      * Modified from https://blog.codecentric.de/en/2015/09/javafx-how-to-easily-implement-application-preloader-2/
+     *
      * @throws Exception
      */
     @Override
@@ -58,6 +59,9 @@ public class ApplicationController extends Application {
         }
     }
 
+    /**
+     * Load the previous state of the application
+     */
     private void loadSessionState() {
         System.out.println("loading libraries...");
         List<String> libraryPathList = m_databaseManager.getLibraries();
@@ -104,6 +108,11 @@ public class ApplicationController extends Application {
         m_MusicPlayerManager = new MusicPlayerManager(m_databaseManager);
     }
 
+    /**
+     * Starting routine of the application
+     *
+     * @param primaryStage
+     */
     @Override
     public void start(Stage primaryStage) {
         //disable jaudiotagger logging
@@ -153,6 +162,7 @@ public class ApplicationController extends Application {
 
     /**
      * Save session states in new thread and show a progress bar
+     *
      * @param musicPlayerManager
      * @param watcher
      */
@@ -199,6 +209,9 @@ public class ApplicationController extends Application {
         new Thread(closeTask).start();
     }
 
+    /**
+     * Save Playlist songs to database
+     */
     private void savePlaylistSongs() {
         for (Playlist playlist : m_songManager.getM_playlists()) {
             m_databaseManager.savePlaylistSongs(playlist);
@@ -207,6 +220,7 @@ public class ApplicationController extends Application {
 
     /**
      * Create root UI
+     *
      * @param songManager
      * @param musicPlayerManager
      */
@@ -232,6 +246,9 @@ public class ApplicationController extends Application {
         saveRightPanelExpandedState();
     }
 
+    /**
+     * Save left panel file tree expanded state
+     */
     private void saveLibraryUIExpandedState() {
         List<String> libraryUIExpandedPaths = m_rootUI.getLibraryUIExpandedPaths();
         if (libraryUIExpandedPaths != null) {
@@ -243,6 +260,9 @@ public class ApplicationController extends Application {
         }
     }
 
+    /**
+     * Save right panel file tree expanded state
+     */
     private void saveRightPanelExpandedState() {
         List<String> dynamicTreeViewUIExpandedPaths = m_rootUI.getDynamicTreeViewUIExpandedPaths();
         if (dynamicTreeViewUIExpandedPaths != null) {

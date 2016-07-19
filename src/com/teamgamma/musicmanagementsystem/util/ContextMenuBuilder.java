@@ -44,7 +44,6 @@ public class ContextMenuBuilder {
      * @param musicPlayerManager The music player manager
      * @param databaseManager The db manager
      * @param selectedItem The selected item in the file tree
-     *
      * @return ContextMenu for file tree
      */
     public static ContextMenu buildFileTreeContextMenu(SongManager model,
@@ -132,7 +131,6 @@ public class ContextMenuBuilder {
      * @param musicPlayerManager The music player manager
      * @param databaseManager The db manager
      * @param selectedItem The selected song in the center panel (in Item interface form)
-     *
      * @return ContextMenu for center panel
      */
     public static ContextMenu buildCenterPanelContextMenu(SongManager model,
@@ -193,7 +191,6 @@ public class ContextMenuBuilder {
      * @param musicPlayerManager The music player manager
      * @param databaseManager The db manager
      * @param selectedSongIndex The selected song index in the playlist
-     *
      * @return ContextMenu for playlist
      */
     public static ContextMenu buildPlaylistContextMenu(SongManager model,
@@ -242,7 +239,6 @@ public class ContextMenuBuilder {
      *
      * @param musicPlayerManager The music player manager
      * @param selectedItem The selected song (in Item interface form)
-     *
      * @return Playback context menu for music player history UI
      */
     public static ContextMenu buildPlaybackContextMenu(MusicPlayerManager musicPlayerManager, Item selectedItem) {
@@ -262,7 +258,6 @@ public class ContextMenuBuilder {
     /**
      * Helper functions
      */
-
     private static void hideMenuItem(MenuItem item) {
         item.setVisible(false);
         item.setDisable(true);

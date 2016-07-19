@@ -657,7 +657,6 @@ public class PlaylistUI extends VBox {
      * Function to generate a context menu for the song specifed by the index of where it is in the playlist.
      *
      * @param selectedSongIndex The index of the song in the playlist.
-     *
      * @return A context menu for that will work on the song at the index
      */
     private ContextMenu generateContextMenu(int selectedSongIndex) {

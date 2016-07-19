@@ -18,6 +18,7 @@ public class EmptyFileAction extends FileActions {
 
     /**
      * Do not add anything to the list (since this is a class representing an empty file action)
+     *
      * @param action
      * @param file
      */

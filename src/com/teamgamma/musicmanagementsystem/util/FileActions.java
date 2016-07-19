@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 public abstract class FileActions extends ArrayList<Pair<Action, File>> {
     /**
      * Add new Pair into the ArrayList
+     *
      * @param action
      * @param file
      */

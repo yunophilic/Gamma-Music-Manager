@@ -132,6 +132,7 @@ public class LibraryUI extends StackPane {
 
     /**
      * Update the files in the tree
+     *
      * @param fileActions the file action
      */
     private void updateFiles(FileActions fileActions) {
@@ -151,6 +152,7 @@ public class LibraryUI extends StackPane {
 
     /**
      * Update libraries depending on the action
+     *
      * @param libraryAction the library action
      */
     private void updateLibraryTrees(Action libraryAction) {
