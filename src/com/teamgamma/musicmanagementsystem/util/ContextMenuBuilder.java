@@ -106,6 +106,8 @@ public class ContextMenuBuilder {
             if (!isLeftPane) {
                 hideMenuItem(removeLibrary);
                 hideMenuItem(showInRightPane);
+
+                hideMenuItem(fileOptionsSeparator);
             }
 
             // Do not show remove library option if selected item is not a library
