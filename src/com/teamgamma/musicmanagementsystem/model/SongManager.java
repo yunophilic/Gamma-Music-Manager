@@ -239,7 +239,9 @@ public class SongManager {
             TreeItem<Item> node = library.search(file);
             if (node != null) {
                 Item item = node.getValue();
-                return (item instanceof Song) ? (Song) item : null;
+                if (item instanceof Song) {
+                    return (Song) item;
+                }
             }
         }
         return null;
