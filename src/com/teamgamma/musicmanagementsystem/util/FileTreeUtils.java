@@ -15,9 +15,9 @@ import java.util.List;
  * Utility class that provides functionality for the FileTree
  */
 public class FileTreeUtils {
-    private static final String OPEN_FOLDER_ICON_PATH = "res" + File.separator + "Status-folder-open-icon.png";
-    private static final String FOLDER_ICON_PATH = "res" + File.separator + "folder-icon.png";
-    private static final String SONG_ICON_PATH = "res" + File.separator + "music-file-icon.png";
+    private static final String OPEN_FOLDER_ICON_URL = "res" + File.separator + "Status-folder-open-icon.png";
+    private static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
+    private static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
 
     /**
      * Recursively create tree items from the files in a directory and return a reference to the root item,
@@ -32,13 +32,13 @@ public class FileTreeUtils {
         TreeItem<Item> item;
         if(file.isFile()) {
             item = new TreeItem<>(new Song(file));
-            item.setGraphic(new ImageView(SONG_ICON_PATH));
+            item.setGraphic(new ImageView(SONG_ICON_URL));
         } else {
             item = new TreeItem<>(
                     (file.getAbsolutePath().equals(dirPath)) ? new Folder(file, true) : new Folder(file, false)
             );
 
-            item.setGraphic(new ImageView(FOLDER_ICON_PATH));
+            item.setGraphic(new ImageView(FOLDER_ICON_URL));
 
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
                 if (expandedPaths.contains(item.getValue().getFile().getAbsolutePath())) {
@@ -97,11 +97,11 @@ public class FileTreeUtils {
      * @param node the specified node
      * @return root node of the copied tree
      */
-    public static TreeItem<Item> copyTree(final TreeItem<Item> node) {
+    public static TreeItem<Item> copyTree(TreeItem<Item> node) {
         TreeItem<Item> nodeCopy = new TreeItem<>();
         Item item = node.getValue();
         nodeCopy.setValue(item);
-        nodeCopy.setGraphic(new ImageView(item.getFile().isDirectory() ? FOLDER_ICON_PATH : SONG_ICON_PATH));
+        nodeCopy.setGraphic(new ImageView(item.getFile().isDirectory() ? FOLDER_ICON_URL : SONG_ICON_URL));
 
         for (TreeItem<Item> child : node.getChildren()) {
             nodeCopy.getChildren().add(copyTree(child));
@@ -118,9 +118,9 @@ public class FileTreeUtils {
     public static void closeAllFoldersIcons(TreeItem<Item> treeItem) {
         //System.out.println("#### closing file: " + treeItem.getValue());
         if (treeItem.getValue().getFile().isDirectory()) {
-            treeItem.setGraphic(new ImageView(FOLDER_ICON_PATH));
+            treeItem.setGraphic(new ImageView(FOLDER_ICON_URL));
         } else {
-            treeItem.setGraphic(new ImageView(SONG_ICON_PATH));
+            treeItem.setGraphic(new ImageView(SONG_ICON_URL));
         }
         if (!treeItem.getChildren().isEmpty()) {
             List<TreeItem<Item>> childTreeItems = treeItem.getChildren();
@@ -145,7 +145,7 @@ public class FileTreeUtils {
         }
 
         System.out.println("@@@ Found treeitem: " + selectedTreeItem);
-        selectedTreeItem.setGraphic(new ImageView(OPEN_FOLDER_ICON_PATH));
+        selectedTreeItem.setGraphic(new ImageView(OPEN_FOLDER_ICON_URL));
     }
 
     /**
@@ -216,7 +216,10 @@ public class FileTreeUtils {
                 }
 
                 TreeItem<Item> destParentNode = searchTreeItem(tree.getRoot(), model.getM_moveDest().getAbsolutePath());
-                moveNode(nodeToMove, destParentNode);
+
+                if(destParentNode != null && !(destParentNode.getValue() instanceof DummyItem)) {
+                    moveNode(nodeToMove, destParentNode);
+                }
                 break;
             }
 
@@ -253,10 +256,15 @@ public class FileTreeUtils {
      * @param model the model
      */
     private static void renameNode(File changedFile, TreeView<Item> tree, SongManager model) {
-        TreeItem<Item> nodeToRename = searchTreeItem(tree.getRoot(), changedFile.getAbsolutePath());
         File renamedFile = model.getM_renamedFile();
 
         System.out.println("NEW FILE NAME: " + renamedFile);
+
+        TreeItem<Item> nodeToRename = searchTreeItem(tree.getRoot(), changedFile.getAbsolutePath());
+
+        if (nodeToRename == null) {
+            return;
+        }
 
         TreeItem<Item> parentNode = nodeToRename.getParent();
 
@@ -264,6 +272,8 @@ public class FileTreeUtils {
         System.out.println("^^^^ PARENT NODE: " + parentNode);
 
         recursivelyRenameNodes(nodeToRename, renamedFile.getAbsolutePath());
+
+        model.notifyRightFolderObservers();
     }
 
     /**
@@ -362,6 +372,7 @@ public class FileTreeUtils {
 
     /**
      * Get list of paths in tree that are expanded
+     *
      * @param tree the tree
      * @return Arraylist of paths as String
      */
@@ -371,6 +382,7 @@ public class FileTreeUtils {
 
     /**
      * Recursively get list of paths that are expanded in the sub-tree rooted at node
+     *
      * @param node the root node
      * @return list of paths as String
      */
@@ -406,12 +418,13 @@ public class FileTreeUtils {
      */
     public static void setTreeExpandedState(TreeItem<Item> node, List<String> expandedPaths) {
         File file = node.getValue().getFile();
-        if (file.isDirectory())
+        if (file.isDirectory()) {
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
                 if (expandedPaths.contains(file.getAbsolutePath())) {
                     node.setExpanded(true);
                 }
             }
+        }
 
         List<TreeItem<Item>> children = node.getChildren();
         for(TreeItem<Item> child : children) {

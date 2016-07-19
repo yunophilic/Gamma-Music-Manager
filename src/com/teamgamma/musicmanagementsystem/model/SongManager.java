@@ -1,5 +1,8 @@
 package com.teamgamma.musicmanagementsystem.model;
 
+import com.teamgamma.musicmanagementsystem.util.Action;
+import com.teamgamma.musicmanagementsystem.util.FileManager;
+
 import com.teamgamma.musicmanagementsystem.util.*;
 import javafx.scene.control.TreeItem;
 
@@ -117,7 +120,8 @@ public class SongManager {
 
     private boolean isInLibrary(String directoryPath) {
         for (Library library : m_libraries) {
-            if (library.getRootDirPath().equals(directoryPath)) {
+            String libRootDirPath = library.getRootDirPath();
+            if (directoryPath.equals(libRootDirPath) || directoryPath.contains(libRootDirPath)) {
                 return true;
             }
         }
@@ -216,11 +220,42 @@ public class SongManager {
     /**
      * Get list of songs in a certain library within the library list
      *
-     * @param library
+     * @param library specified library
      * @return list of songs
      */
     private List<Song> getSongs(Library library) {
         return library.getSongs();
+    }
+
+    /**
+     * Get all songs in the system
+     *
+     * @return list of all songs
+     */
+    public List<Song> getAllSongs() {
+        List<Song> songs = new ArrayList<>();
+        for (Library library : m_libraries) {
+            songs.addAll(library.getSongs());
+        }
+        return songs;
+    }
+
+    /**
+     * Get song object in the model based on the specified file
+     *
+     * @return song object in the model
+     */
+    public Song getSong(File file) {
+        for (Library library : m_libraries) {
+            TreeItem<Item> node = library.search(file);
+            if (node != null) {
+                Item item = node.getValue();
+                if (item instanceof Song) {
+                    return (Song) item;
+                }
+            }
+        }
+        return null;
     }
 
     /**

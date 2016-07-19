@@ -30,16 +30,17 @@ import java.util.logging.Logger;
  * Class to wrap all components together.
  */
 public class ApplicationController extends Application {
-
     private static final double MIN_WINDOW_WIDTH = 800;
     private static final double MIN_WINDOW_HEIGHT = 400;
     private static final String APP_TITLE = "Gamma Music Manager";
+    private static final String GAMMA_LOGO_IMAGE_URL = "res" + File.separator + "gamma-logo.png";
+    private static final String START_SOUND_PATH = System.getProperty("user.dir") + File.separator + "src" + File.separator + "res" + File.separator +"start-sound.mp3";
 
+    private SongManager m_songManager;
+    private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private FilePersistentStorage m_filePersistentStorage;
     private MainUI m_rootUI;
-    private SongManager m_songManager;
-    private MusicPlayerManager m_MusicPlayerManager;
 
     /**
      * Load previously saved session states
@@ -52,6 +53,7 @@ public class ApplicationController extends Application {
         Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
         m_songManager = new SongManager();
         m_databaseManager = new DatabaseManager();
+        m_musicPlayerManager = new MusicPlayerManager(m_databaseManager);
         m_filePersistentStorage = new FilePersistentStorage();
         if (m_databaseManager.isDatabaseFileExist()) {
             m_databaseManager.setupDatabase();
@@ -69,6 +71,8 @@ public class ApplicationController extends Application {
             m_songManager.addLibrary(libraryPath);
         }
 
+        List<Song> allSongsInModel = m_songManager.getAllSongs();
+
         System.out.println("loading playlists...");
         List<String> playlistNameList = m_databaseManager.getPlaylists();
         for (String playlistName : playlistNameList) {
@@ -76,9 +80,8 @@ public class ApplicationController extends Application {
 
             Playlist playlist = new Playlist(playlistName, lastSongPlayedIndex);
             List<String> songPaths = m_databaseManager.getSongsInPlaylist(playlist.getM_playlistName());
-            for(String songPath : songPaths) {
-                playlist.addSong(new Song(new File(songPath)));
-            }
+            playlist.addSongs(filterSongs(allSongsInModel, songPaths));
+
             m_songManager.addPlaylist(playlist);
         }
 
@@ -105,10 +108,30 @@ public class ApplicationController extends Application {
         }
         m_songManager.setM_selectedCenterFolder(previousCenterPanelFolder);
 
-        m_MusicPlayerManager = new MusicPlayerManager(m_databaseManager);
+        System.out.println("loading history");
+        List<String> historySongPaths = m_databaseManager.getHistory();
+        m_musicPlayerManager.loadHistory(filterSongs(allSongsInModel, historySongPaths));
+
+        System.out.println("loading playback queue");
+        List<String> playbackQueueSongPaths = m_databaseManager.getHistory();
+        m_musicPlayerManager.loadPlaybackQueue(filterSongs(allSongsInModel, playbackQueueSongPaths));
     }
 
     /**
+     * Filter songs based on the song paths given
+     *
+     * @return list of filtered songs
+     */
+    private List<Song> filterSongs(List<Song> songs, List<String> songPaths) {
+        List<Song> filteredSongs = new ArrayList<>();
+        for (Song song : songs){
+            if (songPaths.contains(song.getFile().getAbsolutePath())) {
+                filteredSongs.add(song);
+            }
+        }
+        return filteredSongs;
+    }
+
      * Starting routine of the application
      *
      * @param primaryStage
@@ -132,32 +155,22 @@ public class ApplicationController extends Application {
 
         primaryStage.setTitle(APP_TITLE);
 
-        createRootUI(m_songManager, m_MusicPlayerManager);
+        createRootUI(m_songManager, m_musicPlayerManager);
 
         Watcher watcher = new Watcher(m_songManager);
         watcher.startWatcher();
 
-        primaryStage.setOnCloseRequest(e -> {
-            closeApp(m_MusicPlayerManager, watcher);
-        });
+        primaryStage.setOnCloseRequest(e -> closeApp(m_musicPlayerManager, watcher));
 
         primaryStage.setScene(new Scene(m_rootUI, 1200, 650));
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
-        primaryStage.getIcons().add(
-                getLogoIcon()
-        );
+        primaryStage.getIcons().add(new Image(GAMMA_LOGO_IMAGE_URL));
         primaryStage.show();
 
-        Media sound = new Media(
-                new File("src" + File.separator + "res" + File.separator +"start-sound.mp3").toURI().toString()
-        );
+        Media sound = new Media(new File(START_SOUND_PATH).toURI().toString());
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         mediaPlayer.play();
-    }
-
-    private Image getLogoIcon() {
-        return new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"));
     }
 
     /**
@@ -182,9 +195,7 @@ public class ApplicationController extends Application {
 
         Stage closingStage = new Stage();
         closingStage.setTitle(APP_TITLE);
-        closingStage.getIcons().add(
-                getLogoIcon()
-        );
+        closingStage.getIcons().add(new Image(GAMMA_LOGO_IMAGE_URL));
         closingStage.setScene(new Scene(closingWindow, CLOSING_WINDOW_WIDTH, CLOSING_WINDOW_HEIGHT));
         closingStage.show();
 
@@ -210,6 +221,7 @@ public class ApplicationController extends Application {
     }
 
     /**
+     * Save songs in all playlist
      * Save Playlist songs to database
      */
     private void savePlaylistSongs() {
@@ -239,20 +251,20 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save file tree expanded states
+     * Save left and right file tree expanded states
      */
     private void saveFileTreeState() {
-        saveLibraryUIExpandedState();
-        saveRightPanelExpandedState();
+        saveLeftFileTreeExpandedState();
+        saveRightFileTreeExpandedState();
     }
 
     /**
+     * Save left file tree expanded states
      * Save left panel file tree expanded state
      */
-    private void saveLibraryUIExpandedState() {
+    private void saveLeftFileTreeExpandedState() {
         List<String> libraryUIExpandedPaths = m_rootUI.getLibraryUIExpandedPaths();
         if (libraryUIExpandedPaths != null) {
-            // TODO: save to database
             m_databaseManager.saveLeftTreeViewState(libraryUIExpandedPaths);
             for (String path : libraryUIExpandedPaths) {
                 System.out.println("LIBRARY EXPANDED PATH: " + path);
@@ -261,9 +273,10 @@ public class ApplicationController extends Application {
     }
 
     /**
+     * Save right file tree expanded states
      * Save right panel file tree expanded state
      */
-    private void saveRightPanelExpandedState() {
+    private void saveRightFileTreeExpandedState() {
         List<String> dynamicTreeViewUIExpandedPaths = m_rootUI.getDynamicTreeViewUIExpandedPaths();
         if (dynamicTreeViewUIExpandedPaths != null) {
             m_databaseManager.saveRightTreeViewState(dynamicTreeViewUIExpandedPaths);
