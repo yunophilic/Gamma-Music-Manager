@@ -1253,6 +1253,7 @@ public class PromptUI {
                     int index = 2;
                     while (newName.exists()) {
                         newName = new File(parentFolder + File.separator + "New Folder (" + index + ")");
+                        index ++;
                     }
                 } else if (newName.exists()) {
                     return createFileDuplicate(newName);
