@@ -73,7 +73,8 @@ public class LibraryUI extends StackPane {
         TreeItem<Item> root = new TreeItem<>(new DummyItem());
 
         for (Library library : libraries) {
-            TreeItem<Item> rootItem = library.getM_treeRoot();
+            File file = library.getM_treeRoot().getValue().getFile();
+            TreeItem<Item> rootItem = FileTreeUtils.copyTree(m_model.search(file));
             rootItem.setExpanded(true);
             System.out.println("Added new root path:" + rootItem.toString());
             root.getChildren().add(rootItem);
@@ -117,7 +118,7 @@ public class LibraryUI extends StackPane {
     private void registerAsLibraryObserver() {
         m_model.addLibraryObserver((FileActions fileActions) -> {
             System.out.println("Library changed in treeview");
-            LibraryUI.this.updateLibraryTrees(m_model.getM_libraryAction());
+            updateLibraryTrees(m_model.getM_libraryAction());
         });
         m_model.addFileObserver((FileActions fileActions) -> {
             System.out.println("File changed in treeview");

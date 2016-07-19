@@ -217,7 +217,9 @@ public class FileTreeUtils {
 
                 TreeItem<Item> destParentNode = searchTreeItem(tree.getRoot(), model.getM_moveDest().getAbsolutePath());
 
-                if(destParentNode != null && !(destParentNode.getValue() instanceof DummyItem)) {
+                if (destParentNode == null) {
+                    deleteNode(nodeToMove);
+                } else if(!(destParentNode.getValue() instanceof DummyItem)) {
                     moveNode(nodeToMove, destParentNode);
                 }
                 break;
@@ -246,6 +248,21 @@ public class FileTreeUtils {
                 throw new IOException("Invalid file action!");
             }
         }
+    }
+
+    /**
+     * Update items of the tree depending on the action
+     *
+     * @param model the model
+     * @param rootNode the root node of tree to be updated
+     * @param fileAction the file action
+     * @param changedFile the changed file
+     *
+     * @throws IOException
+     */
+    public static void updateTreeItems(SongManager model, TreeItem<Item> rootNode, Action fileAction, File changedFile) throws IOException {
+        TreeView<Item> tree = new TreeView<>(rootNode);
+        updateTreeItems(model, tree, fileAction, changedFile);
     }
 
     /**

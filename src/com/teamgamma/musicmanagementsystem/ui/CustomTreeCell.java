@@ -140,5 +140,15 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
                                                         m_isLeftPane));
         createContextMenu();
         setContextMenu(m_contextMenu);
+
+        if (m_selectedItem != null) {
+            if (m_isLeftPane && m_selectedItem.isRootItem()) {
+                setText(m_selectedItem.getFile().getAbsolutePath());
+            } else if (!m_isLeftPane && m_selectedItem.isRightRootItem()) {
+                setText(m_selectedItem.getFile().getAbsolutePath());
+            } else {
+                setText(m_selectedItem.getFile().getName());
+            }
+        }
     }
 }

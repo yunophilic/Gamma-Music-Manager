@@ -5,6 +5,7 @@ import com.teamgamma.musicmanagementsystem.util.FileManager;
 
 import com.teamgamma.musicmanagementsystem.util.*;
 import javafx.scene.control.TreeItem;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +55,7 @@ public class SongManager {
 
     // Empty file action
     private final EmptyFileAction m_emptyFileAction = new EmptyFileAction();
+    private TreeItem<Item> m_fileTreeRoot;
 
     public SongManager() {
         m_libraryObservers = new ArrayList<>();
@@ -83,6 +85,8 @@ public class SongManager {
         m_selectedPlaylist = null;
 
         m_menuOptions = null;
+
+        m_fileTreeRoot = null;
     }
 
     /**
@@ -153,6 +157,34 @@ public class SongManager {
     }
 
     /**
+     * Create a file tree with the libraries
+     */
+    public void createFileTree() {
+        m_fileTreeRoot = new TreeItem<>(new DummyItem());
+
+        for (Library library : m_libraries) {
+            TreeItem<Item> rootItem = library.getM_treeRoot();
+            rootItem.setExpanded(true);
+            System.out.println("Added new root path:" + rootItem.toString());
+            m_fileTreeRoot.getChildren().add(rootItem);
+        }
+    }
+
+    /**
+     * Update the files in the model file tree
+     *
+     * @param fileActions the file action
+     */
+    private void updateFiles(FileActions fileActions) throws IOException{
+        for (Pair<Action, File> fileAction : fileActions) {
+            Action action = fileAction.getKey();
+            if (fileAction != null && action != Action.NONE) {
+                FileTreeUtils.updateTreeItems(this, m_fileTreeRoot, action, fileAction.getValue());
+            }
+        }
+    }
+
+    /**
      * Copy files in buffer to destination
      *
      * @param dest the destination folder
@@ -171,6 +203,9 @@ public class SongManager {
         m_copyDest = dest;
 
         FileActions copyFileActions = new ConcreteFileActions(Action.PASTE, null);
+
+        updateFiles(copyFileActions);
+
         notifyFileObservers(copyFileActions);
     }
 
@@ -187,6 +222,9 @@ public class SongManager {
         m_moveDest = destDir;
 
         FileActions moveFileAction = new ConcreteFileActions(Action.DROP, null);
+
+        updateFiles(moveFileAction);
+
         notifyFileObservers(moveFileAction);
     }
 
@@ -211,6 +249,9 @@ public class SongManager {
         m_deletedFile = fileToDelete;
 
         FileActions deleteFileAction = new ConcreteFileActions(Action.DELETE, fileToDelete);
+
+        updateFiles(deleteFileAction);
+
         notifyFileObservers(deleteFileAction);
 
         // Clear file to delete buffer
