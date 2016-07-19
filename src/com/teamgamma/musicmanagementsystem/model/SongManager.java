@@ -525,22 +525,6 @@ public class SongManager {
         m_libraryAction = libraryAction;
     }
 
-    public Action getM_libraryFileAction() {
-        return m_libraryFileAction;
-    }
-
-    public void setM_libraryFileAction(Action fileAction) {
-        m_libraryFileAction = fileAction;
-    }
-
-    public Action getM_rightPanelFileAction() {
-        return m_rightPanelFileAction;
-    }
-
-    public void setM_rightPanelFileAction(Action fileAction) {
-        m_rightPanelFileAction = fileAction;
-    }
-
 
     /**********
      * Functions for observer pattern

@@ -140,7 +140,6 @@ public class LibraryUI extends StackPane {
                 Action action = fileAction.getKey();
                 if (fileAction != null && action != Action.NONE) {
                     FileTreeUtils.updateTreeItems(m_model, m_tree, action, fileAction.getValue());
-                    m_model.setM_libraryFileAction(Action.NONE);
                 }
             }
         } catch (IOException ex) {

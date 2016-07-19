@@ -89,7 +89,6 @@ public class DynamicTreeViewUI extends StackPane {
                         this.getChildren().add(new Label(LABEL_DEFAULT));
                     } else {
                         FileTreeUtils.updateTreeItems(m_model, m_tree, action, fileAction.getValue());
-                        m_model.setM_rightPanelFileAction(Action.NONE);
                     }
                 }
             }
