@@ -12,7 +12,6 @@ import javafx.util.Pair;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * UI for the user's or external library
@@ -52,6 +51,7 @@ public class LibraryUI extends StackPane {
             m_tree = buildTreeView(libraries);
             this.getChildren().add(m_tree);
             setTreeCellFactory();
+            hideShowFiles();
         }
     }
 
@@ -119,15 +119,29 @@ public class LibraryUI extends StackPane {
         m_model.addLibraryObserver((FileActions fileActions) -> {
             System.out.println("Library changed in treeview");
             updateLibraryTrees(m_model.getM_libraryAction());
+            hideShowFiles();
         });
         m_model.addFileObserver((FileActions fileActions) -> {
             System.out.println("File changed in treeview");
             updateFiles(fileActions);
+            hideShowFiles();
         });
         m_model.addLeftPanelOptionsObserver((FileActions fileActions) -> {
             System.out.println("Left panel options in treeview");
-            updateFiles(fileActions);
+            //updateFiles(fileActions);
+            hideShowFiles();
         });
+    }
+
+    /**
+     * Hide or show files depending on value of
+     */
+    private void hideShowFiles() {
+        if (m_model.getM_menuOptions().getM_leftPanelShowFoldersOnly()) {
+            FileTreeUtils.hideFiles(m_tree);
+        } else {
+            FileTreeUtils.showFiles(m_tree, m_model.getM_fileTreeRoot());
+        }
     }
 
     /**

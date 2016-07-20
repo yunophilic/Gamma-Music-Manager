@@ -53,8 +53,8 @@ public class MenuUI extends MenuBar{
         Menu centerPanelSubMenu = getCenterPanelSubMenu(filePersistentStorage);
 
         //hide left panel option for now
-        leftPanelSubMenu.setVisible(false);
-        leftPanelSubMenu.setDisable(true);
+        //leftPanelSubMenu.setVisible(false);
+        //leftPanelSubMenu.setDisable(true);
 
         menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu);
         return menuOptions;
@@ -69,11 +69,11 @@ public class MenuUI extends MenuBar{
             if (showFoldersOnly.isSelected()){
                 System.out.println("Display folders only");
                 MenuOptions menuManager = m_model.getM_menuOptions();
-                menuManager.setM_leftPanelShowFolder(true);
+                menuManager.setM_leftPanelShowFoldersOnly(true);
             } else {
                 System.out.println("Don't display folders only");
                 MenuOptions menuManager = m_model.getM_menuOptions();
-                menuManager.setM_leftPanelShowFolder(false);
+                menuManager.setM_leftPanelShowFoldersOnly(false);
             }
 
             m_model.notifyLeftPanelOptionsObservers();

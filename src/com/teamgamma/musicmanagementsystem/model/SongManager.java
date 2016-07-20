@@ -566,6 +566,10 @@ public class SongManager {
         m_libraryAction = libraryAction;
     }
 
+    public TreeItem<Item> getM_fileTreeRoot() {
+        return m_fileTreeRoot;
+    }
+
 
     /**********
      * Functions for observer pattern

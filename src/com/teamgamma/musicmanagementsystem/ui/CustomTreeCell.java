@@ -46,6 +46,8 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         createContextMenu();
         m_isLeftPane = isLeftPane;
         setDragEvents();
+
+        m_tree.getCellFactory();
     }
 
     /**
@@ -137,7 +139,8 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
                                                         m_musicPlayerManager,
                                                         m_tree,
                                                         m_selectedItem,
-                                                        m_isLeftPane));
+                                                        m_isLeftPane,
+                                                        m_databaseManager));
         createContextMenu();
         setContextMenu(m_contextMenu);
 

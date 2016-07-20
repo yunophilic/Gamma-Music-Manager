@@ -444,8 +444,59 @@ public class FileTreeUtils {
         }
 
         List<TreeItem<Item>> children = node.getChildren();
-        for(TreeItem<Item> child : children) {
+        for (TreeItem<Item> child : children) {
             setTreeExpandedState(child, expandedPaths);
         }
     }
+
+    /**
+     * Hide files in the tree by removing the file nodes
+     *
+     * @param tree
+     */
+    public static void hideFiles(TreeView<Item> tree) {
+        List<TreeItem<Item>> nodesToRemove = new ArrayList<>();
+        for (TreeItem<Item> child : tree.getRoot().getChildren()) {
+            nodesToRemove.addAll(getFileNodes(child));
+        }
+        System.out.println("FILE NODES FOUND: " + nodesToRemove);
+
+        /*Iterator<TreeItem<Item>> iter = nodesToRemove.iterator();
+        while(iter.hasNext()){
+            iter.next();
+            iter.remove();
+        }*/
+
+        for (int i = 0; i < nodesToRemove.size(); i++) {
+            TreeItem<Item> node = nodesToRemove.get(i);
+            deleteNode(node);
+        }
+    }
+
+    private static List<TreeItem<Item>> getFileNodes(TreeItem<Item> node) {
+        List<TreeItem<Item>> nodesToRemove = new ArrayList<>();
+        for (TreeItem<Item> child: node.getChildren()) {
+            if (child.getValue().getFile().isDirectory()){
+                nodesToRemove.addAll(getFileNodes(child));
+            } else {
+                nodesToRemove.add(child);
+            }
+        }
+
+        return nodesToRemove;
+    }
+
+    /**
+     * Show files in the tree by adding the file nodes
+     *
+     * @param uiTree
+     * @param modelTree
+     */
+    public static void showFiles(TreeView<Item> uiTree, TreeItem<Item> modelTree) {
+
+    }
+
+    /**
+     * Name a node
+     */
 }
