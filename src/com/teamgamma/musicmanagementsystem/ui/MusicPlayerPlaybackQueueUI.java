@@ -11,8 +11,11 @@ import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
 
 /**
  * Class to show the MusicPlayer Playback queue UI .
@@ -34,27 +37,30 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
         m_manager = manager;
 
         TitledPane queuingList = UserInterfaceUtils.createTitlePane(QUEUING_HEADER, m_manager.getPlayingQueue(),
-                createPlaybackQueueAction());
+                createPlaybackQueueAction(), "-fx-background-color: yellow");
 
+        queuingList.setStyle("-fx-background-color: yellow");
+
+        this.setBackground(new Background(new BackgroundFill(Color.YELLOW, null, null)));
         setQueuingDragActions(manager, songManager, queuingList);
 
         this.getPanes().add(queuingList);
 
         manager.registerQueingObserver(
-                () -> Platform.runLater(
-                    () -> queuingList.setContent(UserInterfaceUtils.createUIList(manager.getPlayingQueue(),
-                            createPlaybackQueueAction()))
-                )
+            () -> Platform.runLater(
+                () -> queuingList.setContent(UserInterfaceUtils.createUIList(manager.getPlayingQueue(),
+                        createPlaybackQueueAction(), "-fx-background: yellow"))
+            )
         );
 
         manager.registerNewSongObserver(
-                () -> Platform.runLater(
-                    () -> {
-                        if (!m_manager.isPlayingSongOnFromHistoryList() && !m_manager.getPlayingQueue().isEmpty()){
-                            this.setExpandedPane(queuingList);
-                        }
+            () -> Platform.runLater(
+                () -> {
+                    if (!m_manager.isPlayingSongOnFromHistoryList() && !m_manager.getPlayingQueue().isEmpty()){
+                        this.setExpandedPane(queuingList);
                     }
-                )
+                }
+            )
         );
     }
 
@@ -115,6 +121,8 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
                     playbackMenu.show(row, event.getScreenX(), event.getScreenY());
                 }
             });
+
+            row.setStyle("-fx-background-color: yellow");
             return row;
         };
     }
