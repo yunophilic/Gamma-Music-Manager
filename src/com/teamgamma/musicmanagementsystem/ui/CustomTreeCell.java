@@ -9,6 +9,7 @@ import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import javafx.event.EventDispatcher;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.input.ClipboardContent;
@@ -63,6 +64,7 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
      * Set mouse events on this CustomTreeCell
      */
     private void setDragEvents() {
+        m_tree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         setOnDragDetected(mouseEvent -> {
             if (m_selectedItem != null) {
                 System.out.println("Drag detected on " + m_selectedItem);
