@@ -86,7 +86,7 @@ public class SongManager {
 
         m_menuOptions = null;
 
-        m_fileTreeRoot = null;
+        m_fileTreeRoot = new TreeItem<>(new DummyItem());
     }
 
     /**
@@ -105,6 +105,7 @@ public class SongManager {
                 return false;
             }
             m_libraries.add(newLibrary);
+            addLibraryToFileTree(newLibrary);
             return true;
         } catch(NullPointerException e) {
             e.printStackTrace();
@@ -118,8 +119,10 @@ public class SongManager {
      * @param file any file in the library (can be the library root dir itself)
      * @return true if new library is added to the list, false otherwise
      */
-    public boolean removeLibrary(File file) {
-        return m_libraries.remove(getLibrary(file));
+    public void removeLibrary(File file) {
+        Library libraryToRemove = getLibrary(file);
+        m_libraries.remove(libraryToRemove);
+        removeLibraryFromFileTree(libraryToRemove);
     }
 
     private boolean isInLibrary(String directoryPath) {
@@ -156,18 +159,14 @@ public class SongManager {
         return m_libraries;
     }
 
-    /**
-     * Create a file tree with the libraries
-     */
-    public void createFileTree() {
-        m_fileTreeRoot = new TreeItem<>(new DummyItem());
 
-        for (Library library : m_libraries) {
-            TreeItem<Item> rootItem = library.getM_treeRoot();
-            rootItem.setExpanded(true);
-            System.out.println("Added new root path:" + rootItem.toString());
-            m_fileTreeRoot.getChildren().add(rootItem);
-        }
+    private void addLibraryToFileTree(Library newLibrary) {
+        m_fileTreeRoot.getChildren().add(newLibrary.getM_treeRoot());
+    }
+
+
+    private void removeLibraryFromFileTree(Library libraryToRemove) {
+        m_fileTreeRoot.getChildren().remove(libraryToRemove.getM_treeRoot());
     }
 
     /**
@@ -452,9 +451,10 @@ public class SongManager {
      * @param fileToRename
      * @param newPath
      */
-    public void renameFile(File fileToRename, Path newPath) {
+    public void renameFile(File fileToRename, Path newPath) throws IOException {
         m_renamedFile = new File(newPath.toString());
         FileActions renameFileAction = new ConcreteFileActions(Action.RENAME, fileToRename);
+        updateFiles(renameFileAction);
         notifyFileObservers(renameFileAction);
     }
 
@@ -463,7 +463,9 @@ public class SongManager {
      *
      * @param fileActions
      */
-    public void fileSysChanged(FileActions fileActions) {
+    public void fileSysChanged(FileActions fileActions) throws IOException {
+        updateFiles(fileActions);
+
         notifyFileObservers(fileActions);
     }
 
@@ -603,8 +605,8 @@ public class SongManager {
         m_playlistSongsObservers.add(observer);
     }
 
-    public void notifyLibraryObservers() {
-        notifySpecifiedFileObservers(m_libraryObservers, m_emptyFileAction);
+    public void notifyLibraryObservers(FileActions fileActions) {
+        notifySpecifiedFileObservers(m_libraryObservers, fileActions);
     }
 
     public void notifyCenterFolderObservers() {

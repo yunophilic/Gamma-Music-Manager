@@ -71,8 +71,6 @@ public class ApplicationController extends Application {
             m_songManager.addLibrary(libraryPath);
         }
 
-        m_songManager.createFileTree();
-
         List<Song> allSongsInModel = m_songManager.getAllSongs();
 
         System.out.println("loading playlists...");

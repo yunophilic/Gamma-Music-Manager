@@ -118,7 +118,7 @@ public class LibraryUI extends StackPane {
     private void registerAsLibraryObserver() {
         m_model.addLibraryObserver((FileActions fileActions) -> {
             System.out.println("Library changed in treeview");
-            updateLibraryTrees(m_model.getM_libraryAction());
+            updateLibraryTrees(fileActions);
             hideShowFiles();
         });
         m_model.addFileObserver((FileActions fileActions) -> {
@@ -140,7 +140,7 @@ public class LibraryUI extends StackPane {
         if (m_model.getM_menuOptions().getM_leftPanelShowFoldersOnly()) {
             FileTreeUtils.hideFiles(m_tree);
         } else {
-            FileTreeUtils.showFiles(m_tree, m_model.getM_fileTreeRoot());
+            FileTreeUtils.showFiles(m_tree.getRoot(), m_model.getM_fileTreeRoot());
         }
     }
 
@@ -166,35 +166,37 @@ public class LibraryUI extends StackPane {
     /**
      * Update libraries depending on the action
      *
-     * @param libraryAction the library action
+     * @param fileActions the library action
      */
-    private void updateLibraryTrees(Action libraryAction) {
-        if (libraryAction.equals(Action.ADD)) {
-            // If this is not the first library added, add it without resetting the state of the other libraries
-            // Else, simply reset the tree to show the library
-            if (m_model.getM_libraries().size() > 1){
-                List<TreeItem<Item>> libraryNodes = m_tree.getRoot().getChildren();
-                List<Item> libraryItems = FileTreeUtils.getItems(libraryNodes);
-                List<Library> libraries = m_model.getM_libraries();
+    private void updateLibraryTrees(FileActions fileActions) {
+        for (Pair<Action, File> fileAction: fileActions) {
+            if (fileAction.getKey().equals(Action.ADD)) {
+                // If this is not the first library added, add it without resetting the state of the other libraries
+                // Else, simply reset the tree to show the library
+                if (m_model.getM_libraries().size() > 1) {
+                    List<TreeItem<Item>> libraryNodes = m_tree.getRoot().getChildren();
+                    List<Item> libraryItems = FileTreeUtils.getItems(libraryNodes);
+                    List<Library> libraries = m_model.getM_libraries();
 
-                for (Library library : libraries) {
-                    // If library is not in libraryItems, add new node
-                    if (!FileTreeUtils.isLibraryInList(libraryItems, library)) {
-                        TreeItem<Item> newLibrary = library.getM_treeRoot();
-                        newLibrary.setExpanded(true);
-                        libraryNodes.add(newLibrary);
+                    for (Library library : libraries) {
+                        // If library is not in libraryItems, add new node
+                        if (!FileTreeUtils.isLibraryInList(libraryItems, library)) {
+                            TreeItem<Item> newLibrary = FileTreeUtils.copyTree(library.getM_treeRoot());
+                            newLibrary.setExpanded(true);
+                            libraryNodes.add(newLibrary);
+                        }
                     }
+                } else {
+                    initTreeView();
                 }
-            } else {
-                initTreeView();
-            }
-        } else if (libraryAction.equals(Action.REMOVE_FROM_VIEW) || libraryAction.equals(Action.DELETE)) {
-            TreeItem<Item> removedLibrary = m_tree.getSelectionModel().getSelectedItem();
-            removedLibrary.getParent().getChildren().remove(removedLibrary);
+            } else if (fileAction.getKey().equals(Action.REMOVE_FROM_VIEW) || fileAction.getKey().equals(Action.DELETE)) {
+                TreeItem<Item> removedLibrary = m_tree.getSelectionModel().getSelectedItem();
+                removedLibrary.getParent().getChildren().remove(removedLibrary);
 
-            // If there are no more libraries, show a text label
-            if (m_model.getM_libraries().size() < 1) {
-                setEmptyLibraryUI();
+                // If there are no more libraries, show a text label
+                if (m_model.getM_libraries().size() < 1) {
+                    setEmptyLibraryUI();
+                }
             }
         }
 

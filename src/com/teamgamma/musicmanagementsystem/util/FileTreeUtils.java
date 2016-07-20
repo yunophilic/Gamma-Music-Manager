@@ -489,14 +489,21 @@ public class FileTreeUtils {
     /**
      * Show files in the tree by adding the file nodes
      *
-     * @param uiTree
-     * @param modelTree
+     * @param uiRootNode
+     * @param modelNode
      */
-    public static void showFiles(TreeView<Item> uiTree, TreeItem<Item> modelTree) {
-
+    public static void showFiles(TreeItem<Item> uiRootNode, TreeItem<Item> modelNode) {
+        for (TreeItem<Item> modelChild: modelNode.getChildren()) {
+            if (modelChild.getValue().getFile().isDirectory()) {
+                showFiles(uiRootNode, modelChild);
+            } else {
+                if (searchTreeItem(uiRootNode, modelChild.getValue().getFile().getAbsolutePath()) == null) {
+                    TreeItem<Item> newUINode = new TreeItem<>(modelChild.getValue());
+                    newUINode.setGraphic(new ImageView(SONG_ICON_URL));
+                    TreeItem<Item> uiNode = searchTreeItem(uiRootNode, modelNode.getValue().getFile().getAbsolutePath());
+                    uiNode.getChildren().add(newUINode);
+                }
+            }
+        }
     }
-
-    /**
-     * Name a node
-     */
 }

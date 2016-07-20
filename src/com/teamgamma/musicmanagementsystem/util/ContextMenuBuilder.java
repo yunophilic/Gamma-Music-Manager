@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -381,7 +380,12 @@ public class ContextMenuBuilder {
                 Path newPath = PromptUI.fileRename(fileToRename);
 
                 if (newPath != null) {
-                    model.renameFile(fileToRename, newPath);
+                    try {
+                        model.renameFile(fileToRename, newPath);
+                    } catch (IOException ex) {
+                        PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
+                        ex.printStackTrace();
+                    }
                 }
             }
         });
@@ -456,8 +460,8 @@ public class ContextMenuBuilder {
                 databaseManager.removeLibrary(
                         selectedItemPath
                 );
-                model.setM_libraryAction(Action.REMOVE_FROM_VIEW);
-                model.notifyLibraryObservers();
+                FileActions libraryFileActions = new ConcreteFileActions(Action.REMOVE_FROM_VIEW, selectedItem.getFile());
+                model.notifyLibraryObservers(libraryFileActions);
             }
         });
 
