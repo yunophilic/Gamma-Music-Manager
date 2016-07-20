@@ -26,6 +26,7 @@ public class ContextMenuBuilder {
     private static final String DELETE = "Delete";
     private static final String RENAME = "Rename";
 
+    private static final String CREATE_NEW_FOLDER = "Create New Folder";
     private static final String REMOVE_THIS_LIBRARY = "Remove This Library";
     private static final String SHOW_IN_RIGHT_PANE = "Show in Right Pane";
 
@@ -68,11 +69,13 @@ public class ContextMenuBuilder {
         MenuItem rename = createRenameMenuItem(model, selectedItem);
         MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedItem);
 
+        MenuItem createNewFolder = createAddNewFolderMenuItem(selectedItem);
         MenuItem removeLibrary = createRemoveLibraryMenuItem(model, databaseManager, selectedItem);
         MenuItem showInRightPane = createShowInRightPaneMenuItem(model, selectedItem);
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedItem);
 
         //separators (non functional menu items, just for display)
+        MenuItem folderOptionsSeparator = new SeparatorMenuItem();
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
         MenuItem playlistOptionsSeparator = new SeparatorMenuItem();
         MenuItem fileOptionsSeparator = new SeparatorMenuItem();
@@ -81,10 +84,9 @@ public class ContextMenuBuilder {
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue,
                 songOptionsSeparator,
                 addToPlaylist, addToCurrentPlaylist,
-                playlistOptionsSeparator,
+                playlistOptionsSeparator, createNewFolder, folderOptionsSeparator,
                 copy, paste, rename, delete,
-                fileOptionsSeparator,
-                removeLibrary, showInRightPane, openFileLocation);
+                fileOptionsSeparator, removeLibrary, showInRightPane, openFileLocation);
 
         contextMenu.setOnShown(event -> {
             // Hide all if selected item is null
@@ -113,6 +115,12 @@ public class ContextMenuBuilder {
             // Do not show remove library option if selected item is not a library
             if (!selectedItem.isRootItem()) {
                 hideMenuItem(removeLibrary);
+            }
+
+            // Do not show song options if selected item is not a folder
+            if (!selectedItem.getFile().isDirectory()) {
+                hideMenuItem(createNewFolder);
+                hideMenuItem(folderOptionsSeparator);
             }
 
             // Do not show song options if this is not a song
@@ -412,6 +420,25 @@ public class ContextMenuBuilder {
         });
 
         return delete;
+    }
+
+    /**
+     * Function that creates menu option to create new folders in a selected library / folder
+     *
+     * @param selectedItem      The file or folder selected in the tree view
+     * @return                  The menu item which creates a new folder
+     */
+    private static MenuItem createAddNewFolderMenuItem(Item selectedItem) {
+        MenuItem createNewFolder = new MenuItem(CREATE_NEW_FOLDER);
+
+        createNewFolder.setOnAction(event -> {
+            if (selectedItem != null) {
+                File folderSelected = selectedItem.getFile();
+                PromptUI.createNewFolder(folderSelected);
+            }
+        });
+
+        return createNewFolder;
     }
 
     /**

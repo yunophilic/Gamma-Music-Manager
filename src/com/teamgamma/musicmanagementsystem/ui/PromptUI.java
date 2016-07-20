@@ -34,6 +34,7 @@ import javafx.util.Duration;
 public class PromptUI {
     private static final String WELCOME_TITLE = "Welcome!";
     private static final String RENAME_LIBRARY_TITLE = "Rename Library";
+    private static final String CREATE_NEW_FOLDER_TITLE = "Create New Folder";
     private static final String RENAME_MEDIA_TITLE = "Rename Media File";
     private static final String CREATE_PLAYLIST_TITLE = "Create New Playlist";
     private static final String ADD_PLAYLIST_TITLE = "Add Playlist";
@@ -44,6 +45,7 @@ public class PromptUI {
     private static final String FILE_NOT_FOUND_TITLE = "File Not Found";
     private static final String COPY_ERROR_TITLE = "Copy Error";
     private static final String RENAME_ERROR_TITLE = "Rename Error";
+    private static final String CREATE_FOLDER_ERROR_TITLE = "Folder Error";
     private static final String UNEXPECTED_CRASH_TITLE = "Unexpected Crash";
     private static final String FILE_EXISTS_TITLE = "File Name Exists";
     private static final String EDIT_METADATA_TITLE = "Edit Song Metadata";
@@ -53,6 +55,7 @@ public class PromptUI {
     private static final String DELETE_MEDIA_TITLE = "Delete Media File";
     private static final String PLAYLIST_EMPTY_HEADER = "Please enter at least one character for the playlist name";
     private static final String RENAME_FILE_LABEL = "Rename the file to:";
+    private static final String CREATE_NEW_FOLDER_LABEL = "Folder name:";
     private static final String RENAME_FOLDER_LABEL = "Rename the folder to:";
     private static final String RENAME_LIBRARY_LABEL = "Rename the library to:";
     private static final String INVALID_MEDIA = "Invalid Media File";
@@ -226,6 +229,16 @@ public class PromptUI {
     private static void failedToRename(File file) {
         final String BODY_MESSAGE = "The file \"" + file + "\" could not be renamed.";
         makeAlertPrompt(AlertType.ERROR, RENAME_ERROR_TITLE, null, BODY_MESSAGE);
+    }
+
+    /**
+     * Folder failed to be created
+     *
+     * @param folder created
+     */
+    private static void failedToCreate(File folder) {
+        final String BODY_MESSAGE = "The file \"" + folder + "\" could not be created.";
+        makeAlertPrompt(AlertType.ERROR, CREATE_FOLDER_ERROR_TITLE, null, BODY_MESSAGE);
     }
 
     /**
@@ -656,6 +669,82 @@ public class PromptUI {
     }
 
     /**
+     * Creates folder. Keeps track of "(n)" suffix of folder if more duplicates found, and increments n
+     * (shown as the default value for the text box)
+     *
+     * @param duplicate folder
+     * @return the path of the renamed file, null if user cancels
+     */
+    private static Path createFileDuplicate(File duplicate) {
+        String folderName = duplicate.getName();
+        File duplicateWithIndex = incrementDuplicateFolderIndex(duplicate, folderName);
+
+        TextInputDialog dialog = new TextInputDialog(duplicateWithIndex.getName());
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(PROMPT_ICON);
+        dialog.setTitle(NAME_ALREADY_EXISTS);
+        setDialogIcon(dialog, "rename-folder-exists.png");
+        dialog.setHeaderText("The folder name \"" + duplicate.getName() + "\" already exists in the selected directory!");
+        dialog.setContentText(CREATE_NEW_FOLDER_LABEL);
+
+        Optional<String> result = dialog.showAndWait();
+
+        Path source = createFolder(duplicate.getParentFile(), result);
+        if (source != null) {
+            return source;
+        }
+        return null;
+    }
+
+    /**
+     * Create folder after invalid character is found on previous name attempt
+     *
+     * @param folderToRename file to rename
+     * @return the path of the renamed file, null if user cancels
+     */
+    private static Path createFolderInvalidChar(File folderToRename) {
+        TextInputDialog dialog = new TextInputDialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(PROMPT_ICON);
+        dialog.setTitle(CREATE_NEW_FOLDER_TITLE);
+        dialog.setHeaderText("The folder name cannot contain any of the following characters:\n" +
+                "< > : \" / \\ | ? *");
+        setDialogIcon(dialog, "create-Folder.png");
+        dialog.setContentText(CREATE_NEW_FOLDER_LABEL);
+
+        Optional<String> result = dialog.showAndWait();
+
+        Path source = createFolder(folderToRename, result);
+        if (source != null) {
+            return source;
+        }
+        return null;
+    }
+
+    /**
+     * Dialog that creates a new folder within a directory
+     *
+     * @param parentFolder parent folder that has been selected
+     * @return the path of the folder created,  null if user cancels
+     */
+    public static Path createNewFolder(File parentFolder) {
+        TextInputDialog dialog = new TextInputDialog();
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(PROMPT_ICON);
+        dialog.setTitle(CREATE_NEW_FOLDER_TITLE);
+        dialog.setHeaderText(null);
+        setDialogIcon(dialog, "create-folder.png");
+        dialog.setContentText(CREATE_NEW_FOLDER_LABEL);
+        Optional<String> result = dialog.showAndWait();
+
+        Path source = createFolder(parentFolder, result);
+        if (source != null) {
+            return source;
+        }
+        return null;
+    }
+
+    /**
      * Check for illegal character
      *
      * @param toExamine file name to examine
@@ -780,7 +869,7 @@ public class PromptUI {
     }
 
     /**
-     * Prompt to create new playlist
+     * Prompt to createFolder new playlist
      *
      * @return playlistName, otherwise null if user clicks cancel
      */
@@ -934,7 +1023,7 @@ public class PromptUI {
     }
 
     /**
-     * Prompt to create new playlist after previous attempt has blank text box
+     * Prompt to createFolder new playlist after previous attempt has blank text box
      *
      * @return playlistName, otherwise null if user clicks cancel
      */
@@ -1143,6 +1232,38 @@ public class PromptUI {
             }
         } catch (IOException e) {
             failedToRename(fileToRename);
+        }
+        return null;
+    }
+
+    /**
+     * Creates a folder in the selected directory
+     *
+     * @param parentFolder parent folder that has been selected
+     * @param result       button result
+     * @return null if failed to create
+     */
+    private static Path createFolder(File parentFolder, Optional<String> result) {
+        try {
+            if (result.isPresent()) {
+                File newName = new File(parentFolder + File.separator + result.get());
+                // If user leaves name empty, automatically create new folders with name "New Folder" + index (n) if exists
+                if (result.get().isEmpty()) {
+                    newName = new File(parentFolder + File.separator + "New Folder");
+                    int index = 2;
+                    while (newName.exists()) {
+                        newName = new File(parentFolder + File.separator + "New Folder (" + index + ")");
+                        index++;
+                    }
+                } else if (newName.exists()) {
+                    return createFileDuplicate(newName);
+                } else if (containsIllegalChar(result.get())) {
+                    return createFolderInvalidChar(parentFolder);
+                }
+                return Files.createDirectory(Paths.get(newName.getAbsolutePath()));
+            }
+        } catch (IOException e) {
+            failedToCreate(parentFolder);
         }
         return null;
     }
