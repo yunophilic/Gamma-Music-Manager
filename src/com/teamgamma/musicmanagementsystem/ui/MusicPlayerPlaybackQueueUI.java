@@ -25,6 +25,8 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
     // Constants
     public static final String QUEUING_HEADER = "Playing Next";
     public static final String REMOVE_SONG_FROM_QUEUE_MENU_MESSAGE = "Remove Song From Queue";
+    public static final String BRIGHT_BACKGROUND_COLOR = "-fx-background-color: #65EFFF";
+    public static final Color BRIGHT_BACKGROUND_COLOR_OBJ = Color.rgb(101, 239, 255);
 
     private MusicPlayerManager m_manager;
 
@@ -37,11 +39,14 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
         m_manager = manager;
 
         TitledPane queuingList = UserInterfaceUtils.createTitlePane(QUEUING_HEADER, m_manager.getPlayingQueue(),
-                createPlaybackQueueAction(), "-fx-background-color: yellow");
+                createPlaybackQueueAction(), BRIGHT_BACKGROUND_COLOR);
 
-        queuingList.setStyle("-fx-background-color: yellow");
+        queuingList.setStyle(BRIGHT_BACKGROUND_COLOR);
 
-        this.setBackground(new Background(new BackgroundFill(Color.YELLOW, null, null)));
+        Background background = new Background(new BackgroundFill(BRIGHT_BACKGROUND_COLOR_OBJ, null, null));
+        queuingList.setBackground(background);
+        this.setBackground(background);
+
         setQueuingDragActions(manager, songManager, queuingList);
 
         this.getPanes().add(queuingList);
@@ -49,7 +54,7 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
         manager.registerQueingObserver(
             () -> Platform.runLater(
                 () -> queuingList.setContent(UserInterfaceUtils.createUIList(manager.getPlayingQueue(),
-                        createPlaybackQueueAction(), "-fx-background: yellow"))
+                        createPlaybackQueueAction(), BRIGHT_BACKGROUND_COLOR))
             )
         );
 
@@ -122,7 +127,7 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
                 }
             });
 
-            row.setStyle("-fx-background-color: yellow");
+            row.setStyle(BRIGHT_BACKGROUND_COLOR);
             return row;
         };
     }
