@@ -5,6 +5,7 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
+import com.teamgamma.musicmanagementsystem.util.FileActions;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -111,12 +112,12 @@ public class PlaylistUI extends VBox {
             updateTable();
         });
 
-        m_model.addLibraryObserver((action, file) -> {
+        m_model.addLibraryObserver((FileActions fileActions) -> {
             clearTable();
             updateTable();
         });
 
-        m_model.addFileObserver((action, file) -> {
+        m_model.addFileObserver((FileActions fileActions) -> {
             clearTable();
             updateTable();
         });
@@ -611,8 +612,10 @@ public class PlaylistUI extends VBox {
                     int selectedSongIndex = row.getIndex();
                     if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
                         Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-                        selectedPlaylist.setM_currentSongIndex(selectedSongIndex);
-                        m_musicPlayerManager.playPlaylist(selectedPlaylist);
+                        if (selectedPlaylist.isValid(selectedSongIndex)) {
+                            selectedPlaylist.setM_currentSongIndex(selectedSongIndex);
+                            m_musicPlayerManager.playPlaylist(selectedPlaylist);
+                        }
                     } else if (event.getButton() == MouseButton.PRIMARY) {
                         m_contextMenu.hide();
                     } else if (event.getButton() == MouseButton.SECONDARY) {
@@ -656,7 +659,6 @@ public class PlaylistUI extends VBox {
      * Function to generate a context menu for the song specifed by the index of where it is in the playlist.
      *
      * @param selectedSongIndex The index of the song in the playlist.
-     *
      * @return A context menu for that will work on the song at the index
      */
     private ContextMenu generateContextMenu(int selectedSongIndex) {

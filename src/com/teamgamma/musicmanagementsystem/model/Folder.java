@@ -7,11 +7,11 @@ import java.io.File;
  */
 public class Folder implements Item {
     private File m_file;
-    private boolean m_isRootPath;
+    private boolean m_isRoot;
 
     public Folder(File file, boolean isRootPath) {
         m_file = file;
-        m_isRootPath = isRootPath;
+        m_isRoot = isRootPath;
     }
 
     @Override
@@ -26,12 +26,17 @@ public class Folder implements Item {
 
     @Override
     public boolean isRootItem() {
-        return m_isRootPath;
+        return m_isRoot;
+    }
+
+    @Override
+    public void setAsRootItem() {
+        m_isRoot = true;
     }
 
     @Override
     public String toString() {
-        if (m_isRootPath) {
+        if (m_isRoot) {
             return m_file.getAbsolutePath();
         } else {
             return m_file.getName();

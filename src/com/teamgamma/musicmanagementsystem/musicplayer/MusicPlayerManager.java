@@ -55,10 +55,8 @@ public class MusicPlayerManager {
         m_databaseManager = databaseManager;
 
         m_playingQueue = new ArrayList<>();
-        reterievePlaybackQueueFromDB();
 
         m_songHistory = new ArrayList<>();
-        loadHistory();
 
         m_newSongObservers = new ArrayList<>();
         m_playbackObservers = new ArrayList<>();
@@ -524,30 +522,15 @@ public class MusicPlayerManager {
     /**
      * Helper fucntion to reterieve what ever is in the playback queue in the DB and set it to be what is in the playback queue.
      */
-    private void reterievePlaybackQueueFromDB() {
-        List<String> queuedSongs = m_databaseManager.getPlaybackQueue();
-        if (queuedSongs == null) {
-            // Nothing in the DB.
-            return;
-        }
-        List<Song> queueFromDB = new ArrayList<>();
-        for (int i = 0; i < queuedSongs.size(); i++) {
-            File newFile = new File(queuedSongs.get(i));
-            Song song = new Song(newFile);
-            queueFromDB.add(song);
-        }
-        m_playingQueue = queueFromDB;
+    public void loadPlaybackQueue(List<Song> songs) {
+        m_playingQueue.addAll(songs);
     }
 
     /**
      * Function to load songs that are from the history that is retrieved from the DB.
      */
-    private void loadHistory() {
-        List<String> songsFromHistory = m_databaseManager.getHistory();
-        for (String songPath : songsFromHistory){
-            File newFile = new File(songPath);
-            m_songHistory.add(new Song(newFile));
-        }
+    public void loadHistory(List<Song> songs) {
+        m_songHistory.addAll(songs);
 
         // TODO: Will have to set the history index to actual location that was left off
         if (!m_songHistory.isEmpty()) {
@@ -721,7 +704,9 @@ public class MusicPlayerManager {
     /**
      * Function to unload a song from the music player manager. Should set the player back to an inital state.
      */
-    public void unloadSong() {m_currentSong = null;}
+    public void unloadSong() {
+        m_currentSong = null;
+    }
 
     /**
      * Function to get the current song in the playlist that is loaded.

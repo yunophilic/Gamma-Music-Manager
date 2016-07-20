@@ -2,6 +2,8 @@ package com.teamgamma.musicmanagementsystem.model;
 
 import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.util.FileManager;
+
+import com.teamgamma.musicmanagementsystem.util.*;
 import javafx.scene.control.TreeItem;
 
 import java.io.File;
@@ -49,6 +51,9 @@ public class SongManager {
     private Action m_libraryAction;
     private Action m_libraryFileAction;
     private Action m_rightPanelFileAction;
+
+    // Empty file action
+    private final EmptyFileAction m_emptyFileAction = new EmptyFileAction();
 
     public SongManager() {
         m_libraryObservers = new ArrayList<>();
@@ -115,7 +120,8 @@ public class SongManager {
 
     private boolean isInLibrary(String directoryPath) {
         for (Library library : m_libraries) {
-            if (library.getRootDirPath().equals(directoryPath)) {
+            String libRootDirPath = library.getRootDirPath();
+            if (directoryPath.equals(libRootDirPath) || directoryPath.contains(libRootDirPath)) {
                 return true;
             }
         }
@@ -163,6 +169,9 @@ public class SongManager {
         }
 
         m_copyDest = dest;
+
+        FileActions copyFileActions = new ConcreteFileActions(Action.PASTE, null);
+        notifyFileObservers(copyFileActions);
     }
 
     /**
@@ -176,7 +185,9 @@ public class SongManager {
         FileManager.moveFile(fileToMove, destDir);
 
         m_moveDest = destDir;
-        notifyFileObservers(Action.DROP, null);
+
+        FileActions moveFileAction = new ConcreteFileActions(Action.DROP, null);
+        notifyFileObservers(moveFileAction);
     }
 
     /**
@@ -198,7 +209,9 @@ public class SongManager {
         }
 
         m_deletedFile = fileToDelete;
-        notifyFileObservers(Action.DELETE, fileToDelete);
+
+        FileActions deleteFileAction = new ConcreteFileActions(Action.DELETE, fileToDelete);
+        notifyFileObservers(deleteFileAction);
 
         // Clear file to delete buffer
         m_deletedFile = null;
@@ -206,7 +219,8 @@ public class SongManager {
 
     /**
      * Get list of songs in a certain library within the library list
-     * @param library
+     *
+     * @param library specified library
      * @return list of songs
      */
     private List<Song> getSongs(Library library) {
@@ -214,7 +228,39 @@ public class SongManager {
     }
 
     /**
+     * Get all songs in the system
+     *
+     * @return list of all songs
+     */
+    public List<Song> getAllSongs() {
+        List<Song> songs = new ArrayList<>();
+        for (Library library : m_libraries) {
+            songs.addAll(library.getSongs());
+        }
+        return songs;
+    }
+
+    /**
+     * Get song object in the model based on the specified file
+     *
+     * @return song object in the model
+     */
+    public Song getSong(File file) {
+        for (Library library : m_libraries) {
+            TreeItem<Item> node = library.search(file);
+            if (node != null) {
+                Item item = node.getValue();
+                if (item instanceof Song) {
+                    return (Song) item;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Search node from all libraries based on the specified item
+     *
      * @param file The item to search on
      * @return node containing the item, or null if not founr
      */
@@ -229,6 +275,7 @@ public class SongManager {
 
     /**
      * Get songs to display in center panel
+     *
      * @return list of songs
      */
     public List<Song> getCenterPanelSongs() {
@@ -366,17 +413,17 @@ public class SongManager {
      */
     public void renameFile(File fileToRename, Path newPath) {
         m_renamedFile = new File(newPath.toString());
-        notifyFileObservers(Action.RENAME, fileToRename);
+        FileActions renameFileAction = new ConcreteFileActions(Action.RENAME, fileToRename);
+        notifyFileObservers(renameFileAction);
     }
 
     /**
      * Notify file changes detected from File system
      *
-     * @param action
-     * @param file
+     * @param fileActions
      */
-    public void fileSysChanged(Action action, File file) {
-        notifyFileObservers(action, file);
+    public void fileSysChanged(FileActions fileActions) {
+        notifyFileObservers(fileActions);
     }
 
     /**
@@ -528,23 +575,23 @@ public class SongManager {
     }
 
     public void notifyLibraryObservers() {
-        notifySpecifiedFileObservers(m_libraryObservers, Action.NONE, null);
+        notifySpecifiedFileObservers(m_libraryObservers, m_emptyFileAction);
     }
 
     public void notifyCenterFolderObservers() {
-        notifySpecifiedFileObservers(m_centerFolderObservers, Action.NONE, null);
+        notifySpecifiedFileObservers(m_centerFolderObservers, m_emptyFileAction);
     }
 
     public void notifyRightFolderObservers() {
-        notifySpecifiedFileObservers(m_rightFolderObservers, Action.NONE, null);
+        notifySpecifiedFileObservers(m_rightFolderObservers, m_emptyFileAction);
     }
 
-    public void notifyFileObservers(Action action, File file) {
-        notifySpecifiedFileObservers(m_fileObservers, action, file);
+    public void notifyFileObservers(FileActions fileActions) {
+        notifySpecifiedFileObservers(m_fileObservers, fileActions);
     }
 
     public void notifyLeftPanelOptionsObservers() {
-        notifySpecifiedFileObservers(m_leftPanelOptionsObservers, Action.NONE, null);
+        notifySpecifiedFileObservers(m_leftPanelOptionsObservers, m_emptyFileAction);
     }
 
     public void notifyPlaylistSongsObservers() {
@@ -555,9 +602,9 @@ public class SongManager {
         notifySpecifiedPlaylistObservers(m_playlistObservers);
     }
 
-    private void notifySpecifiedFileObservers(List<FileObserver> observers, Action action, File file) {
+    private void notifySpecifiedFileObservers(List<FileObserver> observers, FileActions fileActions) {
         for (FileObserver observer : observers) {
-            observer.changed(action, file);
+            observer.changed(fileActions);
         }
     }
 
