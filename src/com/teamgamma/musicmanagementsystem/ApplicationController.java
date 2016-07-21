@@ -31,6 +31,10 @@ import java.util.logging.Logger;
  * Class to wrap all components together.
  */
 public class ApplicationController extends Application {
+    private static final double MINI_MODE_WIDTH = 367;
+    private static final double MINI_MODE_HEIGHT = 400;
+    private static final double ORIGINAL_WINDOW_WIDTH = 1200;
+    private static final double ORIGINAL_WINDOW_HEIGHT = 650;
     private static final double MIN_WINDOW_WIDTH = 0;
     private static final double MIN_WINDOW_HEIGHT = 0;
     private static final String APP_TITLE = "Gamma Music Manager";
@@ -43,9 +47,6 @@ public class ApplicationController extends Application {
     private FilePersistentStorage m_filePersistentStorage;
     private MainUI m_rootUI;
     private Stage stageCopy;
-    private MenuUI m_menu;
-    private ApplicationController applicationController = this;
-
 
     /**
      * Load previously saved session states
@@ -190,8 +191,8 @@ public class ApplicationController extends Application {
         final int CLOSING_WINDOW_HEIGHT = 80;
         watcher.stopWatcher();
 
-        this.miniOff();
-        m_rootUI.miniOff();
+        this.minimodeTurnOff();
+        m_rootUI.minimodeTurnOff();
 
         ProgressBar progressBar = new ProgressBar();
         BorderPane closingWindow = new BorderPane();
@@ -257,8 +258,7 @@ public class ApplicationController extends Application {
                               m_filePersistentStorage,
                               libraryUIExpandedPaths,
                               rightPanelExpandedPaths,
-                              m_menu,
-                              applicationController
+                              this
                               );
     }
 
@@ -298,15 +298,17 @@ public class ApplicationController extends Application {
         }
     }
 
-    // When minimode is on
-    public void miniOn() {
-        stageCopy.setHeight(400);
-        stageCopy.setWidth(367);
+    /* Toggles minimode on, shrinks window
+    */
+    public void minimodeTurnOn() {
+        stageCopy.setHeight(MINI_MODE_HEIGHT);
+        stageCopy.setWidth(MINI_MODE_WIDTH);
     }
 
-    // When minimode is off
-    public void miniOff() {
-        stageCopy.setWidth(1200);
-        stageCopy.setHeight(650);
+    /* Toggles minimode off, re-expands window to original size
+    */
+    public void minimodeTurnOff() {
+        stageCopy.setWidth(ORIGINAL_WINDOW_WIDTH);
+        stageCopy.setHeight(ORIGINAL_WINDOW_HEIGHT);
     }
 }

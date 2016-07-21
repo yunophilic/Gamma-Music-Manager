@@ -4,13 +4,14 @@ import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.*;
 
-
 import javafx.scene.control.*;
 
 /**
  * Class for the Menu Bar
  */
 public class MenuUI extends MenuBar{
+    public static boolean miniCheck = false;
+    private static final String MINI_MODE = "Minimode";
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
     private ApplicationController m_applicationController;
@@ -20,11 +21,9 @@ public class MenuUI extends MenuBar{
         super();
         m_model = model;
         m_databaseManager = databaseManager;
-
-        setMenu(filePersistentStorage);
-
         m_main = mainUI;
         m_applicationController = applicationController;
+        setMenu(filePersistentStorage);
     }
 
     private void setMenu(FilePersistentStorage filePersistentStorage) {
@@ -144,22 +143,21 @@ public class MenuUI extends MenuBar{
 
     // Toggles minimode on or off
     private Menu miniMode() {
-        Menu minimodeButton = new Menu("Minimode");
-        CheckMenuItem mini = new CheckMenuItem("Minimode!");
+        Menu minimodeButton = new Menu(MINI_MODE);
+        CheckMenuItem mini = new CheckMenuItem(MINI_MODE + "!");
         mini.setOnAction(event -> {
             System.out.println("Clicked minimode");
-            if (Boolean.miniCheck == false) {
-                Boolean.miniCheck = true;
-                m_applicationController.miniOn();
-                m_main.miniOn();
+            if (miniCheck == false) {
+                miniCheck = true;
+                m_applicationController.minimodeTurnOn();
+                m_main.minimodeTurnOn();
             }
 
-
-            else if (Boolean.miniCheck == true){
+            else if (miniCheck == true){
                 System.out.println("Clicked minimode");
-                Boolean.miniCheck = false;
-                m_applicationController.miniOff();
-                m_main.miniOff();
+                miniCheck = false;
+                m_applicationController.minimodeTurnOff();
+                m_main.minimodeTurnOff();
             }
 
         });

@@ -25,26 +25,19 @@ public class MainUI extends BorderPane {
     private FilePersistentStorage m_filePersistentStorage;
     private LibraryUI m_libraryUI;
     private DynamicTreeViewUI m_rightFilePane;
-    private MainUI m_main = this;
-    private MenuUI m_menuUI;
     private ApplicationController m_applicationController;
-    private BorderPane leftPane;
-    private BorderPane centerPane;
-    private BorderPane rightPane;
+    private BorderPane m_leftPane;
+    private BorderPane m_centerPane;
+    private BorderPane m_rightPane;
+    private List<String> m_library;
+    private List<String> m_dynamicTree;
 
-    private List<String> library;
-    private List<String> dynamicTree;
-
-
-
-
-public MainUI(SongManager model,
+    public MainUI(SongManager model,
                   MusicPlayerManager musicPlayerManager,
                   DatabaseManager databaseManager,
                   FilePersistentStorage filePersistentStorage,
                   List<String> libraryExpandedPaths,
                   List<String> dynamicTreeViewExpandedPaths,
-                  MenuUI menuUI,
                   ApplicationController applicationController) {
         super();
 
@@ -53,10 +46,9 @@ public MainUI(SongManager model,
         m_databaseManager = databaseManager;
         m_filePersistentStorage = filePersistentStorage;
         m_applicationController = applicationController;
-        m_menuUI = menuUI;
 
-        library = libraryExpandedPaths;
-        dynamicTree = dynamicTreeViewExpandedPaths;
+        m_library = libraryExpandedPaths;
+        m_dynamicTree = dynamicTreeViewExpandedPaths;
 
         this.setLeft(leftPane(libraryExpandedPaths));
         this.setRight(rightPane());
@@ -68,10 +60,10 @@ public MainUI(SongManager model,
     private Node leftPane(List<String> libraryExpandedPaths) {
         m_libraryUI = new LibraryUI(m_model, m_musicPlayerManager, m_databaseManager, libraryExpandedPaths);
 
-        leftPane = new BorderPane();
-        leftPane.setCenter(m_libraryUI);
-        leftPane.setPrefWidth(250);
-        return leftPane;
+        m_leftPane = new BorderPane();
+        m_leftPane.setCenter(m_libraryUI);
+        m_leftPane.setPrefWidth(250);
+        return m_leftPane;
     }
 
     private Node rightPane() {
@@ -83,27 +75,26 @@ public MainUI(SongManager model,
                 m_filePersistentStorage));
         musicPlayerWrapper.getChildren().add(new MusicPlayerPlaybackQueueUI(m_musicPlayerManager, m_model));
 
-        rightPane = new BorderPane();
-        rightPane.setCenter(playlistUI);
-        rightPane.setBottom(musicPlayerWrapper);
-        rightPane.setPrefWidth(350);
+        m_rightPane = new BorderPane();
+        m_rightPane.setCenter(playlistUI);
+        m_rightPane.setBottom(musicPlayerWrapper);
+        m_rightPane.setPrefWidth(350);
 
-        return rightPane;
+        return m_rightPane;
     }
 
     private Node topPane() {
-        return new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, m_main, m_applicationController);
-}
+        return new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, this, m_applicationController);
+    }
 
     private Node bottomPane() {
         return new BorderPane();
     }
 
     private Node centerPane(List<String> dynamicTreeViewExpandedPaths) {
-        centerPane = new BorderPane();
-
-        centerPane.setCenter(createFileExplorer(dynamicTreeViewExpandedPaths));
-        return centerPane;
+        m_centerPane = new BorderPane();
+        m_centerPane.setCenter(createFileExplorer(dynamicTreeViewExpandedPaths));
+        return m_centerPane;
     }
 
     private Node createFileExplorer(List<String> dynamicTreeViewExpandedPaths) {
@@ -128,16 +119,17 @@ public MainUI(SongManager model,
         return m_rightFilePane.getExpandedPaths();
     }
 
-    public void miniOn() {
+    public void minimodeTurnOn() {
         this.setLeft(rightPane());
     }
-    public void miniOff() {
-        this.setLeft(leftPane(library));
+
+    public void minimodeTurnOff() {
+        this.setLeft(leftPane(m_library));
         this.setRight(rightPane());
-        this.setCenter(centerPane(dynamicTree));
+        this.setCenter(centerPane(m_dynamicTree));
         this.setTop(topPane());
         this.setBottom(bottomPane());
-        centerPane.setVisible(true);
-        rightPane.setVisible(true);
+        m_centerPane.setVisible(true);
+        m_rightPane.setVisible(true);
     }
 }
