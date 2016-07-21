@@ -23,6 +23,9 @@ public class FileTreeUtils {
      * Recursively create tree items from the files in a directory and return a reference to the root item,
      * Set nodes in expandedPaths to expanded state
      *
+     * @param file current file
+     * @param dirPath file path of root node
+     * @param expandedPaths list of all expanded paths
      * @return TreeItem<Item> to the root item
      */
     public static TreeItem<Item> generateTreeItems(File file, String dirPath, List<String> expandedPaths) {
