@@ -220,7 +220,9 @@ public class FileTreeUtils {
 
                 TreeItem<Item> destParentNode = searchTreeItem(tree.getRoot(), model.getM_moveDest().getAbsolutePath());
 
-                if(destParentNode != null && !(destParentNode.getValue() instanceof DummyItem)) {
+                if (destParentNode == null) {
+                    deleteNode(nodeToMove);
+                } else if(!(destParentNode.getValue() instanceof DummyItem)) {
                     moveNode(nodeToMove, destParentNode);
                 }
                 break;
@@ -249,6 +251,21 @@ public class FileTreeUtils {
                 throw new IOException("Invalid file action!");
             }
         }
+    }
+
+    /**
+     * Update items of the tree depending on the action
+     *
+     * @param model the model
+     * @param rootNode the root node of tree to be updated
+     * @param fileAction the file action
+     * @param changedFile the changed file
+     *
+     * @throws IOException
+     */
+    public static void updateTreeItems(SongManager model, TreeItem<Item> rootNode, Action fileAction, File changedFile) throws IOException {
+        TreeView<Item> tree = new TreeView<>(rootNode);
+        updateTreeItems(model, tree, fileAction, changedFile);
     }
 
     /**
@@ -430,8 +447,66 @@ public class FileTreeUtils {
         }
 
         List<TreeItem<Item>> children = node.getChildren();
-        for(TreeItem<Item> child : children) {
+        for (TreeItem<Item> child : children) {
             setTreeExpandedState(child, expandedPaths);
+        }
+    }
+
+    /**
+     * Hide files in the tree by removing the file nodes
+     *
+     * @param tree
+     */
+    public static void hideFiles(TreeView<Item> tree) {
+        List<TreeItem<Item>> nodesToRemove = new ArrayList<>();
+        for (TreeItem<Item> child : tree.getRoot().getChildren()) {
+            nodesToRemove.addAll(getFileNodes(child));
+        }
+        System.out.println("FILE NODES FOUND: " + nodesToRemove);
+
+        for (int i = 0; i < nodesToRemove.size(); i++) {
+            TreeItem<Item> node = nodesToRemove.get(i);
+            deleteNode(node);
+        }
+    }
+
+    /**
+     * Find all song nodes (leaves) in the tree
+     *
+     * @param node
+     * @return a list of TreeItem nodes that contain a Song
+     */
+    private static List<TreeItem<Item>> getFileNodes(TreeItem<Item> node) {
+        List<TreeItem<Item>> nodesToRemove = new ArrayList<>();
+        for (TreeItem<Item> child: node.getChildren()) {
+            if (child.getValue().getFile().isDirectory()){
+                nodesToRemove.addAll(getFileNodes(child));
+            } else {
+                nodesToRemove.add(child);
+            }
+        }
+
+        return nodesToRemove;
+    }
+
+    /**
+     * Show files in the tree by adding the file nodes
+     *
+     * @param uiRootNode
+     * @param modelNode
+     */
+    public static void showFiles(TreeItem<Item> uiRootNode, TreeItem<Item> modelNode) {
+        for (TreeItem<Item> modelChild: modelNode.getChildren()) {
+            if (modelChild.getValue().getFile().isDirectory()) {
+                showFiles(uiRootNode, modelChild);
+            } else {
+                if (searchTreeItem(uiRootNode, modelChild.getValue().getFile().getAbsolutePath()) == null) {
+                    TreeItem<Item> newUINode = new TreeItem<>(modelChild.getValue());
+                    newUINode.setGraphic(new ImageView(SONG_ICON_URL));
+                    TreeItem<Item> uiNode = searchTreeItem(uiRootNode, modelNode.getValue().getFile().getAbsolutePath());
+                    uiNode.getChildren().add(newUINode);
+                }
+            }
         }
     }
 }

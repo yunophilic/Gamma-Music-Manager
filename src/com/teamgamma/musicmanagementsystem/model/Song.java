@@ -183,11 +183,6 @@ public class Song implements Item {
     }
 
     @Override
-    public String toString() {
-        return m_file.getName();
-    }
-
-    @Override
     public boolean equals(Object object) {
         if (object == null) {
             return false;
