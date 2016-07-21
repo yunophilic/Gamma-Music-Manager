@@ -467,6 +467,12 @@ public class FileTreeUtils {
         }
     }
 
+    /**
+     * Find all song nodes (leaves) in the tree
+     *
+     * @param node
+     * @return a list of TreeItem nodes that contain a Song
+     */
     private static List<TreeItem<Item>> getFileNodes(TreeItem<Item> node) {
         List<TreeItem<Item>> nodesToRemove = new ArrayList<>();
         for (TreeItem<Item> child: node.getChildren()) {
