@@ -184,8 +184,9 @@ public class SongManager {
      * Update the files in the model file tree
      *
      * @param fileActions the file action
+     * @throws IOException
      */
-    private void updateFiles(FileActions fileActions) throws IOException{
+    private void updateFilesInFileTree(FileActions fileActions) throws IOException{
         for (Pair<Action, File> fileAction : fileActions) {
             Action action = fileAction.getKey();
             if (fileAction != null && action != Action.NONE) {
@@ -214,7 +215,7 @@ public class SongManager {
 
         FileActions copyFileActions = new ConcreteFileActions(Action.PASTE, null);
 
-        updateFiles(copyFileActions);
+        updateFilesInFileTree(copyFileActions);
 
         notifyFileObservers(copyFileActions);
     }
@@ -233,7 +234,7 @@ public class SongManager {
 
         FileActions moveFileAction = new ConcreteFileActions(Action.DROP, null);
 
-        updateFiles(moveFileAction);
+        updateFilesInFileTree(moveFileAction);
 
         notifyFileObservers(moveFileAction);
     }
@@ -260,7 +261,7 @@ public class SongManager {
 
         FileActions deleteFileAction = new ConcreteFileActions(Action.DELETE, fileToDelete);
 
-        updateFiles(deleteFileAction);
+        updateFilesInFileTree(deleteFileAction);
 
         notifyFileObservers(deleteFileAction);
 
@@ -465,17 +466,17 @@ public class SongManager {
     public void renameFile(File fileToRename, Path newPath) throws IOException {
         m_renamedFile = new File(newPath.toString());
         FileActions renameFileAction = new ConcreteFileActions(Action.RENAME, fileToRename);
-        updateFiles(renameFileAction);
+        updateFilesInFileTree(renameFileAction);
         notifyFileObservers(renameFileAction);
     }
 
     /**
-     * Notify file changes detected from File system
+     * Update model with changes from the file system and notify the observers
      *
      * @param fileActions
      */
-    public void fileSysChanged(FileActions fileActions) throws IOException {
-        updateFiles(fileActions);
+    public void updateAndNotifyFileSysChange(FileActions fileActions) throws IOException {
+        updateFilesInFileTree(fileActions);
 
         notifyFileObservers(fileActions);
     }

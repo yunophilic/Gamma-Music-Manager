@@ -51,7 +51,7 @@ public class LibraryUI extends StackPane {
             m_tree = buildTreeView(libraries);
             this.getChildren().add(m_tree);
             setTreeCellFactory();
-            hideShowFiles();
+            setFileVisibility();
         }
     }
 
@@ -119,24 +119,23 @@ public class LibraryUI extends StackPane {
         m_model.addLibraryObserver((FileActions fileActions) -> {
             System.out.println("Library changed in treeview");
             updateLibraryTrees(fileActions);
-            hideShowFiles();
+            setFileVisibility();
         });
         m_model.addFileObserver((FileActions fileActions) -> {
             System.out.println("File changed in treeview");
             updateFiles(fileActions);
-            hideShowFiles();
+            setFileVisibility();
         });
         m_model.addLeftPanelOptionsObserver((FileActions fileActions) -> {
             System.out.println("Left panel options in treeview");
-            //updateFiles(fileActions);
-            hideShowFiles();
+            setFileVisibility();
         });
     }
 
     /**
-     * Hide or show files depending on value of
+     * Hide or show files depending the on left panel options
      */
-    private void hideShowFiles() {
+    private void setFileVisibility() {
         if (m_model.getM_menuOptions().getM_leftPanelShowFoldersOnly()) {
             FileTreeUtils.hideFiles(m_tree);
         } else {

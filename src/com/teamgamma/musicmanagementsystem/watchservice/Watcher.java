@@ -79,7 +79,7 @@ public class Watcher {
                 if (m_watchKey == null) {
                     Platform.runLater(() -> {
                         try {
-                            m_model.fileSysChanged(fileActions);
+                            m_model.updateAndNotifyFileSysChange(fileActions);
                         } catch (IOException ex) {
                             PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
                             ex.printStackTrace();
