@@ -56,10 +56,6 @@ public class MenuUI extends MenuBar{
         Menu leftPanelSubMenu = getLeftPanelSubMenu(filePersistentStorage);
         Menu centerPanelSubMenu = getCenterPanelSubMenu(filePersistentStorage);
 
-        //hide left panel option for now
-        //leftPanelSubMenu.setVisible(false);
-        //leftPanelSubMenu.setDisable(true);
-
         menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu);
         return menuOptions;
     }

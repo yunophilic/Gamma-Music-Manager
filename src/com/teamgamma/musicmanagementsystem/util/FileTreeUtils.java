@@ -461,12 +461,6 @@ public class FileTreeUtils {
         }
         System.out.println("FILE NODES FOUND: " + nodesToRemove);
 
-        /*Iterator<TreeItem<Item>> iter = nodesToRemove.iterator();
-        while(iter.hasNext()){
-            iter.next();
-            iter.remove();
-        }*/
-
         for (int i = 0; i < nodesToRemove.size(); i++) {
             TreeItem<Item> node = nodesToRemove.get(i);
             deleteNode(node);
