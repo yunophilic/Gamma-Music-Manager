@@ -55,6 +55,8 @@ public class SongManager {
 
     // Empty file action
     private final EmptyFileAction m_emptyFileAction = new EmptyFileAction();
+
+    // TreeItem file tree
     private TreeItem<Item> m_fileTreeRoot;
 
     public SongManager() {
@@ -160,11 +162,20 @@ public class SongManager {
     }
 
 
+    /**
+     * Add a library to the model file tree
+     *
+     * @param newLibrary new library to add
+     */
     private void addLibraryToFileTree(Library newLibrary) {
         m_fileTreeRoot.getChildren().add(newLibrary.getM_treeRoot());
     }
 
-
+    /**
+     * Remove a library from the model file tree
+     *
+     * @param libraryToRemove library to remove
+     */
     private void removeLibraryFromFileTree(Library libraryToRemove) {
         m_fileTreeRoot.getChildren().remove(libraryToRemove.getM_treeRoot());
     }
@@ -558,14 +569,6 @@ public class SongManager {
 
     public void setM_menuOptions(MenuOptions options) {
         m_menuOptions = options;
-    }
-
-    public Action getM_libraryAction() {
-        return m_libraryAction;
-    }
-
-    public void setM_libraryAction(Action libraryAction) {
-        m_libraryAction = libraryAction;
     }
 
     public TreeItem<Item> getM_fileTreeRoot() {
