@@ -79,7 +79,6 @@ public class CustomEventDispatcher implements EventDispatcher {
                             }
                         }
 
-                        //FileTreeUtils.setTreeCellText(m_tree);
                         m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, m_isLeftPane));
                     }
                 }
