@@ -4,6 +4,7 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
+import com.teamgamma.musicmanagementsystem.ui.*;
 import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
 
 import javafx.application.Application;
@@ -30,8 +31,8 @@ import java.util.logging.Logger;
  * Class to wrap all components together.
  */
 public class ApplicationController extends Application {
-    private static final double MIN_WINDOW_WIDTH = 800;
-    private static final double MIN_WINDOW_HEIGHT = 400;
+    private static final double MIN_WINDOW_WIDTH = 0;
+    private static final double MIN_WINDOW_HEIGHT = 0;
     private static final String APP_TITLE = "Gamma Music Manager";
     private static final String GAMMA_LOGO_IMAGE_URL = "res" + File.separator + "gamma-logo.png";
     private static final String START_SOUND_PATH = System.getProperty("user.dir") + File.separator + "src" + File.separator + "res" + File.separator +"start-sound.mp3";
@@ -41,6 +42,10 @@ public class ApplicationController extends Application {
     private DatabaseManager m_databaseManager;
     private FilePersistentStorage m_filePersistentStorage;
     private MainUI m_rootUI;
+    private Stage stageCopy;
+    private MenuUI m_menu;
+    private ApplicationController applicationController = this;
+
 
     /**
      * Load previously saved session states
@@ -138,6 +143,7 @@ public class ApplicationController extends Application {
      */
     @Override
     public void start(Stage primaryStage) {
+        stageCopy = primaryStage;
         //disable jaudiotagger logging
 
         if (!m_databaseManager.isDatabaseFileExist()) {
@@ -183,6 +189,9 @@ public class ApplicationController extends Application {
         final int CLOSING_WINDOW_WIDTH = 400;
         final int CLOSING_WINDOW_HEIGHT = 80;
         watcher.stopWatcher();
+
+        this.miniOff();
+        m_rootUI.miniOff();
 
         ProgressBar progressBar = new ProgressBar();
         BorderPane closingWindow = new BorderPane();
@@ -247,7 +256,10 @@ public class ApplicationController extends Application {
                               m_databaseManager,
                               m_filePersistentStorage,
                               libraryUIExpandedPaths,
-                              rightPanelExpandedPaths);
+                              rightPanelExpandedPaths,
+                              m_menu,
+                              applicationController
+                              );
     }
 
     /**
@@ -284,5 +296,17 @@ public class ApplicationController extends Application {
                 System.out.println("DYNAMIC TREEVIEW EXPANDED PATH: " + path);
             }
         }
+    }
+
+    // When minimode is on
+    public void miniOn() {
+        stageCopy.setHeight(400);
+        stageCopy.setWidth(367);
+    }
+
+    // When minimode is off
+    public void miniOff() {
+        stageCopy.setWidth(1200);
+        stageCopy.setHeight(650);
     }
 }

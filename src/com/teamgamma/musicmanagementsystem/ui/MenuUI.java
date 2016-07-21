@@ -2,10 +2,10 @@ package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.model.*;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import com.teamgamma.musicmanagementsystem.*;
+
+
+import javafx.scene.control.*;
 
 /**
  * Class for the Menu Bar
@@ -13,17 +13,22 @@ import javafx.scene.control.MenuItem;
 public class MenuUI extends MenuBar{
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
+    private ApplicationController m_applicationController;
+    private MainUI m_main;
 
-    public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage){
+    public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage, MainUI mainUI, ApplicationController applicationController){
         super();
         m_model = model;
         m_databaseManager = databaseManager;
 
         setMenu(filePersistentStorage);
+
+        m_main = mainUI;
+        m_applicationController = applicationController;
     }
 
     private void setMenu(FilePersistentStorage filePersistentStorage) {
-        super.getMenus().addAll(getMenuFile(), getMenuOptions(filePersistentStorage), getPlaylistSubMenu());
+        super.getMenus().addAll(getMenuFile(), getMenuOptions(filePersistentStorage), getPlaylistSubMenu(), miniMode());
     }
 
     private Menu getMenuFile() {
@@ -135,5 +140,30 @@ public class MenuUI extends MenuBar{
 
         playlistSubMenu.getItems().addAll(createNewPlaylistMenu, removePlaylistMenu);
         return playlistSubMenu;
+    }
+
+    // Toggles minimode on or off
+    private Menu miniMode() {
+        Menu minimodeButton = new Menu("Minimode");
+        CheckMenuItem mini = new CheckMenuItem("Minimode!");
+        mini.setOnAction(event -> {
+            System.out.println("Clicked minimode");
+            if (Boolean.miniCheck == false) {
+                Boolean.miniCheck = true;
+                m_applicationController.miniOn();
+                m_main.miniOn();
+            }
+
+
+            else if (Boolean.miniCheck == true){
+                System.out.println("Clicked minimode");
+                Boolean.miniCheck = false;
+                m_applicationController.miniOff();
+                m_main.miniOff();
+            }
+
+        });
+        minimodeButton.getItems().addAll(mini);
+        return minimodeButton;
     }
 }
