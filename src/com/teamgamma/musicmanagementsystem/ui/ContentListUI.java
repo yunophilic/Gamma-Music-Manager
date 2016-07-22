@@ -189,7 +189,7 @@ public class ContentListUI extends StackPane {
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, String> lengthCol,
                                           TableColumn<Song, Integer> ratingCol) {
-        filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().getAbsolutePath()));
+        filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().getParentFile().getName()));
 
         fileNameCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFileName()));
 
