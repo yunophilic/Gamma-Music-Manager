@@ -6,7 +6,6 @@ import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
-import com.teamgamma.musicmanagementsystem.watchservice.ApplicationControllerObserver;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -119,10 +118,16 @@ public class MainUI extends BorderPane {
         return m_rightFilePane.getExpandedPaths();
     }
 
+    /** Turns on minimode. Sets leftPane to be
+     *  the rightPane (MusicPlayer)
+     */
     public void minimodeTurnOn() {
         this.setLeft(rightPane());
     }
 
+    /** Turns off minimode, resetting the panes to their
+     *  original places
+     */
     public void minimodeTurnOff() {
         this.setLeft(leftPane(m_library));
         this.setRight(rightPane());

@@ -298,14 +298,14 @@ public class ApplicationController extends Application {
         }
     }
 
-    /* Toggles minimode on, shrinks window
+    /** Toggles minimode on, shrinks window
     */
     public void minimodeTurnOn() {
         stageCopy.setHeight(MINI_MODE_HEIGHT);
         stageCopy.setWidth(MINI_MODE_WIDTH);
     }
 
-    /* Toggles minimode off, re-expands window to original size
+    /** Toggles minimode off, re-expands window to original size
     */
     public void minimodeTurnOff() {
         stageCopy.setWidth(ORIGINAL_WINDOW_WIDTH);
