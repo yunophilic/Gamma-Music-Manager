@@ -33,6 +33,7 @@ public class ContextMenuBuilder {
 
     private static final String ADD_TO_PLAYLIST = "Add to Playlist";
     private static final String ADD_TO_CURRENT_PLAYLIST = "Add to Current Playlist";
+    private static final String ADD_ALL_TO_CURRENT_PLAYLIST = "Add All to Current Playlist";
 
     private static final String REMOVE_FROM_PLAYLIST = "Remove From Playlist";
 
@@ -62,6 +63,7 @@ public class ContextMenuBuilder {
 
         MenuItem addToPlaylist = createAddToPlaylistMenuItem(model, musicPlayerManager, selectedItem);
         MenuItem addToCurrentPlaylist = createAddToCurrentPlaylistMenuItem(model, musicPlayerManager, selectedItem);
+        MenuItem addMultipleToPlaylist = createAddMultipleToPlaylistMenuItem(model, musicPlayerManager, selectedItem);
 
         MenuItem copy = createCopyMenuItem(model, selectedItem);
         MenuItem paste = createFileTreePasteMenuItem(model, selectedItem);
@@ -80,7 +82,7 @@ public class ContextMenuBuilder {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue,
                 songOptionsSeparator,
-                addToPlaylist, addToCurrentPlaylist,
+                addToPlaylist, addToCurrentPlaylist, addMultipleToPlaylist,
                 playlistOptionsSeparator,
                 copy, paste, rename, delete,
                 fileOptionsSeparator,
@@ -121,6 +123,7 @@ public class ContextMenuBuilder {
 
                 hideMenuItem(addToPlaylist);
                 hideMenuItem(addToCurrentPlaylist);
+                hideMenuItem(addMultipleToPlaylist);
 
                 hideMenuItem(songOptionsSeparator);
                 hideMenuItem(playlistOptionsSeparator);
@@ -150,6 +153,7 @@ public class ContextMenuBuilder {
 
         MenuItem addToPlaylist = createAddToPlaylistMenuItem(model, musicPlayerManager, selectedItem);
         MenuItem addToCurrentPlaylist = createAddToCurrentPlaylistMenuItem(model, musicPlayerManager, selectedItem);
+        MenuItem addMultipleToPlaylist = createAddMultipleToPlaylistMenuItem(model, musicPlayerManager, selectedItem);
 
         MenuItem editProperties = createEditPropertiesMenuItem(model, selectedItem);
 
@@ -169,7 +173,7 @@ public class ContextMenuBuilder {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setAutoHide(true);
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, songOptionsSeparator,
-                addToPlaylist, addToCurrentPlaylist, playlistOptionsSeparator,
+                addToPlaylist, addToCurrentPlaylist, addMultipleToPlaylist, playlistOptionsSeparator,
                 editProperties, editPropertiesOptionSeparator,
                 copy, paste, rename, delete, explorerOptionsSeparator, openFileLocation);
 
@@ -593,6 +597,28 @@ public class ContextMenuBuilder {
         });
 
         return addToCurrentPlaylist;
+    }
+
+
+    private static MenuItem createAddMultipleToPlaylistMenuItem(SongManager model,
+                                                               MusicPlayerManager musicPlayerManager,
+                                                               Item selectedItem) {
+        MenuItem addMultipleToPlaylist = new MenuItem(ADD_ALL_TO_CURRENT_PLAYLIST);
+
+        addMultipleToPlaylist.setOnAction(event -> {
+            if (selectedItem != null && selectedItem instanceof Song) {
+                Song selectedSong = (Song) selectedItem;
+                Playlist selectedPlaylist = model.getM_selectedPlaylist();
+                if (selectedPlaylist == null) {
+                    PromptUI.customPromptError("Error", null, "Please select a playlist!");
+                    return;
+                }
+                model.addSongToPlaylist(selectedSong, selectedPlaylist);
+                musicPlayerManager.notifyQueingObserver();
+            }
+        });
+
+        return addMultipleToPlaylist;
     }
 
     /**
