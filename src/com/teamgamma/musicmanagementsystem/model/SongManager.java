@@ -5,6 +5,7 @@ import com.teamgamma.musicmanagementsystem.util.FileManager;
 
 import com.teamgamma.musicmanagementsystem.util.*;
 import javafx.scene.control.TreeItem;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,6 +56,9 @@ public class SongManager {
     // Empty file action
     private final EmptyFileAction m_emptyFileAction = new EmptyFileAction();
 
+    // TreeItem file tree
+    private TreeItem<Item> m_fileTreeRoot;
+
     public SongManager() {
         m_libraryObservers = new ArrayList<>();
         m_centerFolderObservers = new ArrayList<>();
@@ -83,6 +87,8 @@ public class SongManager {
         m_selectedPlaylist = null;
 
         m_menuOptions = null;
+
+        m_fileTreeRoot = new TreeItem<>(new DummyItem());
     }
 
     /**
@@ -101,6 +107,7 @@ public class SongManager {
                 return false;
             }
             m_libraries.add(newLibrary);
+            addLibraryToFileTree(newLibrary);
             return true;
         } catch(NullPointerException e) {
             e.printStackTrace();
@@ -114,8 +121,10 @@ public class SongManager {
      * @param file any file in the library (can be the library root dir itself)
      * @return true if new library is added to the list, false otherwise
      */
-    public boolean removeLibrary(File file) {
-        return m_libraries.remove(getLibrary(file));
+    public void removeLibrary(File file) {
+        Library libraryToRemove = getLibrary(file);
+        m_libraries.remove(libraryToRemove);
+        removeLibraryFromFileTree(libraryToRemove);
     }
 
     private boolean isInLibrary(String directoryPath) {
@@ -152,6 +161,40 @@ public class SongManager {
         return m_libraries;
     }
 
+
+    /**
+     * Add a library to the model file tree
+     *
+     * @param newLibrary new library to add
+     */
+    private void addLibraryToFileTree(Library newLibrary) {
+        m_fileTreeRoot.getChildren().add(newLibrary.getM_treeRoot());
+    }
+
+    /**
+     * Remove a library from the model file tree
+     *
+     * @param libraryToRemove library to remove
+     */
+    private void removeLibraryFromFileTree(Library libraryToRemove) {
+        m_fileTreeRoot.getChildren().remove(libraryToRemove.getM_treeRoot());
+    }
+
+    /**
+     * Update the files in the model file tree
+     *
+     * @param fileActions the file action
+     * @throws IOException
+     */
+    private void updateFilesInFileTree(FileActions fileActions) throws IOException{
+        for (Pair<Action, File> fileAction : fileActions) {
+            Action action = fileAction.getKey();
+            if (fileAction != null && action != Action.NONE) {
+                FileTreeUtils.updateTreeItems(this, m_fileTreeRoot, action, fileAction.getValue());
+            }
+        }
+    }
+
     /**
      * Copy files in buffer to destination
      *
@@ -171,6 +214,9 @@ public class SongManager {
         m_copyDest = dest;
 
         FileActions copyFileActions = new ConcreteFileActions(Action.PASTE, null);
+
+        updateFilesInFileTree(copyFileActions);
+
         notifyFileObservers(copyFileActions);
     }
 
@@ -187,6 +233,9 @@ public class SongManager {
         m_moveDest = destDir;
 
         FileActions moveFileAction = new ConcreteFileActions(Action.DROP, null);
+
+        updateFilesInFileTree(moveFileAction);
+
         notifyFileObservers(moveFileAction);
     }
 
@@ -211,6 +260,9 @@ public class SongManager {
         m_deletedFile = fileToDelete;
 
         FileActions deleteFileAction = new ConcreteFileActions(Action.DELETE, fileToDelete);
+
+        updateFilesInFileTree(deleteFileAction);
+
         notifyFileObservers(deleteFileAction);
 
         // Clear file to delete buffer
@@ -411,18 +463,21 @@ public class SongManager {
      * @param fileToRename
      * @param newPath
      */
-    public void renameFile(File fileToRename, Path newPath) {
+    public void renameFile(File fileToRename, Path newPath) throws IOException {
         m_renamedFile = new File(newPath.toString());
         FileActions renameFileAction = new ConcreteFileActions(Action.RENAME, fileToRename);
+        updateFilesInFileTree(renameFileAction);
         notifyFileObservers(renameFileAction);
     }
 
     /**
-     * Notify file changes detected from File system
+     * Update model with changes from the file system and notify the observers
      *
      * @param fileActions
      */
-    public void fileSysChanged(FileActions fileActions) {
+    public void updateAndNotifyFileSysChange(FileActions fileActions) throws IOException {
+        updateFilesInFileTree(fileActions);
+
         notifyFileObservers(fileActions);
     }
 
@@ -517,28 +572,8 @@ public class SongManager {
         m_menuOptions = options;
     }
 
-    public Action getM_libraryAction() {
-        return m_libraryAction;
-    }
-
-    public void setM_libraryAction(Action libraryAction) {
-        m_libraryAction = libraryAction;
-    }
-
-    public Action getM_libraryFileAction() {
-        return m_libraryFileAction;
-    }
-
-    public void setM_libraryFileAction(Action fileAction) {
-        m_libraryFileAction = fileAction;
-    }
-
-    public Action getM_rightPanelFileAction() {
-        return m_rightPanelFileAction;
-    }
-
-    public void setM_rightPanelFileAction(Action fileAction) {
-        m_rightPanelFileAction = fileAction;
+    public TreeItem<Item> getM_fileTreeRoot() {
+        return m_fileTreeRoot;
     }
 
 
@@ -574,8 +609,8 @@ public class SongManager {
         m_playlistSongsObservers.add(observer);
     }
 
-    public void notifyLibraryObservers() {
-        notifySpecifiedFileObservers(m_libraryObservers, m_emptyFileAction);
+    public void notifyLibraryObservers(FileActions fileActions) {
+        notifySpecifiedFileObservers(m_libraryObservers, fileActions);
     }
 
     public void notifyCenterFolderObservers() {

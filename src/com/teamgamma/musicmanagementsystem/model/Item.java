@@ -24,12 +24,16 @@ public interface Item {
     /**
      * Set this item as the root
      */
-    default void setAsRootItem() {
+    default void setAsRightRootItem() {
         return;
     }
 
-    @Override
-    String toString();
+    /**
+     * Check if this item is the root of the right file tree
+     */
+    default boolean isRightRootItem() {
+        return false;
+    }
 
     @Override
     boolean equals(Object object);

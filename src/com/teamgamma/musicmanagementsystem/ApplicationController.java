@@ -91,22 +91,26 @@ public class ApplicationController extends Application {
         m_songManager.setM_menuOptions(menuOptions);
 
         // Get previously selected right panel folder from file
-        File previousRightPanelFolder = null;
         String previousRightFolderPath = m_filePersistentStorage.getRightPanelFolder();
         System.out.println("PREVIOUS RIGHT FOLDER PATH: " + previousRightFolderPath);
         if (!previousRightFolderPath.isEmpty()) {
-            previousRightPanelFolder = new File(previousRightFolderPath);
+            File previousRightPanelFolder = new File(previousRightFolderPath);
+
+            if (previousRightPanelFolder.exists()) {
+                m_songManager.setM_rightFolderSelected(previousRightPanelFolder);
+            }
         }
-        m_songManager.setM_rightFolderSelected(previousRightPanelFolder);
 
         // Get previously selected center panel folder from file
-        File previousCenterPanelFolder = null;
         String previousCenterFolderPath = m_filePersistentStorage.getCenterPanelFolder();
         System.out.println("PREVIOUS CENTER FOLDER PATH: " + previousCenterFolderPath);
         if (!previousCenterFolderPath.isEmpty()) {
-            previousCenterPanelFolder = new File(previousCenterFolderPath);
+            File previousCenterPanelFolder = new File(previousCenterFolderPath);
+
+            if (previousCenterPanelFolder.exists()) {
+                m_songManager.setM_selectedCenterFolder(previousCenterPanelFolder);
+            }
         }
-        m_songManager.setM_selectedCenterFolder(previousCenterPanelFolder);
 
         System.out.println("loading history");
         List<String> historySongPaths = m_databaseManager.getHistory();

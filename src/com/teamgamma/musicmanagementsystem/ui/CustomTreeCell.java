@@ -9,6 +9,7 @@ import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import javafx.event.EventDispatcher;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.input.ClipboardContent;
@@ -46,6 +47,8 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         createContextMenu();
         m_isLeftPane = isLeftPane;
         setDragEvents();
+
+        m_tree.getCellFactory();
     }
 
     /**
@@ -63,6 +66,7 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
      * Set mouse events on this CustomTreeCell
      */
     private void setDragEvents() {
+        m_tree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         setOnDragDetected(mouseEvent -> {
             if (m_selectedItem != null) {
                 System.out.println("Drag detected on " + m_selectedItem);
@@ -137,8 +141,19 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
                                                         m_musicPlayerManager,
                                                         m_tree,
                                                         m_selectedItem,
-                                                        m_isLeftPane));
+                                                        m_isLeftPane,
+                                                        m_databaseManager));
         createContextMenu();
         setContextMenu(m_contextMenu);
+
+        if (m_selectedItem != null) {
+            boolean isLeftPaneRoot = m_isLeftPane && m_selectedItem.isRootItem();
+            boolean isRightPaneRoot = !m_isLeftPane && m_selectedItem.isRightRootItem();
+            if (isLeftPaneRoot || isRightPaneRoot) {
+                setText(m_selectedItem.getFile().getAbsolutePath());
+            } else {
+                setText(m_selectedItem.getFile().getName());
+            }
+        }
     }
 }

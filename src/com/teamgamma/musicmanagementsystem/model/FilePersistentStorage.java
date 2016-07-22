@@ -102,7 +102,7 @@ public class FilePersistentStorage {
             saveCenterPanelFolder("");
         }
         saveCenterPanelOption(menuOptions.getM_centerPanelShowSubfolderFiles());
-        saveLeftPanelOption(menuOptions.getM_leftPanelShowFolder());
+        saveLeftPanelOption(menuOptions.getM_leftPanelShowFoldersOnly());
 
         writeConfigFile();
     }

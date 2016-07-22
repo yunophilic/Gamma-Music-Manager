@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.watchservice;
 
+import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.util.ConcreteFileActions;
@@ -76,7 +77,14 @@ public class Watcher {
 
                 // WatchKey failed to grab more events
                 if (m_watchKey == null) {
-                    Platform.runLater(() -> m_model.fileSysChanged(fileActions));
+                    Platform.runLater(() -> {
+                        try {
+                            m_model.updateAndNotifyFileSysChange(fileActions);
+                        } catch (IOException ex) {
+                            PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
+                            ex.printStackTrace();
+                        }
+                    });
                     break;
                 }
 

@@ -2,10 +2,14 @@ package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.model.*;
+import com.teamgamma.musicmanagementsystem.util.ConcreteFileActions;
+import com.teamgamma.musicmanagementsystem.util.FileActions;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+
+import java.io.File;
 
 /**
  * Class for the Menu Bar
@@ -40,8 +44,8 @@ public class MenuUI extends MenuBar{
             }
             m_databaseManager.addLibrary(pathInput);
 
-            m_model.setM_libraryAction(Action.ADD);
-            m_model.notifyLibraryObservers();
+            FileActions libraryFileActions = new ConcreteFileActions(Action.ADD, new File(pathInput));
+            m_model.notifyLibraryObservers(libraryFileActions);
         });
         menuFile.getItems().addAll(addLibraryMenu);
         return menuFile;
@@ -51,10 +55,6 @@ public class MenuUI extends MenuBar{
         final Menu menuOptions = new Menu("Options");
         Menu leftPanelSubMenu = getLeftPanelSubMenu(filePersistentStorage);
         Menu centerPanelSubMenu = getCenterPanelSubMenu(filePersistentStorage);
-
-        //hide left panel option for now
-        leftPanelSubMenu.setVisible(false);
-        leftPanelSubMenu.setDisable(true);
 
         menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu);
         return menuOptions;
@@ -69,11 +69,11 @@ public class MenuUI extends MenuBar{
             if (showFoldersOnly.isSelected()){
                 System.out.println("Display folders only");
                 MenuOptions menuManager = m_model.getM_menuOptions();
-                menuManager.setM_leftPanelShowFolder(true);
+                menuManager.setM_leftPanelShowFoldersOnly(true);
             } else {
                 System.out.println("Don't display folders only");
                 MenuOptions menuManager = m_model.getM_menuOptions();
-                menuManager.setM_leftPanelShowFolder(false);
+                menuManager.setM_leftPanelShowFoldersOnly(false);
             }
 
             m_model.notifyLeftPanelOptionsObservers();
