@@ -22,6 +22,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -117,7 +118,7 @@ public class ApplicationController extends Application {
         m_musicPlayerManager.loadHistory(filterSongs(allSongsInModel, historySongPaths));
 
         System.out.println("loading playback queue");
-        List<String> playbackQueueSongPaths = m_databaseManager.getHistory();
+        List<String> playbackQueueSongPaths = m_databaseManager.getPlaybackQueue();
         m_musicPlayerManager.loadPlaybackQueue(filterSongs(allSongsInModel, playbackQueueSongPaths));
     }
 
@@ -208,6 +209,7 @@ public class ApplicationController extends Application {
             protected Object call() throws Exception {
                 musicPlayerManager.stopSong();
                 savePlaylistSongs();
+                savePlaybackQueue();
                 saveFileTreeState();
                 m_filePersistentStorage.saveConfigFile(m_songManager.getM_rightFolderSelected(),
                         m_songManager.getM_selectedCenterFolder(), m_songManager.getM_menuOptions());
@@ -225,12 +227,25 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save songs in all playlist
+     * Save songs in all playlist and each of their resume time
      * Save Playlist songs to database
      */
     private void savePlaylistSongs() {
+        m_databaseManager.clearResumeTime();
         for (Playlist playlist : m_songManager.getM_playlists()) {
             m_databaseManager.savePlaylistSongs(playlist);
+            m_databaseManager.savePlaylistResumeTime(playlist.getM_playlistName(), playlist.getM_songResumeTime());
+        }
+    }
+
+    /**
+     * Clear the PlaybackQueue table in the database and re-insert songs in the current queue
+     */
+    public void savePlaybackQueue() {
+        Collection<Song> songsFromQueue = m_musicPlayerManager.getPlayingQueue();
+        m_databaseManager.clearPlaybackQueue();
+        for (Song song : songsFromQueue) {
+            m_databaseManager.addToPlaybackQueueTail(song.getFile().getAbsolutePath());
         }
     }
 
