@@ -119,13 +119,14 @@ public class DatabaseManager {
                                                                     "FROM PlaybackQueue");
 
             m_deleteFromQueue = m_connection.prepareStatement("DELETE FROM PlaybackQueue " +
-                                                              "WHERE songPath = ?");
+                                                              "WHERE songPath = ? AND orderNumber = ?");
 
             m_updateQueueOrderNumber =  m_connection.prepareStatement("UPDATE PlaybackQueue " +
                                                                       "SET orderNumber = orderNumber - 1 " +
                                                                       "WHERE orderNumber > (SELECT orderNumber " +
                                                                                             "FROM PlaybackQueue " +
-                                                                                            "WHERE songPath = ?) ");
+                                                                                            "WHERE songPath = ?" +
+                                                                                            "AND orderNumber = ?) ");
 
             m_getPlaybackQueue = m_connection.prepareStatement("SELECT * FROM PlaybackQueue " +
                                                                "ORDER BY OrderNumber ASC");
@@ -302,7 +303,7 @@ public class DatabaseManager {
                                         "PRIMARY KEY (songPath, orderNumber, time)" +
                                     ")");
 
-            // ResumeTime table, store time for each playlist when the application is closed
+            // ResumeTime table, store time for each playlist when the application closes
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS ResumeTime (" +
                                         "playlistName   TEXT    NOT NULL, " +
                                         "resumeTime     REAL, " +
@@ -630,12 +631,15 @@ public class DatabaseManager {
      * Remove the specified song from the PlaybackQueue table
      *
      * @param songPath the path of the song to be deleted
+     * @param orderNumber the index of the song in the playback queue
      */
-    public void deleteFromPlaybackQueue(String songPath) {
+    public void deleteFromPlaybackQueue(String songPath, int orderNumber) {
         try {
-            updateQueueOrderNumber(songPath);
             m_deleteFromQueue.setString(1, songPath);
+            m_deleteFromQueue.setInt(2, orderNumber);
             m_deleteFromQueue.executeUpdate();
+
+            updateQueueOrderNumber(songPath, orderNumber);
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -646,10 +650,12 @@ public class DatabaseManager {
      * Decrement the order numbers of the songs that have greater order number than the song to be deleted
      *
      * @param songPath the path of the song which to be deleted
+     * @param orderNumber the index of the song in the playback queue
      */
-    public void updateQueueOrderNumber(String songPath) {
+    public void updateQueueOrderNumber(String songPath, int orderNumber) {
         try {
             m_updateQueueOrderNumber.setString(1, songPath);
+            m_updateQueueOrderNumber.setInt(2, orderNumber);
             m_updateQueueOrderNumber.executeUpdate();
         }
         catch (SQLException e) {
