@@ -10,13 +10,13 @@ import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -186,16 +186,34 @@ public class UserInterfaceUtils {
     }
 
     /**
+     * Function to create a UI element that will hold a list of songs based on collection passed in and will use the
+     * default style.
+     *
+     * @param listOfSongs       The list of songs to display.
+     * @param rowCreation       The row creation action.
+     * @return
+     */
+    public static ScrollPane createUIList(Collection<Song> listOfSongs, ILabelAction rowCreation){
+        return createUIList(listOfSongs, rowCreation, null);
+    }
+
+    /**
      * Function to create UI element that will hold a list of songs in it based on the collection passed in.
      *
-     * @param listOfSongs   The list of songs to display.s
-     * @return A scrollable UI element that contains all the songs in the collection.
+     * @param listOfSongs   The list of songs to displays.
+     * @param rowCreation   The row creation action.
+     * @param style         The styling to style the list.
+     * @return              A scrollable UI element that contains all the songs in the collection.
      */
-    public static ScrollPane createUIList(Collection<Song> listOfSongs, ILabelAction rowCreation) {
+    public static ScrollPane createUIList(Collection<Song> listOfSongs, ILabelAction rowCreation, String style) {
         ScrollPane wrapper = new ScrollPane();
 
-        VBox allSongs = new VBox();
+        wrapper.setStyle(style);
+        wrapper.setFitToHeight(true);
+        wrapper.setFitToWidth(true);
 
+        VBox allSongs = new VBox();
+        allSongs.setStyle(style);
         allSongs.setSpacing(VERTICAL_SPACING);
 
         int songNumber = 1;
@@ -208,6 +226,7 @@ public class UserInterfaceUtils {
 
             HBox.setHgrow(row, Priority.ALWAYS);
             row.setFillHeight(true);
+            row.setMaxWidth(Double.MAX_VALUE);
             row.setSpacing(HORIZONTAL_ELEMENT_SPACING);
             allSongs.getChildren().add(row);
 
@@ -222,18 +241,31 @@ public class UserInterfaceUtils {
     }
 
     /**
-     * Helper function to create a titled pane for the accordion
+     * Helper function to create a titled pane for the accordion with styling.
      *
-     * @param title The title of the accordion
-     * @param songs The collection of songs that is wanted to be displayed.
-     * @param action The action to take when building a row.
-     * @return  A TitlePane with the title and collection of songs displayed.
+     * @param title         The title of the accordion
+     * @param songs         The collection of songs that is wanted to be displayed.
+     * @param action        The action to take when building a row.
+     * @param style         The styling of the body of the title pane
+     * @return              A TitlePane with the title and collection of songs displayed.
      */
-    public static TitledPane createTitlePane(String title, Collection<Song> songs, ILabelAction action) {
-        TitledPane titlePane = new TitledPane(title, UserInterfaceUtils.createUIList(songs, action));
+    public static TitledPane createTitlePane(String title, Collection<Song> songs, ILabelAction action, String style) {
+        TitledPane titlePane = new TitledPane(title, UserInterfaceUtils.createUIList(songs, action, style));
         titlePane.setAnimated(true);
         titlePane.setCollapsible(true);
         titlePane.setExpanded(false);
         return titlePane;
+    }
+
+    /**
+     * Helper function to create a titled pane for the accordion with the default styling
+     *
+     * @param title         The title of the accordion
+     * @param songs         The collection of songs that is wanted to be displayed.
+     * @param action        The action to take when building a row.
+     * @return              A TitlePane with the title and collection of songs displayed.
+     */
+    public static TitledPane createTitlePane(String title, Collection<Song> songs, ILabelAction action) {
+        return createTitlePane(title, songs, action, null);
     }
 }

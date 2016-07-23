@@ -1,8 +1,10 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.util.Action;
+import com.teamgamma.musicmanagementsystem.util.*;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.*;
+
+import java.io.File;
 
 import javafx.scene.control.*;
 
@@ -10,8 +12,10 @@ import javafx.scene.control.*;
  * Class for the Menu Bar
  */
 public class MenuUI extends MenuBar{
+    // Constants
     private final String MINI_MODE = "Minimode";
-    public boolean miniCheck = false;
+    
+    private boolean m_miniCheck = false;
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
     private ApplicationController m_applicationController;
@@ -44,8 +48,8 @@ public class MenuUI extends MenuBar{
             }
             m_databaseManager.addLibrary(pathInput);
 
-            m_model.setM_libraryAction(Action.ADD);
-            m_model.notifyLibraryObservers();
+            FileActions libraryFileActions = new ConcreteFileActions(Action.ADD, new File(pathInput));
+            m_model.notifyLibraryObservers(libraryFileActions);
         });
         menuFile.getItems().addAll(addLibraryMenu);
         return menuFile;
@@ -55,10 +59,6 @@ public class MenuUI extends MenuBar{
         final Menu menuOptions = new Menu("Options");
         Menu leftPanelSubMenu = getLeftPanelSubMenu(filePersistentStorage);
         Menu centerPanelSubMenu = getCenterPanelSubMenu(filePersistentStorage);
-
-        //hide left panel option for now
-        leftPanelSubMenu.setVisible(false);
-        leftPanelSubMenu.setDisable(true);
 
         menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu);
         return menuOptions;
@@ -73,11 +73,11 @@ public class MenuUI extends MenuBar{
             if (showFoldersOnly.isSelected()){
                 System.out.println("Display folders only");
                 MenuOptions menuManager = m_model.getM_menuOptions();
-                menuManager.setM_leftPanelShowFolder(true);
+                menuManager.setM_leftPanelShowFoldersOnly(true);
             } else {
                 System.out.println("Don't display folders only");
                 MenuOptions menuManager = m_model.getM_menuOptions();
-                menuManager.setM_leftPanelShowFolder(false);
+                menuManager.setM_leftPanelShowFoldersOnly(false);
             }
 
             m_model.notifyLeftPanelOptionsObservers();
@@ -148,15 +148,15 @@ public class MenuUI extends MenuBar{
         CheckMenuItem mini = new CheckMenuItem(MINI_MODE + "!");
         mini.setOnAction(event -> {
             System.out.println("Clicked minimode");
-            if (miniCheck == false) {
-                miniCheck = true;
+            if (m_miniCheck == false) {
+                m_miniCheck = true;
                 m_applicationController.minimodeTurnOn();
                 m_main.minimodeTurnOn();
             }
 
-            else if (miniCheck == true){
+            else if (m_miniCheck == true){
                 System.out.println("Clicked minimode");
-                miniCheck = false;
+                m_miniCheck = false;
                 m_applicationController.minimodeTurnOff();
                 m_main.minimodeTurnOff();
             }
