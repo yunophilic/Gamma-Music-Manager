@@ -32,6 +32,9 @@ public class DynamicTreeViewUI extends StackPane {
         updateTreeView(dynamicTreeViewExpandedPaths);
     }
 
+    /**
+     * Initialize the file tree to contain a dummy root item
+     */
     private void initTreeView() {
         TreeItem<Item> root = new TreeItem<>(new DummyItem());
 
