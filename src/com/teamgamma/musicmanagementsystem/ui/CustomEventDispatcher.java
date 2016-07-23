@@ -68,18 +68,12 @@ public class CustomEventDispatcher implements EventDispatcher {
                             System.out.println("Selected Item: " + m_selectedItem);
                             m_model.setM_selectedCenterFolder(m_selectedItem.getFile());
                             m_model.notifyCenterFolderObservers();
-
-                            FileTreeUtils.closeAllFoldersIcons(m_tree.getRoot());
-                            FileTreeUtils.setOpenFolder(m_tree, m_selectedItem.getFile().getAbsolutePath());
-
                         } else if (!isFolder) {
                             Song songToPlay = (Song) m_selectedItem;
                             if (!songToPlay.equals(m_musicPlayerManager.getCurrentSongPlaying())) {
                                 m_musicPlayerManager.playSongRightNow(songToPlay);
                             }
                         }
-
-                        m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, m_isLeftPane));
                     }
                 }
 

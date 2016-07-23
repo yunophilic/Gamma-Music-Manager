@@ -130,6 +130,11 @@ public class LibraryUI extends StackPane {
             System.out.println("Left panel options in treeview");
             setFileVisibility();
         });
+        m_model.addCenterFolderObserver((FileActions fileActions) -> {
+            FileTreeUtils.closeAllFoldersIcons(m_tree.getRoot());
+            FileTreeUtils.setOpenFolder(m_tree, m_model.getM_selectedCenterFolder().getAbsolutePath());
+            setTreeCellFactory();
+        });
     }
 
     /**
