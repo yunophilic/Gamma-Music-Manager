@@ -1,19 +1,20 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
-import com.teamgamma.musicmanagementsystem.model.Item;
-import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
+import javafx.event.Event;
+import javafx.event.EventDispatcher;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 
 /**
  * Class for a custom cell in the tree view for search results.
  */
 public class SearchTreeCell extends TextFieldTreeCell<Item> {
-
     private SongManager m_songManager;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
@@ -27,6 +28,22 @@ public class SearchTreeCell extends TextFieldTreeCell<Item> {
     @Override
     public void updateItem(Item item, boolean empty) {
         super.updateItem(item, empty);
+
+        EventDispatcher originalEventDispatcher = getEventDispatcher();
+        setEventDispatcher((event, tail) -> {
+            if (event instanceof MouseEvent) {
+                MouseEvent mouseEvent = (MouseEvent) event;
+                if (mouseEvent.isPrimaryButtonDown() && mouseEvent.getClickCount() == 2){
+                    if (item instanceof Song){
+                        Song songToPlay = (Song) item;
+                        if (!songToPlay.equals(m_musicPlayerManager.getCurrentSongPlaying())) {
+                            m_musicPlayerManager.playSongRightNow(songToPlay);
+                        }
+                    }
+                }
+            }
+            return originalEventDispatcher.dispatchEvent(event, tail);
+        });
 
         if (item != null) {
             if (item.isRootItem()) {

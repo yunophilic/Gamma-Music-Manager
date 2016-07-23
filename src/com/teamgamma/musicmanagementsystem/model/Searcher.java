@@ -17,7 +17,6 @@ public class Searcher {
 
     public Searcher(TreeItem<Item> rootToStartSearch, String searchString) {
         m_searchString = searchString;
-
         m_searchTreeRoot = findAllInstancesInTree(rootToStartSearch, caseInsensitiveStringSearch());
     }
 
@@ -35,25 +34,28 @@ public class Searcher {
 
         ObservableList<TreeItem<Item>> allChildren = parentNode.getChildren();
         for (TreeItem<Item> currentChildren : allChildren) {
-            System.out.println("Comparing " + currentChildren.getValue().getFile().getName());
-
+            boolean isDirectory = !currentChildren.isLeaf();
             if (searchMethod.isSearchHit(currentChildren.getValue())) {
-                if (!currentChildren.isLeaf()) {
-                    listOfNodesHit.add(findAllInstancesInTree(currentChildren, searchMethod));
+                if (isDirectory) {
+                    TreeItem<Item> childrenSearchResult = findAllInstancesInTree(currentChildren, searchMethod);
+
+                    if (childrenSearchResult.getValue() instanceof DummyItem) {
+                        // Just add the current node to results
+                        listOfNodesHit.add(new TreeItem<>(currentChildren.getValue()));
+                    } else {
+                        listOfNodesHit.add(childrenSearchResult);
+                    }
                     continue;
+
                 } else {
-                    System.out.println("Search hit");
-                    Item nodeItem = currentChildren.getValue();
-                    TreeItem<Item> searchHit = new TreeItem<>(nodeItem);
-                    listOfNodesHit.add(searchHit);
+                    listOfNodesHit.add(new TreeItem<>(currentChildren.getValue()));
                 }
             }
 
             // Must be a directory if there are children so we have to search it to make sure we do not miss anything.
-            if (!currentChildren.isLeaf()) {
+            if (isDirectory) {
                 TreeItem<Item> results = findAllInstancesInTree(currentChildren, searchMethod);
                 if (!(results.getValue() instanceof DummyItem)) {
-
                     // Results where found in this case so add it to the current node
                     listOfNodesHit.add(results);
                 }

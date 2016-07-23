@@ -9,6 +9,8 @@ import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
@@ -97,7 +99,7 @@ public class MainUI extends BorderPane {
 
         HBox searchWrapper = new HBox();
         TextField searchText = new TextField();
-        
+
         searchText.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER){
                 m_model.searchForFilesAndFolders(searchText.getText());
@@ -144,25 +146,31 @@ public class MainUI extends BorderPane {
     /**
      * Function to create the file explorer UI component.
      *
-     * @param dynamicTreeViewExpandedPaths      The list of expaned folders for the right file pane.
+     * @param dynamicTreeViewExpandedPaths      The list of expanded folders for the right file pane.
      * @return                                  The UI component for the file explorer.
      */
     private Node createFileExplorer(List<String> dynamicTreeViewExpandedPaths) {
-        VBox wrapper = new VBox();
+
         HBox pane = new HBox();
 
         ContentListUI contentListUI = new ContentListUI(m_model, m_musicPlayerManager, m_databaseManager);
 
         m_rightFilePane = new DynamicTreeViewUI(m_model, m_musicPlayerManager, m_databaseManager, dynamicTreeViewExpandedPaths);
 
+        TabPane tabPane = new TabPane();
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        Tab fileTree = new Tab("File Tree", m_rightFilePane);
+
+        Tab searchResults = new Tab("Search Results", new SearchResultUI(m_model, m_musicPlayerManager, m_databaseManager));
+        tabPane.getTabs().addAll(fileTree, searchResults);
+
+        pane.getChildren().addAll(contentListUI, tabPane);
         HBox.setHgrow(contentListUI, Priority.ALWAYS);
-        HBox.setHgrow(m_rightFilePane, Priority.ALWAYS);
+        HBox.setHgrow(tabPane, Priority.ALWAYS);
+        
+        m_model.registerSearchObserver(() -> tabPane.getSelectionModel().select(searchResults));
 
-        pane.getChildren().addAll(contentListUI, m_rightFilePane);
-        wrapper.getChildren().add(new SearchResultUI(m_model, m_musicPlayerManager, m_databaseManager));
-        wrapper.getChildren().add(pane);
-
-        return wrapper;
+        return pane;
     }
 
     /**
