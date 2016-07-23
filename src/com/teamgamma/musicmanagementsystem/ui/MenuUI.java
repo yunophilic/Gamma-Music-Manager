@@ -11,7 +11,6 @@ import javafx.scene.control.MenuItem;
 import javafx.util.Pair;
 
 import java.io.File;
-import java.nio.file.Files;
 
 /**
  * Class for the Menu Bar
