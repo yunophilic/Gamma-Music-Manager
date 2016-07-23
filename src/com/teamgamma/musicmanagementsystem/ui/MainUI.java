@@ -120,14 +120,16 @@ public class MainUI extends BorderPane {
         return m_rightFilePane.getExpandedPaths();
     }
 
-    /** Turns on minimode. Sets leftPane to be
+    /**
+     * Turns on minimode. Sets leftPane to be
      *  the rightPane (MusicPlayer)
      */
     public void minimodeTurnOn() {
         this.setLeft(rightPane());
     }
 
-    /** Turns off minimode, resetting the panes to their
+    /**
+     * Turns off minimode, resetting the panes to their
      *  original places
      */
     public void minimodeTurnOff() {
