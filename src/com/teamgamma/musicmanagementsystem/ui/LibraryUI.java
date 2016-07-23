@@ -90,14 +90,6 @@ public class LibraryUI extends StackPane {
     }
 
     /**
-     * Clear the tree view
-     */
-    private void clearTreeView() {
-        System.out.println("clearing treeview...");
-        this.getChildren().clear();
-    }
-
-    /**
      * Set placeholder text if no library exist
      */
     private void setEmptyLibraryUI() {
@@ -124,6 +116,7 @@ public class LibraryUI extends StackPane {
         m_model.addFileObserver((FileActions fileActions) -> {
             System.out.println("File changed in treeview");
             updateFiles(fileActions);
+            setTreeCellFactory();
             setFileVisibility();
         });
         m_model.addLeftPanelOptionsObserver((FileActions fileActions) -> {
