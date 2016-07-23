@@ -11,7 +11,7 @@ import javafx.scene.control.*;
  */
 public class MenuUI extends MenuBar{
     private final String MINI_MODE = "Minimode";
-    public boolean miniCheck = false;
+    private boolean m_miniCheck = false;
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
     private ApplicationController m_applicationController;
@@ -141,22 +141,24 @@ public class MenuUI extends MenuBar{
         return playlistSubMenu;
     }
 
-    /** Toggles minimode on or off on button click
+    /**
+     * Toggles minimode on or off on button click
+     * Returns a Menu object
      */
     private Menu miniMode() {
         Menu minimodeButton = new Menu(MINI_MODE);
         CheckMenuItem mini = new CheckMenuItem(MINI_MODE + "!");
         mini.setOnAction(event -> {
             System.out.println("Clicked minimode");
-            if (miniCheck == false) {
-                miniCheck = true;
+            if (m_miniCheck == false) {
+                m_miniCheck = true;
                 m_applicationController.minimodeTurnOn();
                 m_main.minimodeTurnOn();
             }
 
-            else if (miniCheck == true){
+            else if (m_miniCheck == true){
                 System.out.println("Clicked minimode");
-                miniCheck = false;
+                m_miniCheck = false;
                 m_applicationController.minimodeTurnOff();
                 m_main.minimodeTurnOff();
             }

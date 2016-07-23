@@ -18,6 +18,8 @@ import java.util.List;
  * MainUI Class.
  */
 public class MainUI extends BorderPane {
+    private final double TWO_HUNDRED_AND_FIFTY = 250;
+    private final double THREE_HUNDRED_AND_FIFTY = 350;
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
@@ -61,7 +63,7 @@ public class MainUI extends BorderPane {
 
         m_leftPane = new BorderPane();
         m_leftPane.setCenter(m_libraryUI);
-        m_leftPane.setPrefWidth(250);
+        m_leftPane.setPrefWidth(TWO_HUNDRED_AND_FIFTY);
         return m_leftPane;
     }
 
@@ -77,7 +79,7 @@ public class MainUI extends BorderPane {
         m_rightPane = new BorderPane();
         m_rightPane.setCenter(playlistUI);
         m_rightPane.setBottom(musicPlayerWrapper);
-        m_rightPane.setPrefWidth(350);
+        m_rightPane.setPrefWidth(THREE_HUNDRED_AND_FIFTY);
 
         return m_rightPane;
     }
