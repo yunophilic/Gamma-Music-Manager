@@ -3,15 +3,15 @@ package com.teamgamma.musicmanagementsystem;
 import javafx.application.Preloader;
 import javafx.application.Preloader.StateChangeNotification.Type;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.File;
 
@@ -27,16 +27,26 @@ public class StartUpLoader extends Preloader {
     public void start(Stage primaryStage) throws Exception {
         this.preloaderStage = primaryStage;
 
-        final int CLOSING_WINDOW_WIDTH = 400;
-        final int CLOSING_WINDOW_HEIGHT = 80;
+        final int CLOSING_WINDOW_WIDTH = 500;
+        final int CLOSING_WINDOW_HEIGHT = 281;
+        final int LOADING_SIZE = 70;
+        final String SPASH_BACKGROUND_IMAGE = "res\\splash.png";
 
         BorderPane loadingPane = new BorderPane();
-        loadingPane.setCenter(new ProgressBar());
 
-        Label text = new Label("Loading, please wait...");
-        text.setFont(new Font(16));
-        text.setPadding(new Insets(10, CLOSING_WINDOW_WIDTH/4, 10, CLOSING_WINDOW_WIDTH/4));
-        loadingPane.setTop(text);
+        ProgressIndicator progress = new ProgressIndicator();
+        loadingPane.setBottom(progress);
+        loadingPane.setAlignment(progress, Pos.BASELINE_CENTER);
+        progress.setPrefSize(LOADING_SIZE, LOADING_SIZE);
+
+//        Label text = new Label("Loading contents...");
+//        text.setFont(new Font(12));
+//        text.setOpacity(.5);
+//        loadingPane.setCenter(text);
+
+        Image backgroundImage = new Image(SPASH_BACKGROUND_IMAGE);
+        loadingPane.setBackground(new Background(new BackgroundImage(backgroundImage, BackgroundRepeat.REPEAT,
+                BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
 
         primaryStage.setTitle(APP_TITLE);
         primaryStage.getIcons().add(
@@ -44,6 +54,7 @@ public class StartUpLoader extends Preloader {
         );
 
         primaryStage.setScene(new Scene(loadingPane, CLOSING_WINDOW_WIDTH, CLOSING_WINDOW_HEIGHT));
+        primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.show();
     }
 
