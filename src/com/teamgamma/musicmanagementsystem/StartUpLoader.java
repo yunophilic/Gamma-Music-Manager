@@ -30,7 +30,7 @@ public class StartUpLoader extends Preloader {
         final int CLOSING_WINDOW_WIDTH = 500;
         final int CLOSING_WINDOW_HEIGHT = 281;
         final int LOADING_SIZE = 70;
-        final String SPASH_BACKGROUND_IMAGE = "res\\splash.png";
+        final String SPLASH_BACKGROUND_IMAGE = "res\\splash.png";
 
         BorderPane loadingPane = new BorderPane();
 
@@ -44,7 +44,7 @@ public class StartUpLoader extends Preloader {
 //        text.setOpacity(.5);
 //        loadingPane.setCenter(text);
 
-        Image backgroundImage = new Image(SPASH_BACKGROUND_IMAGE);
+        Image backgroundImage = new Image(SPLASH_BACKGROUND_IMAGE);
         loadingPane.setBackground(new Background(new BackgroundImage(backgroundImage, BackgroundRepeat.REPEAT,
                 BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
 
