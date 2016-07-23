@@ -9,9 +9,7 @@ import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystemException;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -455,6 +453,29 @@ public class SongManager {
             }
         }
         return null;
+    }
+
+    /**
+     * Copy a playlist to a destination
+     *
+     * @param playlistFilePair The pair of playlist and destination
+     */
+    public void copyPlaylistToDestination(Pair<Playlist, File> playlistFilePair) {
+        File file = playlistFilePair.getValue();
+        Playlist playlist = playlistFilePair.getKey();
+        try {
+            // Create playlist folder
+            String path = file.getAbsolutePath() + File.separator + playlist.getM_playlistName();
+            Path destPath = Files.createDirectory(Paths.get(path));
+            File destFile = destPath.toFile();
+
+            // Copy songs
+            for (Song song : playlist.getM_songList()) {
+                FileManager.copyFile(song.getFile(), destFile);
+            }
+        } catch (IOException e) {
+                e.printStackTrace();
+        }
     }
 
     /**

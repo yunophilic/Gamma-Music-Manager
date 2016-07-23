@@ -8,8 +8,10 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.util.Pair;
 
 import java.io.File;
+import java.nio.file.Files;
 
 /**
  * Class for the Menu Bar
@@ -18,6 +20,13 @@ public class MenuUI extends MenuBar{
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
 
+    /**
+     * Constructor
+     *
+     * @param model The song manager
+     * @param databaseManager The database manager
+     * @param filePersistentStorage The configuration file
+     */
     public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage){
         super();
         m_model = model;
@@ -26,6 +35,11 @@ public class MenuUI extends MenuBar{
         setMenu(filePersistentStorage);
     }
 
+    /**
+     * Set the menu options
+     *
+     * @param filePersistentStorage The configuration file
+     */
     private void setMenu(FilePersistentStorage filePersistentStorage) {
         super.getMenus().addAll(getMenuFile(), getMenuOptions(filePersistentStorage), getPlaylistSubMenu());
     }
@@ -51,6 +65,12 @@ public class MenuUI extends MenuBar{
         return menuFile;
     }
 
+    /**
+     * Get the menu options
+     *
+     * @param filePersistentStorage The configuration file
+     * @return The menu options
+     */
     private Menu getMenuOptions(FilePersistentStorage filePersistentStorage) {
         final Menu menuOptions = new Menu("Options");
         Menu leftPanelSubMenu = getLeftPanelSubMenu(filePersistentStorage);
@@ -60,6 +80,12 @@ public class MenuUI extends MenuBar{
         return menuOptions;
     }
 
+    /**
+     * Get the left panel sub menu
+     *
+     * @param config The previous configuration of the sub menu
+     * @return The left panel sub menu
+     */
     private Menu getLeftPanelSubMenu(FilePersistentStorage config) {
         Menu leftPanelSubMenu = new Menu("Left Panel");
         CheckMenuItem showFoldersOnly = new CheckMenuItem("Show folders only");
@@ -83,6 +109,12 @@ public class MenuUI extends MenuBar{
         return leftPanelSubMenu;
     }
 
+    /**
+     * Get the center panel sub menu
+     *
+     * @param config The previous configuration of the sub menu
+     * @return The center panel sub menu
+     */
     private Menu getCenterPanelSubMenu(FilePersistentStorage config) {
         Menu centerPanelSubMenu = new Menu("Center Panel");
         CheckMenuItem showFoldersOnly = new CheckMenuItem("Show files in subfolders");
@@ -106,6 +138,11 @@ public class MenuUI extends MenuBar{
         return centerPanelSubMenu;
     }
 
+    /**
+     * Get the playlist sub menu
+     *
+     * @return The playlist sub menu
+     */
     private Menu getPlaylistSubMenu() {
         Menu playlistSubMenu = new Menu("Playlist");
 
@@ -133,7 +170,15 @@ public class MenuUI extends MenuBar{
             }
         });
 
-        playlistSubMenu.getItems().addAll(createNewPlaylistMenu, removePlaylistMenu);
+        MenuItem exportPlaylistMenu = new MenuItem("Export Playlist");
+        exportPlaylistMenu.setOnAction(event -> {
+            Pair<Playlist, File> playlistFilePair = PromptUI.exportPlaylist(m_model.getM_playlists());
+            if (playlistFilePair != null) {
+                m_model.copyPlaylistToDestination(playlistFilePair);
+            }
+        });
+
+        playlistSubMenu.getItems().addAll(createNewPlaylistMenu, removePlaylistMenu, exportPlaylistMenu);
         return playlistSubMenu;
     }
 }
