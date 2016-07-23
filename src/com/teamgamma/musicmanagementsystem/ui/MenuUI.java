@@ -143,7 +143,7 @@ public class MenuUI extends MenuBar{
 
     /**
      * Toggles minimode on or off on button click
-     * Returns a Menu object
+     * @return a Menu object: minimodeButton
      */
     private Menu miniMode() {
         Menu minimodeButton = new Menu(MINI_MODE);
