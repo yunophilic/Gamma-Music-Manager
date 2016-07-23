@@ -5,10 +5,12 @@ import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
-import javafx.application.Platform;
+import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
+
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -20,6 +22,7 @@ import java.util.List;
  * MainUI Class.
  */
 public class MainUI extends BorderPane {
+    public static final String SEARCH_BUTTON_HEADER = "Search";
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
@@ -44,9 +47,14 @@ public class MainUI extends BorderPane {
         this.setRight(rightPane());
         this.setCenter(centerPane(dynamicTreeViewExpandedPaths));
         this.setTop(topPane());
-        this.setBottom(bottomPane());
     }
 
+    /**
+     * Function to create the UI components that will be shown on the left side of the application.
+     *
+     * @param libraryExpandedPaths      A list of expanded folders that are on the left side.
+     * @return                          All the UI components that are to be shown on the left side of the application.
+     */
     private Node leftPane(List<String> libraryExpandedPaths) {
         m_libraryUI = new LibraryUI(m_model, m_musicPlayerManager, m_databaseManager, libraryExpandedPaths);
 
@@ -56,6 +64,11 @@ public class MainUI extends BorderPane {
         return leftPane;
     }
 
+    /**
+     * Function to create the UI element that will be shown on the right side of the application
+     *
+     * @return  The UI elements that are to be shown in the right side of the application.
+     */
     private Node rightPane() {
         PlaylistUI playlistUI = new PlaylistUI(m_model, m_musicPlayerManager, m_databaseManager);
 
@@ -73,24 +86,54 @@ public class MainUI extends BorderPane {
         return rightPane;
     }
 
+    /**
+     * Function to create the top UI component for the application.
+     *
+     * @return  All the UI components that will be shown in the top area of the application.
+     */
     private Node topPane() {
-        HBox wrapper = new HBox();
-        wrapper.getChildren().add(new MenuUI(m_model, m_databaseManager, m_filePersistentStorage));
+        BorderPane wrapper = new BorderPane();
+        wrapper.setCenter(new MenuUI(m_model, m_databaseManager, m_filePersistentStorage));
 
+        HBox searchWrapper = new HBox();
         TextField searchText = new TextField();
-        Button serach = new Button("Search");
-        serach.setOnMouseClicked(event -> {
+        
+        searchText.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER){
+                m_model.searchForFilesAndFolders(searchText.getText());
+            }
+        });
+
+        this.setOnKeyPressed(event -> {
+            if (event.isControlDown() && event.getCode() == KeyCode.F){
+                searchText.requestFocus();
+            }
+        });
+
+        Button search = new Button(SEARCH_BUTTON_HEADER);
+        UserInterfaceUtils.createMouseOverUIChange(search, search.getStyle());
+
+        search.setMaxHeight(wrapper.getHeight());
+        search.setPrefHeight(wrapper.getHeight());
+        search.setScaleShape(false);
+
+        search.setOnMouseClicked(event -> {
             System.out.println("Searching for " + searchText.getText());
             m_model.searchForFilesAndFolders(searchText.getText());
         });
-        wrapper.getChildren().addAll(searchText, serach);
+
+        searchWrapper.getChildren().addAll(searchText, search);
+
+        wrapper.setRight(searchWrapper);
         return wrapper;
     }
 
-    private Node bottomPane() {
-        return new BorderPane();
-    }
-
+    /**
+     * Function to create the center pane for the application.
+     *
+     * @param dynamicTreeViewExpandedPaths      The list of expanded folders for the alternative (right) file pane.
+     * @return                                  The UI components that will be shown in the center.
+     */
     private Node centerPane(List<String> dynamicTreeViewExpandedPaths) {
         BorderPane centerPane = new BorderPane();
 
@@ -98,6 +141,12 @@ public class MainUI extends BorderPane {
         return centerPane;
     }
 
+    /**
+     * Function to create the file explorer UI component.
+     *
+     * @param dynamicTreeViewExpandedPaths      The list of expaned folders for the right file pane.
+     * @return                                  The UI component for the file explorer.
+     */
     private Node createFileExplorer(List<String> dynamicTreeViewExpandedPaths) {
         VBox wrapper = new VBox();
         HBox pane = new HBox();
@@ -110,16 +159,26 @@ public class MainUI extends BorderPane {
         HBox.setHgrow(m_rightFilePane, Priority.ALWAYS);
 
         pane.getChildren().addAll(contentListUI, m_rightFilePane);
-        wrapper.getChildren().add(new SearchResultUI(m_model));
+        wrapper.getChildren().add(new SearchResultUI(m_model, m_musicPlayerManager, m_databaseManager));
         wrapper.getChildren().add(pane);
 
         return wrapper;
     }
 
+    /**
+     * Function to get a list of libraries that are expanded on the left pane.
+     *
+     * @return  A list of expanded folders
+     */
     public List<String> getLibraryUIExpandedPaths() {
         return m_libraryUI.getExpandedPaths();
     }
 
+    /**
+     * Function to get a list of folders that are expanded on the right file pane.
+     *
+     * @return  A list of expanded folders
+     */
     public List<String> getDynamicTreeViewUIExpandedPaths() {
         return m_rightFilePane.getExpandedPaths();
     }

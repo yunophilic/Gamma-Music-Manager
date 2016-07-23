@@ -1,60 +1,59 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
+import com.teamgamma.musicmanagementsystem.model.ISearchMethod;
+
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
-import javafx.scene.image.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to implement search in the appliclation.
+ * Class to implement search in the application.
  */
 public class Searcher {
     private TreeItem<Item> m_searchTreeRoot;
     private String m_searchString;
 
     public Searcher(TreeItem<Item> rootToStartSearch, String searchString) {
-        // Need to get all libraries and search through it.
-        // Take a root and begin to search through it to see if it is there
         m_searchString = searchString;
 
-        m_searchTreeRoot = new TreeItem<>(new DummyItem());
-        m_searchTreeRoot.getChildren().add(findAllinstancesInTreeWrapper(rootToStartSearch));
+        m_searchTreeRoot = findAllInstancesInTree(rootToStartSearch, caseInsensitiveStringSearch());
     }
 
-
-    private TreeItem<Item> findAllinstancesInTreeWrapper(TreeItem<Item> node){
-        TreeItem<Item> rootNode = new TreeItem<Item>(new DummyItem());
-        rootNode.getChildren().add(findAllInstancesInTree(node));
-        return rootNode;
-
-    }
-
-    private TreeItem<Item> findAllInstancesInTree(TreeItem<Item> parentNode){
+    /**
+     * Function to search through the tree passed in to find all elements that match the search criteria.
+     *
+     * @param parentNode        The parent node in the tree.
+     * @param searchMethod      The search criteria method to use.
+     * @return                  A copy of item that matches the search criteria as well as any of its children that match
+     *                          or a node of DummyItem that represents there is no hits for the node passed in or any of
+     *                          children.
+     */
+    private TreeItem<Item> findAllInstancesInTree(TreeItem<Item> parentNode, ISearchMethod searchMethod){
         List<TreeItem<Item>> listOfNodesHit = new ArrayList<>();
 
         ObservableList<TreeItem<Item>> allChildren = parentNode.getChildren();
         for (TreeItem<Item> currentChildren : allChildren) {
             System.out.println("Comparing " + currentChildren.getValue().getFile().getName());
-            if (currentChildren.getValue().getFile().getName().contains(m_searchString)) {
+
+            if (searchMethod.isSearchHit(currentChildren.getValue())) {
                 if (!currentChildren.isLeaf()) {
-                    listOfNodesHit.add(findAllInstancesInTree(currentChildren));
+                    listOfNodesHit.add(findAllInstancesInTree(currentChildren, searchMethod));
                     continue;
                 } else {
                     System.out.println("Search hit");
                     Item nodeItem = currentChildren.getValue();
                     TreeItem<Item> searchHit = new TreeItem<>(nodeItem);
-                    searchHit.setGraphic(new ImageView(nodeItem.getFile().isDirectory() ? FileTreeUtils.FOLDER_ICON_URL : FileTreeUtils.SONG_ICON_URL));
-
                     listOfNodesHit.add(searchHit);
                 }
             }
+
             // Must be a directory if there are children so we have to search it to make sure we do not miss anything.
             if (!currentChildren.isLeaf()) {
-                TreeItem<Item> results = findAllInstancesInTree(currentChildren);
+                TreeItem<Item> results = findAllInstancesInTree(currentChildren, searchMethod);
                 if (!(results.getValue() instanceof DummyItem)) {
+
                     // Results where found in this case so add it to the current node
                     listOfNodesHit.add(results);
                 }
@@ -64,13 +63,31 @@ public class Searcher {
         if (listOfNodesHit.isEmpty()){
             return new TreeItem<>(new DummyItem());
         } else {
-            TreeItem<Item> currentNodeCopy = new TreeItem<>(parentNode.getValue());
-            currentNodeCopy.getChildren().addAll(listOfNodesHit);
-            return  currentNodeCopy;
+            TreeItem<Item> copyOfParent = new TreeItem<>(parentNode.getValue());
+            copyOfParent.getChildren().addAll(listOfNodesHit);
+            return copyOfParent;
         }
     }
 
+    /**
+     * Function to get the search results of the searcher.
+     *
+     * @return  The results of the search.
+     */
     public TreeItem<Item> getTree() {
         return m_searchTreeRoot;
+    }
+
+    /**
+     * Function to create a implementation of the ISearchMethod interface to check if the item contains the
+     * search string in its name, case insensitive.
+     *
+     * @return  A implementation of a case insensitive check on the search string and the file name.
+     */
+    private ISearchMethod caseInsensitiveStringSearch(){
+        return item -> {
+            String stringToCheck = item.getFile().getName().toLowerCase();
+            return stringToCheck.contains(m_searchString.toLowerCase());
+        };
     }
 }
