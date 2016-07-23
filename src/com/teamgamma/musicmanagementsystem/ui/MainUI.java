@@ -5,7 +5,10 @@ import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -71,7 +74,17 @@ public class MainUI extends BorderPane {
     }
 
     private Node topPane() {
-        return new MenuUI(m_model, m_databaseManager, m_filePersistentStorage);
+        HBox wrapper = new HBox();
+        wrapper.getChildren().add(new MenuUI(m_model, m_databaseManager, m_filePersistentStorage));
+
+        TextField searchText = new TextField();
+        Button serach = new Button("Search");
+        serach.setOnMouseClicked(event -> {
+            System.out.println("Searching for " + searchText.getText());
+            m_model.searchForFilesAndFolders(searchText.getText());
+        });
+        wrapper.getChildren().addAll(searchText, serach);
+        return wrapper;
     }
 
     private Node bottomPane() {
@@ -86,17 +99,21 @@ public class MainUI extends BorderPane {
     }
 
     private Node createFileExplorer(List<String> dynamicTreeViewExpandedPaths) {
+        VBox wrapper = new VBox();
         HBox pane = new HBox();
 
         ContentListUI contentListUI = new ContentListUI(m_model, m_musicPlayerManager, m_databaseManager);
+
         m_rightFilePane = new DynamicTreeViewUI(m_model, m_musicPlayerManager, m_databaseManager, dynamicTreeViewExpandedPaths);
 
         HBox.setHgrow(contentListUI, Priority.ALWAYS);
         HBox.setHgrow(m_rightFilePane, Priority.ALWAYS);
 
         pane.getChildren().addAll(contentListUI, m_rightFilePane);
+        wrapper.getChildren().add(new SearchResultUI(m_model));
+        wrapper.getChildren().add(pane);
 
-        return pane;
+        return wrapper;
     }
 
     public List<String> getLibraryUIExpandedPaths() {

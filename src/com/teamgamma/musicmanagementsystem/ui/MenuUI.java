@@ -136,4 +136,6 @@ public class MenuUI extends MenuBar{
         playlistSubMenu.getItems().addAll(createNewPlaylistMenu, removePlaylistMenu);
         return playlistSubMenu;
     }
+
+
 }
