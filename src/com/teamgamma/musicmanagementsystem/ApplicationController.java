@@ -143,59 +143,18 @@ public class ApplicationController extends Application {
     @Override
     public void start(Stage primaryStage) {
         //disable jaudiotagger logging
-
         if (!m_databaseManager.isDatabaseFileExist()) {
             System.out.println("No libraries are existent");
             System.out.println("creating new database file...");
             m_databaseManager.createDatabaseFile();
             m_databaseManager.setupDatabase();
-
             String firstLibrary = PromptUI.initialWelcome();
 
-            // Create a stage for splash screen
-            Stage stage = new Stage();
-
-            // If wanted splash screen in a new thread instead of loading libraries--
-            // doesn't work because the screen shows after processing has finished and when main UI displays
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    Platform.runLater(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            StartUpLoader.splashScreenDisplay(stage);
-//                            stage.show();
-//                        }
-//                    });
-//                }
-//            }).start();
-
-            Task loadingTask = new Task() {
-                @Override
-                protected Object call() throws Exception {
-                    if (firstLibrary != null) {
-                        m_songManager.addLibrary(firstLibrary);
-                        m_databaseManager.addLibrary(firstLibrary);
-                    }
-
-                    return null;
-                }
-            };
-
-            Thread loadingThread = new Thread(loadingTask);
-            loadingThread.start();
-            StartUpLoader.splashScreenDisplay(stage);
-            stage.show();
-
-            try {
-                loadingThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (firstLibrary != null) {
+                m_songManager.addLibrary(firstLibrary);
+                m_databaseManager.addLibrary(firstLibrary);
             }
-
-            //stage.hide();
             loadSessionState();
-
         }
 
         primaryStage.setTitle(APP_TITLE);
@@ -216,7 +175,6 @@ public class ApplicationController extends Application {
         Media sound = new Media(new File(START_SOUND_PATH).toURI().toString());
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         mediaPlayer.play();
-
     }
 
     /**

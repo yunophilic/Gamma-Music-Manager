@@ -24,14 +24,9 @@ public class StartUpLoader extends Preloader {
     public void start(Stage primaryStage) throws Exception {
         this.preloaderStage = primaryStage;
 
-        splashScreenDisplay(primaryStage);
-        primaryStage.show();
-    }
-
-    public static void splashScreenDisplay(Stage primaryStage) {
-        final int CLOSING_WINDOW_WIDTH = 500;
-        final int CLOSING_WINDOW_HEIGHT = 281;
-        final int LOADING_SIZE = 70;
+        final int SPLASH_WINDOW_WIDTH = 500;
+        final int SPLASH_WINDOW_HEIGHT = 281;
+        final int LOADING_INDICATOR_SIZE = 70;
         final String SPLASH_BACKGROUND_IMAGE = "res\\splash.png";
 
         BorderPane loadingPane = new BorderPane();
@@ -39,16 +34,20 @@ public class StartUpLoader extends Preloader {
         ProgressIndicator progress = new ProgressIndicator();
         loadingPane.setBottom(progress);
         loadingPane.setAlignment(progress, Pos.BASELINE_CENTER);
-        progress.setPrefSize(LOADING_SIZE, LOADING_SIZE);
+        progress.setPrefSize(LOADING_INDICATOR_SIZE, LOADING_INDICATOR_SIZE);
 
         Image backgroundImage = new Image(SPLASH_BACKGROUND_IMAGE);
         loadingPane.setBackground(new Background(new BackgroundImage(backgroundImage, BackgroundRepeat.REPEAT,
                 BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
 
         primaryStage.setTitle(APP_TITLE);
+        primaryStage.getIcons().add(
+            getLogoIcon()
+        );
 
-        primaryStage.setScene(new Scene(loadingPane, CLOSING_WINDOW_WIDTH, CLOSING_WINDOW_HEIGHT));
+        primaryStage.setScene(new Scene(loadingPane, SPLASH_WINDOW_WIDTH, SPLASH_WINDOW_HEIGHT));
         primaryStage.initStyle(StageStyle.TRANSPARENT);
+        primaryStage.show();
     }
 
     @Override
