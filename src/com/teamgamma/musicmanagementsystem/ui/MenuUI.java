@@ -141,7 +141,9 @@ public class MenuUI extends MenuBar{
         return playlistSubMenu;
     }
 
-    /** Toggles minimode on or off on button click
+    /**
+     * Toggles minimode on or off on button click
+     * @return a Menu object: minimodeButton
      */
     private Menu miniMode() {
         Menu minimodeButton = new Menu(MINI_MODE);

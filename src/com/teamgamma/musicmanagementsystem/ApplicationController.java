@@ -35,8 +35,8 @@ public class ApplicationController extends Application {
     private static final double MINI_MODE_HEIGHT = 400;
     private static final double ORIGINAL_WINDOW_WIDTH = 1200;
     private static final double ORIGINAL_WINDOW_HEIGHT = 650;
-    private static final double MIN_WINDOW_WIDTH = 0;
-    private static final double MIN_WINDOW_HEIGHT = 0;
+    private static final double MIN_WINDOW_WIDTH = 100;
+    private static final double MIN_WINDOW_HEIGHT = 100;
     private static final String APP_TITLE = "Gamma Music Manager";
     private static final String GAMMA_LOGO_IMAGE_URL = "res" + File.separator + "gamma-logo.png";
     private static final String START_SOUND_PATH = System.getProperty("user.dir") + File.separator + "src" + File.separator + "res" + File.separator +"start-sound.mp3";
@@ -46,7 +46,7 @@ public class ApplicationController extends Application {
     private DatabaseManager m_databaseManager;
     private FilePersistentStorage m_filePersistentStorage;
     private MainUI m_rootUI;
-    private Stage stageCopy;
+    private Stage m_stageCopy;
 
     /**
      * Load previously saved session states
@@ -148,7 +148,7 @@ public class ApplicationController extends Application {
      */
     @Override
     public void start(Stage primaryStage) {
-        stageCopy = primaryStage;
+        m_stageCopy = primaryStage;
         //disable jaudiotagger logging
 
         if (!m_databaseManager.isDatabaseFileExist()) {
@@ -262,8 +262,7 @@ public class ApplicationController extends Application {
                               m_filePersistentStorage,
                               libraryUIExpandedPaths,
                               rightPanelExpandedPaths,
-                              this
-                              );
+                              this);
     }
 
     /**
@@ -302,17 +301,19 @@ public class ApplicationController extends Application {
         }
     }
 
-    /** Toggles minimode on, shrinks window
-    */
+    /**
+     *  Toggles minimode on, shrinks window
+     */
     public void minimodeTurnOn() {
-        stageCopy.setHeight(MINI_MODE_HEIGHT);
-        stageCopy.setWidth(MINI_MODE_WIDTH);
+        m_stageCopy.setHeight(MINI_MODE_HEIGHT);
+        m_stageCopy.setWidth(MINI_MODE_WIDTH);
     }
 
-    /** Toggles minimode off, re-expands window to original size
-    */
+    /**
+     *  Toggles minimode off, re-expands window to original size
+     */
     public void minimodeTurnOff() {
-        stageCopy.setWidth(ORIGINAL_WINDOW_WIDTH);
-        stageCopy.setHeight(ORIGINAL_WINDOW_HEIGHT);
+        m_stageCopy.setWidth(ORIGINAL_WINDOW_WIDTH);
+        m_stageCopy.setHeight(ORIGINAL_WINDOW_HEIGHT);
     }
 }
