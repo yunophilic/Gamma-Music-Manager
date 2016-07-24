@@ -113,7 +113,7 @@ public class MusicPlayerManager {
         m_currentSong = songToPlay;
         m_musicPlayer.playSong(songToPlay);
         updateHistory();
-        m_databaseManager.deleteFromPlaybackQueue(songToPlay.getFile().getAbsolutePath());
+        //m_databaseManager.deleteFromPlaybackQueue(songToPlay.getFile().getAbsolutePath());
 
         notifyQueingObserver();
     }
@@ -164,6 +164,20 @@ public class MusicPlayerManager {
      * @param playlistToPlay The playlist that we want to play.
      */
     public void playPlaylist(Playlist playlistToPlay) {
+        if (m_currentPlayList != null) {
+            pause();
+            double percentage = getCurrentPlayTime().toMillis() / getEndTime().toMillis();
+            setCurrentPlaylistSongPercentage(percentage);
+            String currentPlaylistName = getCurrentPlaylistName();
+            if ( !m_databaseManager.checkIfResumeTimeExists( currentPlaylistName ) ) {
+                m_databaseManager.savePlaylistResumeTime(currentPlaylistName, percentage);
+            }
+            else {
+                m_databaseManager.updateResumeTime(currentPlaylistName, percentage);
+            }
+            System.out.println("Percentage saved!");
+        }
+
         if (playlistToPlay.getM_songList().isEmpty()){
             m_lastException = new Exception("Cannot play playlist " + playlistToPlay.getM_playlistName() +
                     " because there is no songs in there");
@@ -741,5 +755,23 @@ public class MusicPlayerManager {
             m_playingQueue.remove(index);
         }
         notifyQueingObserver();
+    }
+
+    /**
+     * Set the resume time for current playlist
+     *
+     * @param percentage
+     */
+    public void setCurrentPlaylistSongPercentage(double percentage) {
+        m_currentPlayList.setM_songResumeTime(percentage);
+    }
+
+    /**
+     * Get the current playlist's name
+     *
+     * @return
+     */
+    public String getCurrentPlaylistName() {
+        return m_currentPlayList.getM_playlistName();
     }
 }
