@@ -189,7 +189,7 @@ public class MenuUI extends MenuBar{
         exportPlaylistMenu.setOnAction(event -> {
             Pair<Playlist, File> playlistFilePair = PromptUI.exportPlaylist(m_model.getM_playlists());
             if (playlistFilePair != null) {
-                m_model.copyPlaylistToDestination(playlistFilePair);
+                m_model.copyPlaylistToDestination(playlistFilePair.getKey(), playlistFilePair.getValue());
             }
         });
 
