@@ -27,7 +27,7 @@ public class StartUpLoader extends Preloader {
         final int SPLASH_WINDOW_WIDTH = 500;
         final int SPLASH_WINDOW_HEIGHT = 281;
         final int LOADING_INDICATOR_SIZE = 70;
-        final String SPLASH_BACKGROUND_IMAGE =  "res\\splash.png";
+        final String SPLASH_BACKGROUND_IMAGE = "res\\splash.png";
 
         BorderPane loadingPane = new BorderPane();
 
