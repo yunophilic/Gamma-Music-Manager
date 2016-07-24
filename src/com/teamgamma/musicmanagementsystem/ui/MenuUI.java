@@ -1,9 +1,11 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.model.*;
+import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.util.ConcreteFileActions;
 import com.teamgamma.musicmanagementsystem.util.FileActions;
+import com.teamgamma.musicmanagementsystem.ApplicationController;
+
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -16,7 +18,9 @@ import java.io.File;
  * Class for the Menu Bar
  */
 public class MenuUI extends MenuBar{
-    private static final String FILE_TITLE = "File";
+    // Constants
+    private static final String MINI_MODE = "Minimode";
+   	private static final String FILE_TITLE = "File";
     private static final String ADD_LIBRARY_OPTION = "Add Library";
     private static final String OPTIONS_TITLE = "Options";
     private static final String LEFT_PANEL_OPTION = "Left Panel";
@@ -34,6 +38,10 @@ public class MenuUI extends MenuBar{
 
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
+    private ApplicationController m_applicationController;
+    private MainUI m_main;
+    private boolean m_miniCheck = false;
+
 
     /**
      * Constructor
@@ -41,12 +49,15 @@ public class MenuUI extends MenuBar{
      * @param model The song manager
      * @param databaseManager The database manager
      * @param filePersistentStorage The configuration file
+	 * @param mainUI  The Main UI
+     * @param applicationController   The application controller
      */
-    public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage){
+    public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage, MainUI mainUI, ApplicationController applicationController){
         super();
         m_model = model;
         m_databaseManager = databaseManager;
-
+        m_main = mainUI;
+        m_applicationController = applicationController;
         setMenu(filePersistentStorage);
     }
 
@@ -56,7 +67,7 @@ public class MenuUI extends MenuBar{
      * @param filePersistentStorage The configuration file
      */
     private void setMenu(FilePersistentStorage filePersistentStorage) {
-        super.getMenus().addAll(getMenuFile(), getMenuOptions(filePersistentStorage), getPlaylistSubMenu());
+        super.getMenus().addAll(getMenuFile(), getMenuOptions(filePersistentStorage), getPlaylistSubMenu(), miniMode());
     }
 
     private Menu getMenuFile() {
@@ -195,5 +206,32 @@ public class MenuUI extends MenuBar{
 
         playlistSubMenu.getItems().addAll(createNewPlaylistMenu, removePlaylistMenu, exportPlaylistMenu);
         return playlistSubMenu;
+    }
+
+    /**
+     * Toggles minimode on or off on button click
+     * @return a Menu object: minimodeButton
+     */
+    private Menu miniMode() {
+        Menu minimodeButton = new Menu(MINI_MODE);
+        CheckMenuItem mini = new CheckMenuItem(MINI_MODE + "!");
+        mini.setOnAction(event -> {
+            System.out.println("Clicked minimode");
+            if (m_miniCheck == false) {
+                m_miniCheck = true;
+                m_applicationController.minimodeTurnOn();
+                m_main.minimodeTurnOn();
+            }
+
+            else if (m_miniCheck == true){
+                System.out.println("Clicked minimode");
+                m_miniCheck = false;
+                m_applicationController.minimodeTurnOff();
+                m_main.minimodeTurnOff();
+            }
+
+        });
+        minimodeButton.getItems().addAll(mini);
+        return minimodeButton;
     }
 }
