@@ -9,10 +9,8 @@ import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
@@ -151,12 +149,53 @@ public class ApplicationController extends Application {
             System.out.println("creating new database file...");
             m_databaseManager.createDatabaseFile();
             m_databaseManager.setupDatabase();
+
             String firstLibrary = PromptUI.initialWelcome();
-            if (firstLibrary != null) {
-                m_songManager.addLibrary(firstLibrary);
-                m_databaseManager.addLibrary(firstLibrary);
+
+            // Create a stage for splash screen
+            Stage stage = new Stage();
+
+            // If wanted splash screen in a new thread instead of loading libraries--
+            // doesn't work because the screen shows after processing has finished and when main UI displays
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Platform.runLater(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            StartUpLoader.splashScreenDisplay(stage);
+//                            stage.show();
+//                        }
+//                    });
+//                }
+//            }).start();
+
+            Task loadingTask = new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    if (firstLibrary != null) {
+                        m_songManager.addLibrary(firstLibrary);
+                        m_databaseManager.addLibrary(firstLibrary);
+                    }
+
+                    return null;
+                }
+            };
+
+            Thread loadingThread = new Thread(loadingTask);
+            loadingThread.start();
+            StartUpLoader.splashScreenDisplay(stage);
+            stage.show();
+
+            try {
+                loadingThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+
+            //stage.hide();
             loadSessionState();
+
         }
 
         primaryStage.setTitle(APP_TITLE);
@@ -177,6 +216,7 @@ public class ApplicationController extends Application {
         Media sound = new Media(new File(START_SOUND_PATH).toURI().toString());
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         mediaPlayer.play();
+
     }
 
     /**
@@ -191,7 +231,7 @@ public class ApplicationController extends Application {
         final int LOADING_SIZE = 70;
         final double MESSAGE_OPACITY = .8;
         final int FONT_SIZE = 14;
-        final String SPLASH_BACKGROUND_IMAGE = "res\\loading-bg.png";
+        final String LOADING_BACKGROUND_IMAGE = "res\\loading-bg.png";
         watcher.stopWatcher();
 
         ProgressIndicator progress = new ProgressIndicator();
@@ -199,7 +239,7 @@ public class ApplicationController extends Application {
         closingWindow.setBottom(progress);
         closingWindow.setPrefSize(LOADING_SIZE, LOADING_SIZE);
 
-        Image backgroundImage = new Image(SPLASH_BACKGROUND_IMAGE);
+        Image backgroundImage = new Image(LOADING_BACKGROUND_IMAGE);
         closingWindow.setBackground(new Background(new BackgroundImage(backgroundImage, BackgroundRepeat.REPEAT,
                 BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
 
