@@ -9,9 +9,7 @@ import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystemException;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -186,7 +184,7 @@ public class SongManager {
      * @param fileActions the file action
      * @throws IOException
      */
-    private void updateFilesInFileTree(FileActions fileActions) throws IOException{
+    private void updateFilesInFileTree(FileActions fileActions) throws IOException {
         for (Pair<Action, File> fileAction : fileActions) {
             Action action = fileAction.getKey();
             if (fileAction != null && action != Action.NONE) {
@@ -314,7 +312,7 @@ public class SongManager {
      * Search node from all libraries based on the specified item
      *
      * @param file The item to search on
-     * @return node containing the item, or null if not founr
+     * @return node containing the item, or null if not found
      */
     public TreeItem<Item> search(File file) {
         for (Library lib : m_libraries) {
@@ -455,6 +453,28 @@ public class SongManager {
             }
         }
         return null;
+    }
+
+    /**
+     * Copy a playlist to a destination
+     *
+     * @param playlist The playlist to copy
+     * @param file The destination file
+     */
+    public void copyPlaylistToDestination(Playlist playlist, File file) {
+        try {
+            // Create playlist folder
+            String path = file.getAbsolutePath() + File.separator + playlist.getM_playlistName();
+            Path destPath = Files.createDirectory(Paths.get(path));
+            File destFile = destPath.toFile();
+
+            // Copy songs
+            for (Song song : playlist.getM_songList()) {
+                FileManager.copyFile(song.getFile(), destFile);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
