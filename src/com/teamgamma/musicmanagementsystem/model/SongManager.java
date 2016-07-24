@@ -458,11 +458,10 @@ public class SongManager {
     /**
      * Copy a playlist to a destination
      *
-     * @param playlistFilePair The pair of playlist and destination
+     * @param playlist The playlist to copy
+     * @param file The destination file
      */
-    public void copyPlaylistToDestination(Pair<Playlist, File> playlistFilePair) {
-        File file = playlistFilePair.getValue();
-        Playlist playlist = playlistFilePair.getKey();
+    public void copyPlaylistToDestination(Playlist playlist, File file) {
         try {
             // Create playlist folder
             String path = file.getAbsolutePath() + File.separator + playlist.getM_playlistName();
@@ -474,7 +473,7 @@ public class SongManager {
                 FileManager.copyFile(song.getFile(), destFile);
             }
         } catch (IOException e) {
-                e.printStackTrace();
+            e.printStackTrace();
         }
     }
 

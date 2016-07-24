@@ -1056,7 +1056,7 @@ public class PromptUI {
      * Prompt to export a selected playlist
      *
      * @param playlists list of playlists
-     * @return selected playlist
+     * @return selected playlist, null if prompt is canceled
      */
     public static Pair<Playlist, File> exportPlaylist(List<Playlist> playlists) {
         if(playlists.isEmpty()) {
