@@ -235,7 +235,6 @@ public class ApplicationController extends Application {
     private void savePlaylistSongs() {
         for (Playlist playlist : m_songManager.getM_playlists()) {
             m_databaseManager.savePlaylistSongs(playlist);
-            m_databaseManager.savePlaylistResumeTime(playlist.getM_playlistName(), playlist.getM_songResumeTime());
         }
     }
 
