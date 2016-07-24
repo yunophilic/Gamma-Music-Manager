@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
@@ -24,20 +25,22 @@ public class MusicPlayerHistoryUI extends Accordion{
 
     /**
      * Constructor
+     *
+     * @param model         The Songmanager model
      * @param manager       The music player manager
      */
-    public MusicPlayerHistoryUI(MusicPlayerManager manager) {
+    public MusicPlayerHistoryUI(SongManager model, MusicPlayerManager manager) {
         m_manager = manager;
 
         TitledPane playbackHistory = UserInterfaceUtils.createTitlePane(PLAYBACK_HISTORY_HEADER, m_manager.getHistory(),
-                createHistoryAction());
+                createHistoryAction(model));
 
         this.getPanes().add(playbackHistory);
 
         manager.registerNewSongObserver(
                 () -> Platform.runLater(
                     () -> playbackHistory.setContent(UserInterfaceUtils.createUIList(manager.getHistory(),
-                            createHistoryAction()))
+                            createHistoryAction(model)))
                 )
         );
 
@@ -60,9 +63,11 @@ public class MusicPlayerHistoryUI extends Accordion{
      * Function to create a implementation of the interface that will contain the logic for displaying songs that are
      * in the history.
      *
+     * @param songManager The model
+     *
      * @return The implementation of the history action.
      */
-    private ILabelAction createHistoryAction(){
+    private ILabelAction createHistoryAction(SongManager songManager){
         return (songForRow, songNumber) -> {
             HBox row = new HBox();
 
@@ -81,7 +86,7 @@ public class MusicPlayerHistoryUI extends Accordion{
                 HBox.setHgrow(fileName, Priority.ALWAYS);
             }
 
-            ContextMenu playbackMenu = ContextMenuBuilder.buildPlaybackContextMenu(m_manager, songForRow);
+            ContextMenu playbackMenu = ContextMenuBuilder.buildPlaybackContextMenu(m_manager, songManager, songForRow);
             row.setOnContextMenuRequested(event -> {
                 playbackMenu.hide();
                 playbackMenu.show(row, event.getScreenX(), event.getScreenY());

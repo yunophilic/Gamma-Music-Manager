@@ -39,7 +39,9 @@ public class ContextMenuBuilder {
     private static final String PLAY_SONG = "Play Song";
     private static final String PLAY_SONG_NEXT = "Play Song Next";
     private static final String PLACE_SONG_ON_QUEUE = "Place Song On Queue";
+
     private static final String SHOW_IN_EXPLORER = "Show in Explorer";
+    private static final String SHOW_IN_LIBRARY = "Show in Library";
 
     /**
      * Construct file tree context menu
@@ -232,6 +234,7 @@ public class ContextMenuBuilder {
         MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedSong);
 
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedSong);
+        MenuItem openInLibrary = createShowInLibraryMenuItem(model, selectedSong);
 
         //separators (non functional menu items, just for display)
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
@@ -243,7 +246,7 @@ public class ContextMenuBuilder {
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, songOptionsSeparator,
                 removeFromPlaylist, playlistOptionsSeparator,
                 editProperties, editPropertiesOptionSeparator,
-                rename, delete, explorerOptionsSeparator, openFileLocation);
+                rename, delete, explorerOptionsSeparator, openFileLocation, openInLibrary);
 
         contextMenu.setOnShown(event -> {
             // Hide all if selectedSongIndex out of bounds
@@ -261,11 +264,12 @@ public class ContextMenuBuilder {
      * Construct playback context menu
      *
      * @param musicPlayerManager        The music player manager
+     * @param songManager               SongManager model
      * @param selectedItem              The selected song (in Item interface form)
      *
      * @return                          Playback context menu for music player history UI
      */
-    public static ContextMenu buildPlaybackContextMenu(MusicPlayerManager musicPlayerManager, Item selectedItem) {
+    public static ContextMenu buildPlaybackContextMenu(MusicPlayerManager musicPlayerManager, SongManager songManager, Item selectedItem) {
         ContextMenu playbackMenu = new ContextMenu();
         playbackMenu.setAutoHide(true);
 
@@ -273,8 +277,9 @@ public class ContextMenuBuilder {
         playSong.setStyle("-fx-font-weight: bold");
         MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, selectedItem);
         MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedItem);
+        MenuItem openInLibrary = createShowInLibraryMenuItem(songManager, selectedItem);
 
-        playbackMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue);
+        playbackMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, openInLibrary);
 
         return playbackMenu;
     }
@@ -537,6 +542,29 @@ public class ContextMenuBuilder {
                 } catch (IOException e) {
                     PromptUI.customPromptError("Failed to Show in Explorer", null, "The file or folder location could not be opened.");
                 }
+            }
+        });
+
+        return showInExplorer;
+    }
+
+    /**
+     * Function that creates menu option to open the selected folder/files' folder in the Library and the file in center panel
+     *
+     * @param model songmanager model
+     * @param selectedItem the file or folder selected in the tree view.
+     * @return the menu item which opens the file or folder's location.
+     */
+    private static MenuItem createShowInLibraryMenuItem(SongManager model, Item selectedItem) {
+        MenuItem showInExplorer = new MenuItem(SHOW_IN_LIBRARY);
+
+        showInExplorer.setOnAction(event -> {
+            if (selectedItem != null) {
+                File selectedFile = selectedItem.getFile();
+
+                // Display in center panel
+                model.setM_selectedCenterFolder(selectedFile.getParentFile());
+                model.notifyCenterFolderObservers();
             }
         });
 
