@@ -1,33 +1,37 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.util.Action;
+import com.teamgamma.musicmanagementsystem.util.*;
 import com.teamgamma.musicmanagementsystem.model.*;
-import com.teamgamma.musicmanagementsystem.util.ConcreteFileActions;
-import com.teamgamma.musicmanagementsystem.util.FileActions;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import com.teamgamma.musicmanagementsystem.*;
 
 import java.io.File;
+
+import javafx.scene.control.*;
 
 /**
  * Class for the Menu Bar
  */
 public class MenuUI extends MenuBar{
+    // Constants
+    private final String MINI_MODE = "Minimode";
+    
+    private boolean m_miniCheck = false;
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
+    private ApplicationController m_applicationController;
+    private MainUI m_main;
 
-    public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage){
+    public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage, MainUI mainUI, ApplicationController applicationController){
         super();
         m_model = model;
         m_databaseManager = databaseManager;
-
+        m_main = mainUI;
+        m_applicationController = applicationController;
         setMenu(filePersistentStorage);
     }
 
     private void setMenu(FilePersistentStorage filePersistentStorage) {
-        super.getMenus().addAll(getMenuFile(), getMenuOptions(filePersistentStorage), getPlaylistSubMenu());
+        super.getMenus().addAll(getMenuFile(), getMenuOptions(filePersistentStorage), getPlaylistSubMenu(), miniMode());
     }
 
     private Menu getMenuFile() {
@@ -135,5 +139,32 @@ public class MenuUI extends MenuBar{
 
         playlistSubMenu.getItems().addAll(createNewPlaylistMenu, removePlaylistMenu);
         return playlistSubMenu;
+    }
+
+    /**
+     * Toggles minimode on or off on button click
+     * @return a Menu object: minimodeButton
+     */
+    private Menu miniMode() {
+        Menu minimodeButton = new Menu(MINI_MODE);
+        CheckMenuItem mini = new CheckMenuItem(MINI_MODE + "!");
+        mini.setOnAction(event -> {
+            System.out.println("Clicked minimode");
+            if (m_miniCheck == false) {
+                m_miniCheck = true;
+                m_applicationController.minimodeTurnOn();
+                m_main.minimodeTurnOn();
+            }
+
+            else if (m_miniCheck == true){
+                System.out.println("Clicked minimode");
+                m_miniCheck = false;
+                m_applicationController.minimodeTurnOff();
+                m_main.minimodeTurnOff();
+            }
+
+        });
+        minimodeButton.getItems().addAll(mini);
+        return minimodeButton;
     }
 }

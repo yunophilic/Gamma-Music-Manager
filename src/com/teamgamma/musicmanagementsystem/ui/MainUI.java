@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.ApplicationController;
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
@@ -17,25 +18,38 @@ import java.util.List;
  * MainUI Class.
  */
 public class MainUI extends BorderPane {
+    private final double TWO_HUNDRED_AND_FIFTY = 250;
+    private final double THREE_HUNDRED_AND_FIFTY = 350;
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private FilePersistentStorage m_filePersistentStorage;
     private LibraryUI m_libraryUI;
     private DynamicTreeViewUI m_rightFilePane;
+    private ApplicationController m_applicationController;
+    private BorderPane m_leftPane;
+    private BorderPane m_centerPane;
+    private BorderPane m_rightPane;
+    private List<String> m_library;
+    private List<String> m_dynamicTree;
 
     public MainUI(SongManager model,
                   MusicPlayerManager musicPlayerManager,
                   DatabaseManager databaseManager,
                   FilePersistentStorage filePersistentStorage,
                   List<String> libraryExpandedPaths,
-                  List<String> dynamicTreeViewExpandedPaths) {
+                  List<String> dynamicTreeViewExpandedPaths,
+                  ApplicationController applicationController) {
         super();
 
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         m_filePersistentStorage = filePersistentStorage;
+        m_applicationController = applicationController;
+
+        m_library = libraryExpandedPaths;
+        m_dynamicTree = dynamicTreeViewExpandedPaths;
 
         this.setLeft(leftPane(libraryExpandedPaths));
         this.setRight(rightPane());
@@ -47,10 +61,10 @@ public class MainUI extends BorderPane {
     private Node leftPane(List<String> libraryExpandedPaths) {
         m_libraryUI = new LibraryUI(m_model, m_musicPlayerManager, m_databaseManager, libraryExpandedPaths);
 
-        BorderPane leftPane = new BorderPane();
-        leftPane.setCenter(m_libraryUI);
-        leftPane.setPrefWidth(250);
-        return leftPane;
+        m_leftPane = new BorderPane();
+        m_leftPane.setCenter(m_libraryUI);
+        m_leftPane.setPrefWidth(TWO_HUNDRED_AND_FIFTY);
+        return m_leftPane;
     }
 
     private Node rightPane() {
@@ -62,16 +76,16 @@ public class MainUI extends BorderPane {
                 m_filePersistentStorage));
         musicPlayerWrapper.getChildren().add(new MusicPlayerPlaybackQueueUI(m_musicPlayerManager, m_model));
 
-        BorderPane rightPane = new BorderPane();
-        rightPane.setCenter(playlistUI);
-        rightPane.setBottom(musicPlayerWrapper);
-        rightPane.setPrefWidth(350);
+        m_rightPane = new BorderPane();
+        m_rightPane.setCenter(playlistUI);
+        m_rightPane.setBottom(musicPlayerWrapper);
+        m_rightPane.setPrefWidth(THREE_HUNDRED_AND_FIFTY);
 
-        return rightPane;
+        return m_rightPane;
     }
 
     private Node topPane() {
-        return new MenuUI(m_model, m_databaseManager, m_filePersistentStorage);
+        return new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, this, m_applicationController);
     }
 
     private Node bottomPane() {
@@ -79,10 +93,9 @@ public class MainUI extends BorderPane {
     }
 
     private Node centerPane(List<String> dynamicTreeViewExpandedPaths) {
-        BorderPane centerPane = new BorderPane();
-
-        centerPane.setCenter(createFileExplorer(dynamicTreeViewExpandedPaths));
-        return centerPane;
+        m_centerPane = new BorderPane();
+        m_centerPane.setCenter(createFileExplorer(dynamicTreeViewExpandedPaths));
+        return m_centerPane;
     }
 
     private Node createFileExplorer(List<String> dynamicTreeViewExpandedPaths) {
@@ -105,5 +118,27 @@ public class MainUI extends BorderPane {
 
     public List<String> getDynamicTreeViewUIExpandedPaths() {
         return m_rightFilePane.getExpandedPaths();
+    }
+
+    /**
+     * Turns on minimode. Sets leftPane to be
+     *  the rightPane (MusicPlayer)
+     */
+    public void minimodeTurnOn() {
+        this.setLeft(rightPane());
+    }
+
+    /**
+     * Turns off minimode, resetting the panes to their
+     *  original places
+     */
+    public void minimodeTurnOff() {
+        this.setLeft(leftPane(m_library));
+        this.setRight(rightPane());
+        this.setCenter(centerPane(m_dynamicTree));
+        this.setTop(topPane());
+        this.setBottom(bottomPane());
+        m_centerPane.setVisible(true);
+        m_rightPane.setVisible(true);
     }
 }
