@@ -55,6 +55,7 @@ public class DatabaseManager {
     private PreparedStatement m_updateResumeTime;
     private PreparedStatement m_getResumeTime;
     private PreparedStatement m_clearResumeTime;
+    private PreparedStatement m_countResumeTimeEntry;
 
     public DatabaseManager() {
     }
@@ -186,6 +187,10 @@ public class DatabaseManager {
                                                             "WHERE playlistName = ?");
 
             m_clearResumeTime = m_connection.prepareStatement("DELETE FROM ResumeTime");
+
+            m_countResumeTimeEntry = m_connection.prepareStatement("SELECT COUNT(*) AS row " +
+                                                                   "FROM ResumeTime " +
+                                                                   "WHERE playlistName = ?");
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -937,5 +942,29 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    /**
+     * Check if the resume time is already stored in the table ResumeTime
+     *
+     * @param playlistName
+     * @return
+     */
+    public boolean checkIfResumeTimeExists(String playlistName) {
+        try {
+            m_countResumeTimeEntry.setString(1, playlistName);
+            ResultSet resultSet = m_countResumeTimeEntry.executeQuery();
+            int count = resultSet.getInt("row");
+            if (count == 1) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

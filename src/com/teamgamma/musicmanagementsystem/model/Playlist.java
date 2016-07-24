@@ -22,6 +22,7 @@ public class Playlist {
         m_playlistName = playlistName;
         m_songList = new ArrayList<>();
         m_currentSongIndex = -1;
+        m_songResumeTime = 0.0;
     }
 
     /**
@@ -34,6 +35,7 @@ public class Playlist {
         m_playlistName = playlistName;
         m_songList = new ArrayList<>();
         m_currentSongIndex = songIndex;
+        m_songResumeTime = 0.0;
     }
 
     /**

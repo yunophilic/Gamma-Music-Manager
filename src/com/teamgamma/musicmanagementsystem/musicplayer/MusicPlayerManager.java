@@ -164,19 +164,7 @@ public class MusicPlayerManager {
      * @param playlistToPlay The playlist that we want to play.
      */
     public void playPlaylist(Playlist playlistToPlay) {
-        if (m_currentPlayList != null) {
-            pause();
-            double percentage = getCurrentPlayTime().toMillis() / getEndTime().toMillis();
-            setCurrentPlaylistSongPercentage(percentage);
-            String currentPlaylistName = getCurrentPlaylistName();
-            if ( !m_databaseManager.checkIfResumeTimeExists( currentPlaylistName ) ) {
-                m_databaseManager.savePlaylistResumeTime(currentPlaylistName, percentage);
-            }
-            else {
-                m_databaseManager.updateResumeTime(currentPlaylistName, percentage);
-            }
-            System.out.println("Percentage saved!");
-        }
+        setCurrentPlaylistSongPercentage();
 
         if (playlistToPlay.getM_songList().isEmpty()){
             m_lastException = new Exception("Cannot play playlist " + playlistToPlay.getM_playlistName() +
@@ -759,19 +747,12 @@ public class MusicPlayerManager {
 
     /**
      * Set the resume time for current playlist
-     *
-     * @param percentage
      */
-    public void setCurrentPlaylistSongPercentage(double percentage) {
-        m_currentPlayList.setM_songResumeTime(percentage);
-    }
-
-    /**
-     * Get the current playlist's name
-     *
-     * @return
-     */
-    public String getCurrentPlaylistName() {
-        return m_currentPlayList.getM_playlistName();
+    public void setCurrentPlaylistSongPercentage() {
+        if (m_currentPlayList != null) {
+            //pause();
+            double percentage = getCurrentPlayTime().toMillis() / getEndTime().toMillis();
+            m_currentPlayList.setM_songResumeTime(percentage);
+        }
     }
 }

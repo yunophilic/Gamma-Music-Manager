@@ -188,6 +188,7 @@ public class ApplicationController extends Application {
         final int CLOSING_WINDOW_WIDTH = 400;
         final int CLOSING_WINDOW_HEIGHT = 80;
         watcher.stopWatcher();
+        musicPlayerManager.setCurrentPlaylistSongPercentage();
 
         ProgressBar progressBar = new ProgressBar();
         BorderPane closingWindow = new BorderPane();
@@ -209,6 +210,7 @@ public class ApplicationController extends Application {
             protected Object call() throws Exception {
                 musicPlayerManager.stopSong();
                 savePlaylistSongs();
+                savePlaylistsResumeTimes();
                 savePlaybackQueue();
                 saveFileTreeState();
                 m_filePersistentStorage.saveConfigFile(m_songManager.getM_rightFolderSelected(),
@@ -227,13 +229,22 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save songs in all playlist and each of their resume time
+     * Save songs in all playlist
      * Save Playlist songs to database
      */
     private void savePlaylistSongs() {
-        m_databaseManager.clearResumeTime();
         for (Playlist playlist : m_songManager.getM_playlists()) {
             m_databaseManager.savePlaylistSongs(playlist);
+            m_databaseManager.savePlaylistResumeTime(playlist.getM_playlistName(), playlist.getM_songResumeTime());
+        }
+    }
+
+    /**
+     * Save resume time for each existing playlist
+     */
+    public void savePlaylistsResumeTimes() {
+        m_databaseManager.clearResumeTime();
+        for (Playlist playlist : m_songManager.getM_playlists()) {
             m_databaseManager.savePlaylistResumeTime(playlist.getM_playlistName(), playlist.getM_songResumeTime());
         }
     }
