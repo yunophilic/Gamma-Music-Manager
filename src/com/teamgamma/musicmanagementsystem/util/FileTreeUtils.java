@@ -292,8 +292,6 @@ public class FileTreeUtils {
         System.out.println("^^^^ PARENT NODE: " + parentNode);
 
         recursivelyRenameNodes(nodeToRename, renamedFile.getAbsolutePath());
-
-        model.notifyRightFolderObservers();
     }
 
     /**

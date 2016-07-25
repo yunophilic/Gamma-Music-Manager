@@ -26,6 +26,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.util.Pair;
 
 
 /**
@@ -53,6 +54,8 @@ public class PromptUI {
     private static final String REMOVE_MEDIA_TITLE = "Remove Media File";
     private static final String DELETE_LIBRARY_TITLE = "Delete Library";
     private static final String DELETE_MEDIA_TITLE = "Delete Media File";
+    private static final String EXPORT_PLAYLIST_TITLE = "Export Playlist";
+    private static final String EXPORT_PLAYLIST_HEADER = "Select a playlist to export";
     private static final String PLAYLIST_EMPTY_HEADER = "Please enter at least one character for the playlist name";
     private static final String RENAME_FILE_LABEL = "Rename the file to:";
     private static final String CREATE_NEW_FOLDER_LABEL = "Folder name:";
@@ -967,6 +970,11 @@ public class PromptUI {
      * @return selected playlist the user chooses, null if user cancels
      */
     public static Playlist removePlaylistSelection(List<Playlist> playlists) {
+        if(playlists.isEmpty()) {
+            customPromptError("Error", null, "Playlists not found");
+            return null;
+        }
+
         ChoiceDialog<Playlist> dialog = new ChoiceDialog<>(playlists.get(0), playlists);
         Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
         stage.getIcons().add(PROMPT_ICON);
@@ -1040,6 +1048,36 @@ public class PromptUI {
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
             return result.get();
+        }
+        return null;
+    }
+
+    /**
+     * Prompt to export a selected playlist
+     *
+     * @param playlists list of playlists
+     * @return selected playlist, null if prompt is canceled
+     */
+    public static Pair<Playlist, File> exportPlaylist(List<Playlist> playlists) {
+        if(playlists.isEmpty()) {
+            customPromptError("Error", null, "Playlists not found");
+            return null;
+        }
+
+        ChoiceDialog<Playlist> dialog = new ChoiceDialog<>(playlists.get(0), playlists);
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(PROMPT_ICON);
+        dialog.setTitle(EXPORT_PLAYLIST_TITLE);
+        dialog.setHeaderText(EXPORT_PLAYLIST_HEADER);
+        dialog.setContentText(SELECT_PLAYLIST_LABEL);
+        Optional<Playlist> result = dialog.showAndWait();
+
+        if (result.isPresent()) {
+            DirectoryChooser directory = new DirectoryChooser();
+            File selectedFile = directory.showDialog(null);
+            if (selectedFile != null) {
+                return new Pair<>(result.get(), selectedFile);
+            }
         }
         return null;
     }

@@ -28,7 +28,18 @@ public class DynamicTreeViewUI extends StackPane {
         setPaneStyle();
         registerAsObserver();
 
+        initTreeView();
         updateTreeView(dynamicTreeViewExpandedPaths);
+    }
+
+    /**
+     * Initialize the file tree to contain a dummy root item
+     */
+    private void initTreeView() {
+        TreeItem<Item> root = new TreeItem<>(new DummyItem());
+
+        m_tree = new TreeView<>(root);
+        m_tree.setShowRoot(false);
     }
 
     /**
@@ -42,7 +53,7 @@ public class DynamicTreeViewUI extends StackPane {
         if (m_model.getM_rightFolderSelected() == null) {
             this.getChildren().add(new Label(LABEL_DEFAULT));
         } else {
-            m_tree = createTrees(m_model.getM_libraries(), dynamicTreeViewExpandedPaths);
+            createTrees(m_model.getM_libraries(), dynamicTreeViewExpandedPaths);
             this.getChildren().add(m_tree);
             setTreeCellFactory();
         }
@@ -111,9 +122,10 @@ public class DynamicTreeViewUI extends StackPane {
     /**
      * Construct the m_tree view and show previously expanded folders if applicable
      *
-     * @return TreeView<String>
+     * @param libraries                     List of libraries
+     * @param dynamicTreeViewExpandedPaths  List of expanded paths
      */
-    private TreeView<Item> createTrees(List<Library> libraries, List<String> dynamicTreeViewExpandedPaths) {
+    private void createTrees(List<Library> libraries, List<String> dynamicTreeViewExpandedPaths) {
         if (!libraries.isEmpty()) {
             TreeItem<Item> root = new TreeItem<>(new DummyItem());
 
@@ -129,12 +141,8 @@ public class DynamicTreeViewUI extends StackPane {
 
             root.getChildren().add(rootItem);
 
-            TreeView<Item> tree = new TreeView<>(root);
-            tree.setShowRoot(false);
-
-            return tree;
+            m_tree.setRoot(root);
         }
-        return null;
     }
 
     private void setPaneStyle() {

@@ -4,21 +4,22 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
+import com.teamgamma.musicmanagementsystem.ui.*;
 import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,8 +31,12 @@ import java.util.logging.Logger;
  * Class to wrap all components together.
  */
 public class ApplicationController extends Application {
-    private static final double MIN_WINDOW_WIDTH = 800;
-    private static final double MIN_WINDOW_HEIGHT = 400;
+    private static final double MINI_MODE_WIDTH = 367;
+    private static final double MINI_MODE_HEIGHT = 400;
+    private static final double ORIGINAL_WINDOW_WIDTH = 1200;
+    private static final double ORIGINAL_WINDOW_HEIGHT = 650;
+    private static final double MIN_WINDOW_WIDTH = 100;
+    private static final double MIN_WINDOW_HEIGHT = 100;
     private static final String APP_TITLE = "Gamma Music Manager";
     private static final String GAMMA_LOGO_IMAGE_URL = "res" + File.separator + "gamma-logo.png";
     private static final String START_SOUND_PATH = System.getProperty("user.dir") + File.separator + "src" + File.separator + "res" + File.separator +"start-sound.mp3";
@@ -41,6 +46,7 @@ public class ApplicationController extends Application {
     private DatabaseManager m_databaseManager;
     private FilePersistentStorage m_filePersistentStorage;
     private MainUI m_rootUI;
+    private Stage m_stageCopy;
 
     /**
      * Load previously saved session states
@@ -142,14 +148,15 @@ public class ApplicationController extends Application {
      */
     @Override
     public void start(Stage primaryStage) {
+        m_stageCopy = primaryStage;
         //disable jaudiotagger logging
-
         if (!m_databaseManager.isDatabaseFileExist()) {
             System.out.println("No libraries are existent");
             System.out.println("creating new database file...");
             m_databaseManager.createDatabaseFile();
             m_databaseManager.setupDatabase();
             String firstLibrary = PromptUI.initialWelcome();
+
             if (firstLibrary != null) {
                 m_songManager.addLibrary(firstLibrary);
                 m_databaseManager.addLibrary(firstLibrary);
@@ -185,22 +192,35 @@ public class ApplicationController extends Application {
      */
     private void closeApp(final MusicPlayerManager musicPlayerManager, final Watcher watcher) {
         final int CLOSING_WINDOW_WIDTH = 400;
-        final int CLOSING_WINDOW_HEIGHT = 80;
+        final int CLOSING_WINDOW_HEIGHT = 100;
+        final int LOADING_SIZE = 70;
+        final double MESSAGE_OPACITY = .8;
+        final int FONT_SIZE = 14;
+        final String LOADING_BACKGROUND_IMAGE = "res\\loading-bg.png";
         watcher.stopWatcher();
 
-        ProgressBar progressBar = new ProgressBar();
+        this.minimodeTurnOff();
+        m_rootUI.minimodeTurnOff();
+
+        ProgressIndicator progress = new ProgressIndicator();
+
         BorderPane closingWindow = new BorderPane();
-        closingWindow.setCenter(progressBar);
+        closingWindow.setBottom(progress);
+        closingWindow.setPrefSize(LOADING_SIZE, LOADING_SIZE);
+
+        Image backgroundImage = new Image(LOADING_BACKGROUND_IMAGE);
+        closingWindow.setBackground(new Background(new BackgroundImage(backgroundImage, BackgroundRepeat.REPEAT,
+                BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
 
         Label text = new Label("Saving current session...");
-        text.setFont(new Font(16));
-        text.setPadding(new Insets(10, CLOSING_WINDOW_WIDTH/4, 10, CLOSING_WINDOW_WIDTH/4));
-        closingWindow.setTop(text);
+        text.setFont(new Font(FONT_SIZE));
+        text.setOpacity(MESSAGE_OPACITY);
+        closingWindow.setCenter(text);
 
         Stage closingStage = new Stage();
         closingStage.setTitle(APP_TITLE);
-        closingStage.getIcons().add(new Image(GAMMA_LOGO_IMAGE_URL));
         closingStage.setScene(new Scene(closingWindow, CLOSING_WINDOW_WIDTH, CLOSING_WINDOW_HEIGHT));
+        closingStage.initStyle(StageStyle.TRANSPARENT);
         closingStage.show();
 
         Task closeTask = new Task() {
@@ -219,7 +239,7 @@ public class ApplicationController extends Application {
             }
         };
 
-        progressBar.progressProperty().bind(closeTask.progressProperty());
+        progress.progressProperty().bind(closeTask.progressProperty());
 
         new Thread(closeTask).start();
     }
@@ -251,7 +271,8 @@ public class ApplicationController extends Application {
                               m_databaseManager,
                               m_filePersistentStorage,
                               libraryUIExpandedPaths,
-                              rightPanelExpandedPaths);
+                              rightPanelExpandedPaths,
+                              this);
     }
 
     /**
@@ -288,5 +309,21 @@ public class ApplicationController extends Application {
                 System.out.println("DYNAMIC TREEVIEW EXPANDED PATH: " + path);
             }
         }
+    }
+
+    /**
+     *  Toggles minimode on, shrinks window
+     */
+    public void minimodeTurnOn() {
+        m_stageCopy.setHeight(MINI_MODE_HEIGHT);
+        m_stageCopy.setWidth(MINI_MODE_WIDTH);
+    }
+
+    /**
+     *  Toggles minimode off, re-expands window to original size
+     */
+    public void minimodeTurnOff() {
+        m_stageCopy.setWidth(ORIGINAL_WINDOW_WIDTH);
+        m_stageCopy.setHeight(ORIGINAL_WINDOW_HEIGHT);
     }
 }
