@@ -113,8 +113,6 @@ public class MusicPlayerManager {
         m_currentSong = songToPlay;
         m_musicPlayer.playSong(songToPlay);
         updateHistory();
-        //m_databaseManager.deleteFromPlaybackQueue(songToPlay.getFile().getAbsolutePath());
-
         notifyQueingObserver();
     }
 
@@ -152,7 +150,6 @@ public class MusicPlayerManager {
      */
     public void placeSongAtStartOfQueue(Song songToPlace) {
         m_playingQueue.add(0, songToPlace);
-        m_databaseManager.addToPlaybackQueueHead(songToPlace.getFile().getAbsolutePath());
         if (isNoSongPlayingOrNext()){
             playNextSong();
         }
