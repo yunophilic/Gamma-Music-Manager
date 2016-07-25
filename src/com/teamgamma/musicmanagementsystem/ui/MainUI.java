@@ -26,8 +26,10 @@ import java.util.List;
  */
 public class MainUI extends BorderPane {
     public static final String SEARCH_BUTTON_HEADER = "Search";
+    public static final String SEARCH_TAB_HEADER = "Search Results";
+    public static final String FILE_TREE_TAB_HEADER = "File Tree";
 
-	private final double TWO_HUNDRED_AND_FIFTY = 250;
+    private final double TWO_HUNDRED_AND_FIFTY = 250;
     private final double THREE_HUNDRED_AND_FIFTY = 350;
 
     private SongManager m_model;
@@ -118,7 +120,7 @@ public class MainUI extends BorderPane {
 
         searchText.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER){
-                m_model.searchForFilesAndFolders(searchText.getText());
+                searchForFiles(searchText);
             }
         });
 
@@ -137,13 +139,26 @@ public class MainUI extends BorderPane {
 
         search.setOnMouseClicked(event -> {
             System.out.println("Searching for " + searchText.getText());
-            m_model.searchForFilesAndFolders(searchText.getText());
+            searchForFiles(searchText);
         });
 
         searchWrapper.getChildren().addAll(searchText, search);
 
         wrapper.setRight(searchWrapper);
         return wrapper;
+    }
+
+    /**
+     * Function to call the search function for model depending on the input.
+     *
+     * @param searchText        The text to search for.
+     */
+    private void searchForFiles(TextField searchText) {
+        if (searchText.getText().isEmpty()) {
+            m_model.notifyInitalSearchObserver();
+        } else {
+            m_model.searchForFilesAndFolders(searchText.getText());
+        }
     }
 
     /**
@@ -173,9 +188,9 @@ public class MainUI extends BorderPane {
 
         TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        Tab fileTree = new Tab("File Tree", m_rightFilePane);
+        Tab fileTree = new Tab(FILE_TREE_TAB_HEADER, m_rightFilePane);
 
-        Tab searchResults = new Tab("Search Results", new SearchResultUI(m_model, m_musicPlayerManager, m_databaseManager));
+        Tab searchResults = new Tab(SEARCH_TAB_HEADER, new SearchResultUI(m_model, m_musicPlayerManager, m_databaseManager));
         tabPane.getTabs().addAll(fileTree, searchResults);
 
         pane.getChildren().addAll(contentListUI, tabPane);

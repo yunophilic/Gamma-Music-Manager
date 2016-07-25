@@ -6,6 +6,7 @@ import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import javafx.event.Event;
 import javafx.event.EventDispatcher;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.image.ImageView;
@@ -19,6 +20,13 @@ public class SearchTreeCell extends TextFieldTreeCell<Item> {
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
 
+    /**
+     * Constructor
+     *
+     * @param songManager               The song manager to interact with.
+     * @param musicPlayerManager        The music player manager interact with.
+     * @param dbManager
+     */
     public SearchTreeCell(SongManager songManager, MusicPlayerManager musicPlayerManager, DatabaseManager dbManager) {
         m_songManager = songManager;
         m_musicPlayerManager = musicPlayerManager;
@@ -54,8 +62,10 @@ public class SearchTreeCell extends TextFieldTreeCell<Item> {
             String iconPath = item.getFile().isDirectory() ? FileTreeUtils.FOLDER_ICON_URL : FileTreeUtils.SONG_ICON_URL;
             setGraphic(new ImageView(iconPath));
 
-            this.setContextMenu(ContextMenuBuilder.buildFileTreeContextMenu(
-                    m_songManager, m_musicPlayerManager, m_databaseManager, item, false));
+            ContextMenu contextMenu = ContextMenuBuilder.buildFileTreeContextMenu(
+                    m_songManager, m_musicPlayerManager, m_databaseManager, item, false);
+            contextMenu.getItems().add(ContextMenuBuilder.createShowInLibraryMenuItem(m_songManager, item));
+            this.setContextMenu(contextMenu);
         }
     }
 }

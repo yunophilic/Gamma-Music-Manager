@@ -15,6 +15,12 @@ public class Searcher {
     private TreeItem<Item> m_searchTreeRoot;
     private String m_searchString;
 
+    /**
+     * Constructor
+     *
+     * @param rootToStartSearch     Root element to start the search.
+     * @param searchString          String to search on.
+     */
     public Searcher(TreeItem<Item> rootToStartSearch, String searchString) {
         m_searchString = searchString;
         m_searchTreeRoot = findAllInstancesInTree(rootToStartSearch, caseInsensitiveStringSearch());

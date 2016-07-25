@@ -28,8 +28,8 @@ public class SongManager {
     private List<FileObserver> m_leftPanelOptionsObservers;
     private List<GeneralObserver> m_playlistObservers;
     private List<GeneralObserver> m_playlistSongsObservers;
-
-    private List<com.teamgamma.musicmanagementsystem.util.GeneralObserver> m_searchObservers;
+    private List<GeneralObserver> m_searchObservers;
+    private List<GeneralObserver> m_intialSearchModeObserver;
 
     // Buffers
     private Item m_itemToCopy;
@@ -68,6 +68,7 @@ public class SongManager {
         m_fileObservers = new ArrayList<>();
         m_leftPanelOptionsObservers = new ArrayList<>();
         m_searchObservers = new ArrayList<>();
+        m_intialSearchModeObserver = new ArrayList<>();
 
         m_playlistObservers = new ArrayList<>();
         m_playlistSongsObservers = new ArrayList<>();
@@ -518,6 +519,11 @@ public class SongManager {
         return m_itemToMove.getFile();
     }
 
+    /**
+     * Function to search for the given string in the files and folder that are in the model
+     *
+     * @param searchString      The string to search
+     */
     public void searchForFilesAndFolders(String searchString) {
         m_searchResults = new Searcher(m_fileTreeRoot, searchString);
         notifySearchObservers();
@@ -685,5 +691,13 @@ public class SongManager {
 
     public void registerSearchObserver(GeneralObserver observer) {
         m_searchObservers.add(observer);
+    }
+
+    public void notifyInitalSearchObserver(){
+        notifySpecifiedGeneralObservers(m_intialSearchModeObserver);
+    }
+
+    public void registerInitalSearchObserver(GeneralObserver observer) {
+        m_intialSearchModeObserver.add(observer);
     }
 }
