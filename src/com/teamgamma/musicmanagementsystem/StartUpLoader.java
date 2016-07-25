@@ -1,12 +1,19 @@
 package com.teamgamma.musicmanagementsystem;
 
+import com.teamgamma.musicmanagementsystem.model.LoadingObserver;
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
+import javafx.application.Platform;
 import javafx.application.Preloader;
 import javafx.application.Preloader.StateChangeNotification.Type;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -19,22 +26,34 @@ import java.io.File;
 public class StartUpLoader extends Preloader {
     private Stage preloaderStage;
     private static final String APP_TITLE = "Gamma Music Manager";
+    private Label loadingLabel;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        loadingLabel = new Label(" \n ");
         this.preloaderStage = primaryStage;
+        registerObservers();
 
         final int SPLASH_WINDOW_WIDTH = 500;
-        final int SPLASH_WINDOW_HEIGHT = 281;
-        final int LOADING_INDICATOR_SIZE = 70;
+        final int SPLASH_WINDOW_HEIGHT = 300;
+        final int LOADING_INDICATOR_SIZE = 60;
+        final int TEXT_FONT_SIZE = 10;
+        final int VBOX_SPACING = 10;
+        final int VBOX_HEIGHT_ALIGNMENT = 65;
         final String SPLASH_BACKGROUND_IMAGE = "res\\splash.png";
 
         BorderPane loadingPane = new BorderPane();
 
         ProgressIndicator progress = new ProgressIndicator();
-        loadingPane.setBottom(progress);
-        loadingPane.setAlignment(progress, Pos.BASELINE_CENTER);
         progress.setPrefSize(LOADING_INDICATOR_SIZE, LOADING_INDICATOR_SIZE);
+
+        loadingLabel.setFont(new Font(TEXT_FONT_SIZE));
+        loadingLabel.setTextFill(Color.CORNFLOWERBLUE);
+        VBox box = new VBox(VBOX_SPACING);
+        box.setAlignment(Pos.CENTER);
+        box.setPadding(new Insets(VBOX_HEIGHT_ALIGNMENT, 0, 0, 0));
+        box.getChildren().addAll(progress, loadingLabel);
+        loadingPane.setCenter(box);
 
         Image backgroundImage = new Image(SPLASH_BACKGROUND_IMAGE);
         loadingPane.setBackground(new Background(new BackgroundImage(backgroundImage, BackgroundRepeat.REPEAT,
@@ -48,6 +67,21 @@ public class StartUpLoader extends Preloader {
         primaryStage.setScene(new Scene(loadingPane, SPLASH_WINDOW_WIDTH, SPLASH_WINDOW_HEIGHT));
         primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.show();
+    }
+
+    private void registerObservers() {
+        FileTreeUtils.addObserver(new LoadingObserver() {
+            @Override
+            public void loadNextElement() {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadingLabel.setText(FileTreeUtils.getLoadingPaths());
+                    }
+                });
+
+            }
+        });
     }
 
     @Override

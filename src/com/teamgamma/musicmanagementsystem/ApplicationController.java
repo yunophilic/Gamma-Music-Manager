@@ -193,7 +193,7 @@ public class ApplicationController extends Application {
     private void closeApp(final MusicPlayerManager musicPlayerManager, final Watcher watcher) {
         final int CLOSING_WINDOW_WIDTH = 400;
         final int CLOSING_WINDOW_HEIGHT = 100;
-        final int LOADING_SIZE = 70;
+        final int LOADING_SIZE = 60;
         final double MESSAGE_OPACITY = .8;
         final int FONT_SIZE = 14;
         final String LOADING_BACKGROUND_IMAGE = "res\\loading-bg.png";

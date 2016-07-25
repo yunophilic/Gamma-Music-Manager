@@ -19,6 +19,7 @@ public class FileTreeUtils {
     private static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
     private static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
 
+    private static String loadingPaths;
     /**
      * Recursively create tree items from the files in a directory and return a reference to the root item,
      * Set nodes in expandedPaths to expanded state
@@ -29,6 +30,16 @@ public class FileTreeUtils {
      * @return TreeItem<Item> to the root item
      */
     public static TreeItem<Item> generateTreeItems(File file, String dirPath, List<String> expandedPaths) {
+        // Show what is being loaded to splash screen
+        String filePath = file.getAbsolutePath();
+        final int MAX_FILE_ROW_LENGTH = 60;
+        if (filePath.length() < MAX_FILE_ROW_LENGTH) {
+            loadingPaths = filePath + "\n ";
+        } else {
+            loadingPaths = filePath.substring(0, MAX_FILE_ROW_LENGTH) + "\n" + filePath.substring(MAX_FILE_ROW_LENGTH);
+        }
+
+        notifyObservers();
         System.out.println(file + ", " + dirPath);
         System.out.println("$$$" + file + ", " + file.isDirectory());
 
@@ -505,6 +516,22 @@ public class FileTreeUtils {
                     uiNode.getChildren().add(newUINode);
                 }
             }
+        }
+    }
+
+    public static String getLoadingPaths() {
+        return loadingPaths;
+    }
+
+    private static List<LoadingObserver> observers = new ArrayList<>();
+
+    public static void addObserver(LoadingObserver observer) {
+        observers.add(observer);
+    }
+
+    private static void notifyObservers() {
+        for (LoadingObserver observer : observers) {
+            observer.loadNextElement();
         }
     }
 }
