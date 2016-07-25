@@ -165,7 +165,6 @@ public class MainUI extends BorderPane {
      * @return                                  The UI component for the file explorer.
      */
     private Node createFileExplorer(List<String> dynamicTreeViewExpandedPaths) {
-
         HBox pane = new HBox();
 
         ContentListUI contentListUI = new ContentListUI(m_model, m_musicPlayerManager, m_databaseManager);
@@ -223,7 +222,6 @@ public class MainUI extends BorderPane {
         this.setRight(rightPane());
         this.setCenter(centerPane(m_dynamicTree));
         this.setTop(topPane());
-        this.setBottom(bottomPane());
         m_centerPane.setVisible(true);
         m_rightPane.setVisible(true);
     }
