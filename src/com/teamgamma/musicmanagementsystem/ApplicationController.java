@@ -10,16 +10,16 @@ import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -150,13 +150,13 @@ public class ApplicationController extends Application {
     public void start(Stage primaryStage) {
         m_stageCopy = primaryStage;
         //disable jaudiotagger logging
-
         if (!m_databaseManager.isDatabaseFileExist()) {
             System.out.println("No libraries are existent");
             System.out.println("creating new database file...");
             m_databaseManager.createDatabaseFile();
             m_databaseManager.setupDatabase();
             String firstLibrary = PromptUI.initialWelcome();
+
             if (firstLibrary != null) {
                 m_songManager.addLibrary(firstLibrary);
                 m_databaseManager.addLibrary(firstLibrary);
@@ -192,25 +192,35 @@ public class ApplicationController extends Application {
      */
     private void closeApp(final MusicPlayerManager musicPlayerManager, final Watcher watcher) {
         final int CLOSING_WINDOW_WIDTH = 400;
-        final int CLOSING_WINDOW_HEIGHT = 80;
+        final int CLOSING_WINDOW_HEIGHT = 100;
+        final int LOADING_SIZE = 70;
+        final double MESSAGE_OPACITY = .8;
+        final int FONT_SIZE = 14;
+        final String LOADING_BACKGROUND_IMAGE = "res\\loading-bg.png";
         watcher.stopWatcher();
 
         this.minimodeTurnOff();
         m_rootUI.minimodeTurnOff();
 
-        ProgressBar progressBar = new ProgressBar();
+        ProgressIndicator progress = new ProgressIndicator();
+
         BorderPane closingWindow = new BorderPane();
-        closingWindow.setCenter(progressBar);
+        closingWindow.setBottom(progress);
+        closingWindow.setPrefSize(LOADING_SIZE, LOADING_SIZE);
+
+        Image backgroundImage = new Image(LOADING_BACKGROUND_IMAGE);
+        closingWindow.setBackground(new Background(new BackgroundImage(backgroundImage, BackgroundRepeat.REPEAT,
+                BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
 
         Label text = new Label("Saving current session...");
-        text.setFont(new Font(16));
-        text.setPadding(new Insets(10, CLOSING_WINDOW_WIDTH/4, 10, CLOSING_WINDOW_WIDTH/4));
-        closingWindow.setTop(text);
+        text.setFont(new Font(FONT_SIZE));
+        text.setOpacity(MESSAGE_OPACITY);
+        closingWindow.setCenter(text);
 
         Stage closingStage = new Stage();
         closingStage.setTitle(APP_TITLE);
-        closingStage.getIcons().add(new Image(GAMMA_LOGO_IMAGE_URL));
         closingStage.setScene(new Scene(closingWindow, CLOSING_WINDOW_WIDTH, CLOSING_WINDOW_HEIGHT));
+        closingStage.initStyle(StageStyle.TRANSPARENT);
         closingStage.show();
 
         Task closeTask = new Task() {
@@ -229,7 +239,7 @@ public class ApplicationController extends Application {
             }
         };
 
-        progressBar.progressProperty().bind(closeTask.progressProperty());
+        progress.progressProperty().bind(closeTask.progressProperty());
 
         new Thread(closeTask).start();
     }
