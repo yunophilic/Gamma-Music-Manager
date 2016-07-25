@@ -201,7 +201,7 @@ public class ApplicationController extends Application {
 
         this.minimodeTurnOff();
         m_rootUI.minimodeTurnOff();
-        
+
         ProgressIndicator progress = new ProgressIndicator();
 
         BorderPane closingWindow = new BorderPane();

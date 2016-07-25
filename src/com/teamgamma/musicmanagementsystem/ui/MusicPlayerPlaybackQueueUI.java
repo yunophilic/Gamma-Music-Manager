@@ -39,7 +39,7 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
         m_manager = manager;
 
         TitledPane queuingList = UserInterfaceUtils.createTitlePane(QUEUING_HEADER, m_manager.getPlayingQueue(),
-                createPlaybackQueueAction(), BRIGHT_BACKGROUND_COLOR);
+                createPlaybackQueueAction(songManager), BRIGHT_BACKGROUND_COLOR);
 
         queuingList.setStyle(BRIGHT_BACKGROUND_COLOR);
 
@@ -54,7 +54,7 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
         manager.registerQueingObserver(
             () -> Platform.runLater(
                 () -> queuingList.setContent(UserInterfaceUtils.createUIList(manager.getPlayingQueue(),
-                        createPlaybackQueueAction(), BRIGHT_BACKGROUND_COLOR))
+                        createPlaybackQueueAction(songManager), BRIGHT_BACKGROUND_COLOR))
             )
         );
 
@@ -103,9 +103,11 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
      * Function to create a implementation of the interface that will contain the logic for displaying songs in the
      * playback queue.
      *
+     * @param songManager The SongManager model
+     *
      * @return The implementation of the playback action.
      */
-    private ILabelAction createPlaybackQueueAction(){
+    private ILabelAction createPlaybackQueueAction(SongManager songManager){
         return (songForRow, songNumber) -> {
             HBox row = new HBox();
 
@@ -115,7 +117,7 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
             row.getChildren().add(fileName);
             HBox.setHgrow(fileName, Priority.ALWAYS);
 
-            ContextMenu playbackMenu = ContextMenuBuilder.buildPlaybackContextMenu(m_manager, songForRow);
+            ContextMenu playbackMenu = ContextMenuBuilder.buildPlaybackContextMenu(m_manager, songManager, songForRow);
             MenuItem removeSong = new MenuItem(REMOVE_SONG_FROM_QUEUE_MENU_MESSAGE);
             removeSong.setOnAction(event -> m_manager.removeSongFromPlaybackQueue(songNumber - 1));
             playbackMenu.getItems().add(removeSong);
