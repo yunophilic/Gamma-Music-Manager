@@ -23,14 +23,14 @@ import java.io.File;
  * Modified code from https://blog.codecentric.de/en/2015/09/javafx-how-to-easily-implement-application-preloader-2/
  */
 public class StartUpLoader extends Preloader {
-    private Stage preloaderStage;
     private static final String APP_TITLE = "Gamma Music Manager";
-    private Label loadingLabel;
+    private Stage m_preloaderStage;
+    private Label m_loadingLabel;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        loadingLabel = new Label();
-        this.preloaderStage = primaryStage;
+        m_loadingLabel = new Label();
+        this.m_preloaderStage = primaryStage;
         registerObservers();
 
         final int SPLASH_WINDOW_WIDTH = 500;
@@ -46,12 +46,12 @@ public class StartUpLoader extends Preloader {
         ProgressIndicator progress = new ProgressIndicator();
         progress.setPrefSize(LOADING_INDICATOR_SIZE, LOADING_INDICATOR_SIZE);
 
-        loadingLabel.setFont(new Font(TEXT_FONT_SIZE));
-        loadingLabel.setTextFill(Color.CORNFLOWERBLUE);
+        m_loadingLabel.setFont(new Font(TEXT_FONT_SIZE));
+        m_loadingLabel.setTextFill(Color.CORNFLOWERBLUE);
         VBox box = new VBox(VBOX_SPACING);
         box.setAlignment(Pos.CENTER);
         box.setPadding(new Insets(VBOX_HEIGHT_ALIGNMENT, 0, 0, 0));
-        box.getChildren().addAll(progress, loadingLabel);
+        box.getChildren().addAll(progress, m_loadingLabel);
         loadingPane.setCenter(box);
 
         Image backgroundImage = new Image(SPLASH_BACKGROUND_IMAGE);
@@ -73,13 +73,13 @@ public class StartUpLoader extends Preloader {
      */
     private void registerObservers() {
         FileTreeUtils.addObserver(() -> Platform.runLater(() ->
-                loadingLabel.setText(FileTreeUtils.getLoadingFilePath())));
+                m_loadingLabel.setText(FileTreeUtils.getLoadingFilePath())));
     }
 
     @Override
     public void handleStateChangeNotification(StateChangeNotification stateChangeNotification) {
         if (stateChangeNotification.getType() == Type.BEFORE_START) {
-            preloaderStage.hide();
+            m_preloaderStage.hide();
         }
     }
 
