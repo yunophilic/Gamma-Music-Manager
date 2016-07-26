@@ -31,18 +31,18 @@ public class Searcher {
      *
      * @param parentNode        The parent node in the tree.
      * @param searchMethod      The search criteria method to use.
-     * @return                  A copy of item that matches the search criteria as well as any of its children that match
-     *                          or a node of DummyItem that represents there is no hits for the node passed in or any of
-     *                          children.
+     * @return                  A TreeItem containing a copy of item that matches the search criteria as well as any
+     *                          of its children that match or a TreeItem containing a DummyItem that represents
+     *                          there is no hits for the node passed in or any of children.
      */
     private TreeItem<Item> findAllInstancesInTree(TreeItem<Item> parentNode, ISearchMethod searchMethod){
         List<TreeItem<Item>> listOfNodesHit = new ArrayList<>();
 
         ObservableList<TreeItem<Item>> allChildren = parentNode.getChildren();
         for (TreeItem<Item> currentChildren : allChildren) {
-            boolean isDirectory = !currentChildren.isLeaf();
+            boolean hasChildren = !currentChildren.isLeaf();
             if (searchMethod.isSearchHit(currentChildren.getValue())) {
-                if (isDirectory) {
+                if (hasChildren) {
                     TreeItem<Item> childrenSearchResult = findAllInstancesInTree(currentChildren, searchMethod);
 
                     if (childrenSearchResult.getValue() instanceof DummyItem) {
@@ -51,6 +51,7 @@ public class Searcher {
                     } else {
                         listOfNodesHit.add(childrenSearchResult);
                     }
+                    // Skip to next child the parent node has.
                     continue;
 
                 } else {
@@ -59,7 +60,7 @@ public class Searcher {
             }
 
             // Must be a directory if there are children so we have to search it to make sure we do not miss anything.
-            if (isDirectory) {
+            if (hasChildren) {
                 TreeItem<Item> results = findAllInstancesInTree(currentChildren, searchMethod);
                 if (!(results.getValue() instanceof DummyItem)) {
                     // Results where found in this case so add it to the current node
@@ -93,7 +94,7 @@ public class Searcher {
      * @return  A implementation of a case insensitive check on the search string and the file name.
      */
     private ISearchMethod caseInsensitiveStringSearch(){
-        return item -> {
+        return (item) -> {
             String stringToCheck = item.getFile().getName().toLowerCase();
             return stringToCheck.contains(m_searchString.toLowerCase());
         };
