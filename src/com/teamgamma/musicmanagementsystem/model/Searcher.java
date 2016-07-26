@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem.model;
 
 import com.teamgamma.musicmanagementsystem.model.ISearchMethod;
 
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 
@@ -88,6 +89,15 @@ public class Searcher {
     }
 
     /**
+     * Function to update the search results based on the new tree that is passed in.
+     *
+     * @param root      The tree to search on.
+     */
+    public void updateSearchResults(TreeItem<Item> root) {
+        m_searchTreeRoot = findAllInstancesInTree(root, caseInsensitiveStringSearch());
+    }
+
+    /**
      * Function to create a implementation of the ISearchMethod interface to check if the item contains the
      * search string in its name, case insensitive.
      *
@@ -99,4 +109,5 @@ public class Searcher {
             return stringToCheck.contains(m_searchString.toLowerCase());
         };
     }
+
 }

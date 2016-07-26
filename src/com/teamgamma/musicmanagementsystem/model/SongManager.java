@@ -195,6 +195,10 @@ public class SongManager {
                 FileTreeUtils.updateTreeItems(this, m_fileTreeRoot, action, fileAction.getValue());
             }
         }
+        if (m_searchResults != null){
+            m_searchResults.updateSearchResults(m_fileTreeRoot);
+            notifySearchObservers();
+        }
     }
 
     /**

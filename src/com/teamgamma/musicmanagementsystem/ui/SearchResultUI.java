@@ -6,11 +6,17 @@ import com.teamgamma.musicmanagementsystem.model.Item;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The UI component to show the search results.
@@ -30,9 +36,18 @@ public class SearchResultUI extends BorderPane{
         model.registerSearchObserver(() ->
                 Platform.runLater(
                         () -> {
+                            List<String> allExpanedPaths = new ArrayList<>();
+                            if (this.getCenter() instanceof TreeView){
+                                 allExpanedPaths.addAll(FileTreeUtils.getExpandedPaths((TreeView<Item>) this.getCenter()));
+                            }
+
                             TreeView<Item> searchResults = new TreeView(model.getSearchResults().getTree());
                             searchResults.setShowRoot(false);
-                            searchResults.setCellFactory(param -> new SearchTreeCell(model, musicPlayerManager, dbManager));
+
+                            FileTreeUtils.setTreeExpandedState(model.getSearchResults().getTree(), allExpanedPaths);
+                            searchResults.setCellFactory(
+                                    aram -> new CustomTreeCell(model, musicPlayerManager, dbManager, searchResults, false));
+
                             this.setCenter(searchResults);
                         }
                 )

@@ -7,11 +7,13 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.CustomEventDispatcher;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import javafx.event.EventDispatcher;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
@@ -154,6 +156,9 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
             } else {
                 setText(m_selectedItem.getFile().getName());
             }
+
+            String iconPath = item.getFile().isDirectory() ? FileTreeUtils.FOLDER_ICON_URL : FileTreeUtils.SONG_ICON_URL;
+            setGraphic(new ImageView(iconPath));
         }
     }
 }
