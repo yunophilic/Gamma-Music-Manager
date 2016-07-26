@@ -6,26 +6,21 @@ import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.model.Song;
-import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
+import com.teamgamma.musicmanagementsystem.util.GeneralObserver;
 
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.DragEvent;
 
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
 import javafx.scene.text.Font;
 import javafx.util.Duration;
-
-import java.io.File;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -263,7 +258,7 @@ public class MusicPlayerUI extends VBox {
      * @param nextSongTip The tooltip to use.
      * @return An observer that will update the tooltip using the manager for next song.
      */
-    private MusicPlayerObserver createNextSongToolTipObserver(final MusicPlayerManager manager, final Tooltip nextSongTip) {
+    private GeneralObserver createNextSongToolTipObserver(final MusicPlayerManager manager, final Tooltip nextSongTip) {
         return () -> setToolTipToNextSong(manager, nextSongTip);
     }
 
@@ -306,7 +301,7 @@ public class MusicPlayerUI extends VBox {
      * @param skipButton The button to update.
      * @return The observer containing the next song faded logic.
      */
-    private MusicPlayerObserver createNextSongButtonFadedAction(final MusicPlayerManager manager, final Button skipButton) {
+    private GeneralObserver createNextSongButtonFadedAction(final MusicPlayerManager manager, final Button skipButton) {
         return () -> {
             if (manager.isThereANextSong()) {
                 skipButton.setOpacity(NOT_FADED);

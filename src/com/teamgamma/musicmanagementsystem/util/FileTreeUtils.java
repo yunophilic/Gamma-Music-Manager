@@ -15,9 +15,9 @@ import java.util.List;
  * Utility class that provides functionality for the FileTree
  */
 public class FileTreeUtils {
-    private static final String OPEN_FOLDER_ICON_URL = "res" + File.separator + "Status-folder-open-icon.png";
-    private static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
-    private static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
+    public static final String OPEN_FOLDER_ICON_URL = "res" + File.separator + "Status-folder-open-icon.png";
+    public static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
+    public static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
 
     private static String loadingFilePath;
 
@@ -239,7 +239,7 @@ public class FileTreeUtils {
      * @param model the model
      * @param tree the tree to be updated
      * @param fileAction the file action
-     * @param changedFile the changed file
+     * @param changedFile the update file
      *
      * @throws IOException
      */
@@ -309,7 +309,7 @@ public class FileTreeUtils {
      * @param model the model
      * @param rootNode the root node of tree to be updated
      * @param fileAction the file action
-     * @param changedFile the changed file
+     * @param changedFile the update file
      *
      * @throws IOException
      */
@@ -319,9 +319,9 @@ public class FileTreeUtils {
     }
 
     /**
-     * Rename node based on the changed file
+     * Rename node based on the update file
      *
-     * @param changedFile the changed file
+     * @param changedFile the update file
      * @param tree the tree view
      * @param model the model
      */
@@ -404,7 +404,7 @@ public class FileTreeUtils {
     }
 
     /**
-     * Helper function for moveNode(), doesn't actually move the nodes, create nodes with the changed file while
+     * Helper function for moveNode(), doesn't actually move the nodes, create nodes with the update file while
      * keeping the same Item reference for all nodes
      *
      * @param nodeToMove node intended to be moved
