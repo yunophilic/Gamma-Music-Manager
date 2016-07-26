@@ -1,6 +1,5 @@
 package com.teamgamma.musicmanagementsystem;
 
-import com.teamgamma.musicmanagementsystem.model.LoadingObserver;
 import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import javafx.application.Platform;
 import javafx.application.Preloader;
@@ -30,7 +29,7 @@ public class StartUpLoader extends Preloader {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        loadingLabel = new Label(" \n ");
+        loadingLabel = new Label();
         this.preloaderStage = primaryStage;
         registerObservers();
 
@@ -69,19 +68,12 @@ public class StartUpLoader extends Preloader {
         primaryStage.show();
     }
 
+    /**
+     * Register observers to get notification on a loading update
+     */
     private void registerObservers() {
-        FileTreeUtils.addObserver(new LoadingObserver() {
-            @Override
-            public void loadNextElement() {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingLabel.setText(FileTreeUtils.getLoadingPaths());
-                    }
-                });
-
-            }
-        });
+        FileTreeUtils.addObserver(() -> Platform.runLater(() ->
+                loadingLabel.setText(FileTreeUtils.getLoadingFilePath())));
     }
 
     @Override
@@ -91,6 +83,11 @@ public class StartUpLoader extends Preloader {
         }
     }
 
+    /**
+     * Obtain the Gamma application logo
+     *
+     * @return logo image
+     */
     private Image getLogoIcon() {
         return new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"));
     }
