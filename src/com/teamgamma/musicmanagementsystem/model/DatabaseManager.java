@@ -918,7 +918,7 @@ public class DatabaseManager {
      * Retrieve the time to resume for each playlist when application starts up
      * 
      * @param playlistName
-     * @return
+     * @return the resume time of the specified playlist
      */
     public double getResumeTime(String playlistName) {
         try {
