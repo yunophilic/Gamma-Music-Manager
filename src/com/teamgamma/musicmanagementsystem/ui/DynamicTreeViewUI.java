@@ -76,12 +76,12 @@ public class DynamicTreeViewUI extends StackPane {
             updateTreeView(null);
         });
         m_model.addRightFolderObserver((FileActions fileActions) -> {
-            System.out.println("Right folder changed in treeview");
+            System.out.println("Right folder update in treeview");
             clearTreeView();
             updateTreeView(null);
         });
         m_model.addFileObserver((FileActions fileActions) -> {
-            System.out.println("File changed in treeview");
+            System.out.println("File update in treeview");
             updateFiles(fileActions);
             setTreeCellFactory();
         });

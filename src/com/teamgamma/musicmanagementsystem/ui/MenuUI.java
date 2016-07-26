@@ -210,6 +210,7 @@ public class MenuUI extends MenuBar{
 
     /**
      * Toggles minimode on or off on button click
+	 *
      * @return a Menu object: minimodeButton
      */
     private Menu miniMode() {
@@ -234,4 +235,5 @@ public class MenuUI extends MenuBar{
         minimodeButton.getItems().addAll(mini);
         return minimodeButton;
     }
+
 }

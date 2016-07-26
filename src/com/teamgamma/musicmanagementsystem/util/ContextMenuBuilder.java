@@ -555,7 +555,7 @@ public class ContextMenuBuilder {
      * @param selectedItem the file or folder selected in the tree view.
      * @return the menu item which opens the file or folder's location.
      */
-    private static MenuItem createShowInLibraryMenuItem(SongManager model, Item selectedItem) {
+    public static MenuItem createShowInLibraryMenuItem(SongManager model, Item selectedItem) {
         MenuItem showInExplorer = new MenuItem(SHOW_IN_LIBRARY);
 
         showInExplorer.setOnAction(event -> {
@@ -563,7 +563,11 @@ public class ContextMenuBuilder {
                 File selectedFile = selectedItem.getFile();
 
                 // Display in center panel
-                model.setM_selectedCenterFolder(selectedFile.getParentFile());
+                if (!selectedFile.isDirectory()) {
+                    model.setM_selectedCenterFolder(selectedFile.getParentFile());
+                } else {
+                    model.setM_selectedCenterFolder(selectedFile.getAbsoluteFile());
+                }
                 model.notifyCenterFolderObservers();
             }
         });
