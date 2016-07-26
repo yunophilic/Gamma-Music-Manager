@@ -41,6 +41,7 @@ public class DatabaseManager {
     private PreparedStatement m_deleteFromQueue;
     private PreparedStatement m_updateQueueOrderNumber;
     private PreparedStatement m_getPlaybackQueue;
+    private PreparedStatement m_clearPlaybackQueue;
     private PreparedStatement m_addToPlaylistSongs;
     private PreparedStatement m_maxOrderNumberPlaylistSongs;
     private PreparedStatement m_updatePlaylistOrder;
@@ -128,6 +129,8 @@ public class DatabaseManager {
 
             m_getPlaybackQueue = m_connection.prepareStatement("SELECT * FROM PlaybackQueue " +
                                                                "ORDER BY OrderNumber ASC");
+
+            m_clearPlaybackQueue = m_connection.prepareStatement("DELETE FROM PlaybackQueue");
 
             m_addToPlaylistSongs = m_connection.prepareStatement("INSERT INTO PlaylistSongs (songPath, " +
                                                                  "playlistName, " +
@@ -671,6 +674,18 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Clear the PlaybackQueue table
+     */
+    public void clearPlaybackQueue() {
+        try {
+            m_clearPlaybackQueue.executeUpdate();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
