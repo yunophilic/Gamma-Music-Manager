@@ -108,7 +108,6 @@ public class FileTreeUtils {
                 }
             }
             loadingFilePath = firstHalf + ELLIPSES_BREAK + secondHalf;
-            System.out.println(loadingFilePath);
         }
     }
 
@@ -578,7 +577,7 @@ public class FileTreeUtils {
     }
 
     /**
-     * Notify all observers in filePathObservers that a new component is being loaded
+     * Notify all observers in filePathObservers when a new component is being loaded
      */
     private static void notifyObservers() {
         for (LoadingObserver observer : filePathObservers) {
