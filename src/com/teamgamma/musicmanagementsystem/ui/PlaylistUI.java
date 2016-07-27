@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
@@ -24,6 +25,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.util.List;
@@ -118,6 +120,7 @@ public class PlaylistUI extends VBox {
         });
 
         m_model.addFileObserver((FileActions fileActions) -> {
+            m_model.refreshPlaylists();
             clearTable();
             updateTable();
         });
@@ -533,7 +536,7 @@ public class PlaylistUI extends VBox {
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, Integer> ratingCol,
                                           TableColumn<Song, String> lengthCol) {
-        filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().toString()));
+        filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().getParentFile().getName()));
         filePathCol.setSortable(false);
 
         fileNameCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFileName()));

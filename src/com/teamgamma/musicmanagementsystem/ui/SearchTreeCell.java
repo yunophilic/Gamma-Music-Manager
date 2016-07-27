@@ -71,7 +71,7 @@ public class SearchTreeCell extends TextFieldTreeCell<Item> {
             setGraphic(new ImageView(iconPath));
 
             ContextMenu contextMenu = ContextMenuBuilder.buildFileTreeContextMenu(
-                    m_songManager, m_musicPlayerManager, m_databaseManager, item, false);
+                    m_songManager, m_musicPlayerManager, m_databaseManager, item, false, m_tree);
             contextMenu.getItems().add(ContextMenuBuilder.createShowInLibraryMenuItem(m_songManager, item));
             this.setContextMenu(contextMenu);
         }
