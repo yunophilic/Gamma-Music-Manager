@@ -747,9 +747,51 @@ public class MusicPlayerManager {
      */
     public void setCurrentPlaylistSongPercentage() {
         if (m_currentPlayList != null) {
-            //pause();
+            pause();
             double percentage = getCurrentPlayTime().toMillis() / getEndTime().toMillis();
             m_currentPlayList.setM_songResumeTime(percentage);
         }
+    }
+
+    /**
+     * Get the resume time for this playlist
+     *
+     * @return the percentage (resume time) of the current playlist
+     */
+    public double getCurrentPlaylistResumeTime() {
+        double percentage = m_databaseManager.getResumeTime(m_currentPlayList.getM_playlistName());
+        return percentage;
+    }
+
+    /**
+     * Check if there is a resume time stored for this playlist already
+     *
+     * @return boolean indicates whether if there's a time stored for this playlist
+     */
+    public boolean isThereResumeTime() {
+        double percentage = getCurrentPlaylistResumeTime();
+        if (percentage == 0.0) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Get the name of the first playlist in the database Playlist table
+     *
+     * @return the name of the first playlist
+     */
+    public String getFirstPlaylistName() {
+        String firstPlaylistName = m_databaseManager.getFirstPlaylistName();
+        return firstPlaylistName;
+    }
+
+    /**
+     * Set the first playlist from the database to be the current playlist
+     *
+     * @param firstPlaylist, the first playlist
+     */
+    public void loadFirstPlaylist(Playlist firstPlaylist) {
+        m_currentPlayList = firstPlaylist;
     }
 }
