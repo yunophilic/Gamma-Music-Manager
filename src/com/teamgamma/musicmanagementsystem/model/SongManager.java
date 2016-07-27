@@ -445,6 +445,16 @@ public class SongManager {
     }
 
     /**
+     * Refresh all playlists to check for any songs that no longer exist in the file system
+     * and remove them from the playlist
+     */
+    public void refreshPlaylists() {
+        for (Playlist playlist : m_playlists) {
+            playlist.refreshSongs();
+        }
+    }
+
+    /**
      * Find the playlist with the playlistName
      *
      * @param playlistName
