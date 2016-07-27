@@ -177,7 +177,7 @@ public class ContextMenuBuilder {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setAutoHide(true);
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, songOptionsSeparator,
-                addToPlaylist, addToCurrentPlaylist, addMultipleToCurrentPlaylist, addMultipleToPlaylist, playlistOptionsSeparator,
+                addToPlaylist, addToCurrentPlaylist, addMultipleToPlaylist, addMultipleToCurrentPlaylist, playlistOptionsSeparator,
                 editProperties, editPropertiesOptionSeparator,
                 copy, paste, rename, delete, explorerOptionsSeparator, openFileLocation);
 
@@ -617,9 +617,10 @@ public class ContextMenuBuilder {
         MenuItem addMultipleToPlaylist = new MenuItem(ADD_ALL_TO_PLAYLIST);
 
         addMultipleToPlaylist.setOnAction(event -> {
+            List<Playlist> playlists = model.getM_playlists();
             for (Song song : selectedSongs) {
                 if (song != null && song instanceof Song) {
-                    Playlist selectedPlaylist = model.getM_selectedPlaylist();
+                    Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, song);
                     if (selectedPlaylist == null) {
                         PromptUI.customPromptError("Error", null, "Please select a playlist!");
                         return;
