@@ -51,6 +51,7 @@ public class DatabaseManager {
     private PreparedStatement m_getSongsInPlaylist;
     private PreparedStatement m_orderNumOfPlaylistLastPlayedSong;
     private PreparedStatement m_deleteFromPlaylistSongsByPlaylistName;
+    private PreparedStatement m_getFirstPlaylistName;
     private PreparedStatement m_addToResumeTime;
     private PreparedStatement m_updateResumeTime;
     private PreparedStatement m_getResumeTime;
@@ -174,6 +175,9 @@ public class DatabaseManager {
             m_deleteFromPlaylistSongsByPlaylistName = m_connection.prepareStatement("DELETE " +
                                                                                     "FROM PlaylistSongs " +
                                                                                     "WHERE playlistName = ?");
+
+            m_getFirstPlaylistName = m_connection.prepareStatement("SELECT * FROM Playlist " +
+                                                                    "LIMIT 1");
 
             m_addToResumeTime = m_connection.prepareStatement("INSERT INTO ResumeTime (playlistName, resumeTime) " +
                                                               "VALUES (?, ?) ");
@@ -966,5 +970,22 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     * Get the first playlist from the Playlist table
+     *
+     * @return the name of the first playlist
+     */
+    public String getFirstPlaylistName() {
+        try {
+            ResultSet resultSet = m_getFirstPlaylistName.executeQuery();
+            String firstPlaylistName = resultSet.getString("playlistName");
+            return firstPlaylistName;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
