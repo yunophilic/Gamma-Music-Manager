@@ -8,6 +8,7 @@ import javafx.event.Event;
 import javafx.event.EventDispatcher;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -19,18 +20,20 @@ public class SearchTreeCell extends TextFieldTreeCell<Item> {
     private SongManager m_songManager;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
-
+    private TreeView<Item> m_tree;
     /**
      * Constructor
      *
      * @param songManager               The song manager to interact with.
      * @param musicPlayerManager        The music player manager interact with.
-     * @param dbManager
+     * @param dbManager                 The database manager to interact with.
+     * @param tree                      The tree view the cell is for.
      */
-    public SearchTreeCell(SongManager songManager, MusicPlayerManager musicPlayerManager, DatabaseManager dbManager) {
+    public SearchTreeCell(SongManager songManager, MusicPlayerManager musicPlayerManager, DatabaseManager dbManager, TreeView<Item> tree) {
         m_songManager = songManager;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = dbManager;
+        m_tree = tree;
     }
 
     @Override
@@ -63,7 +66,7 @@ public class SearchTreeCell extends TextFieldTreeCell<Item> {
             setGraphic(new ImageView(iconPath));
 
             ContextMenu contextMenu = ContextMenuBuilder.buildFileTreeContextMenu(
-                    m_songManager, m_musicPlayerManager, m_databaseManager, item, false);
+                    m_songManager, m_musicPlayerManager, m_databaseManager, item, false, m_tree);
             contextMenu.getItems().add(ContextMenuBuilder.createShowInLibraryMenuItem(m_songManager, item));
             this.setContextMenu(contextMenu);
         }

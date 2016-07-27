@@ -32,7 +32,7 @@ public class SearchResultUI extends BorderPane{
                         () -> {
                             TreeView<Item> searchResults = new TreeView(model.getSearchResults().getTree());
                             searchResults.setShowRoot(false);
-                            searchResults.setCellFactory(param -> new SearchTreeCell(model, musicPlayerManager, dbManager));
+                            searchResults.setCellFactory(param -> new SearchTreeCell(model, musicPlayerManager, dbManager, searchResults));
                             this.setCenter(searchResults);
                         }
                 )

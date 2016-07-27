@@ -536,7 +536,7 @@ public class PlaylistUI extends VBox {
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, Integer> ratingCol,
                                           TableColumn<Song, String> lengthCol) {
-        filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().toString()));
+        filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().getParentFile().getName()));
         filePathCol.setSortable(false);
 
         fileNameCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFileName()));
