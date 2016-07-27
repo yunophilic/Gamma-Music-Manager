@@ -939,7 +939,7 @@ public class DatabaseManager {
         try {
             m_getResumeTime.setString(1, playlistName);
             ResultSet resultSet = m_getResumeTime.executeQuery();
-            double resumeTime = resultSet.getInt("resumeTime");
+            double resumeTime = resultSet.getDouble("resumeTime");
             return resumeTime;
         }
         catch (SQLException e) {

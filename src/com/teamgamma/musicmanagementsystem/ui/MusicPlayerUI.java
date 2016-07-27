@@ -1,11 +1,8 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
-import com.teamgamma.musicmanagementsystem.model.FilePersistentStorage;
-import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
 
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
@@ -539,6 +536,16 @@ public class MusicPlayerUI extends VBox {
         // Have a slider for the underlying control but do not show it.
         HBox playbackSliderWrapper = new HBox();
         Slider playbackSlider = new Slider(0, 1.0, 0);
+
+        //String firstPlaylistName = manager.getFirstPlaylistName();
+        Playlist firstPlaylist = m_model.getM_playlists().get(0);
+        manager.loadFirstPlaylist(firstPlaylist);
+        if (manager.isThereResumeTime()) {
+            double resumeTime = manager.getCurrentPlaylistResumeTime();
+            firstPlaylist.setM_songResumeTime(resumeTime);
+            playbackSlider.setValue(resumeTime);
+        }
+
         playbackSlider.setBlockIncrement(0.01);
         HBox.setHgrow(playbackSlider, Priority.ALWAYS);
         playbackSlider.setOnMouseClicked(event -> {
