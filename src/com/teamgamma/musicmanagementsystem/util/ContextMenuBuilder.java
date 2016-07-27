@@ -83,11 +83,14 @@ public class ContextMenuBuilder {
 
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue,
-                songOptionsSeparator,
-                addToPlaylist, addToCurrentPlaylist,
-                playlistOptionsSeparator, createNewFolder, folderOptionsSeparator,
-                copy, paste, rename, delete,
-                fileOptionsSeparator, removeLibrary, showInRightPane, openFileLocation);
+                                    songOptionsSeparator,
+                                    addToPlaylist, addToCurrentPlaylist,
+                                    playlistOptionsSeparator,
+                                    createNewFolder,
+                                    folderOptionsSeparator,
+                                    copy, paste, rename, delete,
+                                    fileOptionsSeparator,
+                                    removeLibrary, showInRightPane, openFileLocation);
 
         contextMenu.setOnShown(event -> {
             // Hide all if selected item is null
@@ -109,8 +112,6 @@ public class ContextMenuBuilder {
             if (!isLeftPane) {
                 hideMenuItem(removeLibrary);
                 hideMenuItem(showInRightPane);
-
-                hideMenuItem(fileOptionsSeparator);
             }
 
             // Do not show remove library option if selected item is not a library
@@ -121,6 +122,8 @@ public class ContextMenuBuilder {
             // Do not show song options if selected item is not a folder
             if (!selectedItem.getFile().isDirectory()) {
                 hideMenuItem(createNewFolder);
+                hideMenuItem(showInRightPane);
+
                 hideMenuItem(folderOptionsSeparator);
             }
 
@@ -274,7 +277,6 @@ public class ContextMenuBuilder {
         playbackMenu.setAutoHide(true);
 
         MenuItem playSong = createPlaySongMenuItem(musicPlayerManager, selectedItem);
-        playSong.setStyle("-fx-font-weight: bold");
         MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, selectedItem);
         MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedItem);
         MenuItem openInLibrary = createShowInLibraryMenuItem(songManager, selectedItem);
@@ -284,9 +286,10 @@ public class ContextMenuBuilder {
         return playbackMenu;
     }
 
-    /**
+    /**********
      * Helper functions
-     */
+     *************/
+
     /**
      * Function to hide a menu item.
      *
@@ -703,6 +706,8 @@ public class ContextMenuBuilder {
      */
     private static MenuItem createPlaySongMenuItem(MusicPlayerManager musicPlayerManager, Item selectedItem) {
         MenuItem playSong = new MenuItem(PLAY_SONG);
+
+        playSong.setStyle("-fx-font-weight: bold");
 
         playSong.setOnAction(event -> {
             if (selectedItem != null && selectedItem instanceof Song) {
