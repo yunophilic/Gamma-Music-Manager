@@ -2,11 +2,13 @@ package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Item;
+import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.CustomEventDispatcher;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
+import javafx.collections.ObservableList;
 import javafx.event.EventDispatcher;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.SelectionMode;
@@ -21,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.List;
 
 /**
  * Event handling class used in LibraryUI and DynamicTreeViewUI
@@ -34,6 +37,7 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
     private TreeView<Item> m_tree;
     private Item m_selectedItem;
     private boolean m_isLeftPane;
+    private List<Song> m_selectedSongs;
 
     public CustomTreeCell(SongManager model,
                           MusicPlayerManager musicPlayerManager,
@@ -57,7 +61,8 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
                                                                     m_musicPlayerManager,
                                                                     m_databaseManager,
                                                                     m_selectedItem,
-                                                                    m_isLeftPane);
+                                                                    m_isLeftPane,
+                                                                    m_selectedSongs);
     }
 
     /**
