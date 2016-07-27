@@ -321,7 +321,8 @@ public class ContentListUI extends StackPane {
      * @return context menu generated
      */
     private ContextMenu generateContextMenu(Song selectedSong) {
-        return ContextMenuBuilder.buildCenterPanelContextMenu(m_model, m_musicPlayerManager, m_databaseManager, selectedSong);
+        List<Song> selectedSongs = m_table.getSelectionModel().getSelectedItems();
+        return ContextMenuBuilder.buildCenterPanelContextMenu(m_model, m_musicPlayerManager, m_databaseManager, selectedSong, selectedSongs);
     }
 
 }
