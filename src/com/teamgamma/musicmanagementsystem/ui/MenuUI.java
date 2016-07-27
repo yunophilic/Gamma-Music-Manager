@@ -52,7 +52,8 @@ public class MenuUI extends MenuBar{
 	 * @param mainUI  The Main UI
      * @param applicationController   The application controller
      */
-    public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage, MainUI mainUI, ApplicationController applicationController){
+    public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage,
+                  MainUI mainUI, ApplicationController applicationController){
         super();
         m_model = model;
         m_databaseManager = databaseManager;
@@ -102,8 +103,31 @@ public class MenuUI extends MenuBar{
         Menu leftPanelSubMenu = getLeftPanelSubMenu(filePersistentStorage);
         Menu centerPanelSubMenu = getCenterPanelSubMenu(filePersistentStorage);
 
-        menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu);
+        menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu, createSearchSubmenu());
         return menuOptions;
+    }
+
+    /**
+     * Function to create the search submenu for the top.
+     *
+     * @return  The search submenu options.
+     */
+    private Menu createSearchSubmenu() {
+        Menu searchSubMenu = new Menu("Search");
+        CheckMenuItem showFilesInFolderHits = new CheckMenuItem("Show Files In Folder Hits");
+        // TODO: Save state.
+        showFilesInFolderHits.setOnAction(event -> {
+            if (showFilesInFolderHits.isSelected()) {
+                m_model.getM_menuOptions().setShowFilesInFolderSearchHit(true);
+            } else {
+                m_model.getM_menuOptions().setShowFilesInFolderSearchHit(false);
+            }
+            m_model.notifySearchObservers();
+        });
+
+        searchSubMenu.getItems().add(showFilesInFolderHits);
+
+        return searchSubMenu;
     }
 
     /**

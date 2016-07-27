@@ -34,23 +34,27 @@ public class SearchResultUI extends BorderPane{
      */
     public SearchResultUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager dbManager) {
         model.registerSearchObserver(() ->
-                Platform.runLater(
-                        () -> {
-                            List<String> allExpanedPaths = new ArrayList<>();
-                            if (this.getCenter() instanceof TreeView){
-                                 allExpanedPaths.addAll(FileTreeUtils.getExpandedPaths((TreeView<Item>) this.getCenter()));
-                            }
-
-                            TreeView<Item> searchResults = new TreeView(model.getSearchResults().getTree());
-                            searchResults.setShowRoot(false);
-
-                            FileTreeUtils.setTreeExpandedState(model.getSearchResults().getTree(), allExpanedPaths);
-                            searchResults.setCellFactory(
-                                    aram -> new CustomTreeCell(model, musicPlayerManager, dbManager, searchResults, false));
-
-                            this.setCenter(searchResults);
+            Platform.runLater(
+                () -> {
+                    if (model.getSearchResults() != null) {
+                        List<String> allExpanedPaths = new ArrayList<>();
+                        if (this.getCenter() instanceof TreeView) {
+                            allExpanedPaths.addAll(FileTreeUtils.getExpandedPaths((TreeView<Item>) this.getCenter()));
                         }
-                )
+
+                        TreeView<Item> searchResults = new TreeView(model.getSearchResults().getTree());
+                        searchResults.setShowRoot(false);
+
+                        searchResults.setCellFactory(param -> new SearchTreeCell(model, musicPlayerManager, dbManager, searchResults));
+
+                        FileTreeUtils.setTreeExpandedState(model.getSearchResults().getTree(), allExpanedPaths);
+                        searchResults.setCellFactory(
+                                aram -> new CustomTreeCell(model, musicPlayerManager, dbManager, searchResults, false));
+
+                        this.setCenter(searchResults);
+                    }
+                }
+            )
         );
 
         this.setCenter(new Label(DEFAULT_SEARCH_MESSAGE));

@@ -529,7 +529,7 @@ public class SongManager {
      * @param searchString      The string to search
      */
     public void searchForFilesAndFolders(String searchString) {
-        m_searchResults = new Searcher(m_fileTreeRoot, searchString);
+        m_searchResults = new Searcher(m_fileTreeRoot, searchString, m_menuOptions.getShowFilesInFolderSerachHit());
         notifySearchObservers();
     }
 
@@ -689,7 +689,11 @@ public class SongManager {
         }
     }
 
-    private void notifySearchObservers(){
+    public void notifySearchObservers(){
+        if (m_searchResults != null) {
+            m_searchResults.setShowFilesInFolderHits(m_menuOptions.getShowFilesInFolderSerachHit());
+            m_searchResults.updateSearchResults(m_fileTreeRoot);
+        }
         notifySpecifiedGeneralObservers(m_searchObservers);
     }
 
