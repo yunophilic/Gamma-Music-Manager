@@ -47,7 +47,7 @@ public class ContextMenuBuilder {
      * @param musicPlayerManager    The music player manager
      * @param databaseManager       The db manager
      * @param selectedItem          The selected item in the file tree
-     * @param selectedSongs         The selected songs in the file tree
+     * @param tree                  The file tree
      * @return                      ContextMenu for file tree
      */
     public static ContextMenu buildFileTreeContextMenu(SongManager model,
@@ -55,15 +55,15 @@ public class ContextMenuBuilder {
                                                        DatabaseManager databaseManager,
                                                        Item selectedItem,
                                                        boolean isLeftPane,
-                                                       List<Song> selectedSongs) {
+                                                       TreeView<Item> tree) {
         MenuItem playSong = createPlaySongMenuItem(musicPlayerManager, selectedItem);
         MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, selectedItem);
         MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedItem);
 
         MenuItem addToPlaylist = createAddToPlaylistMenuItem(model, musicPlayerManager, selectedItem);
         MenuItem addToCurrentPlaylist = createAddToCurrentPlaylistMenuItem(model, musicPlayerManager, selectedItem);
-        MenuItem addMultipleToPlaylist = createAddMultipleToPlaylistMenuItem(model, musicPlayerManager, selectedSongs);
-        MenuItem addMultipleToCurrentPlaylist = createAddMultipleToCurrentPlaylistMenuItem(model, musicPlayerManager, selectedSongs);
+        MenuItem addMultipleToPlaylist = createAddMultipleToPlaylistMenuItem(model, musicPlayerManager, tree);
+        MenuItem addMultipleToCurrentPlaylist = createAddMultipleToCurrentPlaylistMenuItem(model, musicPlayerManager, tree);
 
         MenuItem copy = createCopyMenuItem(model, selectedItem);
         MenuItem paste = createFileTreePasteMenuItem(model, selectedItem);
@@ -635,6 +635,40 @@ public class ContextMenuBuilder {
     }
 
     /**
+     * Function to create a menu item that will allow the user to add songs to the playlist.
+     *
+     * @param model                 The model to select the current playlist.
+     * @param musicPlayerManager    The music player manager to updating UI.
+     * @param tree                  The file tree
+     * @return                      A menu item containing the logic to add a song to the playlist.
+     */
+    private static MenuItem createAddMultipleToPlaylistMenuItem(SongManager model,
+                                                                MusicPlayerManager musicPlayerManager,
+                                                                TreeView<Item> tree) {
+        MenuItem addMultipleToPlaylist = new MenuItem(ADD_ALL_TO_PLAYLIST);
+
+        addMultipleToPlaylist.setOnAction(event -> {
+            List<Playlist> playlists = model.getM_playlists();
+            List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
+            for (TreeItem<Item> treeItem : treeItems) {
+                Item item = treeItem.getValue();
+                if (item instanceof Song) {
+                    Song song = (Song) item;
+                    Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, song);
+                    if (selectedPlaylist == null) {
+                        PromptUI.customPromptError("Error", null, "Please select a playlist!");
+                        return;
+                    }
+                    model.addSongToPlaylist(song, selectedPlaylist);
+                    musicPlayerManager.notifyQueingObserver();
+                }
+            }
+        });
+
+        return addMultipleToPlaylist;
+    }
+
+    /**
      * Function to create a menu item that will allow the user to add songsto the current playlist.
      *
      * @param model                 The model to select the current playlist.
@@ -650,6 +684,39 @@ public class ContextMenuBuilder {
         addMultipleToCurrentPlaylist.setOnAction(event -> {
             for (Song song : selectedSongs) {
                 if (song != null && song instanceof Song) {
+                    Playlist selectedPlaylist = model.getM_selectedPlaylist();
+                    if (selectedPlaylist == null) {
+                        PromptUI.customPromptError("Error", null, "Please select a playlist!");
+                        return;
+                    }
+                    model.addSongToPlaylist(song, selectedPlaylist);
+                    musicPlayerManager.notifyQueingObserver();
+                }
+            }
+        });
+
+        return addMultipleToCurrentPlaylist;
+    }
+
+    /**
+     * Function to create a menu item that will allow the user to add songsto the current playlist.
+     *
+     * @param model                 The model to select the current playlist.
+     * @param musicPlayerManager    The music player manager to updating UI.
+     * @param tree                  The file tree
+     * @return                      A menu item containing the logic to add songsto the current playlist.
+     */
+    private static MenuItem createAddMultipleToCurrentPlaylistMenuItem(SongManager model,
+                                                                       MusicPlayerManager musicPlayerManager,
+                                                                       TreeView<Item> tree) {
+        MenuItem addMultipleToCurrentPlaylist = new MenuItem(ADD_ALL_TO_CURRENT_PLAYLIST);
+
+        addMultipleToCurrentPlaylist.setOnAction(event -> {
+            List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
+            for (TreeItem<Item> treeItem : treeItems) {
+                Item item = treeItem.getValue();
+                if (item instanceof Song) {
+                    Song song = (Song) item;
                     Playlist selectedPlaylist = model.getM_selectedPlaylist();
                     if (selectedPlaylist == null) {
                         PromptUI.customPromptError("Error", null, "Please select a playlist!");

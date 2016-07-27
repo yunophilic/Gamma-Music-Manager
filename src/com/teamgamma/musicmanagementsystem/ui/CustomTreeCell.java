@@ -62,7 +62,7 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
                                                                     m_databaseManager,
                                                                     m_selectedItem,
                                                                     m_isLeftPane,
-                                                                    m_selectedSongs);
+                                                                    m_tree);
     }
 
     /**
