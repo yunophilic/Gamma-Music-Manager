@@ -5,6 +5,7 @@ import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
+import com.teamgamma.musicmanagementsystem.util.FileActions;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -60,17 +61,17 @@ public class ContentListUI extends StackPane {
      * Register as a observer to changes for the folder selected to be displayed here
      */
     private void registerAsCenterFolderObserver() {
-        m_model.addLibraryObserver((action, file) -> {
+        m_model.addLibraryObserver((FileActions fileActions) -> {
             clearTable();
             updateTable();
         });
 
-        m_model.addCenterFolderObserver((action, file) -> {
+        m_model.addCenterFolderObserver((FileActions fileActions) -> {
             clearTable();
             updateTable();
         });
 
-        m_model.addFileObserver((action, file) -> {
+        m_model.addFileObserver((FileActions fileActions) -> {
             clearTable();
             updateTable();
         });

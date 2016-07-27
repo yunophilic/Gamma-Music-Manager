@@ -2,13 +2,14 @@ package com.teamgamma.musicmanagementsystem.model;
 
 import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.util.FileManager;
+
+import com.teamgamma.musicmanagementsystem.util.*;
 import javafx.scene.control.TreeItem;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystemException;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +26,10 @@ public class SongManager {
     private List<FileObserver> m_rightFolderObservers;
     private List<FileObserver> m_fileObservers;
     private List<FileObserver> m_leftPanelOptionsObservers;
-    private List<PlaylistObserver> m_playlistObservers;
-    private List<PlaylistObserver> m_playlistSongsObservers;
+    private List<GeneralObserver> m_playlistObservers;
+    private List<GeneralObserver> m_playlistSongsObservers;
+    private List<GeneralObserver> m_searchObservers;
+    private List<GeneralObserver> m_intialSearchModeObserver;
 
     // Buffers
     private Item m_itemToCopy;
@@ -50,17 +53,25 @@ public class SongManager {
     private Action m_libraryFileAction;
     private Action m_rightPanelFileAction;
 
+    // Empty file action
+    private final EmptyFileAction m_emptyFileAction = new EmptyFileAction();
+
+    // TreeItem file tree
+    private TreeItem<Item> m_fileTreeRoot;
+
+    private Searcher m_searchResults;
+
     public SongManager() {
         m_libraryObservers = new ArrayList<>();
         m_centerFolderObservers = new ArrayList<>();
         m_rightFolderObservers = new ArrayList<>();
         m_fileObservers = new ArrayList<>();
         m_leftPanelOptionsObservers = new ArrayList<>();
+        m_searchObservers = new ArrayList<>();
+        m_intialSearchModeObserver = new ArrayList<>();
 
         m_playlistObservers = new ArrayList<>();
         m_playlistSongsObservers = new ArrayList<>();
-
-        m_playlistObservers = new ArrayList<>();
 
         m_libraries = new ArrayList<>();
         m_playlists = new ArrayList<>();
@@ -78,6 +89,8 @@ public class SongManager {
         m_selectedPlaylist = null;
 
         m_menuOptions = null;
+
+        m_fileTreeRoot = new TreeItem<>(new DummyItem());
     }
 
     /**
@@ -96,6 +109,7 @@ public class SongManager {
                 return false;
             }
             m_libraries.add(newLibrary);
+            addLibraryToFileTree(newLibrary);
             return true;
         } catch(NullPointerException e) {
             e.printStackTrace();
@@ -109,13 +123,16 @@ public class SongManager {
      * @param file any file in the library (can be the library root dir itself)
      * @return true if new library is added to the list, false otherwise
      */
-    public boolean removeLibrary(File file) {
-        return m_libraries.remove(getLibrary(file));
+    public void removeLibrary(File file) {
+        Library libraryToRemove = getLibrary(file);
+        m_libraries.remove(libraryToRemove);
+        removeLibraryFromFileTree(libraryToRemove);
     }
 
     private boolean isInLibrary(String directoryPath) {
         for (Library library : m_libraries) {
-            if (library.getRootDirPath().equals(directoryPath)) {
+            String libRootDirPath = library.getRootDirPath();
+            if (directoryPath.equals(libRootDirPath) || directoryPath.contains(libRootDirPath)) {
                 return true;
             }
         }
@@ -146,6 +163,40 @@ public class SongManager {
         return m_libraries;
     }
 
+
+    /**
+     * Add a library to the model file tree
+     *
+     * @param newLibrary new library to add
+     */
+    private void addLibraryToFileTree(Library newLibrary) {
+        m_fileTreeRoot.getChildren().add(newLibrary.getM_treeRoot());
+    }
+
+    /**
+     * Remove a library from the model file tree
+     *
+     * @param libraryToRemove library to remove
+     */
+    private void removeLibraryFromFileTree(Library libraryToRemove) {
+        m_fileTreeRoot.getChildren().remove(libraryToRemove.getM_treeRoot());
+    }
+
+    /**
+     * Update the files in the model file tree
+     *
+     * @param fileActions the file action
+     * @throws IOException
+     */
+    private void updateFilesInFileTree(FileActions fileActions) throws IOException {
+        for (Pair<Action, File> fileAction : fileActions) {
+            Action action = fileAction.getKey();
+            if (fileAction != null && action != Action.NONE) {
+                FileTreeUtils.updateTreeItems(this, m_fileTreeRoot, action, fileAction.getValue());
+            }
+        }
+    }
+
     /**
      * Copy files in buffer to destination
      *
@@ -163,6 +214,12 @@ public class SongManager {
         }
 
         m_copyDest = dest;
+
+        FileActions copyFileActions = new ConcreteFileActions(Action.PASTE, null);
+
+        updateFilesInFileTree(copyFileActions);
+
+        notifyFileObservers(copyFileActions);
     }
 
     /**
@@ -176,7 +233,12 @@ public class SongManager {
         FileManager.moveFile(fileToMove, destDir);
 
         m_moveDest = destDir;
-        notifyFileObservers(Action.DROP, null);
+
+        FileActions moveFileAction = new ConcreteFileActions(Action.DROP, null);
+
+        updateFilesInFileTree(moveFileAction);
+
+        notifyFileObservers(moveFileAction);
     }
 
     /**
@@ -198,7 +260,12 @@ public class SongManager {
         }
 
         m_deletedFile = fileToDelete;
-        notifyFileObservers(Action.DELETE, fileToDelete);
+
+        FileActions deleteFileAction = new ConcreteFileActions(Action.DELETE, fileToDelete);
+
+        updateFilesInFileTree(deleteFileAction);
+
+        notifyFileObservers(deleteFileAction);
 
         // Clear file to delete buffer
         m_deletedFile = null;
@@ -206,7 +273,8 @@ public class SongManager {
 
     /**
      * Get list of songs in a certain library within the library list
-     * @param library
+     *
+     * @param library specified library
      * @return list of songs
      */
     private List<Song> getSongs(Library library) {
@@ -214,9 +282,41 @@ public class SongManager {
     }
 
     /**
+     * Get all songs in the system
+     *
+     * @return list of all songs
+     */
+    public List<Song> getAllSongs() {
+        List<Song> songs = new ArrayList<>();
+        for (Library library : m_libraries) {
+            songs.addAll(library.getSongs());
+        }
+        return songs;
+    }
+
+    /**
+     * Get song object in the model based on the specified file
+     *
+     * @return song object in the model
+     */
+    public Song getSong(File file) {
+        for (Library library : m_libraries) {
+            TreeItem<Item> node = library.search(file);
+            if (node != null) {
+                Item item = node.getValue();
+                if (item instanceof Song) {
+                    return (Song) item;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Search node from all libraries based on the specified item
+     *
      * @param file The item to search on
-     * @return node containing the item, or null if not founr
+     * @return node containing the item, or null if not found
      */
     public TreeItem<Item> search(File file) {
         for (Library lib : m_libraries) {
@@ -229,6 +329,7 @@ public class SongManager {
 
     /**
      * Get songs to display in center panel
+     *
      * @return list of songs
      */
     public List<Song> getCenterPanelSongs() {
@@ -344,6 +445,16 @@ public class SongManager {
     }
 
     /**
+     * Refresh all playlists to check for any songs that no longer exist in the file system
+     * and remove them from the playlist
+     */
+    public void refreshPlaylists() {
+        for (Playlist playlist : m_playlists) {
+            playlist.refreshSongs();
+        }
+    }
+
+    /**
      * Find the playlist with the playlistName
      *
      * @param playlistName
@@ -359,24 +470,49 @@ public class SongManager {
     }
 
     /**
+     * Copy a playlist to a destination
+     *
+     * @param playlist The playlist to copy
+     * @param file The destination file
+     */
+    public void copyPlaylistToDestination(Playlist playlist, File file) {
+        try {
+            // Create playlist folder
+            String path = file.getAbsolutePath() + File.separator + playlist.getM_playlistName();
+            Path destPath = Files.createDirectory(Paths.get(path));
+            File destFile = destPath.toFile();
+
+            // Copy songs
+            for (Song song : playlist.getM_songList()) {
+                FileManager.copyFile(song.getFile(), destFile);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Rename a file and notify file observers
      *
      * @param fileToRename
      * @param newPath
      */
-    public void renameFile(File fileToRename, Path newPath) {
+    public void renameFile(File fileToRename, Path newPath) throws IOException {
         m_renamedFile = new File(newPath.toString());
-        notifyFileObservers(Action.RENAME, fileToRename);
+        FileActions renameFileAction = new ConcreteFileActions(Action.RENAME, fileToRename);
+        updateFilesInFileTree(renameFileAction);
+        notifyFileObservers(renameFileAction);
     }
 
     /**
-     * Notify file changes detected from File system
+     * Update model with changes from the file system and notify the observers
      *
-     * @param action
-     * @param file
+     * @param fileActions
      */
-    public void fileSysChanged(Action action, File file) {
-        notifyFileObservers(action, file);
+    public void updateAndNotifyFileSysChange(FileActions fileActions) throws IOException {
+        updateFilesInFileTree(fileActions);
+
+        notifyFileObservers(fileActions);
     }
 
     /**
@@ -393,6 +529,15 @@ public class SongManager {
         return m_itemToMove.getFile();
     }
 
+    /**
+     * Function to search for the given string in the files and folder that are in the model
+     *
+     * @param searchString      The string to search
+     */
+    public void searchForFilesAndFolders(String searchString) {
+        m_searchResults = new Searcher(m_fileTreeRoot, searchString);
+        notifySearchObservers();
+    }
 
     /**********
      * Getters and setters
@@ -470,30 +615,13 @@ public class SongManager {
         m_menuOptions = options;
     }
 
-    public Action getM_libraryAction() {
-        return m_libraryAction;
+    public TreeItem<Item> getM_fileTreeRoot() {
+        return m_fileTreeRoot;
     }
 
-    public void setM_libraryAction(Action libraryAction) {
-        m_libraryAction = libraryAction;
+    public Searcher getSearchResults() {
+        return m_searchResults;
     }
-
-    public Action getM_libraryFileAction() {
-        return m_libraryFileAction;
-    }
-
-    public void setM_libraryFileAction(Action fileAction) {
-        m_libraryFileAction = fileAction;
-    }
-
-    public Action getM_rightPanelFileAction() {
-        return m_rightPanelFileAction;
-    }
-
-    public void setM_rightPanelFileAction(Action fileAction) {
-        m_rightPanelFileAction = fileAction;
-    }
-
 
     /**********
      * Functions for observer pattern
@@ -519,51 +647,67 @@ public class SongManager {
         m_leftPanelOptionsObservers.add(observer);
     }
 
-    public void addPlaylistObserver(PlaylistObserver observer) {
+    public void addPlaylistObserver(GeneralObserver observer) {
         m_playlistObservers.add(observer);
     }
 
-    public void addPlaylistSongObserver(PlaylistObserver observer) {
+    public void addPlaylistSongObserver(GeneralObserver observer) {
         m_playlistSongsObservers.add(observer);
     }
 
-    public void notifyLibraryObservers() {
-        notifySpecifiedFileObservers(m_libraryObservers, Action.NONE, null);
+    public void notifyLibraryObservers(FileActions fileActions) {
+        notifySpecifiedFileObservers(m_libraryObservers, fileActions);
     }
 
     public void notifyCenterFolderObservers() {
-        notifySpecifiedFileObservers(m_centerFolderObservers, Action.NONE, null);
+        notifySpecifiedFileObservers(m_centerFolderObservers, m_emptyFileAction);
     }
 
     public void notifyRightFolderObservers() {
-        notifySpecifiedFileObservers(m_rightFolderObservers, Action.NONE, null);
+        notifySpecifiedFileObservers(m_rightFolderObservers, m_emptyFileAction);
     }
 
-    public void notifyFileObservers(Action action, File file) {
-        notifySpecifiedFileObservers(m_fileObservers, action, file);
+    public void notifyFileObservers(FileActions fileActions) {
+        notifySpecifiedFileObservers(m_fileObservers, fileActions);
     }
 
     public void notifyLeftPanelOptionsObservers() {
-        notifySpecifiedFileObservers(m_leftPanelOptionsObservers, Action.NONE, null);
+        notifySpecifiedFileObservers(m_leftPanelOptionsObservers, m_emptyFileAction);
     }
 
     public void notifyPlaylistSongsObservers() {
-        notifySpecifiedPlaylistObservers(m_playlistSongsObservers);
+        notifySpecifiedGeneralObservers(m_playlistSongsObservers);
     }
 
     public void notifyPlaylistObservers() {
-        notifySpecifiedPlaylistObservers(m_playlistObservers);
+        notifySpecifiedGeneralObservers(m_playlistObservers);
     }
 
-    private void notifySpecifiedFileObservers(List<FileObserver> observers, Action action, File file) {
+    private void notifySpecifiedFileObservers(List<FileObserver> observers, FileActions fileActions) {
         for (FileObserver observer : observers) {
-            observer.changed(action, file);
+            observer.changed(fileActions);
         }
     }
 
-    private void notifySpecifiedPlaylistObservers(List<PlaylistObserver> observers) {
-        for (PlaylistObserver observer : observers) {
-            observer.changed();
+    private void notifySpecifiedGeneralObservers(List<GeneralObserver> observers) {
+        for (GeneralObserver observer : observers) {
+            observer.update();
         }
+    }
+
+    private void notifySearchObservers(){
+        notifySpecifiedGeneralObservers(m_searchObservers);
+    }
+
+    public void registerSearchObserver(GeneralObserver observer) {
+        m_searchObservers.add(observer);
+    }
+
+    public void notifyInitalSearchObserver(){
+        notifySpecifiedGeneralObservers(m_intialSearchModeObserver);
+    }
+
+    public void registerInitalSearchObserver(GeneralObserver observer) {
+        m_intialSearchModeObserver.add(observer);
     }
 }

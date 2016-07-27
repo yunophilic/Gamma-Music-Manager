@@ -6,6 +6,7 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +17,7 @@ public class DynamicTreeViewUI extends StackPane {
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private TreeView<Item> m_tree;
+    private final static String LABEL_DEFAULT = "Choose a folder to view";
 
     public DynamicTreeViewUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager,
                              List<String> dynamicTreeViewExpandedPaths) {
@@ -26,20 +28,32 @@ public class DynamicTreeViewUI extends StackPane {
         setPaneStyle();
         registerAsObserver();
 
+        initTreeView();
         updateTreeView(dynamicTreeViewExpandedPaths);
     }
 
     /**
+     * Initialize the file tree to contain a dummy root item
+     */
+    private void initTreeView() {
+        TreeItem<Item> root = new TreeItem<>(new DummyItem());
+
+        m_tree = new TreeView<>(root);
+        m_tree.setShowRoot(false);
+    }
+
+    /**
      * Update the tree view and load previously expanded paths if applicable
+     *
      * @param dynamicTreeViewExpandedPaths list of expanded paths
      */
     private void updateTreeView(List<String> dynamicTreeViewExpandedPaths) {
         System.out.println("updating treeview...");
 
         if (m_model.getM_rightFolderSelected() == null) {
-            this.getChildren().add(new Label("Choose a folder to view"));
+            this.getChildren().add(new Label(LABEL_DEFAULT));
         } else {
-            m_tree = createTrees(m_model.getM_libraries(), dynamicTreeViewExpandedPaths);
+            createTrees(m_model.getM_libraries(), dynamicTreeViewExpandedPaths);
             this.getChildren().add(m_tree);
             setTreeCellFactory();
         }
@@ -57,34 +71,37 @@ public class DynamicTreeViewUI extends StackPane {
      * Register as a Song Manager Observer and define actions upon receiving notifications
      */
     private void registerAsObserver() {
-        m_model.addLibraryObserver((action, file) -> {
+        m_model.addLibraryObserver((FileActions fileActions) -> {
             clearTreeView();
             updateTreeView(null);
         });
-        m_model.addRightFolderObserver((action, file) -> {
-            System.out.println("Right folder changed in treeview");
+        m_model.addRightFolderObserver((FileActions fileActions) -> {
+            System.out.println("Right folder update in treeview");
             clearTreeView();
             updateTreeView(null);
         });
-        m_model.addFileObserver((action, file) -> {
-            System.out.println("File changed in treeview");
-            updateFiles(action, file);
+        m_model.addFileObserver((FileActions fileActions) -> {
+            System.out.println("File update in treeview");
+            updateFiles(fileActions);
+            setTreeCellFactory();
         });
     }
 
     /**
      * Update the files to show in this tree
-     * @param fileAction the file action
-     * @param file the changed file
+     *
+     * @param fileActions the file actions
      */
-    private void updateFiles(Action fileAction, File file) {
+    private void updateFiles(FileActions fileActions) {
         try {
-            if (fileAction != null && fileAction != Action.NONE) {
-                if (m_model.getM_rightFolderSelected() == null) {
-                    this.getChildren().add(new Label("Choose a folder to view"));
-                } else {
-                    FileTreeUtils.updateTreeItems(m_model, m_tree, fileAction, file);
-                    m_model.setM_rightPanelFileAction(Action.NONE);
+            for (Pair<Action, File> fileAction: fileActions) {
+                Action action = fileAction.getKey();
+                if (fileAction != null && action != Action.NONE) {
+                    if (m_model.getM_rightFolderSelected() == null) {
+                        this.getChildren().add(new Label(LABEL_DEFAULT));
+                    } else {
+                        FileTreeUtils.updateTreeItems(m_model, m_tree, action, fileAction.getValue());
+                    }
                 }
             }
         } catch (IOException ex) {
@@ -105,14 +122,15 @@ public class DynamicTreeViewUI extends StackPane {
     /**
      * Construct the m_tree view and show previously expanded folders if applicable
      *
-     * @return TreeView<String>
+     * @param libraries                     List of libraries
+     * @param dynamicTreeViewExpandedPaths  List of expanded paths
      */
-    private TreeView<Item> createTrees(List<Library> libraries, List<String> dynamicTreeViewExpandedPaths) {
+    private void createTrees(List<Library> libraries, List<String> dynamicTreeViewExpandedPaths) {
         if (!libraries.isEmpty()) {
-            File dummyRootFile = new File(libraries.get(0).getRootDirPath());
-            TreeItem<Item> root = new TreeItem<>(new Folder(dummyRootFile, true));
+            TreeItem<Item> root = new TreeItem<>(new DummyItem());
 
             TreeItem<Item> rootItem = FileTreeUtils.copyTree(m_model.search(m_model.getM_rightFolderSelected()));
+            rootItem.getValue().setAsRightRootItem();
             rootItem.setExpanded(true);
 
             FileTreeUtils.setTreeExpandedState(rootItem, dynamicTreeViewExpandedPaths);
@@ -123,12 +141,8 @@ public class DynamicTreeViewUI extends StackPane {
 
             root.getChildren().add(rootItem);
 
-            TreeView<Item> tree = new TreeView<>(root);
-            tree.setShowRoot(false);
-
-            return tree;
+            m_tree.setRoot(root);
         }
-        return null;
     }
 
     private void setPaneStyle() {

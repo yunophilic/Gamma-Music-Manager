@@ -4,10 +4,10 @@ import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 
+import com.teamgamma.musicmanagementsystem.util.GeneralObserver;
 import javafx.util.Duration;
 
 import javax.sound.sampled.*;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
@@ -22,7 +22,7 @@ public class MusicPlayerManager {
 
     private List<Song> m_songHistory;
 
-    private List<MusicPlayerObserver> m_newSongObservers;
+    private List<GeneralObserver> m_newSongObservers;
 
     private Song m_currentSong = null;
 
@@ -30,13 +30,13 @@ public class MusicPlayerManager {
 
     private int m_historyIndex = 0;
 
-    private List<MusicPlayerObserver> m_playbackObservers;
+    private List<GeneralObserver> m_playbackObservers;
 
-    private List<MusicPlayerObserver> m_changeStateObserver;
+    private List<GeneralObserver> m_changeStateObserver;
 
-    private List<MusicPlayerObserver> m_errorObservers;
+    private List<GeneralObserver> m_errorObservers;
 
-    private List<MusicPlayerObserver> m_queuingObserver;
+    private List<GeneralObserver> m_queuingObserver;
 
     private Exception m_lastException;
 
@@ -55,10 +55,8 @@ public class MusicPlayerManager {
         m_databaseManager = databaseManager;
 
         m_playingQueue = new ArrayList<>();
-        reterievePlaybackQueueFromDB();
 
         m_songHistory = new ArrayList<>();
-        loadHistory();
 
         m_newSongObservers = new ArrayList<>();
         m_playbackObservers = new ArrayList<>();
@@ -218,7 +216,7 @@ public class MusicPlayerManager {
      *
      * @param observer
      */
-    public void registerNewSongObserver(MusicPlayerObserver observer) {
+    public void registerNewSongObserver(GeneralObserver observer) {
         m_newSongObservers.add(observer);
     }
 
@@ -283,7 +281,7 @@ public class MusicPlayerManager {
      *
      * @param observer
      */
-    public void registerPlaybackObserver(MusicPlayerObserver observer) {
+    public void registerPlaybackObserver(GeneralObserver observer) {
         m_playbackObservers.add(observer);
     }
 
@@ -367,7 +365,7 @@ public class MusicPlayerManager {
      *
      * @param observer
      */
-    public void registerChangeStateObservers(MusicPlayerObserver observer) {
+    public void registerChangeStateObservers(GeneralObserver observer) {
         m_changeStateObserver.add(observer);
     }
 
@@ -383,7 +381,7 @@ public class MusicPlayerManager {
      *
      * @param observer The observer to register.
      */
-    public void registerErrorObservers(MusicPlayerObserver observer) {
+    public void registerErrorObservers(GeneralObserver observer) {
         m_errorObservers.add(observer);
     }
 
@@ -422,9 +420,9 @@ public class MusicPlayerManager {
      *
      * @param observers List of observers to iterate through.
      */
-    private void notifyAll(List<MusicPlayerObserver> observers) {
-        for (MusicPlayerObserver observer : observers) {
-            observer.updateUI();
+    private void notifyAll(List<GeneralObserver> observers) {
+        for (GeneralObserver observer : observers) {
+            observer.update();
         }
     }
 
@@ -524,30 +522,15 @@ public class MusicPlayerManager {
     /**
      * Helper fucntion to reterieve what ever is in the playback queue in the DB and set it to be what is in the playback queue.
      */
-    private void reterievePlaybackQueueFromDB() {
-        List<String> queuedSongs = m_databaseManager.getPlaybackQueue();
-        if (queuedSongs == null) {
-            // Nothing in the DB.
-            return;
-        }
-        List<Song> queueFromDB = new ArrayList<>();
-        for (int i = 0; i < queuedSongs.size(); i++) {
-            File newFile = new File(queuedSongs.get(i));
-            Song song = new Song(newFile);
-            queueFromDB.add(song);
-        }
-        m_playingQueue = queueFromDB;
+    public void loadPlaybackQueue(List<Song> songs) {
+        m_playingQueue.addAll(songs);
     }
 
     /**
      * Function to load songs that are from the history that is retrieved from the DB.
      */
-    private void loadHistory() {
-        List<String> songsFromHistory = m_databaseManager.getHistory();
-        for (String songPath : songsFromHistory){
-            File newFile = new File(songPath);
-            m_songHistory.add(new Song(newFile));
-        }
+    public void loadHistory(List<Song> songs) {
+        m_songHistory.addAll(songs);
 
         // TODO: Will have to set the history index to actual location that was left off
         if (!m_songHistory.isEmpty()) {
@@ -559,7 +542,7 @@ public class MusicPlayerManager {
      * Function to register a observer for when there is an update to the playing queue.
      * @param observer
      */
-    public void registerQueingObserver(MusicPlayerObserver observer) {
+    public void registerQueingObserver(GeneralObserver observer) {
         m_queuingObserver.add(observer);
     }
 
@@ -721,7 +704,9 @@ public class MusicPlayerManager {
     /**
      * Function to unload a song from the music player manager. Should set the player back to an inital state.
      */
-    public void unloadSong() {m_currentSong = null;}
+    public void unloadSong() {
+        m_currentSong = null;
+    }
 
     /**
      * Function to get the current song in the playlist that is loaded.

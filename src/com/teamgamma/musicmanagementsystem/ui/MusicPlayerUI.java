@@ -6,26 +6,21 @@ import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.model.Song;
-import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
+import com.teamgamma.musicmanagementsystem.util.GeneralObserver;
 
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.DragEvent;
 
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
 import javafx.scene.text.Font;
 import javafx.util.Duration;
-
-import java.io.File;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,10 +94,6 @@ public class MusicPlayerUI extends VBox {
         topWrapper.setSpacing(0);
         topWrapper.getChildren().add(makeSongTitleHeader(manager));
 
-        // For testing purposes
-        //HBox musicFileBox = createFilePathBox(manager);
-        //topWrapper.getChildren().add(musicFileBox);
-
         topWrapper.getChildren().addAll(createProgressBarBox(manager));
         this.getChildren().add(topWrapper);
         HBox playbackControls = createPlayBackControlBox(manager);
@@ -119,26 +110,8 @@ public class MusicPlayerUI extends VBox {
                 PromptUI.customPromptError("Music Player Error", e.getMessage(), e.toString());
             }
         }));
-        setCssStyle();
-    }
 
-    /**
-     * Function to create the file text box for control of what song you want to play. This is used for testing purposes.
-     *
-     * @param manager The MusicPlayerManager to use for observers
-     * @return HBox containing a the components needed to control the music player by typing in the path to the song.
-     */
-    private HBox createFilePathBox(final MusicPlayerManager manager) {
-        HBox musicFileBox = new HBox();
-        Label songPathHeader = new Label("Song Path");
-        TextField songPath = new TextField("Enter Path To Song");
-        Button addSong = UserInterfaceUtils.createIconButton(ADD_TO_PLAYLIST_ICON_PATH);
-        addSong.setOnMouseClicked(event -> {
-            File newFile = new File(songPath.getText());
-            manager.placeSongOnBackOfPlaybackQueue(new Song(newFile));
-        });
-        musicFileBox.getChildren().addAll(songPathHeader, songPath, addSong);
-        return musicFileBox;
+        UserInterfaceUtils.applyBlackBoarder(this);
     }
 
     /**
@@ -151,43 +124,66 @@ public class MusicPlayerUI extends VBox {
         HBox playbackControls = new HBox();
         playbackControls.setAlignment(Pos.CENTER);
 
-        Button previousSongButton = UserInterfaceUtils.createIconButton(PREVIOUS_ICON_PATH);
-        previousSongButton.setOnMouseClicked(event -> manager.playPreviousSong());
-        UserInterfaceUtils.createMouseOverUIChange(previousSongButton, previousSongButton.getStyle());
-        previousSongButton.setAlignment(Pos.CENTER_LEFT);
-        Tooltip previousSongToolTip = new Tooltip(PREVIOUS_SONG_TOOL_TIP_DEFUALT);
+        Button previousSongButton = createPreviousSongButton(manager);
+        playbackControls.getChildren().add(previousSongButton);
 
-        if (manager.isNothingPrevious()) {
-            previousSongButton.setOpacity(FADED);
+        ToggleButton playPauseButton = createPlayPauseButton(manager);
+        playbackControls.getChildren().add(playPauseButton);
+
+        Button skipButton = createSkipSongButton(manager);
+        playbackControls.getChildren().add(skipButton);
+
+        return playbackControls;
+    }
+
+    /**
+     * Function to create the skip song button
+     *
+     * @param manager   The manager to hook up the button to.
+     * @return          A button with the logic for skipping a song.
+     */
+    private Button createSkipSongButton(MusicPlayerManager manager) {
+        Button skipButton = UserInterfaceUtils.createIconButton(NEXT_SONG_ICON_PATH);
+        if (manager.isThereANextSong()) {
+            skipButton.setOpacity(NOT_FADED);
         } else {
-            previousSongButton.setOpacity(NOT_FADED);
-            previousSongToolTip.setText(getSongDisplayName(manager.getPreviousSong()));
+            skipButton.setOpacity(FADED);
         }
 
-        manager.registerNewSongObserver(() -> Platform.runLater(() -> {
-            if (manager.isNothingPrevious()) {
-                previousSongToolTip.setText(PREVIOUS_SONG_TOOL_TIP_DEFUALT);
-            } else {
-                previousSongToolTip.setText(getSongDisplayName(manager.getPreviousSong()));
-            }
-        }));
-        previousSongButton.setTooltip(previousSongToolTip);
-        playbackControls.getChildren().add(previousSongButton);
-        manager.registerNewSongObserver(() -> Platform.runLater(() -> {
-            if (manager.isNothingPrevious()) {
-                previousSongButton.setOpacity(FADED);
-            } else {
-                previousSongButton.setOpacity(NOT_FADED);
-            }
-        }));
+        skipButton.setOnMouseClicked(event -> manager.playNextSong());
+        UserInterfaceUtils.createMouseOverUIChange(skipButton, skipButton.getStyle());
 
+        Tooltip nextSongTip = new Tooltip(NEXT_SONG_TOOL_TIP_DEFAULT);
+        skipButton.setTooltip(nextSongTip);
+        setToolTipToNextSong(manager, nextSongTip);
+
+        manager.registerQueingObserver(createNextSongToolTipObserver(manager, nextSongTip));
+        manager.registerNewSongObserver(createNextSongToolTipObserver(manager, nextSongTip));
+
+        manager.registerQueingObserver(createNextSongButtonFadedAction(manager, skipButton));
+        manager.registerNewSongObserver(createNextSongButtonFadedAction(manager, skipButton));
+
+        return skipButton;
+    }
+
+    /**
+     * Function to create the play pause button for the music player.
+     *
+     * @param manager     The player to hook the button up to
+     * @return            A button that has the logic for controlling the play and pause in the music player.
+     */
+    private ToggleButton createPlayPauseButton(MusicPlayerManager manager) {
         ToggleButton playPauseButton = new ToggleButton();
+
         playPauseButton.setStyle("-fx-background-color: transparent");
         playPauseButton.setGraphic(UserInterfaceUtils.createImageViewForImage(PLAY_ICON_PATH));
         playPauseButton.setSelected(false);
-        Tooltip playPauseToolTip = new Tooltip(DEFAULT_PLAY_BUTTON_TOOL_TIP_MESSAGE);
         playPauseButton.setOpacity(FADED);
+        playPauseButton.setAlignment(Pos.CENTER);
+
+        Tooltip playPauseToolTip = new Tooltip(DEFAULT_PLAY_BUTTON_TOOL_TIP_MESSAGE);
         playPauseButton.setTooltip(playPauseToolTip);
+
         playPauseButton.setOnMouseClicked(event -> {
             if (playPauseButton.isSelected()) {
                 // Selected means that something is playing so we want to pause it
@@ -212,30 +208,47 @@ public class MusicPlayerUI extends VBox {
             }
         }));
 
-        playPauseButton.setAlignment(Pos.CENTER);
-        playbackControls.getChildren().add(playPauseButton);
+        return playPauseButton;
+    }
 
-        Button skipButton = UserInterfaceUtils.createIconButton(NEXT_SONG_ICON_PATH);
-        if (manager.isThereANextSong()) {
-            skipButton.setOpacity(NOT_FADED);
+    /**
+     * Function to create the previous song button.
+     *
+     * @param manager       The music player to hook the button up to.
+     * @return              A button containing the logic to control the previous song action in the music player.
+     */
+    private Button createPreviousSongButton(MusicPlayerManager manager) {
+        Button previousSongButton = UserInterfaceUtils.createIconButton(PREVIOUS_ICON_PATH);
+        previousSongButton.setOnMouseClicked(event -> manager.playPreviousSong());
+        UserInterfaceUtils.createMouseOverUIChange(previousSongButton, previousSongButton.getStyle());
+        previousSongButton.setAlignment(Pos.CENTER_LEFT);
+        Tooltip previousSongToolTip = new Tooltip(PREVIOUS_SONG_TOOL_TIP_DEFUALT);
+
+        if (manager.isNothingPrevious()) {
+            previousSongButton.setOpacity(FADED);
         } else {
-            skipButton.setOpacity(FADED);
+            previousSongButton.setOpacity(NOT_FADED);
+            previousSongToolTip.setText(getSongDisplayName(manager.getPreviousSong()));
         }
 
-        skipButton.setOnMouseClicked(event -> manager.playNextSong());
-        UserInterfaceUtils.createMouseOverUIChange(skipButton, skipButton.getStyle());
+        manager.registerNewSongObserver(() -> Platform.runLater(() -> {
+            if (manager.isNothingPrevious()) {
+                previousSongToolTip.setText(PREVIOUS_SONG_TOOL_TIP_DEFUALT);
+            } else {
+                previousSongToolTip.setText(getSongDisplayName(manager.getPreviousSong()));
+            }
+        }));
+        previousSongButton.setTooltip(previousSongToolTip);
 
-        Tooltip nextSongTip = new Tooltip(NEXT_SONG_TOOL_TIP_DEFAULT);
-        skipButton.setTooltip(nextSongTip);
-        setToolTipToNextSong(manager, nextSongTip);
+        manager.registerNewSongObserver(() -> Platform.runLater(() -> {
+            if (manager.isNothingPrevious()) {
+                previousSongButton.setOpacity(FADED);
+            } else {
+                previousSongButton.setOpacity(NOT_FADED);
+            }
+        }));
 
-        manager.registerQueingObserver(createNextSongToolTipObserver(manager, nextSongTip));
-        manager.registerNewSongObserver(createNextSongToolTipObserver(manager, nextSongTip));
-        playbackControls.getChildren().add(skipButton);
-
-        manager.registerQueingObserver(createNextSongButtonFadedAction(manager, skipButton));
-        manager.registerNewSongObserver(createNextSongButtonFadedAction(manager, skipButton));
-        return playbackControls;
+        return previousSongButton;
     }
 
     /**
@@ -245,7 +258,7 @@ public class MusicPlayerUI extends VBox {
      * @param nextSongTip The tooltip to use.
      * @return An observer that will update the tooltip using the manager for next song.
      */
-    private MusicPlayerObserver createNextSongToolTipObserver(final MusicPlayerManager manager, final Tooltip nextSongTip) {
+    private GeneralObserver createNextSongToolTipObserver(final MusicPlayerManager manager, final Tooltip nextSongTip) {
         return () -> setToolTipToNextSong(manager, nextSongTip);
     }
 
@@ -288,7 +301,7 @@ public class MusicPlayerUI extends VBox {
      * @param skipButton The button to update.
      * @return The observer containing the next song faded logic.
      */
-    private MusicPlayerObserver createNextSongButtonFadedAction(final MusicPlayerManager manager, final Button skipButton) {
+    private GeneralObserver createNextSongButtonFadedAction(final MusicPlayerManager manager, final Button skipButton) {
         return () -> {
             if (manager.isThereANextSong()) {
                 skipButton.setOpacity(NOT_FADED);
@@ -490,14 +503,6 @@ public class MusicPlayerUI extends VBox {
     }
 
     /**
-     * Function to set the global CSS style the panel
-     */
-    private void setCssStyle() {
-        final String cssDefault = "-fx-border-color: black;\n";
-        this.setStyle(cssDefault);
-    }
-
-    /**
      * Function to create the progress bar and the seek slider UI component.
      *
      * @param manager The music player manager to set up the observers.
@@ -623,13 +628,19 @@ public class MusicPlayerUI extends VBox {
         songTimesWrapper.getChildren().addAll(currentTimeLabel, constantLabel, songEndTimeText);
         songTimesWrapper.setAlignment(Pos.CENTER_RIGHT);
 
-        manager.registerNewSongObserver(() -> Platform.runLater(() -> songEndTimeText.setText(UserInterfaceUtils.convertDurationToTimeString(manager.getEndTime()))));
-        manager.registerPlaybackObserver(() -> {
-            // Have to run this one later. Odd that progress bar did not have this problem.
+        manager.registerNewSongObserver(
+                () -> Platform.runLater(
+                        () -> songEndTimeText.setText(UserInterfaceUtils.convertDurationToTimeString(manager.getEndTime()))
+                )
+        );
+        manager.registerPlaybackObserver(() ->
             // http://stackoverflow.com/questions/29449297/java-lang-illegalstateexception-not-on-fx-application-thread-currentthread-t
             // https://bugs.openjdk.java.net/browse/JDK-8088376
-            Platform.runLater(() -> currentTimeLabel.setText(UserInterfaceUtils.convertDurationToTimeString(manager.getCurrentPlayTime())));
-        });
+            Platform.runLater(
+                    () -> currentTimeLabel.setText(
+                            UserInterfaceUtils.convertDurationToTimeString(manager.getCurrentPlayTime()))
+            )
+        );
         return songTimesWrapper;
     }
 

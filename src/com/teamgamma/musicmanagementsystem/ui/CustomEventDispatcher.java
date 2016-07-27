@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.model.Item;
@@ -23,6 +24,7 @@ public class CustomEventDispatcher implements EventDispatcher {
     private Item m_selectedItem;
     private TreeView<Item> m_tree;
     private boolean m_isLeftPane;
+    private DatabaseManager m_databaseManager;
 
     // Static private member for making the control click menu be just a single instance.
     //private static ContextMenu m_playbackContextMenuInstance;
@@ -32,13 +34,15 @@ public class CustomEventDispatcher implements EventDispatcher {
                                  MusicPlayerManager musicPlayerManager,
                                  TreeView<Item> tree,
                                  Item selectedItem,
-                                 boolean isLeftPane) {
+                                 boolean isLeftPane,
+                                 DatabaseManager databaseManager) {
         m_originalDispatcher = originalDispatcher;
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_tree = tree;
         m_selectedItem = selectedItem;
         m_isLeftPane = isLeftPane;
+        m_databaseManager = databaseManager;
     }
 
     /**
@@ -64,10 +68,6 @@ public class CustomEventDispatcher implements EventDispatcher {
                             System.out.println("Selected Item: " + m_selectedItem);
                             m_model.setM_selectedCenterFolder(m_selectedItem.getFile());
                             m_model.notifyCenterFolderObservers();
-
-                            FileTreeUtils.closeAllFoldersIcons(m_tree.getRoot());
-                            FileTreeUtils.setOpenFolder(m_tree, m_selectedItem.getFile().getAbsolutePath());
-
                         } else if (!isFolder) {
                             Song songToPlay = (Song) m_selectedItem;
                             if (!songToPlay.equals(m_musicPlayerManager.getCurrentSongPlaying())) {

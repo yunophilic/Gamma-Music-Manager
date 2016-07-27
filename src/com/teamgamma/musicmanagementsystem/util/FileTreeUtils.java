@@ -15,30 +15,40 @@ import java.util.List;
  * Utility class that provides functionality for the FileTree
  */
 public class FileTreeUtils {
-    private static final String OPEN_FOLDER_ICON_PATH = "res" + File.separator + "Status-folder-open-icon.png";
-    private static final String FOLDER_ICON_PATH = "res" + File.separator + "folder-icon.png";
-    private static final String SONG_ICON_PATH = "res" + File.separator + "music-file-icon.png";
+    public static final String OPEN_FOLDER_ICON_URL = "res" + File.separator + "Status-folder-open-icon.png";
+    public static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
+    public static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
+
+    private static String loadingFilePath;
+
+    private static List<LoadingObserver> filePathObservers = new ArrayList<>();
 
     /**
      * Recursively create tree items from the files in a directory and return a reference to the root item,
      * Set nodes in expandedPaths to expanded state
      *
+     * @param file current file
+     * @param dirPath file path of root node
+     * @param expandedPaths list of all expanded paths
      * @return TreeItem<Item> to the root item
      */
     public static TreeItem<Item> generateTreeItems(File file, String dirPath, List<String> expandedPaths) {
+        setLoadingPathString(file);
+
+        notifyObservers();
         System.out.println(file + ", " + dirPath);
         System.out.println("$$$" + file + ", " + file.isDirectory());
 
         TreeItem<Item> item;
         if(file.isFile()) {
             item = new TreeItem<>(new Song(file));
-            item.setGraphic(new ImageView(SONG_ICON_PATH));
+            item.setGraphic(new ImageView(SONG_ICON_URL));
         } else {
             item = new TreeItem<>(
                     (file.getAbsolutePath().equals(dirPath)) ? new Folder(file, true) : new Folder(file, false)
             );
 
-            item.setGraphic(new ImageView(FOLDER_ICON_PATH));
+            item.setGraphic(new ImageView(FOLDER_ICON_URL));
 
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
                 if (expandedPaths.contains(item.getValue().getFile().getAbsolutePath())) {
@@ -56,6 +66,49 @@ public class FileTreeUtils {
         }
 
         return item;
+    }
+
+    /**
+     * Sets loadingFilePath variable the file path that is currently being loaded, to display on loading screen.
+     * Has a 60 character limit. If file path is too long, break it down to two separate halves and separate
+     * with ellipses.
+     *
+     * @param file that is being loaded
+     */
+    private static void setLoadingPathString(File file) {
+        String filePath = file.getAbsolutePath();
+        final int MAX_FILE_ROW_LENGTH = 60;
+        if (filePath.length() < MAX_FILE_ROW_LENGTH) {
+            loadingFilePath = filePath;
+        } else {
+            final int HALF_WAY_POINT = MAX_FILE_ROW_LENGTH / 2;
+            final String ELLIPSES_BREAK = "...";
+            String firstHalf = filePath.substring(0, HALF_WAY_POINT);
+            String secondHalf = filePath.substring(filePath.length() - HALF_WAY_POINT);
+
+            int firstHalfEndTrimIndex = firstHalf.length() - 1;
+            while (0 < firstHalfEndTrimIndex) {
+                if (firstHalf.charAt(firstHalfEndTrimIndex) != '\\') {
+                    firstHalfEndTrimIndex--;
+                } else {
+                    firstHalfEndTrimIndex++;
+                    firstHalf = firstHalf.substring(0, firstHalfEndTrimIndex);
+                    break;
+                }
+            }
+
+            int secondHalfEndTrimIndex = 0;
+            final int secondHalfLength = secondHalf.length();
+            while (secondHalfEndTrimIndex < secondHalfLength) {
+                if (secondHalf.charAt(secondHalfEndTrimIndex) != '\\') {
+                    secondHalfEndTrimIndex++;
+                } else {
+                    secondHalf = secondHalf.substring(secondHalfEndTrimIndex);
+                    break;
+                }
+            }
+            loadingFilePath = firstHalf + ELLIPSES_BREAK + secondHalf;
+        }
     }
 
     /**
@@ -97,11 +150,11 @@ public class FileTreeUtils {
      * @param node the specified node
      * @return root node of the copied tree
      */
-    public static TreeItem<Item> copyTree(final TreeItem<Item> node) {
+    public static TreeItem<Item> copyTree(TreeItem<Item> node) {
         TreeItem<Item> nodeCopy = new TreeItem<>();
         Item item = node.getValue();
         nodeCopy.setValue(item);
-        nodeCopy.setGraphic(new ImageView(item.getFile().isDirectory() ? FOLDER_ICON_PATH : SONG_ICON_PATH));
+        nodeCopy.setGraphic(new ImageView(item.getFile().isDirectory() ? FOLDER_ICON_URL : SONG_ICON_URL));
 
         for (TreeItem<Item> child : node.getChildren()) {
             nodeCopy.getChildren().add(copyTree(child));
@@ -118,9 +171,9 @@ public class FileTreeUtils {
     public static void closeAllFoldersIcons(TreeItem<Item> treeItem) {
         //System.out.println("#### closing file: " + treeItem.getValue());
         if (treeItem.getValue().getFile().isDirectory()) {
-            treeItem.setGraphic(new ImageView(FOLDER_ICON_PATH));
+            treeItem.setGraphic(new ImageView(FOLDER_ICON_URL));
         } else {
-            treeItem.setGraphic(new ImageView(SONG_ICON_PATH));
+            treeItem.setGraphic(new ImageView(SONG_ICON_URL));
         }
         if (!treeItem.getChildren().isEmpty()) {
             List<TreeItem<Item>> childTreeItems = treeItem.getChildren();
@@ -145,7 +198,7 @@ public class FileTreeUtils {
         }
 
         System.out.println("@@@ Found treeitem: " + selectedTreeItem);
-        selectedTreeItem.setGraphic(new ImageView(OPEN_FOLDER_ICON_PATH));
+        selectedTreeItem.setGraphic(new ImageView(OPEN_FOLDER_ICON_URL));
     }
 
     /**
@@ -186,7 +239,7 @@ public class FileTreeUtils {
      * @param model the model
      * @param tree the tree to be updated
      * @param fileAction the file action
-     * @param changedFile the changed file
+     * @param changedFile the update file
      *
      * @throws IOException
      */
@@ -216,7 +269,12 @@ public class FileTreeUtils {
                 }
 
                 TreeItem<Item> destParentNode = searchTreeItem(tree.getRoot(), model.getM_moveDest().getAbsolutePath());
-                moveNode(nodeToMove, destParentNode);
+
+                if (destParentNode == null) {
+                    deleteNode(nodeToMove);
+                } else if(!(destParentNode.getValue() instanceof DummyItem)) {
+                    moveNode(nodeToMove, destParentNode);
+                }
                 break;
             }
 
@@ -246,17 +304,37 @@ public class FileTreeUtils {
     }
 
     /**
-     * Rename node based on the changed file
+     * Update items of the tree depending on the action
      *
-     * @param changedFile the changed file
+     * @param model the model
+     * @param rootNode the root node of tree to be updated
+     * @param fileAction the file action
+     * @param changedFile the update file
+     *
+     * @throws IOException
+     */
+    public static void updateTreeItems(SongManager model, TreeItem<Item> rootNode, Action fileAction, File changedFile) throws IOException {
+        TreeView<Item> tree = new TreeView<>(rootNode);
+        updateTreeItems(model, tree, fileAction, changedFile);
+    }
+
+    /**
+     * Rename node based on the update file
+     *
+     * @param changedFile the update file
      * @param tree the tree view
      * @param model the model
      */
     private static void renameNode(File changedFile, TreeView<Item> tree, SongManager model) {
-        TreeItem<Item> nodeToRename = searchTreeItem(tree.getRoot(), changedFile.getAbsolutePath());
         File renamedFile = model.getM_renamedFile();
 
         System.out.println("NEW FILE NAME: " + renamedFile);
+
+        TreeItem<Item> nodeToRename = searchTreeItem(tree.getRoot(), changedFile.getAbsolutePath());
+
+        if (nodeToRename == null) {
+            return;
+        }
 
         TreeItem<Item> parentNode = nodeToRename.getParent();
 
@@ -326,7 +404,7 @@ public class FileTreeUtils {
     }
 
     /**
-     * Helper function for moveNode(), doesn't actually move the nodes, create nodes with the changed file while
+     * Helper function for moveNode(), doesn't actually move the nodes, create nodes with the update file while
      * keeping the same Item reference for all nodes
      *
      * @param nodeToMove node intended to be moved
@@ -362,6 +440,7 @@ public class FileTreeUtils {
 
     /**
      * Get list of paths in tree that are expanded
+     *
      * @param tree the tree
      * @return Arraylist of paths as String
      */
@@ -371,6 +450,7 @@ public class FileTreeUtils {
 
     /**
      * Recursively get list of paths that are expanded in the sub-tree rooted at node
+     *
      * @param node the root node
      * @return list of paths as String
      */
@@ -406,16 +486,102 @@ public class FileTreeUtils {
      */
     public static void setTreeExpandedState(TreeItem<Item> node, List<String> expandedPaths) {
         File file = node.getValue().getFile();
-        if (file.isDirectory())
+        if (file.isDirectory()) {
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
                 if (expandedPaths.contains(file.getAbsolutePath())) {
                     node.setExpanded(true);
                 }
             }
+        }
 
         List<TreeItem<Item>> children = node.getChildren();
-        for(TreeItem<Item> child : children) {
+        for (TreeItem<Item> child : children) {
             setTreeExpandedState(child, expandedPaths);
+        }
+    }
+
+    /**
+     * Hide files in the tree by removing the file nodes
+     *
+     * @param tree
+     */
+    public static void hideFiles(TreeView<Item> tree) {
+        List<TreeItem<Item>> nodesToRemove = new ArrayList<>();
+        for (TreeItem<Item> child : tree.getRoot().getChildren()) {
+            nodesToRemove.addAll(getFileNodes(child));
+        }
+        System.out.println("FILE NODES FOUND: " + nodesToRemove);
+
+        for (int i = 0; i < nodesToRemove.size(); i++) {
+            TreeItem<Item> node = nodesToRemove.get(i);
+            deleteNode(node);
+        }
+    }
+
+    /**
+     * Find all song nodes (leaves) in the tree
+     *
+     * @param node
+     * @return a list of TreeItem nodes that contain a Song
+     */
+    private static List<TreeItem<Item>> getFileNodes(TreeItem<Item> node) {
+        List<TreeItem<Item>> nodesToRemove = new ArrayList<>();
+        for (TreeItem<Item> child: node.getChildren()) {
+            if (child.getValue().getFile().isDirectory()){
+                nodesToRemove.addAll(getFileNodes(child));
+            } else {
+                nodesToRemove.add(child);
+            }
+        }
+
+        return nodesToRemove;
+    }
+
+    /**
+     * Show files in the tree by adding the file nodes
+     *
+     * @param uiRootNode
+     * @param modelNode
+     */
+    public static void showFiles(TreeItem<Item> uiRootNode, TreeItem<Item> modelNode) {
+        for (TreeItem<Item> modelChild: modelNode.getChildren()) {
+            if (modelChild.getValue().getFile().isDirectory()) {
+                showFiles(uiRootNode, modelChild);
+            } else {
+                if (searchTreeItem(uiRootNode, modelChild.getValue().getFile().getAbsolutePath()) == null) {
+                    TreeItem<Item> newUINode = new TreeItem<>(modelChild.getValue());
+                    newUINode.setGraphic(new ImageView(SONG_ICON_URL));
+                    TreeItem<Item> uiNode = searchTreeItem(uiRootNode, modelNode.getValue().getFile().getAbsolutePath());
+                    uiNode.getChildren().add(newUINode);
+                }
+            }
+        }
+    }
+
+    /**
+     * Get what is currently being loaded into the application
+     *
+     * @return the String of the file path being loaded
+     */
+    public static String getLoadingFilePath() {
+        return loadingFilePath;
+    }
+
+    /**
+     * Add observer to filePathObservers
+     *
+     * @param  observer to add
+     */
+    public static void addObserver(LoadingObserver observer) {
+        filePathObservers.add(observer);
+    }
+
+    /**
+     * Notify all observers in filePathObservers when a new component is being loaded
+     */
+    private static void notifyObservers() {
+        for (LoadingObserver observer : filePathObservers) {
+            observer.loadNextElement();
         }
     }
 }

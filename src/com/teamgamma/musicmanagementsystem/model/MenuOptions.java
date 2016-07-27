@@ -5,27 +5,27 @@ package com.teamgamma.musicmanagementsystem.model;
  */
 public class MenuOptions {
     private boolean m_centerPanelShowSubfolderFiles;
-    private boolean m_leftPanelShowFolder;
+    private boolean m_leftPanelShowFoldersOnly;
 
     public MenuOptions(boolean centerPanelOption, boolean leftPanelOption) {
         this.m_centerPanelShowSubfolderFiles = centerPanelOption;
-        this.m_leftPanelShowFolder = leftPanelOption;
+        this.m_leftPanelShowFoldersOnly = leftPanelOption;
     }
 
     /**
      * Set whether to show only folders in left panel
      * @param leftPanelShowFolder
      */
-    public void setM_leftPanelShowFolder(boolean leftPanelShowFolder){
-        m_leftPanelShowFolder = leftPanelShowFolder;
+    public void setM_leftPanelShowFoldersOnly(boolean leftPanelShowFolder){
+        m_leftPanelShowFoldersOnly = leftPanelShowFolder;
     }
 
     /**
      *  Get whether to show only folders in left panel
      * @return boolean
      */
-    public boolean getM_leftPanelShowFolder(){
-        return m_leftPanelShowFolder;
+    public boolean getM_leftPanelShowFoldersOnly(){
+        return m_leftPanelShowFoldersOnly;
     }
 
     /**

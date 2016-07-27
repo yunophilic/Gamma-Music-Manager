@@ -21,8 +21,19 @@ public interface Item {
      */
     boolean isRootItem();
 
-    @Override
-    String toString();
+    /**
+     * Set this item as the root
+     */
+    default void setAsRightRootItem() {
+        return;
+    }
+
+    /**
+     * Check if this item is the root of the right file tree
+     */
+    default boolean isRightRootItem() {
+        return false;
+    }
 
     @Override
     boolean equals(Object object);
