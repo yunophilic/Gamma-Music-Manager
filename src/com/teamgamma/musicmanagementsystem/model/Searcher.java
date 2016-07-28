@@ -1,9 +1,7 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
-import javafx.scene.image.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;

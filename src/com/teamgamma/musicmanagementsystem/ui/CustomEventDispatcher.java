@@ -5,7 +5,7 @@ import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.model.Item;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
+
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;

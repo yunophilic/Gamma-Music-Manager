@@ -4,7 +4,6 @@ import com.teamgamma.musicmanagementsystem.model.*;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.image.ImageView;
 
 import java.io.File;
 import java.io.IOException;
