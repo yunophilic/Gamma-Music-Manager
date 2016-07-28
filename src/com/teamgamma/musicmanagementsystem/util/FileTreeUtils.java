@@ -15,9 +15,6 @@ import java.util.List;
  * Utility class that provides functionality for the FileTree
  */
 public class FileTreeUtils {
-    public static final String OPEN_FOLDER_ICON_URL = "res" + File.separator + "Status-folder-open-icon.png";
-    public static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
-    public static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
 
     private static String loadingFilePath;
 

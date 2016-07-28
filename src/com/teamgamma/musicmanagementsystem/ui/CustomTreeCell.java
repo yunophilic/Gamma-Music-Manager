@@ -6,7 +6,6 @@ import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
-import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 
 import javafx.event.EventDispatcher;
 import javafx.scene.control.ContextMenu;
@@ -29,6 +28,10 @@ import java.util.List;
  * Event handling class used in LibraryUI and DynamicTreeViewUI
  */
 public class CustomTreeCell extends TextFieldTreeCell<Item> {
+    public static final String OPEN_FOLDER_ICON_URL = "res" + File.separator + "Status-folder-open-icon.png";
+    public static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
+    public static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
+
     //attributes
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
@@ -163,9 +166,9 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
             }
 
             if (m_cellType == CellType.LEFT_FILE_PANE && m_model.getM_selectedCenterFolder().equals(item.getFile())) {
-                setGraphic(new ImageView(FileTreeUtils.OPEN_FOLDER_ICON_URL));
+                setGraphic(new ImageView(OPEN_FOLDER_ICON_URL));
             } else {
-                String iconPath = item.getFile().isDirectory() ? FileTreeUtils.FOLDER_ICON_URL : FileTreeUtils.SONG_ICON_URL;
+                String iconPath = item.getFile().isDirectory() ? FOLDER_ICON_URL : SONG_ICON_URL;
                 setGraphic(new ImageView(iconPath));
             }
         }
