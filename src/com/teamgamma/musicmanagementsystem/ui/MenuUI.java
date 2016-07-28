@@ -35,6 +35,8 @@ public class MenuUI extends MenuBar{
     private static final String CREATE_NEW_PLAYLIST = "Create New Playlist";
     private static final String REMOVE_EXISTING_PLAYLIST = "Remove Existing Playlist";
     private static final String EXPORT_PLAYLIST = "Export Playlist";
+    public static final String SEARCH_HEADER = "Search";
+    public static final String SHOW_FILES_IN_FOLDER_HITS_HEADER = "Show Files In Folder Hits";
 
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
@@ -113,8 +115,8 @@ public class MenuUI extends MenuBar{
      * @return  The search submenu options.
      */
     private Menu createSearchSubmenu() {
-        Menu searchSubMenu = new Menu("Search");
-        CheckMenuItem showFilesInFolderHits = new CheckMenuItem("Show Files In Folder Hits");
+        Menu searchSubMenu = new Menu(SEARCH_HEADER);
+        CheckMenuItem showFilesInFolderHits = new CheckMenuItem(SHOW_FILES_IN_FOLDER_HITS_HEADER);
         // TODO: Save state.
         showFilesInFolderHits.setOnAction(event -> {
             if (showFilesInFolderHits.isSelected()) {
