@@ -74,7 +74,7 @@ public class ContextMenuBuilder {
         MenuItem rename = createRenameMenuItem(model, selectedItem);
         MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedItem);
 
-        MenuItem createNewFolder = createAddNewFolderMenuItem(selectedItem);
+        MenuItem createNewFolder = createAddNewFolderMenuItem(model, selectedItem);
         MenuItem removeLibrary = createRemoveLibraryMenuItem(model, databaseManager, selectedItem);
         MenuItem showInRightPane = createShowInRightPaneMenuItem(model, selectedItem);
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedItem);
@@ -452,13 +452,17 @@ public class ContextMenuBuilder {
      * @param selectedItem      The file or folder selected in the tree view
      * @return                  The menu item which creates a new folder
      */
-    private static MenuItem createAddNewFolderMenuItem(Item selectedItem) {
+    private static MenuItem createAddNewFolderMenuItem(SongManager model, Item selectedItem) {
         MenuItem createNewFolder = new MenuItem(CREATE_NEW_FOLDER);
 
         createNewFolder.setOnAction(event -> {
             if (selectedItem != null) {
                 File folderSelected = selectedItem.getFile();
-                PromptUI.createNewFolder(folderSelected);
+                Path newPath = PromptUI.createNewFolder(folderSelected);
+
+                if (newPath != null) {
+                    model.notifyFileObservers(new ConcreteFileActions(Action.ADD, newPath.toFile()));
+                }
             }
         });
 
