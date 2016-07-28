@@ -17,8 +17,10 @@ public class Searcher {
     /**
      * Constructor
      *
-     * @param rootToStartSearch     Root element to start the search.
-     * @param searchString          String to search on.
+     * @param rootToStartSearch         Root element to start the search.
+     * @param searchString              String to search on.
+     * @param showFilesInFolderHits     A flag to determine if the searcher should show all files in a folder
+     *                                  that is a hit.
      */
     public Searcher(TreeItem<Item> rootToStartSearch, String searchString, boolean showFilesInFolderHits) {
         m_searchString = searchString;
