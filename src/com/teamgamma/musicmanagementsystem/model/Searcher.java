@@ -1,8 +1,5 @@
 package com.teamgamma.musicmanagementsystem.model;
 
-import com.teamgamma.musicmanagementsystem.model.ISearchMethod;
-
-import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 
@@ -16,6 +13,7 @@ public class Searcher {
     private TreeItem<Item> m_searchTreeRoot;
     private String m_searchString;
     private boolean m_showFilesInFolderHits;
+
     /**
      * Constructor
      *
@@ -49,7 +47,7 @@ public class Searcher {
 
                     if (childrenSearchResult.getValue() instanceof DummyItem) {
                         // Just add the current node to results
-                        listOfNodesHit.add(new TreeItem<>(currentChildren.getValue()));
+                        listOfNodesHit.add(createExpandedNode(currentChildren.getValue()));
                     } else {
                         listOfNodesHit.add(childrenSearchResult);
                     }
@@ -57,19 +55,20 @@ public class Searcher {
                     continue;
 
                 } else {
-                    listOfNodesHit.add(new TreeItem<>(currentChildren.getValue()));
+                    listOfNodesHit.add(createExpandedNode(currentChildren.getValue()));
                 }
             }
 
             // Must be a directory if there are children so we have to search it to make sure we do not miss anything.
             if (hasChildren) {
                 TreeItem<Item> results = findAllInstancesInTree(currentChildren, searchMethod);
+                results.setExpanded(true);
                 if (!(results.getValue() instanceof DummyItem)) {
                     // Results where found in this case so add it to the current node
                     listOfNodesHit.add(results);
                 }
             } else if (m_showFilesInFolderHits && searchMethod.isSearchHit(parentNode.getValue())){
-                listOfNodesHit.add(new TreeItem<>(currentChildren.getValue()));
+                listOfNodesHit.add(createExpandedNode(currentChildren.getValue()));
             }
         }
 
@@ -77,6 +76,7 @@ public class Searcher {
             return new TreeItem<>(new DummyItem());
         } else {
             TreeItem<Item> copyOfParent = new TreeItem<>(parentNode.getValue());
+            copyOfParent.setExpanded(true);
             copyOfParent.getChildren().addAll(listOfNodesHit);
             return copyOfParent;
         }
@@ -121,5 +121,17 @@ public class Searcher {
             String stringToCheck = item.getFile().getName().toLowerCase();
             return stringToCheck.contains(m_searchString.toLowerCase());
         };
+    }
+
+    /**
+     * Function to create a node and copy it.
+     *
+     * @param value     The value to put the item in it.
+     * @return          A new node containing the item passed in.
+     */
+    private TreeItem<Item> createExpandedNode(Item value){
+        TreeItem<Item> node = new TreeItem<>(value);
+        node.setExpanded(true);
+        return node;
     }
 }

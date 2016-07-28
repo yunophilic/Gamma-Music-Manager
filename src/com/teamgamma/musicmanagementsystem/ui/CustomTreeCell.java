@@ -12,6 +12,7 @@ import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 
 import javafx.collections.ObservableList;
 import javafx.event.EventDispatcher;
+import javafx.scene.control.Cell;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeView;
@@ -40,19 +41,21 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
     private TreeView<Item> m_tree;
     private Item m_selectedItem;
     private boolean m_isLeftPane;
+    private CellType m_cellType;
     private List<Song> m_selectedSongs;
 
     public CustomTreeCell(SongManager model,
                           MusicPlayerManager musicPlayerManager,
                           DatabaseManager databaseManager,
                           TreeView<Item> tree,
-                          boolean isLeftPane) {
+                          CellType cellType) {
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         m_tree = tree;
+        m_cellType = cellType;
         createContextMenu();
-        m_isLeftPane = isLeftPane;
+        m_isLeftPane = cellType == CellType.LeftFilePane ? true : false;
         setDragEvents();
 
         m_tree.getCellFactory();
@@ -63,12 +66,12 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
      */
     private void createContextMenu() {
         m_contextMenu = ContextMenuBuilder.buildFileTreeContextMenu(m_model,
-                                                                    m_musicPlayerManager,
-                                                                    m_databaseManager,
-                                                                    m_selectedItem,
-                                                                    m_isLeftPane,
-                                                                    m_tree);
-    }
+                m_musicPlayerManager,
+                m_databaseManager,
+                m_selectedItem,
+                m_cellType,
+                m_tree);
+        }
 
     /**
      * Set mouse events on this CustomTreeCell
