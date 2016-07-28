@@ -1,7 +1,9 @@
 package com.teamgamma.musicmanagementsystem.model;
 
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
+import javafx.scene.image.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,8 +79,7 @@ public class Searcher {
         if (listOfNodesHit.isEmpty()){
             return new TreeItem<>(new DummyItem());
         } else {
-            TreeItem<Item> copyOfParent = new TreeItem<>(parentNode.getValue());
-            copyOfParent.setExpanded(true);
+            TreeItem<Item> copyOfParent = createExpandedNode(parentNode.getValue());
             copyOfParent.getChildren().addAll(listOfNodesHit);
             return copyOfParent;
         }
@@ -134,6 +135,9 @@ public class Searcher {
     private TreeItem<Item> createExpandedNode(Item value){
         TreeItem<Item> node = new TreeItem<>(value);
         node.setExpanded(true);
+
+        String iconPath = value.getFile().isDirectory() ? FileTreeUtils.FOLDER_ICON_URL : FileTreeUtils.SONG_ICON_URL;
+        node.setGraphic(new ImageView(iconPath));
         return node;
     }
 }

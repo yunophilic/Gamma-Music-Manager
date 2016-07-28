@@ -161,9 +161,6 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
             } else {
                 setText(m_selectedItem.getFile().getName());
             }
-
-            String iconPath = item.getFile().isDirectory() ? FileTreeUtils.FOLDER_ICON_URL : FileTreeUtils.SONG_ICON_URL;
-            setGraphic(new ImageView(iconPath));
         }
     }
 }
