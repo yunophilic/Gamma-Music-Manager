@@ -161,6 +161,13 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
             } else {
                 setText(m_selectedItem.getFile().getName());
             }
+
+            if (m_cellType == CellType.LEFT_FILE_PANE && m_model.getM_selectedCenterFolder().equals(item.getFile())) {
+                setGraphic(new ImageView(FileTreeUtils.OPEN_FOLDER_ICON_URL));
+            } else {
+                String iconPath = item.getFile().isDirectory() ? FileTreeUtils.FOLDER_ICON_URL : FileTreeUtils.SONG_ICON_URL;
+                setGraphic(new ImageView(iconPath));
+            }
         }
     }
 }

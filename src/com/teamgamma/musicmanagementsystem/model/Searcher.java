@@ -136,8 +136,6 @@ public class Searcher {
         TreeItem<Item> node = new TreeItem<>(value);
         node.setExpanded(true);
 
-        String iconPath = value.getFile().isDirectory() ? FileTreeUtils.FOLDER_ICON_URL : FileTreeUtils.SONG_ICON_URL;
-        node.setGraphic(new ImageView(iconPath));
         return node;
     }
 }

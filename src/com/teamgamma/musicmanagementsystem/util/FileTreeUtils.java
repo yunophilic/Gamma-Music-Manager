@@ -42,13 +42,10 @@ public class FileTreeUtils {
         TreeItem<Item> item;
         if(file.isFile()) {
             item = new TreeItem<>(new Song(file));
-            item.setGraphic(new ImageView(SONG_ICON_URL));
         } else {
             item = new TreeItem<>(
                     (file.getAbsolutePath().equals(dirPath)) ? new Folder(file, true) : new Folder(file, false)
             );
-
-            item.setGraphic(new ImageView(FOLDER_ICON_URL));
 
             if (expandedPaths != null && !expandedPaths.isEmpty()) {
                 if (expandedPaths.contains(item.getValue().getFile().getAbsolutePath())) {
@@ -154,51 +151,12 @@ public class FileTreeUtils {
         TreeItem<Item> nodeCopy = new TreeItem<>();
         Item item = node.getValue();
         nodeCopy.setValue(item);
-        nodeCopy.setGraphic(new ImageView(item.getFile().isDirectory() ? FOLDER_ICON_URL : SONG_ICON_URL));
 
         for (TreeItem<Item> child : node.getChildren()) {
             nodeCopy.getChildren().add(copyTree(child));
         }
 
         return nodeCopy;
-    }
-
-    /**
-     * Set all tree item icons to closed folder icon or a song icon
-     *
-     * @param treeItem
-     */
-    public static void closeAllFoldersIcons(TreeItem<Item> treeItem) {
-        //System.out.println("#### closing file: " + treeItem.getValue());
-        if (treeItem.getValue().getFile().isDirectory()) {
-            treeItem.setGraphic(new ImageView(FOLDER_ICON_URL));
-        } else {
-            treeItem.setGraphic(new ImageView(SONG_ICON_URL));
-        }
-        if (!treeItem.getChildren().isEmpty()) {
-            List<TreeItem<Item>> childTreeItems = treeItem.getChildren();
-            for (TreeItem<Item> child : childTreeItems) {
-                closeAllFoldersIcons(child);
-            }
-        }
-    }
-
-    /**
-     * Set selected tree item's icon to open folder icon
-     *
-     * @param tree
-     * @param filePath
-     */
-    public static void setOpenFolder(TreeView<Item> tree, String filePath) {
-        System.out.println("^^^^^ Tree root: " + tree.getRoot());
-        TreeItem<Item> selectedTreeItem = FileTreeUtils.searchTreeItem(tree.getRoot(), filePath);
-
-        if(selectedTreeItem == null) {
-            throw new IllegalArgumentException("file path specified not found in tree");
-        }
-
-        System.out.println("@@@ Found treeitem: " + selectedTreeItem);
-        selectedTreeItem.setGraphic(new ImageView(OPEN_FOLDER_ICON_URL));
     }
 
     /**
@@ -416,7 +374,6 @@ public class FileTreeUtils {
 
         TreeItem<Item> newNode = new TreeItem<>();
         newNode.setValue(item);
-        newNode.setGraphic(nodeToMove.getGraphic());
 
         List<TreeItem<Item>> children = nodeToMove.getChildren();
         if (children != null) {
@@ -550,7 +507,6 @@ public class FileTreeUtils {
             } else {
                 if (searchTreeItem(uiRootNode, modelChild.getValue().getFile().getAbsolutePath()) == null) {
                     TreeItem<Item> newUINode = new TreeItem<>(modelChild.getValue());
-                    newUINode.setGraphic(new ImageView(SONG_ICON_URL));
                     TreeItem<Item> uiNode = searchTreeItem(uiRootNode, modelNode.getValue().getFile().getAbsolutePath());
                     uiNode.getChildren().add(newUINode);
                 }
