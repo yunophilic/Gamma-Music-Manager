@@ -2,11 +2,10 @@ package com.teamgamma.musicmanagementsystem.util;
 
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+import com.teamgamma.musicmanagementsystem.ui.CellType;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +32,8 @@ public class ContextMenuBuilder {
 
     private static final String ADD_TO_PLAYLIST = "Add to Playlist";
     private static final String ADD_TO_CURRENT_PLAYLIST = "Add to Current Playlist";
+    private static final String ADD_ALL_TO_PLAYLIST = "Add All to Playlist";
+    private static final String ADD_ALL_TO_CURRENT_PLAYLIST = "Add All to Current Playlist";
 
     private static final String REMOVE_FROM_PLAYLIST = "Remove From Playlist";
 
@@ -50,20 +51,24 @@ public class ContextMenuBuilder {
      * @param musicPlayerManager    The music player manager
      * @param databaseManager       The db manager
      * @param selectedItem          The selected item in the file tree
-     *
+     * @param cellType              The cell type the menu is for
+     * @param tree                  The file tree
      * @return                      ContextMenu for file tree
      */
     public static ContextMenu buildFileTreeContextMenu(SongManager model,
                                                        MusicPlayerManager musicPlayerManager,
                                                        DatabaseManager databaseManager,
                                                        Item selectedItem,
-                                                       boolean isLeftPane) {
+                                                       CellType cellType,
+                                                       TreeView<Item> tree) {
         MenuItem playSong = createPlaySongMenuItem(musicPlayerManager, selectedItem);
         MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, selectedItem);
         MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedItem);
 
         MenuItem addToPlaylist = createAddToPlaylistMenuItem(model, musicPlayerManager, selectedItem);
         MenuItem addToCurrentPlaylist = createAddToCurrentPlaylistMenuItem(model, musicPlayerManager, selectedItem);
+        MenuItem addMultipleToPlaylist = createAddMultipleToPlaylistMenuItem(model, musicPlayerManager, tree);
+        MenuItem addMultipleToCurrentPlaylist = createAddMultipleToCurrentPlaylistMenuItem(model, musicPlayerManager, tree);
 
         MenuItem copy = createCopyMenuItem(model, selectedItem);
         MenuItem paste = createFileTreePasteMenuItem(model, selectedItem);
@@ -74,6 +79,7 @@ public class ContextMenuBuilder {
         MenuItem removeLibrary = createRemoveLibraryMenuItem(model, databaseManager, selectedItem);
         MenuItem showInRightPane = createShowInRightPaneMenuItem(model, selectedItem);
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedItem);
+        MenuItem showInLibrary = createShowInLibraryMenuItem(model, selectedItem);
 
         //separators (non functional menu items, just for display)
         MenuItem folderOptionsSeparator = new SeparatorMenuItem();
@@ -85,10 +91,14 @@ public class ContextMenuBuilder {
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue,
                 songOptionsSeparator,
                 addToPlaylist, addToCurrentPlaylist,
-                playlistOptionsSeparator, createNewFolder, folderOptionsSeparator,
+				addMultipleToPlaylist, addMultipleToCurrentPlaylist,
+                playlistOptionsSeparator,
+                createNewFolder,
+                folderOptionsSeparator,
                 copy, paste, rename, delete,
-                fileOptionsSeparator, removeLibrary, showInRightPane, openFileLocation);
-
+                fileOptionsSeparator,
+                removeLibrary, showInRightPane, openFileLocation, showInLibrary);
+                
         contextMenu.setOnShown(event -> {
             // Hide all if selected item is null
             if (selectedItem == null) {
@@ -106,11 +116,13 @@ public class ContextMenuBuilder {
             }
 
             // Only show the show in right pane option if it is in left pane
-            if (!isLeftPane) {
+            if (cellType != CellType.LEFT_FILE_PANE) {
                 hideMenuItem(removeLibrary);
                 hideMenuItem(showInRightPane);
+            }
 
-                hideMenuItem(fileOptionsSeparator);
+            if (cellType != CellType.SEARCH_RESULTS) {
+                hideMenuItem(showInLibrary);
             }
 
             // Do not show remove library option if selected item is not a library
@@ -121,6 +133,8 @@ public class ContextMenuBuilder {
             // Do not show song options if selected item is not a folder
             if (!selectedItem.getFile().isDirectory()) {
                 hideMenuItem(createNewFolder);
+                hideMenuItem(showInRightPane);
+
                 hideMenuItem(folderOptionsSeparator);
             }
 
@@ -132,6 +146,8 @@ public class ContextMenuBuilder {
 
                 hideMenuItem(addToPlaylist);
                 hideMenuItem(addToCurrentPlaylist);
+                hideMenuItem(addMultipleToPlaylist);
+                hideMenuItem(addMultipleToCurrentPlaylist);
 
                 hideMenuItem(songOptionsSeparator);
                 hideMenuItem(playlistOptionsSeparator);
@@ -148,19 +164,22 @@ public class ContextMenuBuilder {
      * @param musicPlayerManager    The music player manager
      * @param databaseManager       The db manager
      * @param selectedItem          The selected song in the center panel (in Item interface form)
-     *
+     * @param selectedSongs         The selected songs in the center panel
      * @return                      ContextMenu for center panel
      */
     public static ContextMenu buildCenterPanelContextMenu(SongManager model,
                                                           MusicPlayerManager musicPlayerManager,
                                                           DatabaseManager databaseManager,
-                                                          Item selectedItem) {
+                                                          Item selectedItem,
+                                                          List<Song> selectedSongs) {
         MenuItem playSong = createPlaySongMenuItem(musicPlayerManager, selectedItem);
         MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, selectedItem);
         MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedItem);
 
         MenuItem addToPlaylist = createAddToPlaylistMenuItem(model, musicPlayerManager, selectedItem);
         MenuItem addToCurrentPlaylist = createAddToCurrentPlaylistMenuItem(model, musicPlayerManager, selectedItem);
+        MenuItem addMultipleToPlaylist = createAddMultipleToPlaylistMenuItem(model, musicPlayerManager, selectedSongs);
+        MenuItem addMultipleToCurrentPlaylist = createAddMultipleToCurrentPlaylistMenuItem(model, musicPlayerManager, selectedSongs);
 
         MenuItem editProperties = createEditPropertiesMenuItem(model, selectedItem);
 
@@ -180,7 +199,7 @@ public class ContextMenuBuilder {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setAutoHide(true);
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, songOptionsSeparator,
-                addToPlaylist, addToCurrentPlaylist, playlistOptionsSeparator,
+                addToPlaylist, addToCurrentPlaylist, addMultipleToPlaylist, addMultipleToCurrentPlaylist, playlistOptionsSeparator,
                 editProperties, editPropertiesOptionSeparator,
                 copy, paste, rename, delete, explorerOptionsSeparator, openFileLocation);
 
@@ -269,12 +288,12 @@ public class ContextMenuBuilder {
      *
      * @return                          Playback context menu for music player history UI
      */
-    public static ContextMenu buildPlaybackContextMenu(MusicPlayerManager musicPlayerManager, SongManager songManager, Item selectedItem) {
+    public static ContextMenu buildPlaybackContextMenu(MusicPlayerManager musicPlayerManager, SongManager songManager,
+                                                       Item selectedItem) {
         ContextMenu playbackMenu = new ContextMenu();
         playbackMenu.setAutoHide(true);
 
         MenuItem playSong = createPlaySongMenuItem(musicPlayerManager, selectedItem);
-        playSong.setStyle("-fx-font-weight: bold");
         MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, selectedItem);
         MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedItem);
         MenuItem openInLibrary = createShowInLibraryMenuItem(songManager, selectedItem);
@@ -284,9 +303,10 @@ public class ContextMenuBuilder {
         return playbackMenu;
     }
 
-    /**
+    /**********
      * Helper functions
-     */
+     *************/
+
     /**
      * Function to hide a menu item.
      *
@@ -555,7 +575,7 @@ public class ContextMenuBuilder {
      * @param selectedItem the file or folder selected in the tree view.
      * @return the menu item which opens the file or folder's location.
      */
-    private static MenuItem createShowInLibraryMenuItem(SongManager model, Item selectedItem) {
+    public static MenuItem createShowInLibraryMenuItem(SongManager model, Item selectedItem) {
         MenuItem showInExplorer = new MenuItem(SHOW_IN_LIBRARY);
 
         showInExplorer.setOnAction(event -> {
@@ -563,7 +583,11 @@ public class ContextMenuBuilder {
                 File selectedFile = selectedItem.getFile();
 
                 // Display in center panel
-                model.setM_selectedCenterFolder(selectedFile.getParentFile());
+                if (!selectedFile.isDirectory()) {
+                    model.setM_selectedCenterFolder(selectedFile.getParentFile());
+                } else {
+                    model.setM_selectedCenterFolder(selectedFile.getAbsoluteFile());
+                }
                 model.notifyCenterFolderObservers();
             }
         });
@@ -655,6 +679,134 @@ public class ContextMenuBuilder {
     }
 
     /**
+     * Function to create a menu item that will allow the user to add songs to the playlist.
+     *
+     * @param model                 The model to select the current playlist.
+     * @param musicPlayerManager    The music player manager to updating UI.
+     * @param selectedSongs         The songs to add to the playlist.
+     * @return                      A menu item containing the logic to add a song to the playlist.
+     */
+    private static MenuItem createAddMultipleToPlaylistMenuItem(SongManager model,
+                                                                       MusicPlayerManager musicPlayerManager,
+                                                                       List<Song> selectedSongs) {
+        MenuItem addMultipleToPlaylist = new MenuItem(ADD_ALL_TO_PLAYLIST);
+
+        addMultipleToPlaylist.setOnAction(event -> {
+            List<Playlist> playlists = model.getM_playlists();
+            for (Song song : selectedSongs) {
+                if (song != null && song instanceof Song) {
+                    Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, song);
+                    if (selectedPlaylist == null) {
+                        PromptUI.customPromptError("Error", null, "Please select a playlist!");
+                        return;
+                    }
+                    model.addSongToPlaylist(song, selectedPlaylist);
+                    musicPlayerManager.notifyQueingObserver();
+                }
+            }
+        });
+
+        return addMultipleToPlaylist;
+    }
+
+    /**
+     * Function to create a menu item that will allow the user to add songs to the playlist.
+     *
+     * @param model                 The model to select the current playlist.
+     * @param musicPlayerManager    The music player manager to updating UI.
+     * @param tree                  The file tree
+     * @return                      A menu item containing the logic to add a song to the playlist.
+     */
+    private static MenuItem createAddMultipleToPlaylistMenuItem(SongManager model,
+                                                                MusicPlayerManager musicPlayerManager,
+                                                                TreeView<Item> tree) {
+        MenuItem addMultipleToPlaylist = new MenuItem(ADD_ALL_TO_PLAYLIST);
+
+        addMultipleToPlaylist.setOnAction(event -> {
+            List<Playlist> playlists = model.getM_playlists();
+            List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
+            for (TreeItem<Item> treeItem : treeItems) {
+                Item item = treeItem.getValue();
+                if (item instanceof Song) {
+                    Song song = (Song) item;
+                    Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, song);
+                    if (selectedPlaylist == null) {
+                        PromptUI.customPromptError("Error", null, "Please select a playlist!");
+                        return;
+                    }
+                    model.addSongToPlaylist(song, selectedPlaylist);
+                    musicPlayerManager.notifyQueingObserver();
+                }
+            }
+        });
+
+        return addMultipleToPlaylist;
+    }
+
+    /**
+     * Function to create a menu item that will allow the user to add songsto the current playlist.
+     *
+     * @param model                 The model to select the current playlist.
+     * @param musicPlayerManager    The music player manager to updating UI.
+     * @param selectedSongs         The songs to add to the playlist.
+     * @return                      A menu item containing the logic to add songsto the current playlist.
+     */
+    private static MenuItem createAddMultipleToCurrentPlaylistMenuItem(SongManager model,
+                                                                       MusicPlayerManager musicPlayerManager,
+                                                                       List<Song> selectedSongs) {
+        MenuItem addMultipleToCurrentPlaylist = new MenuItem(ADD_ALL_TO_CURRENT_PLAYLIST);
+
+        addMultipleToCurrentPlaylist.setOnAction(event -> {
+            for (Song song : selectedSongs) {
+                if (song != null && song instanceof Song) {
+                    Playlist selectedPlaylist = model.getM_selectedPlaylist();
+                    if (selectedPlaylist == null) {
+                        PromptUI.customPromptError("Error", null, "Please select a playlist!");
+                        return;
+                    }
+                    model.addSongToPlaylist(song, selectedPlaylist);
+                    musicPlayerManager.notifyQueingObserver();
+                }
+            }
+        });
+
+        return addMultipleToCurrentPlaylist;
+    }
+
+    /**
+     * Function to create a menu item that will allow the user to add songsto the current playlist.
+     *
+     * @param model                 The model to select the current playlist.
+     * @param musicPlayerManager    The music player manager to updating UI.
+     * @param tree                  The file tree
+     * @return                      A menu item containing the logic to add songsto the current playlist.
+     */
+    private static MenuItem createAddMultipleToCurrentPlaylistMenuItem(SongManager model,
+                                                                       MusicPlayerManager musicPlayerManager,
+                                                                       TreeView<Item> tree) {
+        MenuItem addMultipleToCurrentPlaylist = new MenuItem(ADD_ALL_TO_CURRENT_PLAYLIST);
+
+        addMultipleToCurrentPlaylist.setOnAction(event -> {
+            List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
+            for (TreeItem<Item> treeItem : treeItems) {
+                Item item = treeItem.getValue();
+                if (item instanceof Song) {
+                    Song song = (Song) item;
+                    Playlist selectedPlaylist = model.getM_selectedPlaylist();
+                    if (selectedPlaylist == null) {
+                        PromptUI.customPromptError("Error", null, "Please select a playlist!");
+                        return;
+                    }
+                    model.addSongToPlaylist(song, selectedPlaylist);
+                    musicPlayerManager.notifyQueingObserver();
+                }
+            }
+        });
+
+        return addMultipleToCurrentPlaylist;
+    }
+
+    /**
      * Function to create a menu item to remove the song from the playlist based on the index value it is.
      *
      * @param model                     The model to get the selected playlist being shown.
@@ -699,6 +851,8 @@ public class ContextMenuBuilder {
      */
     private static MenuItem createPlaySongMenuItem(MusicPlayerManager musicPlayerManager, Item selectedItem) {
         MenuItem playSong = new MenuItem(PLAY_SONG);
+
+        playSong.setStyle("-fx-font-weight: bold");
 
         playSong.setOnAction(event -> {
             if (selectedItem != null && selectedItem instanceof Song) {

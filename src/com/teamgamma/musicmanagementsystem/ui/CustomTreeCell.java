@@ -2,16 +2,18 @@ package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Item;
+import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import com.teamgamma.musicmanagementsystem.ui.CustomEventDispatcher;
-import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
+
 import javafx.event.EventDispatcher;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
@@ -21,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.List;
 
 /**
  * Event handling class used in LibraryUI and DynamicTreeViewUI
@@ -34,18 +37,21 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
     private TreeView<Item> m_tree;
     private Item m_selectedItem;
     private boolean m_isLeftPane;
+    private CellType m_cellType;
+    private List<Song> m_selectedSongs;
 
     public CustomTreeCell(SongManager model,
                           MusicPlayerManager musicPlayerManager,
                           DatabaseManager databaseManager,
                           TreeView<Item> tree,
-                          boolean isLeftPane) {
+                          CellType cellType) {
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         m_tree = tree;
+        m_cellType = cellType;
         createContextMenu();
-        m_isLeftPane = isLeftPane;
+        m_isLeftPane = (cellType == CellType.LEFT_FILE_PANE) ? true : false;
         setDragEvents();
 
         m_tree.getCellFactory();
@@ -56,11 +62,12 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
      */
     private void createContextMenu() {
         m_contextMenu = ContextMenuBuilder.buildFileTreeContextMenu(m_model,
-                                                                    m_musicPlayerManager,
-                                                                    m_databaseManager,
-                                                                    m_selectedItem,
-                                                                    m_isLeftPane);
-    }
+                m_musicPlayerManager,
+                m_databaseManager,
+                m_selectedItem,
+                m_cellType,
+                m_tree);
+        }
 
     /**
      * Set mouse events on this CustomTreeCell
@@ -154,6 +161,9 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
             } else {
                 setText(m_selectedItem.getFile().getName());
             }
+
+            String iconPath = item.getFile().isDirectory() ? FileTreeUtils.FOLDER_ICON_URL : FileTreeUtils.SONG_ICON_URL;
+            setGraphic(new ImageView(iconPath));
         }
     }
 }

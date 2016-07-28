@@ -101,7 +101,8 @@ public class LibraryUI extends StackPane {
      */
     private void setTreeCellFactory() {
         System.out.println("setting cell factory...");
-        m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, true));
+        m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree,
+                CellType.LEFT_FILE_PANE));
     }
 
     /**
@@ -109,12 +110,12 @@ public class LibraryUI extends StackPane {
      */
     private void registerAsLibraryObserver() {
         m_model.addLibraryObserver((FileActions fileActions) -> {
-            System.out.println("Library changed in treeview");
+            System.out.println("Library update in treeview");
             updateLibraryTrees(fileActions);
             setFileVisibility();
         });
         m_model.addFileObserver((FileActions fileActions) -> {
-            System.out.println("File changed in treeview");
+            System.out.println("File update in treeview");
             updateFiles(fileActions);
             setTreeCellFactory();
             setFileVisibility();

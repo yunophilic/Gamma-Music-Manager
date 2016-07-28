@@ -26,8 +26,10 @@ public class SongManager {
     private List<FileObserver> m_rightFolderObservers;
     private List<FileObserver> m_fileObservers;
     private List<FileObserver> m_leftPanelOptionsObservers;
-    private List<PlaylistObserver> m_playlistObservers;
-    private List<PlaylistObserver> m_playlistSongsObservers;
+    private List<GeneralObserver> m_playlistObservers;
+    private List<GeneralObserver> m_playlistSongsObservers;
+    private List<GeneralObserver> m_searchObservers;
+    private List<GeneralObserver> m_intialSearchModeObserver;
 
     // Buffers
     private Item m_itemToCopy;
@@ -57,17 +59,19 @@ public class SongManager {
     // TreeItem file tree
     private TreeItem<Item> m_fileTreeRoot;
 
+    private Searcher m_searchResults;
+
     public SongManager() {
         m_libraryObservers = new ArrayList<>();
         m_centerFolderObservers = new ArrayList<>();
         m_rightFolderObservers = new ArrayList<>();
         m_fileObservers = new ArrayList<>();
         m_leftPanelOptionsObservers = new ArrayList<>();
+        m_searchObservers = new ArrayList<>();
+        m_intialSearchModeObserver = new ArrayList<>();
 
         m_playlistObservers = new ArrayList<>();
         m_playlistSongsObservers = new ArrayList<>();
-
-        m_playlistObservers = new ArrayList<>();
 
         m_libraries = new ArrayList<>();
         m_playlists = new ArrayList<>();
@@ -190,6 +194,10 @@ public class SongManager {
             if (fileAction != null && action != Action.NONE) {
                 FileTreeUtils.updateTreeItems(this, m_fileTreeRoot, action, fileAction.getValue());
             }
+        }
+        if (m_searchResults != null){
+            m_searchResults.updateSearchResults(m_fileTreeRoot);
+            notifySearchObservers();
         }
     }
 
@@ -441,6 +449,16 @@ public class SongManager {
     }
 
     /**
+     * Refresh all playlists to check for any songs that no longer exist in the file system
+     * and remove them from the playlist
+     */
+    public void refreshPlaylists() {
+        for (Playlist playlist : m_playlists) {
+            playlist.refreshSongs();
+        }
+    }
+
+    /**
      * Find the playlist with the playlistName
      *
      * @param playlistName
@@ -515,6 +533,15 @@ public class SongManager {
         return m_itemToMove.getFile();
     }
 
+    /**
+     * Function to search for the given string in the files and folder that are in the model
+     *
+     * @param searchString      The string to search
+     */
+    public void searchForFilesAndFolders(String searchString) {
+        m_searchResults = new Searcher(m_fileTreeRoot, searchString, m_menuOptions.getShowFilesInFolderSerachHit());
+        notifySearchObservers();
+    }
 
     /**********
      * Getters and setters
@@ -596,6 +623,9 @@ public class SongManager {
         return m_fileTreeRoot;
     }
 
+    public Searcher getSearchResults() {
+        return m_searchResults;
+    }
 
     /**********
      * Functions for observer pattern
@@ -621,11 +651,11 @@ public class SongManager {
         m_leftPanelOptionsObservers.add(observer);
     }
 
-    public void addPlaylistObserver(PlaylistObserver observer) {
+    public void addPlaylistObserver(GeneralObserver observer) {
         m_playlistObservers.add(observer);
     }
 
-    public void addPlaylistSongObserver(PlaylistObserver observer) {
+    public void addPlaylistSongObserver(GeneralObserver observer) {
         m_playlistSongsObservers.add(observer);
     }
 
@@ -650,11 +680,11 @@ public class SongManager {
     }
 
     public void notifyPlaylistSongsObservers() {
-        notifySpecifiedPlaylistObservers(m_playlistSongsObservers);
+        notifySpecifiedGeneralObservers(m_playlistSongsObservers);
     }
 
     public void notifyPlaylistObservers() {
-        notifySpecifiedPlaylistObservers(m_playlistObservers);
+        notifySpecifiedGeneralObservers(m_playlistObservers);
     }
 
     private void notifySpecifiedFileObservers(List<FileObserver> observers, FileActions fileActions) {
@@ -663,9 +693,29 @@ public class SongManager {
         }
     }
 
-    private void notifySpecifiedPlaylistObservers(List<PlaylistObserver> observers) {
-        for (PlaylistObserver observer : observers) {
-            observer.changed();
+    private void notifySpecifiedGeneralObservers(List<GeneralObserver> observers) {
+        for (GeneralObserver observer : observers) {
+            observer.update();
         }
+    }
+
+    public void notifySearchObservers(){
+        if (m_searchResults != null) {
+            m_searchResults.setShowFilesInFolderHits(m_menuOptions.getShowFilesInFolderSerachHit());
+            m_searchResults.updateSearchResults(m_fileTreeRoot);
+        }
+        notifySpecifiedGeneralObservers(m_searchObservers);
+    }
+
+    public void registerSearchObserver(GeneralObserver observer) {
+        m_searchObservers.add(observer);
+    }
+
+    public void notifyInitalSearchObserver(){
+        notifySpecifiedGeneralObservers(m_intialSearchModeObserver);
+    }
+
+    public void registerInitalSearchObserver(GeneralObserver observer) {
+        m_intialSearchModeObserver.add(observer);
     }
 }

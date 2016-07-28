@@ -35,6 +35,8 @@ public class MenuUI extends MenuBar{
     private static final String CREATE_NEW_PLAYLIST = "Create New Playlist";
     private static final String REMOVE_EXISTING_PLAYLIST = "Remove Existing Playlist";
     private static final String EXPORT_PLAYLIST = "Export Playlist";
+    public static final String SEARCH_HEADER = "Search";
+    public static final String SHOW_FILES_IN_FOLDER_HITS_HEADER = "Show Files In Folder Hits";
 
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
@@ -52,7 +54,8 @@ public class MenuUI extends MenuBar{
 	 * @param mainUI  The Main UI
      * @param applicationController   The application controller
      */
-    public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage, MainUI mainUI, ApplicationController applicationController){
+    public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage,
+                  MainUI mainUI, ApplicationController applicationController){
         super();
         m_model = model;
         m_databaseManager = databaseManager;
@@ -102,8 +105,31 @@ public class MenuUI extends MenuBar{
         Menu leftPanelSubMenu = getLeftPanelSubMenu(filePersistentStorage);
         Menu centerPanelSubMenu = getCenterPanelSubMenu(filePersistentStorage);
 
-        menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu);
+        menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu, createSearchSubmenu());
         return menuOptions;
+    }
+
+    /**
+     * Function to create the search submenu for the top.
+     *
+     * @return  The search submenu options.
+     */
+    private Menu createSearchSubmenu() {
+        Menu searchSubMenu = new Menu(SEARCH_HEADER);
+        CheckMenuItem showFilesInFolderHits = new CheckMenuItem(SHOW_FILES_IN_FOLDER_HITS_HEADER);
+        // TODO: Save state.
+        showFilesInFolderHits.setOnAction(event -> {
+            if (showFilesInFolderHits.isSelected()) {
+                m_model.getM_menuOptions().setShowFilesInFolderSearchHit(true);
+            } else {
+                m_model.getM_menuOptions().setShowFilesInFolderSearchHit(false);
+            }
+            m_model.notifySearchObservers();
+        });
+
+        searchSubMenu.getItems().add(showFilesInFolderHits);
+
+        return searchSubMenu;
     }
 
     /**
@@ -210,6 +236,7 @@ public class MenuUI extends MenuBar{
 
     /**
      * Toggles minimode on or off on button click
+	 *
      * @return a Menu object: minimodeButton
      */
     private Menu miniMode() {
@@ -234,4 +261,5 @@ public class MenuUI extends MenuBar{
         minimodeButton.getItems().addAll(mini);
         return minimodeButton;
     }
+
 }

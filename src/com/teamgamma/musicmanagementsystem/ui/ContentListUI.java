@@ -190,7 +190,7 @@ public class ContentListUI extends StackPane {
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, String> lengthCol,
                                           TableColumn<Song, Integer> ratingCol) {
-        filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().getAbsolutePath()));
+        filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().getParentFile().getName()));
 
         fileNameCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFileName()));
 
@@ -322,7 +322,8 @@ public class ContentListUI extends StackPane {
      * @return context menu generated
      */
     private ContextMenu generateContextMenu(Song selectedSong) {
-        return ContextMenuBuilder.buildCenterPanelContextMenu(m_model, m_musicPlayerManager, m_databaseManager, selectedSong);
+        List<Song> selectedSongs = m_table.getSelectionModel().getSelectedItems();
+        return ContextMenuBuilder.buildCenterPanelContextMenu(m_model, m_musicPlayerManager, m_databaseManager, selectedSong, selectedSongs);
     }
 
 }

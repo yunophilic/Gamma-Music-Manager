@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.model;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -66,14 +67,33 @@ public class Playlist {
     public void removeSong(int songToRemoveIndex) {
         m_songList.remove(songToRemoveIndex);
 
-        //refresh current song index
+        // Refresh current song index
         if(m_currentSongIndex > songToRemoveIndex) {
             m_currentSongIndex--;
         }
 
-        //restart playlist if current index exceeds list range
+        // Restart playlist if current index exceeds list range
         if(m_currentSongIndex > m_songList.size()-1) {
             m_currentSongIndex = m_songList.isEmpty() ? -1 : 0;
+        }
+    }
+
+    /**
+     * Refresh the playlist to remove songs that no longer exist in the file system
+     */
+    public void refreshSongs() {
+        List<Song> songsToRemove = new ArrayList<>();
+
+        // Check for songs that no longer exist in the file system
+        for (Song song : m_songList) {
+            if (!song.getFile().exists()) {
+                songsToRemove.add(song);
+            }
+        }
+
+        // Remove the non existing songs
+        for (Song song : songsToRemove) {
+            removeSong(m_songList.indexOf(song));
         }
     }
 
@@ -91,13 +111,13 @@ public class Playlist {
      * Shuffle unplayed songs in playlist
      */
     public List<Song> shuffleUnplayedSongs() {
-        // copy played songs...
+        // Copy played songs...
         List<Song> playedSongs = new ArrayList<>();
         for (int i = 0; i < m_currentSongIndex+1; i++) {
             playedSongs.add(m_songList.get(i));
         }
 
-        // copy unplayed songs...
+        // Copy unplayed songs...
         List<Song> unplayedSongs = new ArrayList<>();
         for (int i = m_currentSongIndex+1; i < m_songList.size(); i++) {
             unplayedSongs.add(m_songList.get(i));
@@ -153,10 +173,10 @@ public class Playlist {
     /**
      * Function to get the current song in the playlist.
 
-     * @return The current song in the playlist.
+     * @return The current song in the playlist or null if no current song (current song index is -1).
      */
     public Song getCurrentSong() {
-        return m_songList.get(m_currentSongIndex);
+        return (m_currentSongIndex > -1) ? m_songList.get(m_currentSongIndex) : null;
     }
 
     /**

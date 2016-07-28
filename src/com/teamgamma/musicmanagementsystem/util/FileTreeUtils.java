@@ -15,9 +15,13 @@ import java.util.List;
  * Utility class that provides functionality for the FileTree
  */
 public class FileTreeUtils {
-    private static final String OPEN_FOLDER_ICON_URL = "res" + File.separator + "Status-folder-open-icon.png";
-    private static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
-    private static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
+    public static final String OPEN_FOLDER_ICON_URL = "res" + File.separator + "Status-folder-open-icon.png";
+    public static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
+    public static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
+
+    private static String loadingFilePath;
+
+    private static List<LoadingObserver> filePathObservers = new ArrayList<>();
 
     /**
      * Recursively create tree items from the files in a directory and return a reference to the root item,
@@ -29,6 +33,9 @@ public class FileTreeUtils {
      * @return TreeItem<Item> to the root item
      */
     public static TreeItem<Item> generateTreeItems(File file, String dirPath, List<String> expandedPaths) {
+        setLoadingPathString(file);
+
+        notifyObservers();
         System.out.println(file + ", " + dirPath);
         System.out.println("$$$" + file + ", " + file.isDirectory());
 
@@ -59,6 +66,49 @@ public class FileTreeUtils {
         }
 
         return item;
+    }
+
+    /**
+     * Sets loadingFilePath variable the file path that is currently being loaded, to display on loading screen.
+     * Has a 60 character limit. If file path is too long, break it down to two separate halves and separate
+     * with ellipses.
+     *
+     * @param file that is being loaded
+     */
+    private static void setLoadingPathString(File file) {
+        String filePath = file.getAbsolutePath();
+        final int MAX_FILE_ROW_LENGTH = 60;
+        if (filePath.length() < MAX_FILE_ROW_LENGTH) {
+            loadingFilePath = filePath;
+        } else {
+            final int HALF_WAY_POINT = MAX_FILE_ROW_LENGTH / 2;
+            final String ELLIPSES_BREAK = "...";
+            String firstHalf = filePath.substring(0, HALF_WAY_POINT);
+            String secondHalf = filePath.substring(filePath.length() - HALF_WAY_POINT);
+
+            int firstHalfEndTrimIndex = firstHalf.length() - 1;
+            while (0 < firstHalfEndTrimIndex) {
+                if (firstHalf.charAt(firstHalfEndTrimIndex) != '\\') {
+                    firstHalfEndTrimIndex--;
+                } else {
+                    firstHalfEndTrimIndex++;
+                    firstHalf = firstHalf.substring(0, firstHalfEndTrimIndex);
+                    break;
+                }
+            }
+
+            int secondHalfEndTrimIndex = 0;
+            final int secondHalfLength = secondHalf.length();
+            while (secondHalfEndTrimIndex < secondHalfLength) {
+                if (secondHalf.charAt(secondHalfEndTrimIndex) != '\\') {
+                    secondHalfEndTrimIndex++;
+                } else {
+                    secondHalf = secondHalf.substring(secondHalfEndTrimIndex);
+                    break;
+                }
+            }
+            loadingFilePath = firstHalf + ELLIPSES_BREAK + secondHalf;
+        }
     }
 
     /**
@@ -189,7 +239,7 @@ public class FileTreeUtils {
      * @param model the model
      * @param tree the tree to be updated
      * @param fileAction the file action
-     * @param changedFile the changed file
+     * @param changedFile the update file
      *
      * @throws IOException
      */
@@ -259,7 +309,7 @@ public class FileTreeUtils {
      * @param model the model
      * @param rootNode the root node of tree to be updated
      * @param fileAction the file action
-     * @param changedFile the changed file
+     * @param changedFile the update file
      *
      * @throws IOException
      */
@@ -269,9 +319,9 @@ public class FileTreeUtils {
     }
 
     /**
-     * Rename node based on the changed file
+     * Rename node based on the update file
      *
-     * @param changedFile the changed file
+     * @param changedFile the update file
      * @param tree the tree view
      * @param model the model
      */
@@ -354,7 +404,7 @@ public class FileTreeUtils {
     }
 
     /**
-     * Helper function for moveNode(), doesn't actually move the nodes, create nodes with the changed file while
+     * Helper function for moveNode(), doesn't actually move the nodes, create nodes with the update file while
      * keeping the same Item reference for all nodes
      *
      * @param nodeToMove node intended to be moved
@@ -505,6 +555,33 @@ public class FileTreeUtils {
                     uiNode.getChildren().add(newUINode);
                 }
             }
+        }
+    }
+
+    /**
+     * Get what is currently being loaded into the application
+     *
+     * @return the String of the file path being loaded
+     */
+    public static String getLoadingFilePath() {
+        return loadingFilePath;
+    }
+
+    /**
+     * Add observer to filePathObservers
+     *
+     * @param  observer to add
+     */
+    public static void addObserver(LoadingObserver observer) {
+        filePathObservers.add(observer);
+    }
+
+    /**
+     * Notify all observers in filePathObservers when a new component is being loaded
+     */
+    private static void notifyObservers() {
+        for (LoadingObserver observer : filePathObservers) {
+            observer.loadNextElement();
         }
     }
 }
