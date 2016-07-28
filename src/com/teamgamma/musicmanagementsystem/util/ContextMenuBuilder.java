@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -106,7 +107,7 @@ public class ContextMenuBuilder {
             }
 
             // Disable paste if nothing is chosen to be copied
-            if (model.getM_itemToCopy() == null) {
+            if (model.getM_itemsToCopy() == null) {
                 paste.setDisable(true);
             } else {
                 paste.setDisable(false);
@@ -207,7 +208,7 @@ public class ContextMenuBuilder {
             }
 
             // Disable paste if nothing is chosen to be copied
-            if (model.getM_itemToCopy() == null) {
+            if (model.getM_itemsToCopy() == null) {
                 paste.setDisable(true);
             } else {
                 paste.setDisable(false);
@@ -321,7 +322,9 @@ public class ContextMenuBuilder {
 
         copy.setOnAction(event -> {
             if (selectedItem != null) {
-                model.setM_itemToCopy(selectedItem);
+                List<Item> temp = new ArrayList<>();
+                temp.add(selectedItem);
+                model.setM_itemsToCopy(temp);
             }
         });
 

@@ -5,13 +5,12 @@ import com.teamgamma.musicmanagementsystem.model.Item;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import com.teamgamma.musicmanagementsystem.ui.CustomEventDispatcher;
-import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
-import javafx.collections.ObservableList;
+import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.event.EventDispatcher;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.input.ClipboardContent;
@@ -23,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -77,7 +77,11 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
                 System.out.println("Drag detected on " + m_selectedItem);
 
                 //update model
-                m_model.setM_itemToMove(m_selectedItem);
+                List<Item> selectedItems = new ArrayList<>();
+                for (TreeItem<Item> selectedTreeItem : m_tree.getSelectionModel().getSelectedItems()) {
+                    selectedItems.add(selectedTreeItem.getValue());
+                }
+                m_model.setM_itemsToMove(selectedItems);
 
                 //update drag board
                 Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
@@ -105,33 +109,21 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         setOnDragDropped(dragEvent -> {
             System.out.println("Drag dropped on " + m_selectedItem);
 
-            try {
-                //move in the file system
-                File fileToMove = m_model.getFileToMove();
-                File destination;
-                if (!m_selectedItem.getFile().isDirectory()) {
-                    destination = m_selectedItem.getFile().getParentFile();
-                } else {
-                    destination = m_selectedItem.getFile();
-                }
-
-                m_model.moveFile(fileToMove, destination);
-            } catch (FileAlreadyExistsException ex) {
-                PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
-            } catch (AccessDeniedException ex) {
-                PromptUI.customPromptError("Error", null, "AccessDeniedException: \n" + ex.getMessage());
-                ex.printStackTrace();
-            } catch (IOException ex) {
-                PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
-                ex.printStackTrace();
+            File destination;
+            if (!m_selectedItem.getFile().isDirectory()) {
+                destination = m_selectedItem.getFile().getParentFile();
+            } else {
+                destination = m_selectedItem.getFile();
             }
+
+            UserInterfaceUtils.moveFileAction(m_model, destination);
 
             dragEvent.consume();
         });
 
         setOnDragDone(dragEvent -> {
             System.out.println("Drag done");
-            m_model.setM_itemToMove(null);
+            m_model.setM_itemsToMove(null);
             dragEvent.consume();
         });
     }

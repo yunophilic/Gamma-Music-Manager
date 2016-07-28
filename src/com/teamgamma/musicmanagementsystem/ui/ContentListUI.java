@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -266,7 +267,9 @@ public class ContentListUI extends StackPane {
                 System.out.println("Drag detected on " + selectedItem);
 
                 //update model
-                m_model.setM_itemToMove(selectedItem);
+                List<Item> selectedItems = new ArrayList<>();
+                selectedItems.addAll(m_table.getSelectionModel().getSelectedItems());
+                m_model.setM_itemsToMove(selectedItems);
 
                 //update drag board
                 Dragboard dragBoard = ContentListUI.this.startDragAndDrop(TransferMode.MOVE);
@@ -288,26 +291,14 @@ public class ContentListUI extends StackPane {
                 System.out.println("Drag dropped on center");
 
                 //move to the selected center folder
-                File fileToMove = m_model.getFileToMove();
-                File destination = m_model.getM_selectedCenterFolder();
-                try {
-                    m_model.moveFile(fileToMove, destination);
-                } catch (FileAlreadyExistsException ex) {
-                    PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
-                } catch (AccessDeniedException ex) {
-                    PromptUI.customPromptError("Error", null, "AccessDeniedException: \n" + ex.getMessage());
-                    ex.printStackTrace();
-                } catch (IOException ex) {
-                    PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
-                    ex.printStackTrace();
-                }
+                UserInterfaceUtils.moveFileAction(m_model, m_model.getM_selectedCenterFolder());
 
                 dragEvent.consume();
             });
 
             row.setOnDragDone(dragEvent -> {
                 System.out.println("Drag done");
-                m_model.setM_itemToMove(null);
+                m_model.setM_itemsToMove(null);
                 dragEvent.consume();
             });
 

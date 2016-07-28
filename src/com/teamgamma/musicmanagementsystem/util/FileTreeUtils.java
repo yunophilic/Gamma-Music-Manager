@@ -260,20 +260,22 @@ public class FileTreeUtils {
             }
 
             case DROP: {
-                File fileToMove = model.getFileToMove();
-                TreeItem<Item> nodeToMove = searchTreeItem(tree.getRoot(), fileToMove.getAbsolutePath());
+                for (Item itemToMove : model.getM_itemsToMove()) {
+                    File fileToMove = itemToMove.getFile();
+                    TreeItem<Item> nodeToMove = searchTreeItem(tree.getRoot(), fileToMove.getAbsolutePath());
 
-                // Search in model if it does not exists in current tree
-                if (nodeToMove == null) {
-                    nodeToMove = model.search(fileToMove);
-                }
+                    // Search in model if it does not exists in current tree
+                    if (nodeToMove == null) {
+                        nodeToMove = model.search(fileToMove);
+                    }
 
-                TreeItem<Item> destParentNode = searchTreeItem(tree.getRoot(), model.getM_moveDest().getAbsolutePath());
+                    TreeItem<Item> destParentNode = searchTreeItem(tree.getRoot(), model.getM_moveDest().getAbsolutePath());
 
-                if (destParentNode == null) {
-                    deleteNode(nodeToMove);
-                } else if(!(destParentNode.getValue() instanceof DummyItem)) {
-                    moveNode(nodeToMove, destParentNode);
+                    if (destParentNode == null) {
+                        deleteNode(nodeToMove);
+                    } else if (!(destParentNode.getValue() instanceof DummyItem)) {
+                        moveNode(nodeToMove, destParentNode);
+                    }
                 }
                 break;
             }
@@ -288,7 +290,9 @@ public class FileTreeUtils {
             }
 
             case PASTE: {
-                createNewNodes(tree, model.getFileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
+                for (Item itemToCopy : model.getM_itemsToCopy()) {
+                    createNewNodes(tree, itemToCopy.getFile().getName(), model.getM_copyDest().getAbsolutePath());
+                }
                 break;
             }
 
