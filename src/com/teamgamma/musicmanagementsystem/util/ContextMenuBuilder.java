@@ -116,12 +116,12 @@ public class ContextMenuBuilder {
             }
 
             // Only show the show in right pane option if it is in left pane
-            if (cellType != CellType.LeftFilePane) {
+            if (cellType != CellType.LEFT_FILE_PANE) {
                 hideMenuItem(removeLibrary);
                 hideMenuItem(showInRightPane);
             }
 
-            if (cellType != CellType.SearchResults) {
+            if (cellType != CellType.SEARCH_RESULTS) {
                 hideMenuItem(showInLibrary);
             }
 

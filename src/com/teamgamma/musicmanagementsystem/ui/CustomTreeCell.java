@@ -5,14 +5,10 @@ import com.teamgamma.musicmanagementsystem.model.Item;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import com.teamgamma.musicmanagementsystem.ui.CustomEventDispatcher;
-import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 
-import javafx.collections.ObservableList;
 import javafx.event.EventDispatcher;
-import javafx.scene.control.Cell;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeView;
@@ -55,7 +51,7 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         m_tree = tree;
         m_cellType = cellType;
         createContextMenu();
-        m_isLeftPane = cellType == CellType.LeftFilePane ? true : false;
+        m_isLeftPane = (cellType == CellType.LEFT_FILE_PANE) ? true : false;
         setDragEvents();
 
         m_tree.getCellFactory();

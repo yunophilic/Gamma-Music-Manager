@@ -65,7 +65,7 @@ public class DynamicTreeViewUI extends StackPane {
     private void setTreeCellFactory() {
         System.out.println("setting cell factory...");
         m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree,
-                CellType.RightFilePane));
+                CellType.RIGHT_FILE_PANE));
     }
 
     /**

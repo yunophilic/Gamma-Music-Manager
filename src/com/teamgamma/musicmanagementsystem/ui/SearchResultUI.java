@@ -9,13 +9,10 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.application.Platform;
-import javafx.scene.control.Cell;
 import javafx.scene.control.Label;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +48,7 @@ public class SearchResultUI extends BorderPane{
 
                         searchResults.setCellFactory(
                                 param -> new CustomTreeCell(model, musicPlayerManager, dbManager, searchResults,
-                                        CellType.SearchResults));
+                                        CellType.SEARCH_RESULTS));
 
                         this.setCenter(searchResults);
                     }
