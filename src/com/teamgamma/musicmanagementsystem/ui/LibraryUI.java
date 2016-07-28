@@ -101,7 +101,8 @@ public class LibraryUI extends StackPane {
      */
     private void setTreeCellFactory() {
         System.out.println("setting cell factory...");
-        m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree, true));
+        m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree,
+                CellType.LEFT_FILE_PANE));
     }
 
     /**

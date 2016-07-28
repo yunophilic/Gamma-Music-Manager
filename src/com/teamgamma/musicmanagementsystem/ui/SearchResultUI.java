@@ -6,11 +6,15 @@ import com.teamgamma.musicmanagementsystem.model.Item;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The UI component to show the search results.
@@ -28,14 +32,28 @@ public class SearchResultUI extends BorderPane{
      */
     public SearchResultUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager dbManager) {
         model.registerSearchObserver(() ->
-                Platform.runLater(
-                        () -> {
-                            TreeView<Item> searchResults = new TreeView(model.getSearchResults().getTree());
-                            searchResults.setShowRoot(false);
-                            searchResults.setCellFactory(param -> new SearchTreeCell(model, musicPlayerManager, dbManager, searchResults));
-                            this.setCenter(searchResults);
+            Platform.runLater(
+                () -> {
+                    if (model.getSearchResults() != null) {
+                        List<String> allExpanedPaths = new ArrayList<>();
+                        if (this.getCenter() instanceof TreeView) {
+                            allExpanedPaths.addAll(FileTreeUtils.getExpandedPaths((TreeView<Item>) this.getCenter()));
                         }
-                )
+
+                        TreeView<Item> searchResults = new TreeView(model.getSearchResults().getTree());
+                        searchResults.setShowRoot(false);
+
+                        // Wants to only have the context menu for the Show in Library for the search results.
+                        FileTreeUtils.setTreeExpandedState(model.getSearchResults().getTree(), allExpanedPaths);
+
+                        searchResults.setCellFactory(
+                                param -> new CustomTreeCell(model, musicPlayerManager, dbManager, searchResults,
+                                        CellType.SEARCH_RESULTS));
+
+                        this.setCenter(searchResults);
+                    }
+                }
+            )
         );
 
         this.setCenter(new Label(DEFAULT_SEARCH_MESSAGE));
