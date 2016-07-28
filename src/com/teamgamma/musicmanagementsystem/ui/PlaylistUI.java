@@ -311,7 +311,10 @@ public class PlaylistUI extends VBox {
         Button playPlaylistButton = UserInterfaceUtils.createIconButton(PLAY_PLAYLIST_ICON);
         playPlaylistButton.setOnMouseClicked(event -> {
             if (m_model.getM_selectedPlaylist() != null) {
+                double percentage = m_musicPlayerManager.getCurrentPlaylist().getM_songResumeTime();
+
                 m_musicPlayerManager.playPlaylist(m_model.getM_selectedPlaylist());
+                m_musicPlayerManager.seekSongTo(percentage);
             }
         });
 

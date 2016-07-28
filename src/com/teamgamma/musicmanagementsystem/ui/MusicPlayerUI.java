@@ -537,15 +537,6 @@ public class MusicPlayerUI extends VBox {
         HBox playbackSliderWrapper = new HBox();
         Slider playbackSlider = new Slider(0, 1.0, 0);
 
-        //String firstPlaylistName = manager.getFirstPlaylistName();
-        Playlist firstPlaylist = m_model.getM_playlists().get(0);
-        manager.loadFirstPlaylist(firstPlaylist);
-        if (manager.isThereResumeTime()) {
-            double resumeTime = manager.getCurrentPlaylistResumeTime();
-            firstPlaylist.setM_songResumeTime(resumeTime);
-            playbackSlider.setValue(resumeTime);
-        }
-
         playbackSlider.setBlockIncrement(0.01);
         HBox.setHgrow(playbackSlider, Priority.ALWAYS);
         playbackSlider.setOnMouseClicked(event -> {
