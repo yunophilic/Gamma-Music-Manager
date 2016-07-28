@@ -330,6 +330,7 @@ public class ApplicationController extends Application {
     public void minimodeTurnOn() {
         m_stageCopy.setHeight(MINI_MODE_HEIGHT);
         m_stageCopy.setWidth(MINI_MODE_WIDTH);
+        m_stageCopy.setMaxWidth(MINI_MODE_WIDTH);
     }
 
     /**
@@ -338,5 +339,6 @@ public class ApplicationController extends Application {
     public void minimodeTurnOff() {
         m_stageCopy.setWidth(ORIGINAL_WINDOW_WIDTH);
         m_stageCopy.setHeight(ORIGINAL_WINDOW_HEIGHT);
+        m_stageCopy.setMaxWidth(MINI_MODE_WIDTH + 9000);
     }
 }

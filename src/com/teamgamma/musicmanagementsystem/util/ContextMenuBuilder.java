@@ -43,6 +43,8 @@ public class ContextMenuBuilder {
     private static final String SHOW_IN_EXPLORER = "Show in Explorer";
     private static final String SHOW_IN_LIBRARY = "Show in Library";
 
+    private static final String SHUFFLE_ALL = "Shuffle All Songs";
+
     /**
      * Construct file tree context menu
      *
@@ -248,17 +250,21 @@ public class ContextMenuBuilder {
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedSong);
         MenuItem openInLibrary = createShowInLibraryMenuItem(model, selectedSong);
 
+        MenuItem shuffleAll = createShuffleAllMenuItem(model, selectedSong);
+
         //separators (non functional menu items, just for display)
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
         MenuItem playlistOptionsSeparator = new SeparatorMenuItem();
         MenuItem editPropertiesOptionSeparator = new SeparatorMenuItem();
         MenuItem explorerOptionsSeparator = new SeparatorMenuItem();
+        MenuItem shuffleOptionsSeparator = new SeparatorMenuItem();
 
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, songOptionsSeparator,
                 removeFromPlaylist, playlistOptionsSeparator,
                 editProperties, editPropertiesOptionSeparator,
-                rename, delete, explorerOptionsSeparator, openFileLocation, openInLibrary);
+                rename, delete, explorerOptionsSeparator, openFileLocation, openInLibrary, shuffleOptionsSeparator,
+                shuffleAll);
 
         contextMenu.setOnShown(event -> {
             // Hide all if selectedSongIndex out of bounds
@@ -896,4 +902,20 @@ public class ContextMenuBuilder {
         return placeSongOnQueue;
     }
 
+    /**
+     * Function on context menu to shuffle all songs in playlist
+     * @param model      The playlist to use/alter
+     * @return           The menu item containing logic to shuffle entire playlist
+     */
+    private static MenuItem createShuffleAllMenuItem(SongManager model, Item selectedItem) {
+        MenuItem shuffleAll = new MenuItem(SHUFFLE_ALL);
+        shuffleAll.setOnAction(event -> {
+            if (selectedItem != null) {
+                Playlist selectedPlaylist = model.getM_selectedPlaylist();
+                selectedPlaylist.shuffleAllSongs();
+                model.notifyPlaylistSongsObservers();
+            }
+        });
+        return shuffleAll;
+    }
 }
