@@ -2,6 +2,7 @@ package com.teamgamma.musicmanagementsystem.util;
 
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+import com.teamgamma.musicmanagementsystem.ui.CellType;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
 
 import javafx.scene.control.*;
@@ -50,6 +51,7 @@ public class ContextMenuBuilder {
      * @param musicPlayerManager    The music player manager
      * @param databaseManager       The db manager
      * @param selectedItem          The selected item in the file tree
+     * @param cellType              The cell type the menu is for
      * @param tree                  The file tree
      * @return                      ContextMenu for file tree
      */
@@ -57,7 +59,7 @@ public class ContextMenuBuilder {
                                                        MusicPlayerManager musicPlayerManager,
                                                        DatabaseManager databaseManager,
                                                        Item selectedItem,
-                                                       boolean isLeftPane,
+                                                       CellType cellType,
                                                        TreeView<Item> tree) {
         MenuItem playSong = createPlaySongMenuItem(musicPlayerManager, selectedItem);
         MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, selectedItem);
@@ -77,6 +79,7 @@ public class ContextMenuBuilder {
         MenuItem removeLibrary = createRemoveLibraryMenuItem(model, databaseManager, selectedItem);
         MenuItem showInRightPane = createShowInRightPaneMenuItem(model, selectedItem);
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedItem);
+        MenuItem showInLibrary = createShowInLibraryMenuItem(model, selectedItem);
 
         //separators (non functional menu items, just for display)
         MenuItem folderOptionsSeparator = new SeparatorMenuItem();
@@ -94,7 +97,7 @@ public class ContextMenuBuilder {
                 folderOptionsSeparator,
                 copy, paste, rename, delete,
                 fileOptionsSeparator,
-                removeLibrary, showInRightPane, openFileLocation);
+                removeLibrary, showInRightPane, openFileLocation, showInLibrary);
                 
         contextMenu.setOnShown(event -> {
             // Hide all if selected item is null
@@ -113,9 +116,13 @@ public class ContextMenuBuilder {
             }
 
             // Only show the show in right pane option if it is in left pane
-            if (!isLeftPane) {
+            if (cellType != CellType.LEFT_FILE_PANE) {
                 hideMenuItem(removeLibrary);
                 hideMenuItem(showInRightPane);
+            }
+
+            if (cellType != CellType.SEARCH_RESULTS) {
+                hideMenuItem(showInLibrary);
             }
 
             // Do not show remove library option if selected item is not a library
@@ -281,7 +288,8 @@ public class ContextMenuBuilder {
      *
      * @return                          Playback context menu for music player history UI
      */
-    public static ContextMenu buildPlaybackContextMenu(MusicPlayerManager musicPlayerManager, SongManager songManager, Item selectedItem) {
+    public static ContextMenu buildPlaybackContextMenu(MusicPlayerManager musicPlayerManager, SongManager songManager,
+                                                       Item selectedItem) {
         ContextMenu playbackMenu = new ContextMenu();
         playbackMenu.setAutoHide(true);
 
