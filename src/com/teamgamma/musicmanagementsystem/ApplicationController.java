@@ -201,9 +201,6 @@ public class ApplicationController extends Application {
         final String LOADING_BACKGROUND_IMAGE = "res\\loading-bg.png";
         watcher.stopWatcher();
 
-        this.minimodeTurnOff();
-        m_rootUI.minimodeTurnOff();
-
         ProgressIndicator progress = new ProgressIndicator();
 
         BorderPane closingWindow = new BorderPane();
