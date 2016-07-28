@@ -294,7 +294,10 @@ public class SongManager {
     public List<Song> getSongs(List<String> songPaths) {
         List<Song> songs = new ArrayList<>();
         for (String songPath : songPaths){
-            songs.add(getSong(new File(songPath)));
+            Song song = getSong(new File(songPath));
+            if (song != null) {
+                songs.add(song);
+            }
         }
         return songs;
     }

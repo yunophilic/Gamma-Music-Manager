@@ -77,8 +77,6 @@ public class ApplicationController extends Application {
             m_songManager.addLibrary(libraryPath);
         }
 
-        //List<Song> allSongsInModel = m_songManager.getAllSongs();
-
         System.out.println("loading playlists...");
         List<String> playlistNameList = m_databaseManager.getPlaylists();
         for (String playlistName : playlistNameList) {
@@ -247,7 +245,7 @@ public class ApplicationController extends Application {
     /**
      * Clear the PlaybackQueue table in the database and re-insert songs in the current queue
      */
-    public void savePlaybackQueue() {
+    private void savePlaybackQueue() {
         Collection<Song> songsFromQueue = m_musicPlayerManager.getPlayingQueue();
         m_databaseManager.clearPlaybackQueue();
         for (Song song : songsFromQueue) {
