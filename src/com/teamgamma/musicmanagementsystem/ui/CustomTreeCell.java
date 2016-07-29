@@ -157,8 +157,8 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         setContextMenu(m_contextMenu);
 
         if (m_selectedItem != null) {
-            boolean isLeftPaneRoot = m_isLeftPane && m_selectedItem.isRootItem();
-            boolean isRightPaneRoot = !m_isLeftPane && m_selectedItem.isRightRootItem();
+            boolean isLeftPaneRoot = ((m_cellType == CellType.LEFT_FILE_PANE) && m_selectedItem.isRootItem());
+            boolean isRightPaneRoot = ((m_cellType == CellType.RIGHT_FILE_PANE) && m_selectedItem.isRightRootItem());
             if (isLeftPaneRoot || isRightPaneRoot) {
                 setText(m_selectedItem.getFile().getAbsolutePath());
             } else {
