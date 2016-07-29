@@ -4,7 +4,6 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.ui.MainUI;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
-import com.teamgamma.musicmanagementsystem.ui.*;
 import com.teamgamma.musicmanagementsystem.watchservice.Watcher;
 
 import javafx.application.Application;
@@ -78,24 +77,25 @@ public class ApplicationController extends Application {
             m_songManager.addLibrary(libraryPath);
         }
 
-        List<Song> allSongsInModel = m_songManager.getAllSongs();
-
         System.out.println("loading playlists...");
         List<String> playlistNameList = m_databaseManager.getPlaylists();
         for (String playlistName : playlistNameList) {
             int lastSongPlayedIndex = m_databaseManager.getPlaylistLastPlayedSongIndex(playlistName);
 
             Playlist playlist = new Playlist(playlistName, lastSongPlayedIndex);
-            List<String> songPaths = m_databaseManager.getSongsInPlaylist(playlist.getM_playlistName());
-            playlist.addSongs(filterSongs(allSongsInModel, songPaths));
+            List<String> playlistSongPaths = m_databaseManager.getSongsInPlaylist(playlist.getM_playlistName());
+            playlist.addSongs(m_songManager.getSongs(playlistSongPaths));
 
             m_songManager.addPlaylist(playlist);
         }
 
         // Get previous menu options from file
-        // TODO: Save state of search config and right panel hide/show
-        MenuOptions menuOptions = new MenuOptions(m_filePersistentStorage.getCenterPanelOption(),
-                m_filePersistentStorage.getLeftPanelOption(), false, false);
+        // TODO: Save state of search config
+        MenuOptions menuOptions = new MenuOptions(
+                m_filePersistentStorage.getCenterPanelOption(),
+                m_filePersistentStorage.getLeftPanelOption(),
+                false, false
+        );
         m_songManager.setM_menuOptions(menuOptions);
 
         // Get previously selected right panel folder from file
@@ -122,29 +122,15 @@ public class ApplicationController extends Application {
 
         System.out.println("loading history");
         List<String> historySongPaths = m_databaseManager.getHistory();
-        m_musicPlayerManager.loadHistory(filterSongs(allSongsInModel, historySongPaths));
+        m_musicPlayerManager.loadHistory(m_songManager.getSongs(historySongPaths));
 
         System.out.println("loading playback queue");
         List<String> playbackQueueSongPaths = m_databaseManager.getPlaybackQueue();
-        m_musicPlayerManager.loadPlaybackQueue(filterSongs(allSongsInModel, playbackQueueSongPaths));
+        m_musicPlayerManager.loadPlaybackQueue(m_songManager.getSongs(playbackQueueSongPaths));
     }
 
     /**
-     * Filter songs based on the song paths given
-     *
-     * @return list of filtered songs
-     */
-    private List<Song> filterSongs(List<Song> songs, List<String> songPaths) {
-        List<Song> filteredSongs = new ArrayList<>();
-        for (Song song : songs){
-            if (songPaths.contains(song.getFile().getAbsolutePath())) {
-                filteredSongs.add(song);
-            }
-        }
-        return filteredSongs;
-    }
-
-     /** Starting routine of the application
+     * Starting routine of the application
      *
      * @param primaryStage
      */
@@ -257,7 +243,7 @@ public class ApplicationController extends Application {
     /**
      * Clear the PlaybackQueue table in the database and re-insert songs in the current queue
      */
-    public void savePlaybackQueue() {
+    private void savePlaybackQueue() {
         Collection<Song> songsFromQueue = m_musicPlayerManager.getPlayingQueue();
         m_databaseManager.clearPlaybackQueue();
         for (Song song : songsFromQueue) {
