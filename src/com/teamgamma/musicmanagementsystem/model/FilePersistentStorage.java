@@ -18,10 +18,10 @@ public class FilePersistentStorage {
     private static final String DB_DIR = System.getProperty("user.dir") + File.separator + "db";
     private static final String CONFIG_PATH = DB_DIR + File.separator + "config.json";
     private static final String VOLUME = "volume";
-    private static final String SHOW_ONLY_FOLDERS_IN_LEFT_PANEL_OPTION = "left_panel_option";
+    private static final String LEFT_PANEL_SHOW_FOLDERS_ONLY_OPTION = "left_panel_option";
     private static final String RIGHT_PANEL_FOLDER = "right_panel_folder";
     private static final String CENTER_PANEL_FOLDER = "center_panel_folder";
-    private static final String LEFT_PANEL_SHOW_FOLDERS_ONLY = "center_panel_option";
+    private static final String CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER = "center_panel_option";
     private static final String SEARCH_SHOW_FILES_IN_FOLDER = "show_files_in_folder_hit";
     private static final String HIDE_RIGHT_FILE_PANE_OPTION = "hide_right_panel";
 
@@ -82,10 +82,10 @@ public class FilePersistentStorage {
     @SuppressWarnings("unchecked")
     private void setupConfigDefaults() {
         m_jsonObject.put(VOLUME, MusicPlayerConstants.MAX_VOLUME);
-        m_jsonObject.put(SHOW_ONLY_FOLDERS_IN_LEFT_PANEL_OPTION, false);
+        m_jsonObject.put(LEFT_PANEL_SHOW_FOLDERS_ONLY_OPTION, false);
         m_jsonObject.put(RIGHT_PANEL_FOLDER, "");
         m_jsonObject.put(CENTER_PANEL_FOLDER, "");
-        m_jsonObject.put(LEFT_PANEL_SHOW_FOLDERS_ONLY, false);
+        m_jsonObject.put(CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER, false);
         m_jsonObject.put(SEARCH_SHOW_FILES_IN_FOLDER, false);
         m_jsonObject.put(HIDE_RIGHT_FILE_PANE_OPTION, false);
     }
@@ -210,7 +210,7 @@ public class FilePersistentStorage {
      */
     @SuppressWarnings("unchecked")
     private void saveCenterPanelOption(boolean option) {
-        m_jsonObject.replace(LEFT_PANEL_SHOW_FOLDERS_ONLY, option);
+        m_jsonObject.replace(CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER, option);
     }
 
     /**
@@ -219,7 +219,7 @@ public class FilePersistentStorage {
      * @return center folder option as a boolean.
      */
     public boolean getShowAllFilesInCenterPanelOption() {
-        return getValueFromJson(LEFT_PANEL_SHOW_FOLDERS_ONLY, false);
+        return getValueFromJson(CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER, false);
     }
 
     /**
@@ -229,7 +229,7 @@ public class FilePersistentStorage {
      */
     @SuppressWarnings("unchecked")
     private void saveLeftPanelShowOnlyFoldersOption(boolean option) {
-        m_jsonObject.replace(SHOW_ONLY_FOLDERS_IN_LEFT_PANEL_OPTION, option);
+        m_jsonObject.replace(LEFT_PANEL_SHOW_FOLDERS_ONLY_OPTION, option);
     }
 
     /**
@@ -238,7 +238,7 @@ public class FilePersistentStorage {
      * @return left folder option as a boolean.
      */
     public boolean getLeftPanelShowOnlyFoldersOption() {
-        return getValueFromJson(SHOW_ONLY_FOLDERS_IN_LEFT_PANEL_OPTION, false);
+        return getValueFromJson(LEFT_PANEL_SHOW_FOLDERS_ONLY_OPTION, false);
     }
 
     /**
