@@ -199,6 +199,14 @@ public class MainUI extends BorderPane {
         
         m_model.registerSearchObserver(() -> tabPane.getSelectionModel().select(searchResults));
 
+        m_model.registerRightPanelOptionsObserver(() -> {
+            if (m_model.getM_menuOptions().getHideRightPanel()) {
+                pane.getChildren().remove(tabPane);
+            } else {
+                pane.getChildren().add(tabPane);
+            }
+        });
+
         return pane;
     }
 

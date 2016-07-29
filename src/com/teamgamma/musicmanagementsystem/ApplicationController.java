@@ -93,9 +93,9 @@ public class ApplicationController extends Application {
         }
 
         // Get previous menu options from file
-        // TODO: Save state of search config
+        // TODO: Save state of search config and right panel hide/show
         MenuOptions menuOptions = new MenuOptions(m_filePersistentStorage.getCenterPanelOption(),
-                m_filePersistentStorage.getLeftPanelOption(), false);
+                m_filePersistentStorage.getLeftPanelOption(), false, false);
         m_songManager.setM_menuOptions(menuOptions);
 
         // Get previously selected right panel folder from file

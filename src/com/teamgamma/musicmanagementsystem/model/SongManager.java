@@ -30,6 +30,7 @@ public class SongManager {
     private List<GeneralObserver> m_playlistSongsObservers;
     private List<GeneralObserver> m_searchObservers;
     private List<GeneralObserver> m_intialSearchModeObserver;
+    private List<GeneralObserver> m_rightPanelObservers;
 
     // Buffers
     private Item m_itemToCopy;
@@ -69,6 +70,7 @@ public class SongManager {
         m_leftPanelOptionsObservers = new ArrayList<>();
         m_searchObservers = new ArrayList<>();
         m_intialSearchModeObserver = new ArrayList<>();
+        m_rightPanelObservers = new ArrayList<>();
 
         m_playlistObservers = new ArrayList<>();
         m_playlistSongsObservers = new ArrayList<>();
@@ -717,5 +719,13 @@ public class SongManager {
 
     public void registerInitalSearchObserver(GeneralObserver observer) {
         m_intialSearchModeObserver.add(observer);
+    }
+
+    public void registerRightPanelOptionsObserver(GeneralObserver observer) {
+        m_rightPanelObservers.add(observer);
+    }
+
+    public void notifyRightPanelOptionsObservers() {
+        notifySpecifiedGeneralObservers(m_rightPanelObservers);
     }
 }

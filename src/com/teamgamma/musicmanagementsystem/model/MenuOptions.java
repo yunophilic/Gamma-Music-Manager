@@ -7,11 +7,13 @@ public class MenuOptions {
     private boolean m_centerPanelShowSubfolderFiles;
     private boolean m_leftPanelShowFoldersOnly;
     private boolean m_showFilesInFolderSearchHit;
+    private boolean m_hideRightPanel;
 
-    public MenuOptions(boolean centerPanelOption, boolean leftPanelOption, boolean showFilesInFolderSearchHit) {
+    public MenuOptions(boolean centerPanelOption, boolean leftPanelOption, boolean showFilesInFolderSearchHit, boolean hideRightPanel) {
         this.m_centerPanelShowSubfolderFiles = centerPanelOption;
         this.m_leftPanelShowFoldersOnly = leftPanelOption;
         this.m_showFilesInFolderSearchHit = showFilesInFolderSearchHit;
+        this.m_hideRightPanel = hideRightPanel;
     }
 
     /**
@@ -66,5 +68,13 @@ public class MenuOptions {
      */
     public boolean getShowFilesInFolderSerachHit() {
         return m_showFilesInFolderSearchHit;
+    }
+
+    public void setHideRightPanel(boolean hideRightPanel) {
+        m_hideRightPanel = hideRightPanel;
+    }
+
+    public boolean getHideRightPanel() {
+        return m_hideRightPanel;
     }
 }
