@@ -60,7 +60,7 @@ public class ContextMenuBuilder {
                                                        CellType cellType,
                                                        TreeView<Item> tree) {
         MenuItem playSong = createPlaySongMenuItem(musicPlayerManager, selectedItem);
-        MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, selectedItem);
+        MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, tree);
         MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedItem);
 
         MenuItem addToPlaylist = createAddToPlaylistMenuItem(model, musicPlayerManager, tree);
@@ -798,7 +798,7 @@ public class ContextMenuBuilder {
      * Function to create a menu item with the logic to add a song to the front of the playback queue
      *
      * @param musicPlayerManager    The music player manager to use
-     * @param selectedItem          The song to add to the queue
+     * @param selectedItem          The songs in center panel to add to the queue
      * @return                      A menu item containing logic needed to add a song to the front of the queue.
      */
     private static MenuItem createPlaySongNextMenuItem(MusicPlayerManager musicPlayerManager, Item selectedItem) {
@@ -808,6 +808,30 @@ public class ContextMenuBuilder {
             if (selectedItem != null && selectedItem instanceof Song) {
                 Song song = (Song) selectedItem;
                 musicPlayerManager.placeSongAtStartOfQueue(song);
+            }
+        });
+
+        return playSongNext;
+    }
+
+    /**
+     * Function to create a menu item with the logic to add a song to the front of the playback queue
+     *
+     * @param musicPlayerManager    The music player manager to use
+     * @param tree                  The songs in left and right panel to add to the queue
+     * @return                      A menu item containing logic needed to add a song to the front of the queue.
+     */
+    private static MenuItem createPlaySongNextMenuItem(MusicPlayerManager musicPlayerManager, TreeView<Item> tree) {
+        MenuItem playSongNext = new MenuItem(PLAY_SONG_NEXT);
+
+        playSongNext.setOnAction(event -> {
+            List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
+            for (TreeItem<Item> treeItem : treeItems) {
+                Item item = treeItem.getValue();
+                if (item instanceof Song) {
+                    Song song = (Song) item;
+                    musicPlayerManager.placeSongAtStartOfQueue(song);
+                }
             }
         });
 
