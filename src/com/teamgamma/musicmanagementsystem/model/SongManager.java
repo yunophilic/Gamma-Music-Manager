@@ -127,6 +127,7 @@ public class SongManager {
         Library libraryToRemove = getLibrary(file);
         m_libraries.remove(libraryToRemove);
         removeLibraryFromFileTree(libraryToRemove);
+        updateSearchResults();
     }
 
     private boolean isInLibrary(String directoryPath) {
@@ -195,10 +196,7 @@ public class SongManager {
                 FileTreeUtils.updateTreeItems(this, m_fileTreeRoot, action, fileAction.getValue());
             }
         }
-        if (m_searchResults != null){
-            m_searchResults.updateSearchResults(m_fileTreeRoot);
-            notifySearchObservers();
-        }
+        updateSearchResults();
     }
 
     /**
@@ -545,6 +543,16 @@ public class SongManager {
     public void searchForFilesAndFolders(String searchString) {
         m_searchResults = new Searcher(m_fileTreeRoot, searchString, m_menuOptions.getShowFilesInFolderSerachHit());
         notifySearchObservers();
+    }
+
+    /**
+     * Function to update the search results.
+     */
+    private void updateSearchResults() {
+        if (m_searchResults != null){
+            m_searchResults.updateSearchResults(m_fileTreeRoot);
+            notifySearchObservers();
+        }
     }
 
     /**********

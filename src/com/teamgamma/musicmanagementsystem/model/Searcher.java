@@ -25,7 +25,7 @@ public class Searcher {
     public Searcher(TreeItem<Item> rootToStartSearch, String searchString, boolean showFilesInFolderHits) {
         m_searchString = searchString;
         m_showFilesInFolderHits = showFilesInFolderHits;
-        m_searchTreeRoot = findAllInstancesInTree(rootToStartSearch, caseInsensitiveStringSearch());
+        m_searchTreeRoot = findAllInstancesInTree(rootToStartSearch, caseInsensitiveStringSearch(), false);
     }
 
     /**
@@ -33,11 +33,12 @@ public class Searcher {
      *
      * @param parentNode        The parent node in the tree.
      * @param searchMethod      The search criteria method to use.
+     * @param isDecedentOfHit  A flag to indicate that the the current level is a decedent of a search hit.
      * @return                  A TreeItem containing a copy of item that matches the search criteria as well as any
      *                          of its children that match or a TreeItem containing a DummyItem that represents
      *                          there is no hits for the node passed in or any of children.
      */
-    private TreeItem<Item> findAllInstancesInTree(TreeItem<Item> parentNode, ISearchMethod searchMethod){
+    private TreeItem<Item> findAllInstancesInTree(TreeItem<Item> parentNode, ISearchMethod searchMethod, boolean isDecedentOfHit){
         List<TreeItem<Item>> listOfNodesHit = new ArrayList<>();
 
         ObservableList<TreeItem<Item>> allChildren = parentNode.getChildren();
@@ -45,7 +46,7 @@ public class Searcher {
             boolean hasChildren = !currentChildren.isLeaf();
             if (searchMethod.isSearchHit(currentChildren.getValue())) {
                 if (hasChildren) {
-                    TreeItem<Item> childrenSearchResult = findAllInstancesInTree(currentChildren, searchMethod);
+                    TreeItem<Item> childrenSearchResult = findAllInstancesInTree(currentChildren, searchMethod, true);
 
                     if (childrenSearchResult.getValue() instanceof DummyItem) {
                         // Just add the current node to results
@@ -63,13 +64,13 @@ public class Searcher {
 
             // Must be a directory if there are children so we have to search it to make sure we do not miss anything.
             if (hasChildren) {
-                TreeItem<Item> results = findAllInstancesInTree(currentChildren, searchMethod);
+                TreeItem<Item> results = findAllInstancesInTree(currentChildren, searchMethod, isDecedentOfHit);
                 results.setExpanded(true);
-                if (!(results.getValue() instanceof DummyItem)) {
+                if (!(results.getValue() instanceof DummyItem) ) {
                     // Results where found in this case so add it to the current node
                     listOfNodesHit.add(results);
                 }
-            } else if (m_showFilesInFolderHits && searchMethod.isSearchHit(parentNode.getValue())){
+            } else if (m_showFilesInFolderHits && isDecedentOfHit){
                 listOfNodesHit.add(createExpandedNode(currentChildren.getValue()));
             }
         }
@@ -98,7 +99,7 @@ public class Searcher {
      * @param root      The tree to search on.
      */
     public void updateSearchResults(TreeItem<Item> root) {
-        m_searchTreeRoot = findAllInstancesInTree(root, caseInsensitiveStringSearch());
+        m_searchTreeRoot = findAllInstancesInTree(root, caseInsensitiveStringSearch(), false);
     }
 
     /**

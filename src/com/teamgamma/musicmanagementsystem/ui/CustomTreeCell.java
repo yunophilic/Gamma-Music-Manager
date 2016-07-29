@@ -54,7 +54,7 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         m_tree = tree;
         m_cellType = cellType;
         createContextMenu();
-        m_isLeftPane = (cellType == CellType.LEFT_FILE_PANE) ? true : false;
+        m_isLeftPane = (cellType == CellType.LEFT_FILE_PANE);
         setDragEvents();
 
         m_tree.getCellFactory();
@@ -157,15 +157,17 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         setContextMenu(m_contextMenu);
 
         if (m_selectedItem != null) {
-            boolean isLeftPaneRoot = m_isLeftPane && m_selectedItem.isRootItem();
-            boolean isRightPaneRoot = !m_isLeftPane && m_selectedItem.isRightRootItem();
+            boolean isLeftPaneRoot = ((m_cellType == CellType.LEFT_FILE_PANE) && m_selectedItem.isRootItem());
+            boolean isRightPaneRoot = ((m_cellType == CellType.RIGHT_FILE_PANE) && m_selectedItem.isRightRootItem());
             if (isLeftPaneRoot || isRightPaneRoot) {
                 setText(m_selectedItem.getFile().getAbsolutePath());
             } else {
                 setText(m_selectedItem.getFile().getName());
             }
 
-            if (m_cellType == CellType.LEFT_FILE_PANE && m_model.getM_selectedCenterFolder().equals(item.getFile())) {
+            if (m_cellType == CellType.LEFT_FILE_PANE
+                    && m_model.getM_selectedCenterFolder() != null
+                    && m_model.getM_selectedCenterFolder().equals(item.getFile())) {
                 setGraphic(new ImageView(OPEN_FOLDER_ICON_URL));
             } else {
                 String iconPath = item.getFile().isDirectory() ? FOLDER_ICON_URL : SONG_ICON_URL;
