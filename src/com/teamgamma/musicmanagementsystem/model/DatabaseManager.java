@@ -952,7 +952,7 @@ public class DatabaseManager {
      * Check if the resume time is already stored in the table ResumeTime
      *
      * @param playlistName
-     * @return
+     * @return boolean indicates whether if there is a percentage value corresponds to the specified playlist in the table
      */
     public boolean checkIfResumeTimeExists(String playlistName) {
         try {
@@ -975,7 +975,7 @@ public class DatabaseManager {
     /**
      * Get the first playlist from the Playlist table
      *
-     * @return the name of the first playlist
+     * @return the name of the first playlist. Null can also be returned when there is no playlists
      */
     public String getFirstPlaylistName() {
         try {

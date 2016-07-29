@@ -747,7 +747,6 @@ public class MusicPlayerManager {
      */
     public void setCurrentPlaylistSongPercentage() {
         if (m_currentPlayList != null) {
-            //pause();
             double percentage = getCurrentPlayTime().toMillis() / getEndTime().toMillis();
             m_currentPlayList.setM_songResumeTime(percentage);
             System.out.println("Save percentage");

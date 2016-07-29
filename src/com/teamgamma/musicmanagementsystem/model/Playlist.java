@@ -312,7 +312,7 @@ public class Playlist {
     /**
      * Function to set the resume time of the song from this playlist when the application closes
      *
-     * @param resumeTime
+     * @param resumeTime in percentage
      */
     public void setM_songResumeTime(double resumeTime) {
         m_songResumeTime = resumeTime;
@@ -321,7 +321,7 @@ public class Playlist {
     /**
      * Function to get the resume time of the song from this playlist when the application opens
      *
-     * @return
+     * @return resume time in percentage
      */
     public double getM_songResumeTime() {
         return m_songResumeTime;
