@@ -168,7 +168,7 @@ public class ContextMenuBuilder {
                                                           Item selectedItem,
                                                           List<Song> selectedSongs) {
         MenuItem playSong = createPlaySongMenuItem(musicPlayerManager, selectedItem);
-        MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, selectedItem);
+        MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, selectedSongs);
         MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedItem);
 
         MenuItem addToPlaylist = createAddToPlaylistMenuItem(model, musicPlayerManager, selectedSongs);
@@ -805,7 +805,7 @@ public class ContextMenuBuilder {
      * Function to create a menu item with the logic to add a song to the front of the playback queue
      *
      * @param musicPlayerManager    The music player manager to use
-     * @param selectedItem          The songs in center panel to add to the queue
+     * @param selectedItem          The songs to add to the queue
      * @return                      A menu item containing logic needed to add a song to the front of the queue.
      */
     private static MenuItem createPlaySongNextMenuItem(MusicPlayerManager musicPlayerManager, Item selectedItem) {
@@ -815,6 +815,27 @@ public class ContextMenuBuilder {
             if (selectedItem != null && selectedItem instanceof Song) {
                 Song song = (Song) selectedItem;
                 musicPlayerManager.placeSongAtStartOfQueue(song);
+            }
+        });
+
+        return playSongNext;
+    }
+
+    /**
+     * Function to create a menu item with the logic to add a song to the front of the playback queue
+     *
+     * @param musicPlayerManager    The music player manager to use
+     * @param selectedSongs         The songs in center panel to add to the queue
+     * @return                      A menu item containing logic needed to add a song to the front of the queue.
+     */
+    private static MenuItem createPlaySongNextMenuItem(MusicPlayerManager musicPlayerManager, List<Song> selectedSongs) {
+        MenuItem playSongNext = new MenuItem(PLAY_SONG_NEXT);
+
+        playSongNext.setOnAction(event -> {
+            for (Song song : selectedSongs) {
+                if (song != null && song instanceof Song) {
+                    musicPlayerManager.placeSongAtStartOfQueue(song);
+                }
             }
         });
 
