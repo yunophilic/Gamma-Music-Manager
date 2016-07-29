@@ -94,7 +94,8 @@ public class ApplicationController extends Application {
         MenuOptions menuOptions = new MenuOptions(
                 m_filePersistentStorage.getCenterPanelOption(),
                 m_filePersistentStorage.getLeftPanelOption(),
-                false, false
+                false,
+                false
         );
         m_songManager.setM_menuOptions(menuOptions);
 
