@@ -81,8 +81,11 @@ public class ApplicationController extends Application {
         List<String> playlistNameList = m_databaseManager.getPlaylists();
         for (String playlistName : playlistNameList) {
             int lastSongPlayedIndex = m_databaseManager.getPlaylistLastPlayedSongIndex(playlistName);
+            double percentage = m_databaseManager.getResumeTime(playlistName);
 
             Playlist playlist = new Playlist(playlistName, lastSongPlayedIndex);
+            playlist.setM_songResumeTime(percentage);
+
             List<String> playlistSongPaths = m_databaseManager.getSongsInPlaylist(playlist.getM_playlistName());
             playlist.addSongs(m_songManager.getSongs(playlistSongPaths));
 
@@ -185,6 +188,7 @@ public class ApplicationController extends Application {
         final int FONT_SIZE = 14;
         final String LOADING_BACKGROUND_IMAGE = "res\\loading-bg.png";
         watcher.stopWatcher();
+        musicPlayerManager.setCurrentPlaylistSongPercentage();
 
         ProgressIndicator progress = new ProgressIndicator();
 
@@ -212,6 +216,7 @@ public class ApplicationController extends Application {
             protected Object call() throws Exception {
                 musicPlayerManager.stopSong();
                 savePlaylistSongs();
+                savePlaylistsResumeTimes();
                 savePlaybackQueue();
                 saveFileTreeState();
                 m_filePersistentStorage.saveConfigFile(m_songManager.getM_rightFolderSelected(),
@@ -236,6 +241,16 @@ public class ApplicationController extends Application {
     private void savePlaylistSongs() {
         for (Playlist playlist : m_songManager.getM_playlists()) {
             m_databaseManager.savePlaylistSongs(playlist);
+        }
+    }
+
+    /**
+     * Save resume time for each existing playlist
+     */
+    public void savePlaylistsResumeTimes() {
+        m_databaseManager.clearResumeTime();
+        for (Playlist playlist : m_songManager.getM_playlists()) {
+            m_databaseManager.savePlaylistResumeTime(playlist.getM_playlistName(), playlist.getM_songResumeTime());
         }
     }
 

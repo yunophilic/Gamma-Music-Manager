@@ -12,6 +12,7 @@ public class Playlist {
     private String m_playlistName;
     private List<Song> m_songList;
     private int m_currentSongIndex; //-1 means no song is playing!
+    private double m_songResumeTime;
 
     /**
      * Constructor
@@ -22,6 +23,7 @@ public class Playlist {
         m_playlistName = playlistName;
         m_songList = new ArrayList<>();
         m_currentSongIndex = -1;
+        m_songResumeTime = 0.0;
     }
 
     /**
@@ -34,6 +36,7 @@ public class Playlist {
         m_playlistName = playlistName;
         m_songList = new ArrayList<>();
         m_currentSongIndex = songIndex;
+        m_songResumeTime = 0.0;
     }
 
     /**
@@ -304,6 +307,24 @@ public class Playlist {
      */
     public void setM_currentSongIndex(int index) {
         m_currentSongIndex = index;
+    }
+
+    /**
+     * Function to set the resume time of the song from this playlist when the application closes
+     *
+     * @param resumeTime in percentage
+     */
+    public void setM_songResumeTime(double resumeTime) {
+        m_songResumeTime = resumeTime;
+    }
+
+    /**
+     * Function to get the resume time of the song from this playlist when the application opens
+     *
+     * @return resume time in percentage
+     */
+    public double getM_songResumeTime() {
+        return m_songResumeTime;
     }
 
     @Override

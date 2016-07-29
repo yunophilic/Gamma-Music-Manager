@@ -51,10 +51,12 @@ public class DatabaseManager {
     private PreparedStatement m_getSongsInPlaylist;
     private PreparedStatement m_orderNumOfPlaylistLastPlayedSong;
     private PreparedStatement m_deleteFromPlaylistSongsByPlaylistName;
+    private PreparedStatement m_getFirstPlaylistName;
     private PreparedStatement m_addToResumeTime;
     private PreparedStatement m_updateResumeTime;
     private PreparedStatement m_getResumeTime;
     private PreparedStatement m_clearResumeTime;
+    private PreparedStatement m_countResumeTimeEntry;
 
     public DatabaseManager() {
     }
@@ -119,13 +121,14 @@ public class DatabaseManager {
                                                                     "FROM PlaybackQueue");
 
             m_deleteFromQueue = m_connection.prepareStatement("DELETE FROM PlaybackQueue " +
-                                                              "WHERE songPath = ?");
+                                                              "WHERE songPath = ? AND orderNumber = ?");
 
             m_updateQueueOrderNumber =  m_connection.prepareStatement("UPDATE PlaybackQueue " +
                                                                       "SET orderNumber = orderNumber - 1 " +
                                                                       "WHERE orderNumber > (SELECT orderNumber " +
                                                                                             "FROM PlaybackQueue " +
-                                                                                            "WHERE songPath = ?) ");
+                                                                                            "WHERE songPath = ?" +
+                                                                                            "AND orderNumber = ?) ");
 
             m_getPlaybackQueue = m_connection.prepareStatement("SELECT * FROM PlaybackQueue " +
                                                                "ORDER BY OrderNumber ASC");
@@ -173,6 +176,9 @@ public class DatabaseManager {
                                                                                     "FROM PlaylistSongs " +
                                                                                     "WHERE playlistName = ?");
 
+            m_getFirstPlaylistName = m_connection.prepareStatement("SELECT * FROM Playlist " +
+                                                                    "LIMIT 1");
+
             m_addToResumeTime = m_connection.prepareStatement("INSERT INTO ResumeTime (playlistName, resumeTime) " +
                                                               "VALUES (?, ?) ");
 
@@ -185,6 +191,10 @@ public class DatabaseManager {
                                                             "WHERE playlistName = ?");
 
             m_clearResumeTime = m_connection.prepareStatement("DELETE FROM ResumeTime");
+
+            m_countResumeTimeEntry = m_connection.prepareStatement("SELECT COUNT(*) AS row " +
+                                                                   "FROM ResumeTime " +
+                                                                   "WHERE playlistName = ?");
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -302,7 +312,7 @@ public class DatabaseManager {
                                         "PRIMARY KEY (songPath, orderNumber, time)" +
                                     ")");
 
-            // ResumeTime table, store time for each playlist when the application is closed
+            // ResumeTime table, store time for each playlist when the application closes
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS ResumeTime (" +
                                         "playlistName   TEXT    NOT NULL, " +
                                         "resumeTime     REAL, " +
@@ -630,12 +640,15 @@ public class DatabaseManager {
      * Remove the specified song from the PlaybackQueue table
      *
      * @param songPath the path of the song to be deleted
+     * @param orderNumber the index of the song in the playback queue
      */
-    public void deleteFromPlaybackQueue(String songPath) {
+    public void deleteFromPlaybackQueue(String songPath, int orderNumber) {
         try {
-            updateQueueOrderNumber(songPath);
             m_deleteFromQueue.setString(1, songPath);
+            m_deleteFromQueue.setInt(2, orderNumber);
             m_deleteFromQueue.executeUpdate();
+
+            updateQueueOrderNumber(songPath, orderNumber);
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -646,10 +659,12 @@ public class DatabaseManager {
      * Decrement the order numbers of the songs that have greater order number than the song to be deleted
      *
      * @param songPath the path of the song which to be deleted
+     * @param orderNumber the index of the song in the playback queue
      */
-    public void updateQueueOrderNumber(String songPath) {
+    public void updateQueueOrderNumber(String songPath, int orderNumber) {
         try {
             m_updateQueueOrderNumber.setString(1, songPath);
+            m_updateQueueOrderNumber.setInt(2, orderNumber);
             m_updateQueueOrderNumber.executeUpdate();
         }
         catch (SQLException e) {
@@ -924,12 +939,53 @@ public class DatabaseManager {
         try {
             m_getResumeTime.setString(1, playlistName);
             ResultSet resultSet = m_getResumeTime.executeQuery();
-            double resumeTime = resultSet.getInt("resumeTime");
+            double resumeTime = resultSet.getDouble("resumeTime");
             return resumeTime;
         }
         catch (SQLException e) {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    /**
+     * Check if the resume time is already stored in the table ResumeTime
+     *
+     * @param playlistName
+     * @return boolean indicates whether if there is a percentage value corresponds to the specified playlist in the table
+     */
+    public boolean checkIfResumeTimeExists(String playlistName) {
+        try {
+            m_countResumeTimeEntry.setString(1, playlistName);
+            ResultSet resultSet = m_countResumeTimeEntry.executeQuery();
+            int count = resultSet.getInt("row");
+            if (count == 1) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Get the first playlist from the Playlist table
+     *
+     * @return the name of the first playlist. Null can also be returned when there is no playlists
+     */
+    public String getFirstPlaylistName() {
+        try {
+            ResultSet resultSet = m_getFirstPlaylistName.executeQuery();
+            String firstPlaylistName = resultSet.getString("playlistName");
+            return firstPlaylistName;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

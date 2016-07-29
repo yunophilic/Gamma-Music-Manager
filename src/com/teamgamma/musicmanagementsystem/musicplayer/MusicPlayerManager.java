@@ -113,8 +113,6 @@ public class MusicPlayerManager {
         m_currentSong = songToPlay;
         m_musicPlayer.playSong(songToPlay);
         updateHistory();
-        m_databaseManager.deleteFromPlaybackQueue(songToPlay.getFile().getAbsolutePath());
-
         notifyQueingObserver();
     }
 
@@ -152,7 +150,6 @@ public class MusicPlayerManager {
      */
     public void placeSongAtStartOfQueue(Song songToPlace) {
         m_playingQueue.add(0, songToPlace);
-        m_databaseManager.addToPlaybackQueueHead(songToPlace.getFile().getAbsolutePath());
         if (isNoSongPlayingOrNext()){
             playNextSong();
         }
@@ -164,6 +161,8 @@ public class MusicPlayerManager {
      * @param playlistToPlay The playlist that we want to play.
      */
     public void playPlaylist(Playlist playlistToPlay) {
+        setCurrentPlaylistSongPercentage();
+
         if (playlistToPlay.getM_songList().isEmpty()){
             m_lastException = new Exception("Cannot play playlist " + playlistToPlay.getM_playlistName() +
                     " because there is no songs in there");
@@ -741,5 +740,67 @@ public class MusicPlayerManager {
             m_playingQueue.remove(index);
         }
         notifyQueingObserver();
+    }
+
+    /**
+     * Set the resume time for current playlist
+     */
+    public void setCurrentPlaylistSongPercentage() {
+        if (m_currentPlayList != null) {
+            double percentage = getCurrentPlayTime().toMillis() / getEndTime().toMillis();
+            m_currentPlayList.setM_songResumeTime(percentage);
+            System.out.println("Save percentage");
+        }
+    }
+
+    /**
+     * Get the resume time for this playlist
+     *
+     * @return the percentage (resume time) of the current playlist
+     */
+    public double getCurrentPlaylistResumeTime() {
+        double percentage = m_databaseManager.getResumeTime(m_currentPlayList.getM_playlistName());
+        return percentage;
+    }
+
+    /**
+     * Check if there is a resume time stored for this playlist already
+     *
+     * @return boolean indicates whether if there's a time stored for this playlist
+     */
+    public boolean isThereResumeTime() {
+        double percentage = getCurrentPlaylistResumeTime();
+        if (percentage == 0.0) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Get the name of the first playlist in the database Playlist table
+     *
+     * @return the name of the first playlist
+     */
+    public String getFirstPlaylistName() {
+        String firstPlaylistName = m_databaseManager.getFirstPlaylistName();
+        return firstPlaylistName;
+    }
+
+    /**
+     * Set the first playlist from the database to be the current playlist
+     *
+     * @param firstPlaylist, the first playlist
+     */
+    public void loadFirstPlaylist(Playlist firstPlaylist) {
+        m_currentPlayList = firstPlaylist;
+    }
+
+    /**
+     * Get the current playlist
+     *
+     * @return current playlist
+     */
+    public Playlist getCurrentPlaylist() {
+        return m_currentPlayList;
     }
 }

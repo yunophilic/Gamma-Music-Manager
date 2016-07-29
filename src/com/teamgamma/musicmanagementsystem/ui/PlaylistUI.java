@@ -315,6 +315,8 @@ public class PlaylistUI extends VBox {
         playPlaylistButton.setOnMouseClicked(event -> {
             if (m_model.getM_selectedPlaylist() != null) {
                 m_musicPlayerManager.playPlaylist(m_model.getM_selectedPlaylist());
+                double percentage = m_musicPlayerManager.getCurrentPlaylist().getM_songResumeTime();
+                m_musicPlayerManager.seekSongTo(percentage);
             }
         });
 
