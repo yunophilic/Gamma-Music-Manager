@@ -67,7 +67,7 @@ public class ContextMenuBuilder {
         MenuItem addToPlaylist = createAddToPlaylistMenuItem(model, musicPlayerManager, tree);
         MenuItem addToCurrentPlaylist = createAddToCurrentPlaylistMenuItem(model, musicPlayerManager, tree);
 
-        MenuItem copy = createCopyMenuItem(model, selectedItem);
+        MenuItem copy = createCopyMenuItem(model, tree);
         MenuItem paste = createFileTreePasteMenuItem(model, selectedItem);
         MenuItem rename = createRenameMenuItem(model, selectedItem);
         MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedItem);
@@ -326,6 +326,31 @@ public class ContextMenuBuilder {
                 temp.add(selectedItem);
                 model.setM_itemsToCopy(temp);
             }
+        });
+
+        return copy;
+    }
+
+    /**
+     * Function to create the menu item for copying a file.
+     *
+     * @param model             The model set the item that is to be copied
+     * @param tree              The tree to extract items to copy
+     * @return                  A menu item containing the logic copy a song.
+     */
+    private static MenuItem createCopyMenuItem(SongManager model, TreeView<Item> tree) {
+        MenuItem copy = new MenuItem(COPY);
+
+        copy.setOnAction(event -> {
+            List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
+            List<Item> temp = new ArrayList<>();
+            for (TreeItem<Item> treeItem : treeItems) {
+                Item item = treeItem.getValue();
+                if (item != null) {
+                    temp.add(item);
+                }
+            }
+            model.setM_itemsToCopy(temp);
         });
 
         return copy;
