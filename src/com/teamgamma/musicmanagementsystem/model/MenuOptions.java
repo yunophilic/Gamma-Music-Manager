@@ -70,10 +70,20 @@ public class MenuOptions {
         return m_showFilesInFolderSearchHit;
     }
 
+    /**
+     * Function to configure the application to hide right panel.
+     *
+     * @param hideRightPanel boolean variable for whether to hide or show right panel
+     */
     public void setHideRightPanel(boolean hideRightPanel) {
         m_hideRightPanel = hideRightPanel;
     }
 
+    /**
+     * Function to get whether to hide or show right panel
+     *
+     * @return True if it should hide the panel, false if it should show the panel
+     */
     public boolean getHideRightPanel() {
         return m_hideRightPanel;
     }

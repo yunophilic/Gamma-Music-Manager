@@ -106,14 +106,19 @@ public class MenuUI extends MenuBar{
         final Menu menuOptions = new Menu(OPTIONS_TITLE);
         Menu leftPanelSubMenu = getLeftPanelSubMenu(filePersistentStorage);
         Menu centerPanelSubMenu = getCenterPanelSubMenu(filePersistentStorage);
-        Menu rightPanelSubMenu = getRightPanelSubMenu(filePersistentStorage);
+        Menu rightPanelSubMenu = getRightPanelSubMenu();
 
         menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu, rightPanelSubMenu, createSearchSubmenu());
         return menuOptions;
     }
 
-    private Menu getRightPanelSubMenu(FilePersistentStorage config) {
-        Menu leftPanelSubMenu = new Menu(RIGHT_PANEL_OPTION);
+    /**
+     * Function to create the right panel submenu for the top.
+     *
+     * @return a Menu object that is the right panel submenu
+     */
+    private Menu getRightPanelSubMenu() {
+        Menu rightPanelSubMenu = new Menu(RIGHT_PANEL_OPTION);
         CheckMenuItem hideRightPanel = new CheckMenuItem(HIDE_RIGHT_PANEL);
         // TODO: Save state.
         hideRightPanel.setOnAction(event -> {
@@ -128,8 +133,12 @@ public class MenuUI extends MenuBar{
             m_model.notifyRightPanelOptionsObservers();
         });
 
-        leftPanelSubMenu.getItems().addAll(hideRightPanel);
-        return leftPanelSubMenu;
+        m_model.registerRightPanelOptionsObserver(() -> {
+            hideRightPanel.setSelected( m_model.getM_menuOptions().getHideRightPanel());
+        });
+
+        rightPanelSubMenu.getItems().addAll(hideRightPanel);
+        return rightPanelSubMenu;
     }
 
     /**
