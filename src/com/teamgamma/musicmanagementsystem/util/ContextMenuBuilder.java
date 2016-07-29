@@ -678,9 +678,9 @@ public class ContextMenuBuilder {
 
         addToPlaylist.setOnAction(event -> {
             List<Playlist> playlists = model.getM_playlists();
+            Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSongs.get(0));
             for (Song song : selectedSongs) {
                 if (song != null && song instanceof Song) {
-                    Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, song);
                     if (selectedPlaylist == null) {
                         PromptUI.customPromptError("Error", null, "Please select a playlist!");
                         return;
@@ -710,11 +710,13 @@ public class ContextMenuBuilder {
         addToPlaylist.setOnAction(event -> {
             List<Playlist> playlists = model.getM_playlists();
             List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
+            Item first = treeItems.get(0).getValue();
+            Song firstSong = (Song) first;
+            Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, firstSong);
             for (TreeItem<Item> treeItem : treeItems) {
                 Item item = treeItem.getValue();
                 if (item instanceof Song) {
                     Song song = (Song) item;
-                    Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, song);
                     if (selectedPlaylist == null) {
                         PromptUI.customPromptError("Error", null, "Please select a playlist!");
                         return;
