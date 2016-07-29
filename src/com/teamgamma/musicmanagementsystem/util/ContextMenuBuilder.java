@@ -169,7 +169,7 @@ public class ContextMenuBuilder {
                                                           List<Song> selectedSongs) {
         MenuItem playSong = createPlaySongMenuItem(musicPlayerManager, selectedItem);
         MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, selectedSongs);
-        MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedItem);
+        MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedSongs);
 
         MenuItem addToPlaylist = createAddToPlaylistMenuItem(model, musicPlayerManager, selectedSongs);
         MenuItem addToCurrentPlaylist = createAddToCurrentPlaylistMenuItem(model, musicPlayerManager, selectedSongs);
@@ -880,6 +880,27 @@ public class ContextMenuBuilder {
             if (selectedItem != null) {
                 Song song = (Song) selectedItem;
                 musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
+            }
+        });
+
+        return placeSongOnQueue;
+    }
+
+    /**
+     * Function to create a menu item to place a song on the playback queue
+     *
+     * @param musicPlayerManager    The music player manager to use
+     * @param selectedSongs         The song to add to the queue
+     * @return                      The menu item containing logic to add a song to the playback queue
+     */
+    private static MenuItem createPlaceSongOnQueueMenuItem(MusicPlayerManager musicPlayerManager, List<Song> selectedSongs) {
+        MenuItem placeSongOnQueue = new MenuItem(PLACE_SONG_ON_QUEUE);
+
+        placeSongOnQueue.setOnAction(event -> {
+            for (Song song : selectedSongs) {
+                if (song != null && song instanceof Song) {
+                    musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
+                }
             }
         });
 
