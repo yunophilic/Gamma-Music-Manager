@@ -82,10 +82,6 @@ public class LibraryUI extends StackPane {
         TreeView<Item> tree = new TreeView<>(root);
         tree.setShowRoot(false);
 
-        if (m_model.getM_selectedCenterFolder() != null) {
-            FileTreeUtils.setOpenFolder(tree, m_model.getM_selectedCenterFolder().getAbsolutePath());
-        }
-
         return tree;
     }
 
@@ -125,8 +121,6 @@ public class LibraryUI extends StackPane {
             setFileVisibility();
         });
         m_model.addCenterFolderObserver((FileActions fileActions) -> {
-            FileTreeUtils.closeAllFoldersIcons(m_tree.getRoot());
-            FileTreeUtils.setOpenFolder(m_tree, m_model.getM_selectedCenterFolder().getAbsolutePath());
             setTreeCellFactory();
         });
     }
