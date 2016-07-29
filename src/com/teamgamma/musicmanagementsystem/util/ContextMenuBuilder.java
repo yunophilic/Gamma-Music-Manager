@@ -538,6 +538,9 @@ public class ContextMenuBuilder {
                 } else {
                     model.setM_rightFolderSelected(folderSelected);
                     model.notifyRightFolderObservers();
+
+                    model.getM_menuOptions().setHideRightPanel(false);
+                    model.notifyRightPanelOptionsObservers();
                 }
             }
         });

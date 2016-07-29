@@ -97,6 +97,7 @@ public class ApplicationController extends Application {
         MenuOptions menuOptions = new MenuOptions(
                 m_filePersistentStorage.getCenterPanelOption(),
                 m_filePersistentStorage.getLeftPanelOption(),
+                false,
                 false
         );
         m_songManager.setM_menuOptions(menuOptions);
@@ -132,7 +133,8 @@ public class ApplicationController extends Application {
         m_musicPlayerManager.loadPlaybackQueue(m_songManager.getSongs(playbackQueueSongPaths));
     }
 
-    /** Starting routine of the application
+    /**
+     * Starting routine of the application
      *
      * @param primaryStage
      */

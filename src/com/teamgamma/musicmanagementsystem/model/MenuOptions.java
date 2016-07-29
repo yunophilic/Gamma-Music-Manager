@@ -7,11 +7,13 @@ public class MenuOptions {
     private boolean m_centerPanelShowSubfolderFiles;
     private boolean m_leftPanelShowFoldersOnly;
     private boolean m_showFilesInFolderSearchHit;
+    private boolean m_hideRightPanel;
 
-    public MenuOptions(boolean centerPanelOption, boolean leftPanelOption, boolean showFilesInFolderSearchHit) {
+    public MenuOptions(boolean centerPanelOption, boolean leftPanelOption, boolean showFilesInFolderSearchHit, boolean hideRightPanel) {
         this.m_centerPanelShowSubfolderFiles = centerPanelOption;
         this.m_leftPanelShowFoldersOnly = leftPanelOption;
         this.m_showFilesInFolderSearchHit = showFilesInFolderSearchHit;
+        this.m_hideRightPanel = hideRightPanel;
     }
 
     /**
@@ -66,5 +68,23 @@ public class MenuOptions {
      */
     public boolean getShowFilesInFolderSerachHit() {
         return m_showFilesInFolderSearchHit;
+    }
+
+    /**
+     * Function to configure the application to hide right panel.
+     *
+     * @param hideRightPanel boolean variable for whether to hide or show right panel
+     */
+    public void setHideRightPanel(boolean hideRightPanel) {
+        m_hideRightPanel = hideRightPanel;
+    }
+
+    /**
+     * Function to get whether to hide or show right panel
+     *
+     * @return True if it should hide the panel, false if it should show the panel
+     */
+    public boolean getHideRightPanel() {
+        return m_hideRightPanel;
     }
 }

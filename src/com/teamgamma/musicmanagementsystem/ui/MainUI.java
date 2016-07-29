@@ -158,6 +158,8 @@ public class MainUI extends BorderPane {
             m_model.notifyInitalSearchObserver();
         } else {
             m_model.searchForFilesAndFolders(searchText.getText());
+            m_model.getM_menuOptions().setHideRightPanel(false);
+            m_model.notifyRightPanelOptionsObservers();
         }
     }
 
@@ -198,6 +200,20 @@ public class MainUI extends BorderPane {
         HBox.setHgrow(tabPane, Priority.ALWAYS);
         
         m_model.registerSearchObserver(() -> tabPane.getSelectionModel().select(searchResults));
+
+        m_model.addRightFolderObserver((fileActions) -> {
+            tabPane.getSelectionModel().select(fileTree);
+        });
+
+        m_model.registerRightPanelOptionsObserver(() -> {
+            if (m_model.getM_menuOptions().getHideRightPanel()) {
+                pane.getChildren().remove(tabPane);
+            } else {
+                if (!pane.getChildren().contains(tabPane)) {
+                    pane.getChildren().add(tabPane);
+                }
+            }
+        });
 
         return pane;
     }

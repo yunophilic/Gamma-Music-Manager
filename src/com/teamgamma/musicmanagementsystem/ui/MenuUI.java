@@ -25,6 +25,8 @@ public class MenuUI extends MenuBar{
     private static final String OPTIONS_TITLE = "Options";
     private static final String LEFT_PANEL_OPTION = "Left Panel";
     private static final String SHOW_FOLDERS_ONLY = "Show folders only";
+    private static final String RIGHT_PANEL_OPTION = "Right Panel";
+    private static final String HIDE_RIGHT_PANEL = "Hide";
     private static final String DISPLAY_FOLDERS_ONLY = "Display folders only";
     private static final String DONT_DISPLAY_FOLDERS_ONLY = "Don't display folders only";
     private static final String CENTER_PANEL_OPTION = "Center Panel";
@@ -104,9 +106,39 @@ public class MenuUI extends MenuBar{
         final Menu menuOptions = new Menu(OPTIONS_TITLE);
         Menu leftPanelSubMenu = getLeftPanelSubMenu(filePersistentStorage);
         Menu centerPanelSubMenu = getCenterPanelSubMenu(filePersistentStorage);
+        Menu rightPanelSubMenu = getRightPanelSubMenu();
 
-        menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu, createSearchSubmenu());
+        menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu, rightPanelSubMenu, createSearchSubmenu());
         return menuOptions;
+    }
+
+    /**
+     * Function to create the right panel submenu for the top.
+     *
+     * @return a Menu object that is the right panel submenu
+     */
+    private Menu getRightPanelSubMenu() {
+        Menu rightPanelSubMenu = new Menu(RIGHT_PANEL_OPTION);
+        CheckMenuItem hideRightPanel = new CheckMenuItem(HIDE_RIGHT_PANEL);
+        // TODO: Save state.
+        hideRightPanel.setOnAction(event -> {
+            if (hideRightPanel.isSelected()){
+                MenuOptions menuManager = m_model.getM_menuOptions();
+                menuManager.setHideRightPanel(true);
+            } else {
+                MenuOptions menuManager = m_model.getM_menuOptions();
+                menuManager.setHideRightPanel(false);
+            }
+
+            m_model.notifyRightPanelOptionsObservers();
+        });
+
+        m_model.registerRightPanelOptionsObserver(() -> {
+            hideRightPanel.setSelected( m_model.getM_menuOptions().getHideRightPanel());
+        });
+
+        rightPanelSubMenu.getItems().addAll(hideRightPanel);
+        return rightPanelSubMenu;
     }
 
     /**
