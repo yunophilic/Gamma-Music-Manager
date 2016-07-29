@@ -180,7 +180,7 @@ public class MenuUI extends MenuBar{
     private Menu getLeftPanelSubMenu(FilePersistentStorage config) {
         Menu leftPanelSubMenu = new Menu(LEFT_PANEL_OPTION);
         CheckMenuItem showFoldersOnly = new CheckMenuItem(SHOW_FOLDERS_ONLY);
-        showFoldersOnly.setSelected(config.getShowFoldersOnlyInLeftPanelOption());
+        showFoldersOnly.setSelected(config.getLeftPanelShowOnlyFoldersOption());
 
         showFoldersOnly.setOnAction(event -> {
             if (showFoldersOnly.isSelected()){

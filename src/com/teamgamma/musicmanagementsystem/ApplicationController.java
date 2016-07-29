@@ -94,7 +94,7 @@ public class ApplicationController extends Application {
         // Get previous menu options from file
         MenuOptions menuOptions = new MenuOptions(
                 m_filePersistentStorage.getShowAllFilesInCenterPanelOption(),
-                m_filePersistentStorage.getShowFoldersOnlyInLeftPanelOption(),
+                m_filePersistentStorage.getLeftPanelShowOnlyFoldersOption(),
                 m_filePersistentStorage.getShowFilesInFolderHit(),
                 m_filePersistentStorage.getHideRightFilePane()
         );

@@ -21,7 +21,7 @@ public class FilePersistentStorage {
     private static final String SHOW_ONLY_FOLDERS_IN_LEFT_PANEL_OPTION = "left_panel_option";
     private static final String RIGHT_PANEL_FOLDER = "right_panel_folder";
     private static final String CENTER_PANEL_FOLDER = "center_panel_folder";
-    private static final String SHOW_ALL_FILES_IN_CENTER_PANEL_OPTION = "center_panel_option";
+    private static final String LEFT_PANEL_SHOW_FOLDERS_ONLY = "center_panel_option";
     private static final String SEARCH_SHOW_FILES_IN_FOLDER = "show_files_in_folder_hit";
     private static final String HIDE_RIGHT_FILE_PANE_OPTION = "hide_right_panel";
 
@@ -85,7 +85,7 @@ public class FilePersistentStorage {
         m_jsonObject.put(SHOW_ONLY_FOLDERS_IN_LEFT_PANEL_OPTION, false);
         m_jsonObject.put(RIGHT_PANEL_FOLDER, "");
         m_jsonObject.put(CENTER_PANEL_FOLDER, "");
-        m_jsonObject.put(SHOW_ALL_FILES_IN_CENTER_PANEL_OPTION, false);
+        m_jsonObject.put(LEFT_PANEL_SHOW_FOLDERS_ONLY, false);
         m_jsonObject.put(SEARCH_SHOW_FILES_IN_FOLDER, false);
         m_jsonObject.put(HIDE_RIGHT_FILE_PANE_OPTION, false);
     }
@@ -107,7 +107,7 @@ public class FilePersistentStorage {
             saveCenterPanelFolder("");
         }
         saveCenterPanelOption(menuOptions.getM_centerPanelShowSubfolderFiles());
-        saveShowFoldersOnlyInLeftPanelOption(menuOptions.getM_leftPanelShowFoldersOnly());
+        saveLeftPanelShowOnlyFoldersOption(menuOptions.getM_leftPanelShowFoldersOnly());
         saveShowFilesInFolderHit(menuOptions.getShowFilesInFolderSerachHit());
         saveHideRightFilePane(menuOptions.getHideRightPanel());
 
@@ -210,7 +210,7 @@ public class FilePersistentStorage {
      */
     @SuppressWarnings("unchecked")
     private void saveCenterPanelOption(boolean option) {
-        m_jsonObject.replace(SHOW_ALL_FILES_IN_CENTER_PANEL_OPTION, option);
+        m_jsonObject.replace(LEFT_PANEL_SHOW_FOLDERS_ONLY, option);
     }
 
     /**
@@ -219,7 +219,7 @@ public class FilePersistentStorage {
      * @return center folder option as a boolean.
      */
     public boolean getShowAllFilesInCenterPanelOption() {
-        return getValueFromJson(SHOW_ALL_FILES_IN_CENTER_PANEL_OPTION, false);
+        return getValueFromJson(LEFT_PANEL_SHOW_FOLDERS_ONLY, false);
     }
 
     /**
@@ -228,7 +228,7 @@ public class FilePersistentStorage {
      * @param option boolean value to save.
      */
     @SuppressWarnings("unchecked")
-    private void saveShowFoldersOnlyInLeftPanelOption(boolean option) {
+    private void saveLeftPanelShowOnlyFoldersOption(boolean option) {
         m_jsonObject.replace(SHOW_ONLY_FOLDERS_IN_LEFT_PANEL_OPTION, option);
     }
 
@@ -237,7 +237,7 @@ public class FilePersistentStorage {
      *
      * @return left folder option as a boolean.
      */
-    public boolean getShowFoldersOnlyInLeftPanelOption() {
+    public boolean getLeftPanelShowOnlyFoldersOption() {
         return getValueFromJson(SHOW_ONLY_FOLDERS_IN_LEFT_PANEL_OPTION, false);
     }
 
@@ -260,7 +260,7 @@ public class FilePersistentStorage {
     }
 
     /**
-     * Save the if we want to show all the files in folder for the search results to the config file.
+     * Save if we want to show all the files in folder for the search results to the config file.
      *
      * @param option boolean value to save.
      */
