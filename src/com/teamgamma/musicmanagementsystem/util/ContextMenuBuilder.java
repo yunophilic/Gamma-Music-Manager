@@ -176,7 +176,7 @@ public class ContextMenuBuilder {
 
         MenuItem editProperties = createEditPropertiesMenuItem(model, selectedItem);
 
-        MenuItem copy = createCopyMenuItem(model, selectedItem);
+        MenuItem copy = createCopyMenuItem(model, selectedSongs);
         MenuItem paste = createCenterPanelPasteMenuItem(model);
         MenuItem rename = createRenameMenuItem(model, selectedItem);
         MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedItem);
@@ -326,6 +326,29 @@ public class ContextMenuBuilder {
                 temp.add(selectedItem);
                 model.setM_itemsToCopy(temp);
             }
+        });
+
+        return copy;
+    }
+
+    /**
+     * Function to create the menu item for copying a file.
+     *
+     * @param model             The model set the item that is to be copied
+     * @param selectedSongs     The songs to copy in center panel
+     * @return                  A menu item containing the logic copy a song.
+     */
+    private static MenuItem createCopyMenuItem(SongManager model, List<Song> selectedSongs) {
+        MenuItem copy = new MenuItem(COPY);
+
+        copy.setOnAction(event -> {
+            List<Item> temp = new ArrayList<>();
+            for (Song song : selectedSongs) {
+                if (song != null) {
+                    temp.add(song);
+                }
+            }
+            model.setM_itemsToCopy(temp);
         });
 
         return copy;
