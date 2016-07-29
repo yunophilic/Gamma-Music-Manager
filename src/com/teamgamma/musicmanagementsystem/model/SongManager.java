@@ -281,19 +281,23 @@ public class SongManager {
      * @param library specified library
      * @return list of songs
      */
-    private List<Song> getSongs(Library library) {
+    public List<Song> getSongs(Library library) {
         return library.getSongs();
     }
 
     /**
-     * Get all songs in the system
+     * Get songs in the system based on the list of paths
      *
-     * @return list of all songs
+     * @param songPaths list of paths
+     * @return list of songs that match the given paths
      */
-    public List<Song> getAllSongs() {
+    public List<Song> getSongs(List<String> songPaths) {
         List<Song> songs = new ArrayList<>();
-        for (Library library : m_libraries) {
-            songs.addAll(library.getSongs());
+        for (String songPath : songPaths){
+            Song song = getSong(new File(songPath));
+            if (song != null) {
+                songs.add(song);
+            }
         }
         return songs;
     }
