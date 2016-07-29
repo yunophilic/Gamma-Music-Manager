@@ -77,8 +77,7 @@ public class Searcher {
         if (listOfNodesHit.isEmpty()){
             return new TreeItem<>(new DummyItem());
         } else {
-            TreeItem<Item> copyOfParent = new TreeItem<>(parentNode.getValue());
-            copyOfParent.setExpanded(true);
+            TreeItem<Item> copyOfParent = createExpandedNode(parentNode.getValue());
             copyOfParent.getChildren().addAll(listOfNodesHit);
             return copyOfParent;
         }
@@ -134,6 +133,7 @@ public class Searcher {
     private TreeItem<Item> createExpandedNode(Item value){
         TreeItem<Item> node = new TreeItem<>(value);
         node.setExpanded(true);
+
         return node;
     }
 }
