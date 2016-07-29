@@ -84,11 +84,10 @@ public class ApplicationController extends Application {
             double percentage = m_databaseManager.getResumeTime(playlistName);
 
             Playlist playlist = new Playlist(playlistName, lastSongPlayedIndex);
-			playlist.setM_songResumeTime(percentage);
-            
-			List<String> playlistSongPaths = m_databaseManager.getSongsInPlaylist(playlist.getM_playlistName());
+            playlist.setM_songResumeTime(percentage);
+
+            List<String> playlistSongPaths = m_databaseManager.getSongsInPlaylist(playlist.getM_playlistName());
             playlist.addSongs(m_songManager.getSongs(playlistSongPaths));
-            
 
             m_songManager.addPlaylist(playlist);
         }

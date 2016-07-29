@@ -3,7 +3,6 @@ package com.teamgamma.musicmanagementsystem.ui;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-//import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerObserver;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.util.GeneralObserver;
 
