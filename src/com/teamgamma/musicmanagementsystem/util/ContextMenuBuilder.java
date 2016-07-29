@@ -62,7 +62,7 @@ public class ContextMenuBuilder {
                                                        TreeView<Item> tree) {
         MenuItem playSong = createPlaySongMenuItem(musicPlayerManager, selectedItem);
         MenuItem playSongNext = createPlaySongNextMenuItem(musicPlayerManager, tree);
-        MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedItem);
+        MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, tree);
 
         MenuItem addToPlaylist = createAddToPlaylistMenuItem(model, musicPlayerManager, tree);
         MenuItem addToCurrentPlaylist = createAddToCurrentPlaylistMenuItem(model, musicPlayerManager, tree);
@@ -846,7 +846,7 @@ public class ContextMenuBuilder {
      * Function to create a menu item with the logic to add a song to the front of the playback queue
      *
      * @param musicPlayerManager    The music player manager to use
-     * @param tree                  The songs in left and right panel to add to the queue
+     * @param tree                  The tree to fetch songs in left and right panel to add to the queue
      * @return                      A menu item containing logic needed to add a song to the front of the queue.
      */
     private static MenuItem createPlaySongNextMenuItem(MusicPlayerManager musicPlayerManager, TreeView<Item> tree) {
@@ -899,6 +899,30 @@ public class ContextMenuBuilder {
         placeSongOnQueue.setOnAction(event -> {
             for (Song song : selectedSongs) {
                 if (song != null && song instanceof Song) {
+                    musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
+                }
+            }
+        });
+
+        return placeSongOnQueue;
+    }
+
+    /**
+     * Function to create a menu item to place a song on the playback queue
+     *
+     * @param musicPlayerManager    The music player manager to use
+     * @param tree                  The tree to fetch songs to add to the queue
+     * @return                      The menu item containing logic to add a song to the playback queue
+     */
+    private static MenuItem createPlaceSongOnQueueMenuItem(MusicPlayerManager musicPlayerManager, TreeView<Item> tree) {
+        MenuItem placeSongOnQueue = new MenuItem(PLACE_SONG_ON_QUEUE);
+
+        placeSongOnQueue.setOnAction(event -> {
+            List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
+            for (TreeItem<Item> treeItem : treeItems) {
+                Item item = treeItem.getValue();
+                if (item instanceof Song) {
+                    Song song = (Song) item;
                     musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
                 }
             }
