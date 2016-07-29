@@ -1,6 +1,5 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
@@ -25,7 +24,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import javafx.util.Pair;
 
 import java.io.File;
 import java.util.List;
@@ -574,7 +572,7 @@ public class PlaylistUI extends VBox {
         m_table.setOnDragOver(dragEvent -> {
             // For Debugging
             System.out.println("Drag over on playlist");
-            if (m_model.getM_itemToMove() instanceof Song && m_model.getM_selectedPlaylist() != null) {
+            if (m_model.itemsToMoveAreAllSongs() && m_model.getM_selectedPlaylist() != null) {
                 dragEvent.acceptTransferModes(TransferMode.MOVE);
             }
             dragEvent.consume();
@@ -582,14 +580,16 @@ public class PlaylistUI extends VBox {
 
         m_table.setOnDragDropped(dragEvent -> {
             //System.out.println("Drag dropped on playlist");
-            m_model.addSongToPlaylist( (Song) m_model.getM_itemToMove(), m_model.getM_selectedPlaylist() );
-            m_musicPlayerManager.notifyQueingObserver();
+            for (Item itemToMove : m_model.getM_itemsToMove()) {
+                m_model.addSongToPlaylist((Song) itemToMove, m_model.getM_selectedPlaylist());
+                m_musicPlayerManager.notifyQueingObserver();
+            }
             dragEvent.consume();
         });
 
         m_table.setOnDragDone(dragEvent -> {
             //System.out.println("Drag done on playlist");
-            m_model.setM_itemToMove(null);
+            m_model.setM_itemsToMove(null);
             dragEvent.consume();
         });
     }

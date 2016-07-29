@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.Item;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -82,17 +83,19 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
             TitledPane queuingList) {
 
         queuingList.setOnDragDone(event -> {
-            songManager.setM_itemToMove(null);
+            songManager.setM_itemsToMove(null);
             event.consume();
         });
 
         queuingList.setOnDragDropped(event -> {
-            musicPlayerManager.placeSongOnBackOfPlaybackQueue((Song) songManager.getM_itemToMove());
+            for (Item itemToMove : songManager.getM_itemsToMove()) {
+                musicPlayerManager.placeSongOnBackOfPlaybackQueue((Song) itemToMove);
+            }
             event.consume();
         });
 
         queuingList.setOnDragOver(event -> {
-            if (songManager.getM_itemToMove() instanceof Song) {
+            if (songManager.itemsToMoveAreAllSongs()) {
                 event.acceptTransferModes(TransferMode.MOVE);
                 event.consume();
             }
