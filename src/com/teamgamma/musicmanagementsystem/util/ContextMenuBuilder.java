@@ -680,7 +680,7 @@ public class ContextMenuBuilder {
             List<Playlist> playlists = model.getM_playlists();
             Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSongs.get(0));
             for (Song song : selectedSongs) {
-                if (song != null && song instanceof Song) {
+                if (song != null) {
                     if (selectedPlaylist == null) {
                         PromptUI.customPromptError("Error", null, "Please select a playlist!");
                         return;
@@ -745,7 +745,7 @@ public class ContextMenuBuilder {
 
         addToCurrentPlaylist.setOnAction(event -> {
             for (Song song : selectedSongs) {
-                if (song != null && song instanceof Song) {
+                if (song != null) {
                     Playlist selectedPlaylist = model.getM_selectedPlaylist();
                     if (selectedPlaylist == null) {
                         PromptUI.customPromptError("Error", null, "Please select a playlist!");
@@ -883,7 +883,7 @@ public class ContextMenuBuilder {
 
         playSongNext.setOnAction(event -> {
             for (Song song : selectedSongs) {
-                if (song != null && song instanceof Song) {
+                if (song != null) {
                     musicPlayerManager.placeSongAtStartOfQueue(song);
                 }
             }
@@ -948,7 +948,7 @@ public class ContextMenuBuilder {
 
         placeSongOnQueue.setOnAction(event -> {
             for (Song song : selectedSongs) {
-                if (song != null && song instanceof Song) {
+                if (song != null) {
                     musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
                 }
             }
