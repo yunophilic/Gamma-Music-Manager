@@ -22,13 +22,14 @@ public class FilePersistentStorage {
     private static final String RIGHT_PANEL_FOLDER = "right_panel_folder";
     private static final String CENTER_PANEL_FOLDER = "center_panel_folder";
     private static final String CENTER_PANEL_OPTION = "center_panel_option";
+    private static final String SELECTED_PLAYLIST = "selected_playlist";
     private JSONObject m_jsonObject;
 
     /**
      * Constructor.
      */
     public FilePersistentStorage() {
-        this.m_jsonObject = new JSONObject();
+        m_jsonObject = new JSONObject();
         setupConfig();
     }
 
@@ -83,14 +84,20 @@ public class FilePersistentStorage {
         m_jsonObject.put(RIGHT_PANEL_FOLDER, "");
         m_jsonObject.put(CENTER_PANEL_FOLDER, "");
         m_jsonObject.put(CENTER_PANEL_OPTION, false);
+        m_jsonObject.put(SELECTED_PLAYLIST, "");
     }
 
     /**
      * Save the config file settings.
      */
-    public void saveConfigFile(File rightPanelFile, File centerPanelFile, MenuOptions menuOptions) {
+    public void saveConfigFile(File rightPanelFile,
+                               File centerPanelFile,
+                               Playlist selectedPlaylist,
+                               MenuOptions menuOptions) {
         System.out.println("RIGHT FOLDER: " + rightPanelFile);
         System.out.println("CENTER FOLDER: " + centerPanelFile);
+        System.out.println("SELECTED PLAYLIST: " + selectedPlaylist);
+
         if(rightPanelFile != null) {
             saveRightPanelFolder(rightPanelFile.getAbsolutePath());
         } else {
@@ -101,6 +108,12 @@ public class FilePersistentStorage {
         } else {
             saveCenterPanelFolder("");
         }
+        if(selectedPlaylist != null) {
+            saveSelectedPlaylist(selectedPlaylist.getM_playlistName());
+        } else {
+            saveSelectedPlaylist("");
+        }
+
         saveCenterPanelOption(menuOptions.getM_centerPanelShowSubfolderFiles());
         saveLeftPanelOption(menuOptions.getM_leftPanelShowFoldersOnly());
 
@@ -123,6 +136,7 @@ public class FilePersistentStorage {
 
     /**
      * Check if config file exists.
+     *
      * @return true if exists. false if does not exist.
      */
     private boolean isConfigExists() {
@@ -131,6 +145,7 @@ public class FilePersistentStorage {
 
     /**
      * Check if db folder exists.
+     *
      * @return true if exists. false if does not exist.
      */
     private boolean isDbDirExists() {
@@ -139,6 +154,7 @@ public class FilePersistentStorage {
 
     /**
      * Save the volume to the config file.
+     *
      * @param volumeLevel an integer indicating the volume.
      */
     @SuppressWarnings("unchecked")
@@ -148,6 +164,7 @@ public class FilePersistentStorage {
 
     /**
      * Returns the volume state from config file.
+     *
      * @return volume as a double.
      */
     public double getVolumeConfig() {
@@ -156,6 +173,7 @@ public class FilePersistentStorage {
 
     /**
      * Save the right panel folder to the config file.
+     *
      * @param rightFolderPath path to save.
      */
     @SuppressWarnings("unchecked")
@@ -165,6 +183,7 @@ public class FilePersistentStorage {
 
     /**
      * Returns the right panel folder from config file.
+     *
      * @return right folder path as a string.
      */
     public String getRightPanelFolder() {
@@ -173,6 +192,7 @@ public class FilePersistentStorage {
 
     /**
      * Save the center panel folder to the config file.
+     *
      * @param centerFolderPath path to save.
      */
     @SuppressWarnings("unchecked")
@@ -182,6 +202,7 @@ public class FilePersistentStorage {
 
     /**
      * Returns the center panel folder from config file.
+     *
      * @return center folder path as a string.
      */
     public String getCenterPanelFolder() {
@@ -189,7 +210,27 @@ public class FilePersistentStorage {
     }
 
     /**
+     * Save the center panel folder to the config file.
+     *
+     * @param selectedPlaylistName path to save.
+     */
+    @SuppressWarnings("unchecked")
+    private void saveSelectedPlaylist(String selectedPlaylistName) {
+        m_jsonObject.put(SELECTED_PLAYLIST, selectedPlaylistName);
+    }
+
+    /**
+     * Returns the selected playlist from config file.
+     *
+     * @return selected playlist name as a string.
+     */
+    public String getSelectedPlaylist() {
+        return (String) m_jsonObject.get(SELECTED_PLAYLIST);
+    }
+
+    /**
      * Save the center panel option to the config file.
+     *
      * @param option boolean value to save.
      */
     @SuppressWarnings("unchecked")
@@ -199,6 +240,7 @@ public class FilePersistentStorage {
 
     /**
      * Returns the center panel option from config file.
+     *
      * @return center folder option as a boolean.
      */
     public boolean getCenterPanelOption() {
@@ -207,6 +249,7 @@ public class FilePersistentStorage {
 
     /**
      * Save the left panel option to the config file.
+     *
      * @param option boolean value to save.
      */
     @SuppressWarnings("unchecked")
@@ -216,6 +259,7 @@ public class FilePersistentStorage {
 
     /**
      * Returns the left panel option from config file.
+     *
      * @return left folder option as a boolean.
      */
     public boolean getLeftPanelOption() {
