@@ -25,6 +25,8 @@ public class MenuUI extends MenuBar{
     private static final String OPTIONS_TITLE = "Options";
     private static final String LEFT_PANEL_OPTION = "Left Panel";
     private static final String SHOW_FOLDERS_ONLY = "Show folders only";
+    private static final String RIGHT_PANEL_OPTION = "Right Panel";
+    private static final String HIDE_RIGHT_PANEL = "Hide";
     private static final String DISPLAY_FOLDERS_ONLY = "Display folders only";
     private static final String DONT_DISPLAY_FOLDERS_ONLY = "Don't display folders only";
     private static final String CENTER_PANEL_OPTION = "Center Panel";
@@ -104,20 +106,57 @@ public class MenuUI extends MenuBar{
         final Menu menuOptions = new Menu(OPTIONS_TITLE);
         Menu leftPanelSubMenu = getLeftPanelSubMenu(filePersistentStorage);
         Menu centerPanelSubMenu = getCenterPanelSubMenu(filePersistentStorage);
+        Menu rightPanelSubMenu = getRightPanelSubMenu(filePersistentStorage);
+        Menu searchSubMenu = createSearchSubmenu(filePersistentStorage);
 
-        menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu, createSearchSubmenu());
+        menuOptions.getItems().addAll(leftPanelSubMenu, centerPanelSubMenu, rightPanelSubMenu, searchSubMenu);
         return menuOptions;
+    }
+
+    /**
+     * Function to create the right panel submenu for the top.
+     *
+     * @param filePersistentStorage            The file storage to retrieve the state.
+     * @return                                 A Menu object that is the right panel submenu
+     */
+    private Menu getRightPanelSubMenu(FilePersistentStorage filePersistentStorage) {
+        Menu rightPanelSubMenu = new Menu(RIGHT_PANEL_OPTION);
+        CheckMenuItem hideRightPanel = new CheckMenuItem(HIDE_RIGHT_PANEL);
+        hideRightPanel.setSelected(filePersistentStorage.getHideRightFilePane());
+
+        hideRightPanel.setOnAction(event -> {
+            if (hideRightPanel.isSelected()){
+                MenuOptions menuManager = m_model.getM_menuOptions();
+                menuManager.setHideRightPanel(true);
+            } else {
+                MenuOptions menuManager = m_model.getM_menuOptions();
+                menuManager.setHideRightPanel(false);
+            }
+
+            m_model.notifyRightPanelOptionsObservers();
+        });
+
+        m_model.registerRightPanelOptionsObserver(() -> {
+            hideRightPanel.setSelected( m_model.getM_menuOptions().getHideRightPanel());
+        });
+
+        m_model.notifyRightPanelOptionsObservers();
+
+        rightPanelSubMenu.getItems().addAll(hideRightPanel);
+        return rightPanelSubMenu;
     }
 
     /**
      * Function to create the search submenu for the top.
      *
-     * @return  The search submenu options.
+     * @param filePersistentStorage         The file storage to retrieve the state.
+     * @return                              The search submenu options.
      */
-    private Menu createSearchSubmenu() {
+    private Menu createSearchSubmenu(FilePersistentStorage filePersistentStorage) {
         Menu searchSubMenu = new Menu(SEARCH_HEADER);
         CheckMenuItem showFilesInFolderHits = new CheckMenuItem(SHOW_FILES_IN_FOLDER_HITS_HEADER);
-        // TODO: Save state.
+        showFilesInFolderHits.setSelected(filePersistentStorage.getShowFilesInFolderHit());
+
         showFilesInFolderHits.setOnAction(event -> {
             if (showFilesInFolderHits.isSelected()) {
                 m_model.getM_menuOptions().setShowFilesInFolderSearchHit(true);
@@ -141,7 +180,7 @@ public class MenuUI extends MenuBar{
     private Menu getLeftPanelSubMenu(FilePersistentStorage config) {
         Menu leftPanelSubMenu = new Menu(LEFT_PANEL_OPTION);
         CheckMenuItem showFoldersOnly = new CheckMenuItem(SHOW_FOLDERS_ONLY);
-        showFoldersOnly.setSelected(config.getLeftPanelOption());
+        showFoldersOnly.setSelected(config.getLeftPanelShowOnlyFoldersOption());
 
         showFoldersOnly.setOnAction(event -> {
             if (showFoldersOnly.isSelected()){
@@ -170,7 +209,7 @@ public class MenuUI extends MenuBar{
     private Menu getCenterPanelSubMenu(FilePersistentStorage config) {
         Menu centerPanelSubMenu = new Menu(CENTER_PANEL_OPTION);
         CheckMenuItem showFoldersOnly = new CheckMenuItem(SHOW_FILES_IN_SUBFOLDERS);
-        showFoldersOnly.setSelected(config.getCenterPanelOption());
+        showFoldersOnly.setSelected(config.getShowAllFilesInCenterPanelOption());
 
         showFoldersOnly.setOnAction(event -> {
             if (showFoldersOnly.isSelected()){

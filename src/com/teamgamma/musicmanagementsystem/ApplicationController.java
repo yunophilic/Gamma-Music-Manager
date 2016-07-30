@@ -21,7 +21,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -93,11 +92,11 @@ public class ApplicationController extends Application {
         }
 
         // Get previous menu options from file
-        // TODO: Save state of search config
         MenuOptions menuOptions = new MenuOptions(
-                m_filePersistentStorage.getCenterPanelOption(),
-                m_filePersistentStorage.getLeftPanelOption(),
-                false
+                m_filePersistentStorage.getShowAllFilesInCenterPanelOption(),
+                m_filePersistentStorage.getLeftPanelShowOnlyFoldersOption(),
+                m_filePersistentStorage.getShowFilesInFolderHit(),
+                m_filePersistentStorage.getHideRightFilePane()
         );
         m_songManager.setM_menuOptions(menuOptions);
 
@@ -123,6 +122,16 @@ public class ApplicationController extends Application {
             }
         }
 
+        // Get previously selected playlist from file
+        String previousSelectedPlaylist = m_filePersistentStorage.getSelectedPlaylist();
+        System.out.println("PREVEIOUS SELECTED PLAYLIST: " + previousSelectedPlaylist);
+        if (!previousSelectedPlaylist.isEmpty()) {
+            Playlist playlist = m_songManager.findPlaylist(previousSelectedPlaylist);
+            if (playlist != null) {
+                m_songManager.setM_selectedPlaylist(playlist);
+            }
+        }
+
         System.out.println("loading history");
         List<String> historySongPaths = m_databaseManager.getHistory();
         m_musicPlayerManager.loadHistory(m_songManager.getSongs(historySongPaths));
@@ -132,7 +141,8 @@ public class ApplicationController extends Application {
         m_musicPlayerManager.loadPlaybackQueue(m_songManager.getSongs(playbackQueueSongPaths));
     }
 
-    /** Starting routine of the application
+    /**
+     * Starting routine of the application
      *
      * @param primaryStage
      */
@@ -219,8 +229,12 @@ public class ApplicationController extends Application {
                 savePlaylistsResumeTimes();
                 savePlaybackQueue();
                 saveFileTreeState();
-                m_filePersistentStorage.saveConfigFile(m_songManager.getM_rightFolderSelected(),
-                        m_songManager.getM_selectedCenterFolder(), m_songManager.getM_menuOptions());
+                m_filePersistentStorage.saveConfigFile(
+                        m_songManager.getM_rightFolderSelected(),
+                        m_songManager.getM_selectedCenterFolder(),
+                        m_songManager.getM_selectedPlaylist(),
+                        m_songManager.getM_menuOptions()
+                );
                 m_databaseManager.closeConnection();
 
                 Platform.exit();
@@ -287,7 +301,7 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save left and right file tree expanded states
+     * Save left and right panel file tree expanded states
      */
     private void saveFileTreeState() {
         saveLeftFileTreeExpandedState();
@@ -295,7 +309,6 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save left file tree expanded states
      * Save left panel file tree expanded state
      */
     private void saveLeftFileTreeExpandedState() {
@@ -309,7 +322,6 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save right file tree expanded states
      * Save right panel file tree expanded state
      */
     private void saveRightFileTreeExpandedState() {

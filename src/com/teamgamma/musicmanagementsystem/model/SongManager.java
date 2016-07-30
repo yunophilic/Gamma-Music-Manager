@@ -30,6 +30,7 @@ public class SongManager {
     private List<GeneralObserver> m_playlistSongsObservers;
     private List<GeneralObserver> m_searchObservers;
     private List<GeneralObserver> m_intialSearchModeObserver;
+    private List<GeneralObserver> m_rightPanelObservers;
 
     // Buffers
     private List<Item> m_itemsToCopy;
@@ -69,6 +70,7 @@ public class SongManager {
         m_leftPanelOptionsObservers = new ArrayList<>();
         m_searchObservers = new ArrayList<>();
         m_intialSearchModeObserver = new ArrayList<>();
+        m_rightPanelObservers = new ArrayList<>();
 
         m_playlistObservers = new ArrayList<>();
         m_playlistSongsObservers = new ArrayList<>();
@@ -203,7 +205,9 @@ public class SongManager {
      * Copy files in buffer to destination
      *
      * @param dest the destination folder
-     * @throws Exception
+     * @throws Exception if m_itemsToCopy is null
+     * @throws IOException If copy file fails
+     * @throws InvalidPathException If file path is invalid
      */
     public void copyToDestination(File dest) throws Exception {
         if (m_itemsToCopy == null) {
@@ -229,7 +233,8 @@ public class SongManager {
      * Move files in buffer to destination
      *
      * @param destDir the destination dir in File object form
-     * @throws Exception
+     * @throws Exception if m_itemsToMove is null
+     * @throws IOException If moving file fails
      */
     public void moveToDest(File destDir) throws Exception {
         if (m_itemsToMove == null) {
@@ -472,7 +477,7 @@ public class SongManager {
      * @param playlistName
      * @return Playlist
      */
-    private Playlist findPlaylist(String playlistName) {
+    public Playlist findPlaylist(String playlistName) {
         for (Playlist playlist: m_playlists){
             if (playlist.getM_playlistName().equals(playlistName)){
                 return playlist;
@@ -733,5 +738,13 @@ public class SongManager {
 
     public void registerInitalSearchObserver(GeneralObserver observer) {
         m_intialSearchModeObserver.add(observer);
+    }
+
+    public void registerRightPanelOptionsObserver(GeneralObserver observer) {
+        m_rightPanelObservers.add(observer);
+    }
+
+    public void notifyRightPanelOptionsObservers() {
+        notifySpecifiedGeneralObservers(m_rightPanelObservers);
     }
 }
