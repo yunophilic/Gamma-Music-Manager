@@ -122,6 +122,16 @@ public class ApplicationController extends Application {
             }
         }
 
+        // Get previously selected playlist from file
+        String previousSelectedPlaylist = m_filePersistentStorage.getSelectedPlaylist();
+        System.out.println("PREVEIOUS SELECTED PLAYLIST: " + previousSelectedPlaylist);
+        if (!previousSelectedPlaylist.isEmpty()) {
+            Playlist playlist = m_songManager.findPlaylist(previousSelectedPlaylist);
+            if (playlist != null) {
+                m_songManager.setM_selectedPlaylist(playlist);
+            }
+        }
+
         System.out.println("loading history");
         List<String> historySongPaths = m_databaseManager.getHistory();
         m_musicPlayerManager.loadHistory(m_songManager.getSongs(historySongPaths));
@@ -219,8 +229,12 @@ public class ApplicationController extends Application {
                 savePlaylistsResumeTimes();
                 savePlaybackQueue();
                 saveFileTreeState();
-                m_filePersistentStorage.saveConfigFile(m_songManager.getM_rightFolderSelected(),
-                        m_songManager.getM_selectedCenterFolder(), m_songManager.getM_menuOptions());
+                m_filePersistentStorage.saveConfigFile(
+                        m_songManager.getM_rightFolderSelected(),
+                        m_songManager.getM_selectedCenterFolder(),
+                        m_songManager.getM_selectedPlaylist(),
+                        m_songManager.getM_menuOptions()
+                );
                 m_databaseManager.closeConnection();
 
                 Platform.exit();
@@ -287,7 +301,7 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save left and right file tree expanded states
+     * Save left and right panel file tree expanded states
      */
     private void saveFileTreeState() {
         saveLeftFileTreeExpandedState();
@@ -295,7 +309,6 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save left file tree expanded states
      * Save left panel file tree expanded state
      */
     private void saveLeftFileTreeExpandedState() {
@@ -309,7 +322,6 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save right file tree expanded states
      * Save right panel file tree expanded state
      */
     private void saveRightFileTreeExpandedState() {

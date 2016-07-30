@@ -18,11 +18,12 @@ public class FilePersistentStorage {
     private static final String DB_DIR = System.getProperty("user.dir") + File.separator + "db";
     private static final String CONFIG_PATH = DB_DIR + File.separator + "config.json";
     private static final String VOLUME = "volume";
-    private static final String LEFT_PANEL_SHOW_FOLDERS_ONLY_OPTION = "left_panel_option";
     private static final String RIGHT_PANEL_FOLDER = "right_panel_folder";
     private static final String CENTER_PANEL_FOLDER = "center_panel_folder";
-    private static final String CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER = "center_panel_option";
-    private static final String SEARCH_SHOW_FILES_IN_FOLDER = "show_files_in_folder_hit";
+    private static final String SELECTED_PLAYLIST = "selected_playlist";
+    private static final String LEFT_PANEL_SHOW_FOLDERS_ONLY_OPTION = "left_panel_option";
+    private static final String CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER_OPTION = "center_panel_option";
+    private static final String SEARCH_SHOW_FILES_IN_FOLDER_OPTION = "show_files_in_folder_hit";
     private static final String HIDE_RIGHT_FILE_PANE_OPTION = "hide_right_panel";
 
     private JSONObject m_jsonObject;
@@ -31,7 +32,7 @@ public class FilePersistentStorage {
      * Constructor.
      */
     public FilePersistentStorage() {
-        this.m_jsonObject = new JSONObject();
+        m_jsonObject = new JSONObject();
         setupConfig();
     }
 
@@ -82,20 +83,26 @@ public class FilePersistentStorage {
     @SuppressWarnings("unchecked")
     private void setupConfigDefaults() {
         m_jsonObject.put(VOLUME, MusicPlayerConstants.MAX_VOLUME);
-        m_jsonObject.put(LEFT_PANEL_SHOW_FOLDERS_ONLY_OPTION, false);
         m_jsonObject.put(RIGHT_PANEL_FOLDER, "");
         m_jsonObject.put(CENTER_PANEL_FOLDER, "");
-        m_jsonObject.put(CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER, false);
-        m_jsonObject.put(SEARCH_SHOW_FILES_IN_FOLDER, false);
+        m_jsonObject.put(SELECTED_PLAYLIST, "");
+        m_jsonObject.put(LEFT_PANEL_SHOW_FOLDERS_ONLY_OPTION, false);
+        m_jsonObject.put(CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER_OPTION, false);
+        m_jsonObject.put(SEARCH_SHOW_FILES_IN_FOLDER_OPTION, false);
         m_jsonObject.put(HIDE_RIGHT_FILE_PANE_OPTION, false);
     }
 
     /**
      * Save the config file settings.
      */
-    public void saveConfigFile(File rightPanelFile, File centerPanelFile, MenuOptions menuOptions) {
+    public void saveConfigFile(File rightPanelFile,
+                               File centerPanelFile,
+                               Playlist selectedPlaylist,
+                               MenuOptions menuOptions) {
         System.out.println("RIGHT FOLDER: " + rightPanelFile);
         System.out.println("CENTER FOLDER: " + centerPanelFile);
+        System.out.println("SELECTED PLAYLIST: " + selectedPlaylist);
+
         if(rightPanelFile != null) {
             saveRightPanelFolder(rightPanelFile.getAbsolutePath());
         } else {
@@ -106,7 +113,13 @@ public class FilePersistentStorage {
         } else {
             saveCenterPanelFolder("");
         }
-        saveCenterPanelOption(menuOptions.getM_centerPanelShowSubfolderFiles());
+        if(selectedPlaylist != null) {
+            saveSelectedPlaylist(selectedPlaylist.getM_playlistName());
+        } else {
+            saveSelectedPlaylist("");
+        }
+
+        saveShowAllFilesInCenterPanelOption(menuOptions.getM_centerPanelShowSubfolderFiles());
         saveLeftPanelShowOnlyFoldersOption(menuOptions.getM_leftPanelShowFoldersOnly());
         saveShowFilesInFolderHit(menuOptions.getShowFilesInFolderSerachHit());
         saveHideRightFilePane(menuOptions.getHideRightPanel());
@@ -162,7 +175,7 @@ public class FilePersistentStorage {
      * @return volume as a double.
      */
     public double getVolumeConfig() {
-        return (double) m_jsonObject.get(VOLUME);
+        return (double) getValueFromJson(VOLUME, 0.0);
     }
 
     /**
@@ -181,7 +194,7 @@ public class FilePersistentStorage {
      * @return right folder path as a string.
      */
     public String getRightPanelFolder() {
-        return (String) m_jsonObject.get(RIGHT_PANEL_FOLDER);
+        return (String) getValueFromJson(RIGHT_PANEL_FOLDER, "");
     }
 
     /**
@@ -200,7 +213,26 @@ public class FilePersistentStorage {
      * @return center folder path as a string.
      */
     public String getCenterPanelFolder() {
-        return (String) m_jsonObject.get(CENTER_PANEL_FOLDER);
+        return (String) getValueFromJson(CENTER_PANEL_FOLDER, "");
+    }
+
+    /**
+     * Save the center panel folder to the config file.
+     *
+     * @param selectedPlaylistName path to save.
+     */
+    @SuppressWarnings("unchecked")
+    private void saveSelectedPlaylist(String selectedPlaylistName) {
+        m_jsonObject.put(SELECTED_PLAYLIST, selectedPlaylistName);
+    }
+
+    /**
+     * Returns the selected playlist from config file.
+     *
+     * @return selected playlist name as a string.
+     */
+    public String getSelectedPlaylist() {
+        return (String) getValueFromJson(SELECTED_PLAYLIST, "");
     }
 
     /**
@@ -209,8 +241,8 @@ public class FilePersistentStorage {
      * @param option boolean value to save.
      */
     @SuppressWarnings("unchecked")
-    private void saveCenterPanelOption(boolean option) {
-        m_jsonObject.replace(CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER, option);
+    private void saveShowAllFilesInCenterPanelOption(boolean option) {
+        m_jsonObject.replace(CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER_OPTION, option);
     }
 
     /**
@@ -219,7 +251,7 @@ public class FilePersistentStorage {
      * @return center folder option as a boolean.
      */
     public boolean getShowAllFilesInCenterPanelOption() {
-        return getValueFromJson(CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER, false);
+        return (boolean) getValueFromJson(CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER_OPTION, false);
     }
 
     /**
@@ -238,7 +270,7 @@ public class FilePersistentStorage {
      * @return left folder option as a boolean.
      */
     public boolean getLeftPanelShowOnlyFoldersOption() {
-        return getValueFromJson(LEFT_PANEL_SHOW_FOLDERS_ONLY_OPTION, false);
+        return (boolean) getValueFromJson(LEFT_PANEL_SHOW_FOLDERS_ONLY_OPTION, false);
     }
 
     /**
@@ -247,7 +279,7 @@ public class FilePersistentStorage {
      * @return True if we want to show the files in folder hits for the search results. False otherwise.
      */
     public boolean getShowFilesInFolderHit() {
-        return getValueFromJson(SEARCH_SHOW_FILES_IN_FOLDER, false);
+        return (boolean) getValueFromJson(SEARCH_SHOW_FILES_IN_FOLDER_OPTION, false);
     }
 
     /**
@@ -256,7 +288,7 @@ public class FilePersistentStorage {
      * @return True if we want to hide the right file pane. False otherwise.
      */
     public boolean getHideRightFilePane() {
-        return getValueFromJson(HIDE_RIGHT_FILE_PANE_OPTION, false);
+        return (boolean) getValueFromJson(HIDE_RIGHT_FILE_PANE_OPTION, false);
     }
 
     /**
@@ -266,7 +298,7 @@ public class FilePersistentStorage {
      */
     @SuppressWarnings("unchecked")
     private void saveShowFilesInFolderHit(boolean option) {
-        m_jsonObject.replace(SEARCH_SHOW_FILES_IN_FOLDER, option);
+        m_jsonObject.replace(SEARCH_SHOW_FILES_IN_FOLDER_OPTION, option);
     }
 
     /**
@@ -284,11 +316,12 @@ public class FilePersistentStorage {
      *
      * @param key               The JSON key for the configuration option.
      * @param defaultValue      The default value to use if the item is not in the JSON file.
-     * @return                  The configuration flag.
+     * @return                  The value obtained by the given key or the default value if key not exist
      */
-    private boolean getValueFromJson(String key, boolean defaultValue) {
+    @SuppressWarnings("unchecked")
+    private Object getValueFromJson(String key, Object defaultValue) {
         if (m_jsonObject.containsKey(key)) {
-            return (boolean) m_jsonObject.get(key);
+            return m_jsonObject.get(key);
         } else {
             m_jsonObject.put(key, defaultValue);
             return defaultValue;

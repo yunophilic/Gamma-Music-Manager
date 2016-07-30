@@ -476,7 +476,7 @@ public class SongManager {
      * @param playlistName
      * @return Playlist
      */
-    private Playlist findPlaylist(String playlistName) {
+    public Playlist findPlaylist(String playlistName) {
         for (Playlist playlist: m_playlists){
             if (playlist.getM_playlistName().equals(playlistName)){
                 return playlist;
