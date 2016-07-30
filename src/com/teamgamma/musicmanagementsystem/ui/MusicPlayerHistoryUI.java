@@ -54,6 +54,9 @@ public class MusicPlayerHistoryUI extends Accordion{
                     manager.removeAllInstancesOfSongFromHistory(action.getValue().getAbsolutePath());
                 }
             }
+            Platform.runLater(() -> playbackHistory.setContent(UserInterfaceUtils.createUIList(manager.getHistory(),
+                            createHistoryAction(model))));
+
         });
 
     }

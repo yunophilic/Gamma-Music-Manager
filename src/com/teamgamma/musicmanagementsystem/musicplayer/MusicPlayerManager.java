@@ -761,8 +761,7 @@ public class MusicPlayerManager {
      * @param path      The path to the song.
      */
     public void removeAllInstancesOfSongFromHistory(String path) {
-        int numberOfSongsInHistory = m_songHistory.size();
-        for (int i = 0; i < numberOfSongsInHistory; ++i) {
+        for (int i = 0; i < m_songHistory.size(); ++i) {
             if (m_songHistory.get(i).getFile().getAbsolutePath().equals(path)) {
                 if (i < m_historyIndex) {
                     m_historyIndex--;
