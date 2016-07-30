@@ -447,18 +447,28 @@ public class SongManager {
     /**
      * Add song to playlist
      *
-     * @param selectedSong Song
+     * @param selectedItem Song
      * @param playlistToAdd Playlist
      * @return true if song added successfully, false otherwise
      */
-    public boolean addSongToPlaylist(Song selectedSong, Playlist playlistToAdd) {
-        if (playlistToAdd.addSong(selectedSong)) {
-            // Notify playlist observers of changes
-            notifyPlaylistSongsObservers();
-            return true;
+    public boolean addItemToPlaylist(Item selectedItem, Playlist playlistToAdd) {
+        boolean addSuccess = false;
+        if (selectedItem instanceof Song) {
+            Song selectedSong = (Song) selectedItem;
+            if (playlistToAdd.addSong(selectedSong)) {
+                // Notify playlist observers of changes
+                notifyPlaylistSongsObservers();
+                addSuccess = true;
+            }
         } else {
-            return false;
+            TreeItem<Item> treeItem = FileTreeUtils.searchTreeItem(m_fileTreeRoot, selectedItem.getFile().getAbsolutePath());
+            if (treeItem != null) {
+                for (TreeItem<Item> child : treeItem.getChildren()) {
+                    addSuccess = addItemToPlaylist(child.getValue(), playlistToAdd);
+                }
+            }
         }
+        return addSuccess;
     }
 
     /**

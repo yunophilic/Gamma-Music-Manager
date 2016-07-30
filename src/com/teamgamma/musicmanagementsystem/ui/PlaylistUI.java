@@ -573,7 +573,7 @@ public class PlaylistUI extends VBox {
         m_table.setOnDragOver(dragEvent -> {
             // For Debugging
             System.out.println("Drag over on playlist");
-            if (m_model.itemsToMoveAreAllSongs() && m_model.getM_selectedPlaylist() != null) {
+            if (m_model.getM_selectedPlaylist() != null) {
                 dragEvent.acceptTransferModes(TransferMode.MOVE);
             }
             dragEvent.consume();
@@ -582,7 +582,7 @@ public class PlaylistUI extends VBox {
         m_table.setOnDragDropped(dragEvent -> {
             //System.out.println("Drag dropped on playlist");
             for (Item itemToMove : m_model.getM_itemsToMove()) {
-                m_model.addSongToPlaylist((Song) itemToMove, m_model.getM_selectedPlaylist());
+                m_model.addItemToPlaylist(itemToMove, m_model.getM_selectedPlaylist());
                 m_musicPlayerManager.notifyQueingObserver();
             }
             dragEvent.consume();

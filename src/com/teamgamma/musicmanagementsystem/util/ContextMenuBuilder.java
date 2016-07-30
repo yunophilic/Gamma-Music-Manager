@@ -688,7 +688,7 @@ public class ContextMenuBuilder {
                         PromptUI.customPromptError("Error", null, "Please select a playlist!");
                         return;
                     }
-                    model.addSongToPlaylist(song, selectedPlaylist);
+                    model.addItemToPlaylist(song, selectedPlaylist);
                     musicPlayerManager.notifyQueingObserver();
                 }
             }
@@ -724,7 +724,7 @@ public class ContextMenuBuilder {
                         PromptUI.customPromptError("Error", null, "Please select a playlist!");
                         return;
                     }
-                    model.addSongToPlaylist(song, selectedPlaylist);
+                    model.addItemToPlaylist(song, selectedPlaylist);
                     musicPlayerManager.notifyQueingObserver();
                 }
             }
@@ -754,7 +754,7 @@ public class ContextMenuBuilder {
                         PromptUI.customPromptError("Error", null, "Please select a playlist!");
                         return;
                     }
-                    model.addSongToPlaylist(song, selectedPlaylist);
+                    model.addItemToPlaylist(song, selectedPlaylist);
                     musicPlayerManager.notifyQueingObserver();
                 }
             }
@@ -787,7 +787,7 @@ public class ContextMenuBuilder {
                         PromptUI.customPromptError("Error", null, "Please select a playlist!");
                         return;
                     }
-                    model.addSongToPlaylist(song, selectedPlaylist);
+                    model.addItemToPlaylist(song, selectedPlaylist);
                     musicPlayerManager.notifyQueingObserver();
                 }
             }
