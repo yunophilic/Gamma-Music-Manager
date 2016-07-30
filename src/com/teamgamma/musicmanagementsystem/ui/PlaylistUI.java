@@ -283,6 +283,7 @@ public class PlaylistUI extends VBox {
             }
             selectedPlaylist.shuffleUnplayedSongs();
             m_model.notifyPlaylistSongsObservers();
+            m_musicPlayerManager.notifyQueingObserver();
         });
 
         return shufflePlaylistButton;

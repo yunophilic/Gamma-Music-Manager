@@ -907,6 +907,7 @@ public class ContextMenuBuilder {
      * @param model      The playlist to use/alter
      * @return           The menu item containing logic to shuffle entire playlist
      */
+
     private static MenuItem createShuffleAllMenuItem(SongManager model, Item selectedItem) {
         MenuItem shuffleAll = new MenuItem(SHUFFLE_ALL);
         shuffleAll.setOnAction(event -> {
