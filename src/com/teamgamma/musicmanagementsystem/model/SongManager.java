@@ -213,7 +213,7 @@ public class SongManager {
             throw new Exception("File to copy should not be null");
         }
 
-        if (dest.getAbsolutePath().equals(m_itemToCopy.getFile().getParent())){
+        if (dest.getAbsolutePath().equals(m_itemToCopy.getFile().getParent())) {
             return;
         }
 
