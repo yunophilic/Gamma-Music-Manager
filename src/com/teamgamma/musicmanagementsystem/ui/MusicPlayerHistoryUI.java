@@ -1,6 +1,7 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.model.SongManager;
+import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
@@ -8,8 +9,10 @@ import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils.ILabelAction;
 
 import javafx.application.Platform;
 import javafx.scene.control.*;
-
 import javafx.scene.layout.*;
+import javafx.util.Pair;
+
+import java.io.File;
 
 /**
  * Class to show the MusicPlayer History.
@@ -43,6 +46,19 @@ public class MusicPlayerHistoryUI extends Accordion{
                             createHistoryAction(model)))
                 )
         );
+
+        model.addFileObserver(fileActions -> {
+            for (Pair<Action, File> action : fileActions) {
+                if (action.getKey() == Action.DELETE) {
+                    manager.removeAllInstancesOfSongFromHistory(action.getValue().getAbsolutePath());
+                }
+            }
+            Platform.runLater(
+                    () -> playbackHistory.setContent(UserInterfaceUtils.createUIList(manager.getHistory(),
+                            createHistoryAction(model)))
+            );
+
+        });
 
     }
 
