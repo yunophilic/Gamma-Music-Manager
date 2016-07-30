@@ -192,6 +192,7 @@ public class SongManager {
      * @throws IOException
      */
     private void updateFilesInFileTree(FileActions fileActions) throws IOException {
+        System.out.println("~~~ SONGMANAGER UPDATE FILE TREE");
         for (Pair<Action, File> fileAction : fileActions) {
             Action action = fileAction.getKey();
             if (fileAction != null && action != Action.NONE) {
@@ -238,6 +239,7 @@ public class SongManager {
      * @throws IOException If moving file fails
      */
     public void moveFile(File fileToMove, File destDir) throws IOException {
+        System.out.println("~~~ SONGMANAGER MOVING FILE");
         if (fileToMove.getParent().equals(destDir.getAbsolutePath())) {
             return;
         }
@@ -246,7 +248,8 @@ public class SongManager {
 
         m_moveDest = destDir;
 
-        FileActions moveFileAction = new ConcreteFileActions(Action.DROP, null);
+        FileActions moveFileAction = new ConcreteFileActions(Action.DELETE, fileToMove);
+        moveFileAction.add(Action.ADD, new File(destDir.getAbsoluteFile() + File.separator + fileToMove.getName()));
 
         updateFilesInFileTree(moveFileAction);
 
@@ -364,6 +367,7 @@ public class SongManager {
                         String songParentPath = song.getFile().getParent();
                         //System.out.println("== Song parent path: " + songParentPath);
                         if (songParentPath.equals(m_selectedCenterFolder.getAbsolutePath())) {
+                            System.out.println("FOUND SONG FOR CENTER PANEL: " + song.getFile());
                             centerPanelSongs.add(song);
                         }
                     }

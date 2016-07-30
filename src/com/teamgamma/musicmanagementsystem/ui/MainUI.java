@@ -63,9 +63,9 @@ public class MainUI extends BorderPane {
         m_library = libraryExpandedPaths;
         m_dynamicTree = dynamicTreeViewExpandedPaths;
 
-        this.setLeft(leftPane(libraryExpandedPaths));
         this.setRight(rightPane());
         this.setCenter(centerPane(dynamicTreeViewExpandedPaths));
+        this.setLeft(leftPane(libraryExpandedPaths));
         this.setTop(topPane());
     }
 
