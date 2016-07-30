@@ -265,15 +265,17 @@ public class ContentListUI extends StackPane {
 
                 System.out.println("Drag detected on " + selectedItem);
 
-                //update model
-                m_model.setM_itemToMove(selectedItem);
+                if (selectedItem != null) {
+                    //update model
+                    m_model.setM_itemToMove(selectedItem);
 
-                //update drag board
-                Dragboard dragBoard = ContentListUI.this.startDragAndDrop(TransferMode.MOVE);
-                dragBoard.setDragView(row.snapshot(null, null));
-                ClipboardContent content = new ClipboardContent();
-                content.put(DataFormat.PLAIN_TEXT, selectedItem.getFile().getAbsolutePath());
-                dragBoard.setContent(content);
+                    //update drag board
+                    Dragboard dragBoard = ContentListUI.this.startDragAndDrop(TransferMode.MOVE);
+                    dragBoard.setDragView(row.snapshot(null, null));
+                    ClipboardContent content = new ClipboardContent();
+                    content.put(DataFormat.PLAIN_TEXT, selectedItem.getFile().getAbsolutePath());
+                    dragBoard.setContent(content);
+                }
 
                 mouseEvent.consume();
             });
