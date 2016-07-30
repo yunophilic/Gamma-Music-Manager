@@ -316,7 +316,7 @@ public class FilePersistentStorage {
      *
      * @param key               The JSON key for the configuration option.
      * @param defaultValue      The default value to use if the item is not in the JSON file.
-     * @return                  The configuration flag.
+     * @return                  The value obtained by the given key or the default value if key not exist
      */
     @SuppressWarnings("unchecked")
     private Object getValueFromJson(String key, Object defaultValue) {

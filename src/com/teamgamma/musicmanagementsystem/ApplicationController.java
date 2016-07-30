@@ -301,7 +301,7 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save left and right file tree expanded states
+     * Save left and right panel file tree expanded states
      */
     private void saveFileTreeState() {
         saveLeftFileTreeExpandedState();
@@ -309,7 +309,6 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save left file tree expanded states
      * Save left panel file tree expanded state
      */
     private void saveLeftFileTreeExpandedState() {
@@ -323,7 +322,6 @@ public class ApplicationController extends Application {
     }
 
     /**
-     * Save right file tree expanded states
      * Save right panel file tree expanded state
      */
     private void saveRightFileTreeExpandedState() {
