@@ -62,17 +62,17 @@ public class ContentListUI extends StackPane {
      * Register as a observer to changes for the folder selected to be displayed here
      */
     private void registerAsCenterFolderObserver() {
-        m_model.addLibraryObserver((FileActions fileActions) -> {
+        m_model.addLibraryObserver((fileActions) -> {
             clearTable();
             updateTable();
         });
 
-        m_model.addCenterFolderObserver((FileActions fileActions) -> {
+        m_model.addCenterFolderObserver((fileActions) -> {
             clearTable();
             updateTable();
         });
 
-        m_model.addFileObserver((FileActions fileActions) -> {
+        m_model.addFileObserver((fileActions) -> {
             clearTable();
             updateTable();
         });
@@ -191,27 +191,27 @@ public class ContentListUI extends StackPane {
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, String> lengthCol,
                                           TableColumn<Song, Integer> ratingCol) {
-        filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().getParentFile().getName()));
+        filePathCol.setCellValueFactory((param) -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().getParentFile().getName()));
 
-        fileNameCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFileName()));
+        fileNameCol.setCellValueFactory((param) -> new ReadOnlyObjectWrapper<>(param.getValue().getFileName()));
 
         titleCol.setCellValueFactory(new PropertyValueFactory<>("m_title"));
         titleCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        titleCol.setOnEditCommit(t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setTitle(t.getNewValue()));
+        titleCol.setOnEditCommit((t) -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setTitle(t.getNewValue()));
 
         artistCol.setCellValueFactory(new PropertyValueFactory<>("m_artist"));
         artistCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        artistCol.setOnEditCommit(t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setArtist(t.getNewValue()));
+        artistCol.setOnEditCommit((t) -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setArtist(t.getNewValue()));
 
         albumCol.setCellValueFactory(new PropertyValueFactory<>("m_album"));
         albumCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        albumCol.setOnEditCommit(t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setAlbum(t.getNewValue()));
+        albumCol.setOnEditCommit((t) -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setAlbum(t.getNewValue()));
 
         genreCol.setCellValueFactory(new PropertyValueFactory<>("m_genre"));
         genreCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        genreCol.setOnEditCommit(t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setGenre(t.getNewValue()));
+        genreCol.setOnEditCommit((t) -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setGenre(t.getNewValue()));
 
-        lengthCol.setCellValueFactory(param -> {
+        lengthCol.setCellValueFactory((param) -> {
             Duration lengthOfSong = new Duration(
                     param.getValue().getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
             return new ReadOnlyObjectWrapper<>(UserInterfaceUtils.convertDurationToTimeString(lengthOfSong));
@@ -219,7 +219,7 @@ public class ContentListUI extends StackPane {
 
         ratingCol.setCellValueFactory(new PropertyValueFactory<>("m_rating"));
         ratingCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        ratingCol.setOnEditCommit(t -> {
+        ratingCol.setOnEditCommit((t) -> {
             try {
                 t.getTableView().getItems().get(t.getTablePosition().getRow()).setRating(t.getNewValue());
             } catch (IllegalArgumentException ex) {
@@ -244,9 +244,9 @@ public class ContentListUI extends StackPane {
      */
     private void setTableRowMouseEvents() {
         m_table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        m_table.setRowFactory(param -> {
+        m_table.setRowFactory((param) -> {
             TableRow<Song> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
+            row.setOnMouseClicked((event) -> {
                 Song selectedSong = row.getItem();
                 if (selectedSong != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
                     m_musicPlayerManager.playSongRightNow(selectedSong);
@@ -261,7 +261,7 @@ public class ContentListUI extends StackPane {
 
             UserInterfaceUtils.createMouseOverUIChange(row, row.getStyle());
 
-            row.setOnDragDetected(mouseEvent -> {
+            row.setOnDragDetected((mouseEvent) -> {
                 Song selectedItem = row.getItem();
 
                 System.out.println("Drag detected on " + selectedItem);
@@ -283,13 +283,13 @@ public class ContentListUI extends StackPane {
                 mouseEvent.consume();
             });
 
-            row.setOnDragOver(dragEvent -> {
+            row.setOnDragOver((dragEvent) -> {
                 System.out.println("Drag over on center");
                 dragEvent.acceptTransferModes(TransferMode.MOVE);
                 dragEvent.consume();
             });
 
-            row.setOnDragDropped(dragEvent -> {
+            row.setOnDragDropped((dragEvent) -> {
                 System.out.println("Drag dropped on center");
 
                 //move to the selected center folder
@@ -298,7 +298,7 @@ public class ContentListUI extends StackPane {
                 dragEvent.consume();
             });
 
-            row.setOnDragDone(dragEvent -> {
+            row.setOnDragDone((dragEvent) -> {
                 System.out.println("Drag done");
                 m_model.setM_itemsToMove(null);
                 dragEvent.consume();

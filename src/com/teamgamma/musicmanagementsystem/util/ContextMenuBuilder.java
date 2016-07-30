@@ -87,7 +87,6 @@ public class ContextMenuBuilder {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue,
                 songOptionsSeparator,
-                //addToPlaylist, addToCurrentPlaylist,
 				addToPlaylist, addToCurrentPlaylist,
                 playlistOptionsSeparator,
                 createNewFolder,
@@ -96,7 +95,7 @@ public class ContextMenuBuilder {
                 fileOptionsSeparator,
                 removeLibrary, showInRightPane, openFileLocation, showInLibrary);
                 
-        contextMenu.setOnShown(event -> {
+        contextMenu.setOnShown((event) -> {
             // Hide all if selected item is null
             if (selectedItem == null) {
                 for (MenuItem menuItem : contextMenu.getItems()) {
@@ -196,7 +195,7 @@ public class ContextMenuBuilder {
                 editProperties, editPropertiesOptionSeparator,
                 copy, paste, rename, delete, explorerOptionsSeparator, openFileLocation);
 
-        contextMenu.setOnShown(event -> {
+        contextMenu.setOnShown((event) -> {
             // Hide all except paste if selected item is null
             if (selectedItem == null) {
                 for (MenuItem menuItem : contextMenu.getItems()) {
@@ -260,7 +259,7 @@ public class ContextMenuBuilder {
                 editProperties, editPropertiesOptionSeparator,
                 rename, delete, explorerOptionsSeparator, openFileLocation, openInLibrary);
 
-        contextMenu.setOnShown(event -> {
+        contextMenu.setOnShown((event) -> {
             // Hide all if selectedSongIndex out of bounds
             if (selectedSong == null) {
                 for (MenuItem menuItem : contextMenu.getItems()) {
@@ -320,11 +319,11 @@ public class ContextMenuBuilder {
     private static MenuItem createCopyMenuItem(SongManager model, Item selectedItem) {
         MenuItem copy = new MenuItem(COPY);
 
-        copy.setOnAction(event -> {
+        copy.setOnAction((event) -> {
             if (selectedItem != null) {
-                List<Item> temp = new ArrayList<>();
-                temp.add(selectedItem);
-                model.setM_itemsToCopy(temp);
+                List<Item> itemsToCopy = new ArrayList<>();
+                itemsToCopy.add(selectedItem);
+                model.setM_itemsToCopy(itemsToCopy);
             }
         });
 
@@ -341,14 +340,14 @@ public class ContextMenuBuilder {
     private static MenuItem createCopyMenuItem(SongManager model, List<Song> selectedSongs) {
         MenuItem copy = new MenuItem(COPY);
 
-        copy.setOnAction(event -> {
-            List<Item> temp = new ArrayList<>();
+        copy.setOnAction((event) -> {
+            List<Item> itemsToCopy = new ArrayList<>();
             for (Song song : selectedSongs) {
                 if (song != null) {
-                    temp.add(song);
+                    itemsToCopy.add(song);
                 }
             }
-            model.setM_itemsToCopy(temp);
+            model.setM_itemsToCopy(itemsToCopy);
         });
 
         return copy;
@@ -364,16 +363,16 @@ public class ContextMenuBuilder {
     private static MenuItem createCopyMenuItem(SongManager model, TreeView<Item> tree) {
         MenuItem copy = new MenuItem(COPY);
 
-        copy.setOnAction(event -> {
+        copy.setOnAction((event) -> {
             List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
-            List<Item> temp = new ArrayList<>();
+            List<Item> itemsToCopy = new ArrayList<>();
             for (TreeItem<Item> treeItem : treeItems) {
                 Item item = treeItem.getValue();
                 if (item != null) {
-                    temp.add(item);
+                    itemsToCopy.add(item);
                 }
             }
-            model.setM_itemsToCopy(temp);
+            model.setM_itemsToCopy(itemsToCopy);
         });
 
         return copy;
@@ -389,7 +388,7 @@ public class ContextMenuBuilder {
     private static MenuItem createFileTreePasteMenuItem(SongManager model, Item selectedItem) {
         MenuItem paste = new MenuItem(PASTE);
 
-        paste.setOnAction(event -> {
+        paste.setOnAction((event) -> {
             if (selectedItem != null) {
                 File dest = selectedItem.getFile();
                 if (!dest.isDirectory()) {
@@ -420,7 +419,7 @@ public class ContextMenuBuilder {
     private static MenuItem createCenterPanelPasteMenuItem(SongManager model) {
         MenuItem paste = new MenuItem(PASTE);
 
-        paste.setOnAction(event -> {
+        paste.setOnAction((event) -> {
             File dest = model.getM_selectedCenterFolder();
             if (!dest.isDirectory()) {
                 PromptUI.customPromptError("Not a directory!", null, "Please select a directory as the paste target.");
@@ -450,7 +449,7 @@ public class ContextMenuBuilder {
     private static MenuItem createRenameMenuItem(SongManager model, Item selectedItem) {
         MenuItem rename = new MenuItem(RENAME);
 
-        rename.setOnAction(event -> {
+        rename.setOnAction((event) -> {
             if (selectedItem != null) {
                 File fileToRename = selectedItem.getFile();
                 Path newPath = PromptUI.fileRename(fileToRename);
@@ -484,7 +483,7 @@ public class ContextMenuBuilder {
                                                  Item selectedItem) {
         MenuItem delete = new MenuItem(DELETE);
 
-        delete.setOnAction(event -> {
+        delete.setOnAction((event) -> {
             if (selectedItem != null) {
                 File fileToDelete = selectedItem.getFile();
                 UserInterfaceUtils.deleteFileAction(model, musicPlayerManager, databaseManager, fileToDelete);
@@ -497,13 +496,14 @@ public class ContextMenuBuilder {
     /**
      * Function that creates menu option to create new folders in a selected library / folder
      *
+     * @param model             The model
      * @param selectedItem      The file or folder selected in the tree view
      * @return                  The menu item which creates a new folder
      */
     private static MenuItem createAddNewFolderMenuItem(SongManager model, Item selectedItem) {
         MenuItem createNewFolder = new MenuItem(CREATE_NEW_FOLDER);
 
-        createNewFolder.setOnAction(event -> {
+        createNewFolder.setOnAction((event) -> {
             if (selectedItem != null) {
                 File folderSelected = selectedItem.getFile();
                 Path newPath = PromptUI.createNewFolder(folderSelected);
@@ -530,7 +530,7 @@ public class ContextMenuBuilder {
                                                         Item selectedItem) {
         MenuItem removeLibrary = new MenuItem(REMOVE_THIS_LIBRARY);
 
-        removeLibrary.setOnAction(event -> {
+        removeLibrary.setOnAction((event) -> {
             if (selectedItem != null) {
                 System.out.println("Remove library");
 
@@ -577,7 +577,7 @@ public class ContextMenuBuilder {
     private static MenuItem createShowInRightPaneMenuItem(SongManager model, Item selectedItem) {
         MenuItem showInRightPane = new MenuItem(SHOW_IN_RIGHT_PANE);
 
-        showInRightPane.setOnAction(event -> {
+        showInRightPane.setOnAction((event) -> {
             if (selectedItem != null) {
                 File folderSelected = selectedItem.getFile();
                 if (!folderSelected.isDirectory()) {
@@ -604,7 +604,7 @@ public class ContextMenuBuilder {
     private static MenuItem createShowInExplorerMenuItem(Item selectedItem) {
         MenuItem showInExplorer = new MenuItem(SHOW_IN_EXPLORER);
 
-        showInExplorer.setOnAction(event -> {
+        showInExplorer.setOnAction((event) -> {
             if (selectedItem != null) {
                 File folderSelected = selectedItem.getFile();
                 try {
@@ -628,7 +628,7 @@ public class ContextMenuBuilder {
     public static MenuItem createShowInLibraryMenuItem(SongManager model, Item selectedItem) {
         MenuItem showInExplorer = new MenuItem(SHOW_IN_LIBRARY);
 
-        showInExplorer.setOnAction(event -> {
+        showInExplorer.setOnAction((event) -> {
             if (selectedItem != null) {
                 File selectedFile = selectedItem.getFile();
 
@@ -655,7 +655,7 @@ public class ContextMenuBuilder {
     private static MenuItem createEditPropertiesMenuItem(SongManager model, Item selectedItem) {
         MenuItem editProperties = new MenuItem(EDIT_PROPERTIES);
 
-        editProperties.setOnAction(event -> {
+        editProperties.setOnAction((event) -> {
             if (selectedItem instanceof Song) {
                 PromptUI.editMetadata((Song) selectedItem);
                 model.notifyCenterFolderObservers();
@@ -679,7 +679,7 @@ public class ContextMenuBuilder {
                                                         List<Song> selectedSongs) {
         MenuItem addToPlaylist = new MenuItem(ADD_TO_PLAYLIST);
 
-        addToPlaylist.setOnAction(event -> {
+        addToPlaylist.setOnAction((event) -> {
             List<Playlist> playlists = model.getM_playlists();
             Playlist selectedPlaylist = PromptUI.addSongToPlaylist(playlists, selectedSongs.get(0));
             for (Song song : selectedSongs) {
@@ -710,7 +710,7 @@ public class ContextMenuBuilder {
                                                         TreeView<Item> tree) {
         MenuItem addToPlaylist = new MenuItem(ADD_TO_PLAYLIST);
 
-        addToPlaylist.setOnAction(event -> {
+        addToPlaylist.setOnAction((event) -> {
             List<Playlist> playlists = model.getM_playlists();
             List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
             Item first = treeItems.get(0).getValue();
@@ -746,7 +746,7 @@ public class ContextMenuBuilder {
                                                                List<Song> selectedSongs) {
         MenuItem addToCurrentPlaylist = new MenuItem(ADD_TO_CURRENT_PLAYLIST);
 
-        addToCurrentPlaylist.setOnAction(event -> {
+        addToCurrentPlaylist.setOnAction((event) -> {
             for (Song song : selectedSongs) {
                 if (song != null) {
                     Playlist selectedPlaylist = model.getM_selectedPlaylist();
@@ -776,7 +776,7 @@ public class ContextMenuBuilder {
                                                                TreeView<Item> tree) {
         MenuItem addToCurrentPlaylist = new MenuItem(ADD_TO_CURRENT_PLAYLIST);
 
-        addToCurrentPlaylist.setOnAction(event -> {
+        addToCurrentPlaylist.setOnAction((event) -> {
             List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
             for (TreeItem<Item> treeItem : treeItems) {
                 Item item = treeItem.getValue();
@@ -809,7 +809,7 @@ public class ContextMenuBuilder {
                                                              int selectedSongIndex) {
         MenuItem removeFromPlaylist = new MenuItem(REMOVE_FROM_PLAYLIST);
 
-        removeFromPlaylist.setOnAction(event -> {
+        removeFromPlaylist.setOnAction((event) -> {
             Playlist selectedPlaylist = model.getM_selectedPlaylist();
             if (PromptUI.removeSongFromPlaylist(selectedPlaylist,
                     selectedPlaylist.getSongByIndex(selectedSongIndex))) {
@@ -844,7 +844,7 @@ public class ContextMenuBuilder {
 
         playSong.setStyle("-fx-font-weight: bold");
 
-        playSong.setOnAction(event -> {
+        playSong.setOnAction((event) -> {
             if (selectedItem != null && selectedItem instanceof Song) {
                 Song song = (Song) selectedItem;
                 musicPlayerManager.playSongRightNow(song);
@@ -864,7 +864,7 @@ public class ContextMenuBuilder {
     private static MenuItem createPlaySongNextMenuItem(MusicPlayerManager musicPlayerManager, Item selectedItem) {
         MenuItem playSongNext = new MenuItem(PLAY_SONG_NEXT);
 
-        playSongNext.setOnAction(event -> {
+        playSongNext.setOnAction((event) -> {
             if (selectedItem != null && selectedItem instanceof Song) {
                 Song song = (Song) selectedItem;
                 musicPlayerManager.placeSongAtStartOfQueue(song);
@@ -884,7 +884,7 @@ public class ContextMenuBuilder {
     private static MenuItem createPlaySongNextMenuItem(MusicPlayerManager musicPlayerManager, List<Song> selectedSongs) {
         MenuItem playSongNext = new MenuItem(PLAY_SONG_NEXT);
 
-        playSongNext.setOnAction(event -> {
+        playSongNext.setOnAction((event) -> {
             for (Song song : selectedSongs) {
                 if (song != null) {
                     musicPlayerManager.placeSongAtStartOfQueue(song);
@@ -905,7 +905,7 @@ public class ContextMenuBuilder {
     private static MenuItem createPlaySongNextMenuItem(MusicPlayerManager musicPlayerManager, TreeView<Item> tree) {
         MenuItem playSongNext = new MenuItem(PLAY_SONG_NEXT);
 
-        playSongNext.setOnAction(event -> {
+        playSongNext.setOnAction((event) -> {
             List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
             for (TreeItem<Item> treeItem : treeItems) {
                 Item item = treeItem.getValue();
@@ -929,7 +929,7 @@ public class ContextMenuBuilder {
     private static MenuItem createPlaceSongOnQueueMenuItem(MusicPlayerManager musicPlayerManager, Item selectedItem) {
         MenuItem placeSongOnQueue = new MenuItem(PLACE_SONG_ON_QUEUE);
 
-        placeSongOnQueue.setOnAction(event -> {
+        placeSongOnQueue.setOnAction((event) -> {
             if (selectedItem != null) {
                 Song song = (Song) selectedItem;
                 musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
@@ -949,7 +949,7 @@ public class ContextMenuBuilder {
     private static MenuItem createPlaceSongOnQueueMenuItem(MusicPlayerManager musicPlayerManager, List<Song> selectedSongs) {
         MenuItem placeSongOnQueue = new MenuItem(PLACE_SONG_ON_QUEUE);
 
-        placeSongOnQueue.setOnAction(event -> {
+        placeSongOnQueue.setOnAction((event) -> {
             for (Song song : selectedSongs) {
                 if (song != null) {
                     musicPlayerManager.placeSongOnBackOfPlaybackQueue(song);
@@ -970,7 +970,7 @@ public class ContextMenuBuilder {
     private static MenuItem createPlaceSongOnQueueMenuItem(MusicPlayerManager musicPlayerManager, TreeView<Item> tree) {
         MenuItem placeSongOnQueue = new MenuItem(PLACE_SONG_ON_QUEUE);
 
-        placeSongOnQueue.setOnAction(event -> {
+        placeSongOnQueue.setOnAction((event) -> {
             List<TreeItem<Item>> treeItems = tree.getSelectionModel().getSelectedItems();
             for (TreeItem<Item> treeItem : treeItems) {
                 Item item = treeItem.getValue();

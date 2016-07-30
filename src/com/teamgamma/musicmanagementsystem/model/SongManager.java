@@ -544,6 +544,8 @@ public class SongManager {
 
     /**
      * Check if items to move are all songs
+     *
+     * @return True if all items in m_itemsToMove are Songs, false otherwise
      */
     public boolean itemsToMoveAreAllSongs() {
         for (Item item : m_itemsToMove) {

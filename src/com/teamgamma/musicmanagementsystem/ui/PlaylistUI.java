@@ -112,12 +112,12 @@ public class PlaylistUI extends VBox {
             updateTable();
         });
 
-        m_model.addLibraryObserver((FileActions fileActions) -> {
+        m_model.addLibraryObserver((fileActions) -> {
             clearTable();
             updateTable();
         });
 
-        m_model.addFileObserver((FileActions fileActions) -> {
+        m_model.addFileObserver((fileActions) -> {
             m_model.refreshPlaylists();
             clearTable();
             updateTable();
@@ -175,7 +175,7 @@ public class PlaylistUI extends VBox {
                 ADD_PLAYLIST_BUTTON_ICON_PATH);
 
 
-        createNewPlaylistButton.setOnMouseClicked(event -> {
+        createNewPlaylistButton.setOnMouseClicked((event) -> {
             String newPlaylistName = PromptUI.createNewPlaylist();
             if (m_model.playlistNameExist(newPlaylistName)) {
                 PromptUI.customPromptError("Error", null, "Playlist with name \"" + newPlaylistName + "\" already exist!");
@@ -204,7 +204,7 @@ public class PlaylistUI extends VBox {
                 REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON_PATH,
                 REMOVE_PLAYLIST_BUTTON_ICON_PATH);
 
-        removePlaylistButton.setOnMouseClicked(event -> {
+        removePlaylistButton.setOnMouseClicked((event) -> {
             if (m_dropDownMenu.getItems().isEmpty()) {
                 PromptUI.customPromptError("Error", null, "No playlist exist!");
                 return;
@@ -238,7 +238,7 @@ public class PlaylistUI extends VBox {
                 EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH,
                 EDIT_PLAYLIST_BUTTON_ICON_PATH);
 
-        editPlaylistButton.setOnMouseClicked(event -> {
+        editPlaylistButton.setOnMouseClicked((event) -> {
             if (m_dropDownMenu.getItems().isEmpty()) {
                 PromptUI.customPromptError("Error", null, "No playlist exist!");
                 return;
@@ -274,7 +274,7 @@ public class PlaylistUI extends VBox {
                 SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH,
                 SHUFFLE_PLAYLIST_BUTTON_ICON_PATH);
 
-        shufflePlaylistButton.setOnMouseClicked(event -> {
+        shufflePlaylistButton.setOnMouseClicked((event) -> {
             Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
             if (selectedPlaylist == null) {
                 PromptUI.customPromptError("Error", null, "Please select a playlist from the drop down menu!");
@@ -311,7 +311,7 @@ public class PlaylistUI extends VBox {
      */
     private Button createPlayPlaylistButton() {
         Button playPlaylistButton = UserInterfaceUtils.createIconButton(PLAY_PLAYLIST_ICON);
-        playPlaylistButton.setOnMouseClicked(event -> {
+        playPlaylistButton.setOnMouseClicked((event) -> {
             if (m_model.getM_selectedPlaylist() != null) {
                 m_musicPlayerManager.playPlaylist(m_model.getM_selectedPlaylist());
                 double percentage = m_musicPlayerManager.getCurrentPlaylist().getM_songResumeTime();
@@ -337,7 +337,7 @@ public class PlaylistUI extends VBox {
     private ToggleButton createPlaylistRepeatButton() {
         ToggleButton playlistRepeat = new ToggleButton();
         playlistRepeat.setStyle("-fx-background-color: transparent");
-        playlistRepeat.setOnMouseClicked(event -> {
+        playlistRepeat.setOnMouseClicked((event) -> {
             if (playlistRepeat.isSelected()){
                 m_musicPlayerManager.setRepeat(true);
                 playlistRepeat.setStyle("-fx-background-color: lightgray");
@@ -537,10 +537,10 @@ public class PlaylistUI extends VBox {
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, Integer> ratingCol,
                                           TableColumn<Song, String> lengthCol) {
-        filePathCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().getParentFile().getName()));
+        filePathCol.setCellValueFactory((param) -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().getParentFile().getName()));
         filePathCol.setSortable(false);
 
-        fileNameCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getFileName()));
+        fileNameCol.setCellValueFactory((param) -> new ReadOnlyObjectWrapper<>(param.getValue().getFileName()));
         fileNameCol.setSortable(false);
 
         titleCol.setCellValueFactory(new PropertyValueFactory<>("m_title"));
@@ -558,7 +558,7 @@ public class PlaylistUI extends VBox {
         ratingCol.setCellValueFactory(new PropertyValueFactory<>("m_rating"));
         ratingCol.setSortable(false);
 
-        lengthCol.setCellValueFactory(param -> {
+        lengthCol.setCellValueFactory((param) -> {
             Duration lengthOfSong = new Duration(
                     param.getValue().getM_length() * MusicPlayerConstants.NUMBER_OF_MILISECONDS_IN_SECOND);
             return new ReadOnlyObjectWrapper<>(UserInterfaceUtils.convertDurationToTimeString(lengthOfSong));
@@ -570,7 +570,7 @@ public class PlaylistUI extends VBox {
      * Function to set the drag events for the table.
      */
     private void setTableDragEvents() {
-        m_table.setOnDragOver(dragEvent -> {
+        m_table.setOnDragOver((dragEvent) -> {
             // For Debugging
             System.out.println("Drag over on playlist");
             if (m_model.getM_selectedPlaylist() != null) {
@@ -579,7 +579,7 @@ public class PlaylistUI extends VBox {
             dragEvent.consume();
         });
 
-        m_table.setOnDragDropped(dragEvent -> {
+        m_table.setOnDragDropped((dragEvent) -> {
             //System.out.println("Drag dropped on playlist");
             for (Item itemToMove : m_model.getM_itemsToMove()) {
                 m_model.addItemToPlaylist(itemToMove, m_model.getM_selectedPlaylist());
@@ -588,7 +588,7 @@ public class PlaylistUI extends VBox {
             dragEvent.consume();
         });
 
-        m_table.setOnDragDone(dragEvent -> {
+        m_table.setOnDragDone((dragEvent) -> {
             //System.out.println("Drag done on playlist");
             m_model.setM_itemsToMove(null);
             dragEvent.consume();
@@ -614,7 +614,7 @@ public class PlaylistUI extends VBox {
                     }
                 };
 
-                row.setOnMouseClicked(event -> {
+                row.setOnMouseClicked((event) -> {
                     int selectedSongIndex = row.getIndex();
                     if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
                         Playlist selectedPlaylist = m_model.getM_selectedPlaylist();

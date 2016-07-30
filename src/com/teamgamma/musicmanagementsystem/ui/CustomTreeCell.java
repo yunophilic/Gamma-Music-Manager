@@ -80,7 +80,7 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
      */
     private void setDragEvents() {
         m_tree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        setOnDragDetected(mouseEvent -> {
+        setOnDragDetected((mouseEvent) -> {
             if (m_selectedItem != null) {
                 System.out.println("Drag detected on " + m_selectedItem);
 
@@ -102,7 +102,7 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
             }
         });
 
-        setOnDragOver(dragEvent -> {
+        setOnDragOver((dragEvent) -> {
             System.out.println("Drag over on " + m_selectedItem);
             if (dragEvent.getDragboard().hasString()) {
                 String draggedItemPath = dragEvent.getDragboard().getString();
@@ -114,7 +114,7 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
             dragEvent.consume();
         });
 
-        setOnDragDropped(dragEvent -> {
+        setOnDragDropped((dragEvent) -> {
             System.out.println("Drag dropped on " + m_selectedItem);
 
             File destination;
@@ -129,7 +129,7 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
             dragEvent.consume();
         });
 
-        setOnDragDone(dragEvent -> {
+        setOnDragDone((dragEvent) -> {
             System.out.println("Drag done");
             m_model.setM_itemsToMove(null);
             dragEvent.consume();

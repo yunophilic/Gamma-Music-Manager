@@ -82,19 +82,19 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
             SongManager songManager,
             TitledPane queuingList) {
 
-        queuingList.setOnDragDone(event -> {
+        queuingList.setOnDragDone((event) -> {
             songManager.setM_itemsToMove(null);
             event.consume();
         });
 
-        queuingList.setOnDragDropped(event -> {
+        queuingList.setOnDragDropped((event) -> {
             for (Item itemToMove : songManager.getM_itemsToMove()) {
                 musicPlayerManager.placeSongOnBackOfPlaybackQueue((Song) itemToMove);
             }
             event.consume();
         });
 
-        queuingList.setOnDragOver(event -> {
+        queuingList.setOnDragOver((event) -> {
             if (songManager.itemsToMoveAreAllSongs()) {
                 event.acceptTransferModes(TransferMode.MOVE);
                 event.consume();
@@ -122,10 +122,10 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
 
             ContextMenu playbackMenu = ContextMenuBuilder.buildPlaybackContextMenu(m_manager, songManager, songForRow);
             MenuItem removeSong = new MenuItem(REMOVE_SONG_FROM_QUEUE_MENU_MESSAGE);
-            removeSong.setOnAction(event -> m_manager.removeSongFromPlaybackQueue(songNumber - 1));
+            removeSong.setOnAction((event) -> m_manager.removeSongFromPlaybackQueue(songNumber - 1));
             playbackMenu.getItems().add(removeSong);
 
-            row.setOnMouseClicked(event -> {
+            row.setOnMouseClicked((event) -> {
                 if (event.getButton() == MouseButton.SECONDARY) {
                     playbackMenu.hide();
                     playbackMenu.show(row, event.getScreenX(), event.getScreenY());
