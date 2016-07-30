@@ -9,7 +9,6 @@ import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils.ILabelAction;
 
 import javafx.application.Platform;
 import javafx.scene.control.*;
-
 import javafx.scene.layout.*;
 import javafx.util.Pair;
 
@@ -54,8 +53,10 @@ public class MusicPlayerHistoryUI extends Accordion{
                     manager.removeAllInstancesOfSongFromHistory(action.getValue().getAbsolutePath());
                 }
             }
-            Platform.runLater(() -> playbackHistory.setContent(UserInterfaceUtils.createUIList(manager.getHistory(),
-                            createHistoryAction(model))));
+            Platform.runLater(
+                    () -> playbackHistory.setContent(UserInterfaceUtils.createUIList(manager.getHistory(),
+                            createHistoryAction(model)))
+            );
 
         });
 

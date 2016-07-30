@@ -77,11 +77,12 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
                     m_manager.removeAllInstancesOfSongFromPlaybackQueue(action.getValue().getAbsolutePath());
                 }
             }
-            Platform.runLater(() -> queuingList.setContent(
-                    UserInterfaceUtils.createUIList(
+            Platform.runLater(
+                () -> queuingList.setContent(UserInterfaceUtils.createUIList(
                             manager.getPlayingQueue(),
                             createPlaybackQueueAction(songManager),
-                            BRIGHT_BACKGROUND_COLOR)));
+                            BRIGHT_BACKGROUND_COLOR))
+            );
         });
     }
 

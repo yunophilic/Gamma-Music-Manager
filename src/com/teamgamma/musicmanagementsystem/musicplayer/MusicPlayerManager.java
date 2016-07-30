@@ -3,9 +3,8 @@ package com.teamgamma.musicmanagementsystem.musicplayer;
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
-
 import com.teamgamma.musicmanagementsystem.util.GeneralObserver;
-import javafx.application.Platform;
+
 import javafx.util.Duration;
 
 import javax.sound.sampled.*;
