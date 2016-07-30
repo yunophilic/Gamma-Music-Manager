@@ -3,6 +3,7 @@ package com.teamgamma.musicmanagementsystem.ui;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
+import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils.ILabelAction;
@@ -16,6 +17,9 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import javafx.util.Pair;
+
+import java.io.File;
 
 /**
  * Class to show the MusicPlayer Playback queue UI .
@@ -67,6 +71,13 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
                 }
             )
         );
+        songManager.addFileObserver(fileActions -> {
+            for (Pair<Action, File> action : fileActions){
+                if (action.getKey() == Action.DELETE) {
+                    m_manager.removeAllInstancesOfSongFromPlaybackQueue(action.getValue().getAbsolutePath());
+                }
+            }
+        });
     }
 
     /**
