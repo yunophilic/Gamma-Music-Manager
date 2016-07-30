@@ -250,7 +250,7 @@ public class ContextMenuBuilder {
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedSong);
         MenuItem openInLibrary = createShowInLibraryMenuItem(model, selectedSong);
 
-        MenuItem shuffleAll = createShuffleAllMenuItem(model, selectedSong);
+        MenuItem shuffleAll = createShuffleAllMenuItem(model, selectedSong, musicPlayerManager);
 
         //separators (non functional menu items, just for display)
         MenuItem songOptionsSeparator = new SeparatorMenuItem();
@@ -908,13 +908,15 @@ public class ContextMenuBuilder {
      * @return           The menu item containing logic to shuffle entire playlist
      */
 
-    private static MenuItem createShuffleAllMenuItem(SongManager model, Item selectedItem) {
+    private static MenuItem createShuffleAllMenuItem(SongManager model, Item selectedItem, MusicPlayerManager musicPlayerManager) {
         MenuItem shuffleAll = new MenuItem(SHUFFLE_ALL);
         shuffleAll.setOnAction(event -> {
             if (selectedItem != null) {
                 Playlist selectedPlaylist = model.getM_selectedPlaylist();
                 selectedPlaylist.shuffleAllSongs();
                 model.notifyPlaylistSongsObservers();
+                musicPlayerManager.notifyQueingObserver();
+
             }
         });
         return shuffleAll;
