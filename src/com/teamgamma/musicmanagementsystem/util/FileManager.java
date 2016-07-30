@@ -69,19 +69,14 @@ public class FileManager {
      *
      * @param fileToMove: File to be moved
      * @param destDir:    File object with path to destination directory
-     * @return true if file is moved successfully
-     * @throws IOException
+     * @throws IOException If failed to move file
      */
-    public static boolean moveFile(File fileToMove, File destDir) throws IOException {
-        if (fileToMove.getParent().equals(destDir.getAbsolutePath())) {
-            throw new IOException("Source and destination folders are the same!");
-        }
-
+    public static void moveFile(File fileToMove, File destDir) throws IOException {
         Path sourceFilePath = fileToMove.toPath();
         Path destDirPath = destDir.toPath();
         Path destFilePath = destDirPath.resolve(sourceFilePath.getFileName());
         Path resultPath = Files.move(fileToMove.toPath(), destFilePath);
-        return (resultPath.getParent().equals(destDir.toPath()));
+        resultPath.getParent().equals(destDir.toPath());
     }
 
     /**
@@ -102,6 +97,12 @@ public class FileManager {
         }
     }
 
+    /**
+     * Delete a whole folder or a file
+     *
+     * @param path File with path of the folder/file to delete
+     * @return True if delete was successful, false otherwise
+     */
     private static boolean deleteFolderOrFile(File path) {
         if (path.exists()) {
             if (path.isDirectory()) {
@@ -154,9 +155,8 @@ public class FileManager {
             throw new IOException("Cannot copy a directory to itself!");
         } else if (src.isDirectory() && dest.getAbsolutePath().contains(src.getAbsolutePath() + File.separator)) {
             throw new IOException("Cannot copy a directory into its subfolder!");
-        } else if (dest.getAbsolutePath().equals(src.getParent())){
-            throw new IOException("Source and destination folders are the same!");
         }
+
         if (!copyFile(src, dest)) { //one of the files failed to be copied
             return false;
         }

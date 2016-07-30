@@ -205,12 +205,16 @@ public class SongManager {
      * Copy files in buffer to destination
      *
      * @param dest the destination folder
-     * @throws IOException
-     * @throws InvalidPathException
+     * @throws IOException If copy file fails
+     * @throws InvalidPathException If file path is invalid
      */
     public void copyToDestination(File dest) throws Exception {
         if (m_itemToCopy == null) {
             throw new Exception("File to copy should not be null");
+        }
+
+        if (dest.getAbsolutePath().equals(m_itemToCopy.getFile().getParent())) {
+            return;
         }
 
         if (!FileManager.copyFilesRecursively(m_itemToCopy.getFile(), dest)) {
@@ -229,11 +233,15 @@ public class SongManager {
     /**
      * Update UI and move file from source to destination
      *
-     * @param fileToMove
-     * @param destDir
-     * @throws IOException
+     * @param fileToMove File to move
+     * @param destDir Destination file directory
+     * @throws IOException If moving file fails
      */
     public void moveFile(File fileToMove, File destDir) throws IOException {
+        if (fileToMove.getParent().equals(destDir.getAbsolutePath())) {
+            return;
+        }
+
         FileManager.moveFile(fileToMove, destDir);
 
         m_moveDest = destDir;
