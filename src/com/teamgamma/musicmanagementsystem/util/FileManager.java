@@ -69,8 +69,7 @@ public class FileManager {
      *
      * @param fileToMove: File to be moved
      * @param destDir:    File object with path to destination directory
-     * @return true if file is moved successfully
-     * @throws IOException
+     * @throws IOException If failed to move file
      */
     public static void moveFile(File fileToMove, File destDir) throws IOException {
         Path sourceFilePath = fileToMove.toPath();
