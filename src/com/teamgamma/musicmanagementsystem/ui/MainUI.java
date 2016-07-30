@@ -9,10 +9,7 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -25,7 +22,9 @@ import java.util.List;
  * MainUI Class.
  */
 public class MainUI extends BorderPane {
-    public static final String SEARCH_BUTTON_HEADER = "Search";
+    public static final String SEARCH_ICON_PATH = "res\\search.png";
+    public static final String SEARCH_PROMPT_TEXT = "Search";
+    public static final String SEARCH_TOOL_TIP = "Find songs or libraries";
     public static final String SEARCH_TAB_HEADER = "Search Results";
     public static final String FILE_TREE_TAB_HEADER = "File Tree";
 
@@ -117,7 +116,8 @@ public class MainUI extends BorderPane {
 
         HBox searchWrapper = new HBox();
         TextField searchText = new TextField();
-
+        searchText.setTooltip(new Tooltip(SEARCH_TOOL_TIP));
+        searchText.setPromptText(SEARCH_PROMPT_TEXT);
         searchText.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER){
                 searchForFiles(searchText);
@@ -130,12 +130,10 @@ public class MainUI extends BorderPane {
             }
         });
 
-        Button search = new Button(SEARCH_BUTTON_HEADER);
+        Button search = new Button();
+        search.setStyle("-fx-background-color: transparent");
+        search.setGraphic(UserInterfaceUtils.createImageViewForImage(SEARCH_ICON_PATH));
         UserInterfaceUtils.createMouseOverUIChange(search, search.getStyle());
-
-        search.setMaxHeight(wrapper.getHeight());
-        search.setPrefHeight(wrapper.getHeight());
-        search.setScaleShape(false);
 
         search.setOnMouseClicked(event -> {
             System.out.println("Searching for " + searchText.getText());
