@@ -158,7 +158,7 @@ public class PlaylistUI extends VBox {
         dropDownMenu.setPrefSize(DROP_DOWN_MENU_PREF_WIDTH, DROP_DOWN_MENU_PREF_HEIGHT);
         if (!options.isEmpty()) {
             Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
-            dropDownMenu.setValue( (selectedPlaylist!=null) ? selectedPlaylist : options.get(0));
+            dropDownMenu.setValue((selectedPlaylist!=null) ? selectedPlaylist : options.get(0));
         }
 
         return dropDownMenu;
