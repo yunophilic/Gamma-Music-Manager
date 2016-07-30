@@ -46,7 +46,7 @@ public class PlaylistUI extends VBox {
     private static final int DROP_DOWN_MENU_MAX_WIDTH = 700;
     private static final int DROP_DOWN_MENU_PREF_WIDTH = 200;
     private static final int DROP_DOWN_MENU_PREF_HEIGHT = 30;
-    private static final int SELECT_PLAYLIST_LABEL_PREF_WIDTH = 80;
+    private static final int SELECT_PLAYLIST_LABEL_PREF_WIDTH = 90;
     private static final int SELECT_PLAYLIST_LABEL_PREF_HEIGHT = 30;
     private static final int FILE_COLUMN_MIN_WIDTH = 80;
     private static final int COLUMN_MIN_WIDTH = 60;
@@ -67,7 +67,7 @@ public class PlaylistUI extends VBox {
     private static final String PLAY_PLAYLIST_ICON = "res" + File.separator + "ic_play_circle_filled_black_48dp_1x.png";
     private static final String REPEAT_PLAYLIST_ICON = "res" + File.separator + "ic_repeat_black_48dp_1x.png";
 
-    private static final String SELECT_PLAYLIST_HEADER = " Select Playlist:";
+    private static final String SELECT_PLAYLIST_HEADER = "   Select Playlist:";
     private static final String ADD_PLAYLIST_TOOL_TIP_MESSAGE = "Add Playlist";
     private static final String REMOVE_PLAYLIST_TOOLTIP_MESSAGE = "Remove Playlist";
     private static final String RENAME_PLAYLIST_TOOL_TIP_MESSAGE = "Rename Playlist";
@@ -393,8 +393,9 @@ public class PlaylistUI extends VBox {
                              Button editPlaylistButton) {
         m_dropDownMenu = dropDownMenu;
 
+        Label spacing = new Label("  ");
         HBox topMenu = new HBox();
-        topMenu.getChildren().addAll(m_dropDownMenu, addPlaylistButton, removePlaylistButton, editPlaylistButton, shufflePlaylistButton);
+        topMenu.getChildren().addAll(spacing, m_dropDownMenu, addPlaylistButton, removePlaylistButton, editPlaylistButton, shufflePlaylistButton);
         HBox.setHgrow(m_dropDownMenu, Priority.ALWAYS);
         HBox.setHgrow(addPlaylistButton, Priority.NEVER);
         HBox.setHgrow(removePlaylistButton, Priority.NEVER);
