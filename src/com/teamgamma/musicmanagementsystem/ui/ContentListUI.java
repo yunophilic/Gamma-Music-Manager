@@ -290,9 +290,11 @@ public class ContentListUI extends StackPane {
         // Set context menu on tableview to show PASTE option when no songs exist
         m_table.setOnMouseClicked((event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
-                m_contextMenu.hide();
-                m_contextMenu = generateContextMenu(null);
-                m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
+                if (m_model.getM_selectedCenterFolder() != null) {
+                    m_contextMenu.hide();
+                    m_contextMenu = generateContextMenu(null);
+                    m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
+                }
             }
         });
     }
@@ -311,7 +313,9 @@ public class ContentListUI extends StackPane {
             System.out.println("Drag dropped on center");
 
             //move to the selected center folder
-            UserInterfaceUtils.moveFileAction(m_model, m_model.getM_selectedCenterFolder());
+            if (m_model.getM_selectedCenterFolder() != null) {
+                UserInterfaceUtils.moveFileAction(m_model, m_model.getM_selectedCenterFolder());
+            }
 
             dragEvent.consume();
         });
