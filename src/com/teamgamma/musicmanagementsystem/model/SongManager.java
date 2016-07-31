@@ -583,6 +583,18 @@ public class SongManager {
         }
     }
 
+    /**
+     * Add a new folder
+     * 
+     * @param file New folder to add
+     */
+    public void addNewFolder(File file) throws IOException{
+        FileActions fileActions = new ConcreteFileActions(Action.ADD, file);
+
+        updateFilesInFileTree(fileActions);
+        notifyFileObservers(fileActions);
+    }
+
     /**********
      * Getters and setters
      *************/
@@ -711,7 +723,7 @@ public class SongManager {
         notifySpecifiedFileObservers(m_rightFolderObservers, m_emptyFileAction);
     }
 
-    public void notifyFileObservers(FileActions fileActions) {
+    private void notifyFileObservers(FileActions fileActions) {
         notifySpecifiedFileObservers(m_fileObservers, fileActions);
     }
 
