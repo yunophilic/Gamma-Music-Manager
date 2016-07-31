@@ -6,6 +6,7 @@ import com.teamgamma.musicmanagementsystem.util.ConcreteFileActions;
 import com.teamgamma.musicmanagementsystem.util.FileActions;
 import com.teamgamma.musicmanagementsystem.ApplicationController;
 
+import com.teamgamma.musicmanagementsystem.util.GeneralObserver;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -13,6 +14,8 @@ import javafx.scene.control.MenuItem;
 import javafx.util.Pair;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class for the Menu Bar
@@ -40,11 +43,14 @@ public class MenuUI extends MenuBar{
     public static final String SEARCH_HEADER = "Search";
     public static final String SHOW_FILES_IN_FOLDER_HITS_HEADER = "Show Files In Folder Hits";
 
+    private static List<GeneralObserver> miniModeObservers = new ArrayList<>();
+
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
     private ApplicationController m_applicationController;
     private MainUI m_main;
-    private boolean m_miniCheck = false;
+    private static boolean m_miniCheck = false;
+    public static CheckMenuItem mini;
 
 
     /**
@@ -280,16 +286,15 @@ public class MenuUI extends MenuBar{
      */
     private Menu miniMode() {
         Menu minimodeButton = new Menu(MINI_MODE);
-        CheckMenuItem mini = new CheckMenuItem(MINI_MODE + "!");
+        mini = new CheckMenuItem(MINI_MODE + "!");
         mini.setOnAction(event -> {
             System.out.println("Clicked minimode");
-            if (m_miniCheck == false) {
+            if (!m_miniCheck) {
                 m_miniCheck = true;
                 m_applicationController.minimodeTurnOn();
                 m_main.minimodeTurnOn();
             }
-
-            else if (m_miniCheck == true){
+            else {
                 System.out.println("Clicked minimode");
                 m_miniCheck = false;
                 m_applicationController.minimodeTurnOff();
@@ -297,8 +302,26 @@ public class MenuUI extends MenuBar{
             }
 
         });
+
         minimodeButton.getItems().addAll(mini);
         return minimodeButton;
     }
 
+    /**
+     * Set status of minimode to on or off
+     *
+     * @param enable minimode
+     */
+    public static void setMiniModeOn(boolean enable) {
+        m_miniCheck = enable;
+    }
+
+    /**
+     * Get the current status of minimode
+     *
+     * @return minimode status
+     */
+    public static boolean miniModeStatus() {
+        return m_miniCheck;
+    }
 }

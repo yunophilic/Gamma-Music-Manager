@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.ApplicationController;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -50,6 +51,8 @@ public class MusicPlayerUI extends VBox {
     public static final String PLAYLIST_REPEAT_ICON_PATH = "res\\ic_repeat_black_48dp_1x.png";
     public static final String ADD_TO_PLAYLIST_ICON_PATH = "res/ic_playlist_add_black_48dp_1x.png";
     public static final String SONG_REPEAT_ICON_PATH = "res\\ic_repeat_one_black_48dp_1x.png";
+    public static final String MINIMODE_ON_ICON_PATH = "res\\on-minimode.png";
+    public static final String MINIMODE_OFF_ICON_PATH = "res\\off-minimode.png";
     public static final String DELETE_SONG_ICON_PATH = "res\\delete-song-player.png";
     public static final String DISABLED_STAR_ICON_PATH = "res\\disabled-star.png";
     public static final String UNRATED_STAR_ICON_PATH = "res\\unrated-star.png";
@@ -71,6 +74,8 @@ public class MusicPlayerUI extends VBox {
     public static final String RATING_SONG_FOUR_STARS_TOOL_TIP_MESSAGE = "Very Good";
     public static final String RATING_SONG_FIVE_STARS_TOOL_TIP_MESSAGE = "Excellent";
     public static final String DEFAULT_PLAY_BUTTON_TOOL_TIP_MESSAGE = "Pick a Song To Play!";
+    public static final String MINIMODE_OFF_TOOL_TIP = "Disable Minimode";
+    public static final String MINIMODE_ON_TOOL_TIP = "Enable Minimode";
 
     public static final String DEFAULT_TIME_STRING = "0:00";
 
@@ -135,6 +140,9 @@ public class MusicPlayerUI extends VBox {
         Button skipButton = createSkipSongButton(manager);
         playbackControls.getChildren().add(skipButton);
 
+        Button miniModeButton = createMiniModeButton();
+        playbackControls.getChildren().add(miniModeButton);
+
         return playbackControls;
     }
 
@@ -166,6 +174,33 @@ public class MusicPlayerUI extends VBox {
         manager.registerNewSongObserver(createNextSongButtonFadedAction(manager, skipButton));
 
         return skipButton;
+    }
+
+    /**
+     * Function to create the miniMode buttons
+     *
+     * @return          A button for enabling/disabling minimode.
+     */
+    private Button createMiniModeButton() {
+        Button miniModeButton;
+        if (MenuUI.miniModeStatus()) {
+            System.out.println("Minimode Status: On");
+            miniModeButton = UserInterfaceUtils.createIconButton(MINIMODE_OFF_ICON_PATH);
+            miniModeButton.setTooltip(new Tooltip(MINIMODE_OFF_TOOL_TIP));
+            miniModeButton.setOnMouseClicked(event -> {
+                MenuUI.mini.fire();
+            });
+        } else {
+            System.out.println("Minimode Status: Off");
+            miniModeButton = UserInterfaceUtils.createIconButton(MINIMODE_ON_ICON_PATH);
+            miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
+            miniModeButton.setOnMouseClicked(event -> {
+                MenuUI.mini.fire();
+            });
+        }
+        UserInterfaceUtils.createMouseOverUIChange(miniModeButton, miniModeButton.getStyle());
+
+        return miniModeButton;
     }
 
     /**
