@@ -17,6 +17,7 @@ import java.util.List;
  * Class to manage libraries and playlists
  */
 public class SongManager {
+    private static final String TRACK_NUM = "001";
     private List<Library> m_libraries;
     private List<Playlist> m_playlists;
 
@@ -494,13 +495,19 @@ public class SongManager {
     public void copyPlaylistToDestination(Playlist playlist, File file) {
         try {
             // Create playlist folder
-            String path = file.getAbsolutePath() + File.separator + playlist.getM_playlistName();
-            Path destPath = Files.createDirectory(Paths.get(path));
-            File destFile = destPath.toFile();
+            String target = file.getAbsolutePath() + File.separator + playlist.getM_playlistName();
+            Path path = Paths.get(target);
+            if(!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+            File destFile = path.toFile();
 
             // Copy songs
+            String trackNum = TRACK_NUM;
             for (Song song : playlist.getM_songList()) {
-                FileManager.copyFile(song.getFile(), destFile);
+                trackNum = String.format("%03d", Integer.parseInt(trackNum));
+                FileManager.exportFile(song.getFile(), destFile, trackNum);
+                trackNum = String.valueOf(Integer.parseInt(trackNum) + 1);
             }
         } catch (IOException e) {
             e.printStackTrace();

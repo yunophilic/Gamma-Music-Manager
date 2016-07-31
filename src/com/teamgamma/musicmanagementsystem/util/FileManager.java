@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
  */
 public class FileManager {
     private static final String[] extensions = new String[]{".mp3"}; //edit this if later support more file types.
+    private static final String MATCH_DIGIT_TO_FIRST_ALPHA = "^(\\p{Digit}.*?)(?=\\p{Alpha})";
 
     /**
      * Generate list of Song objects based on path
@@ -138,6 +140,34 @@ public class FileManager {
         Path destFilePath = destDirPath.resolve(sourceFilePath.getFileName());
         Path resultPath = Files.copy(fileToCopy.toPath(), destFilePath);
         return (resultPath.getParent().equals(destDir.toPath()));
+    }
+
+    /**
+     * Export a file to a destination
+     *
+     * @param file:     File to export
+     * @param dest:     File object with path to destination directory
+     * @param prefix:   Prefix to be added to file name
+     * @return true if successful export
+     * @throws IOException
+     * @throws InvalidPathException
+     */
+    public static boolean exportFile(File file, File dest, String prefix) throws IOException, InvalidPathException {
+        if (!copyFile(file, dest)) { //one of the files failed to be copied
+            return false;
+        }
+
+        // Resolve file name
+        File resultFile = new File(dest.getAbsolutePath() + File.separator + file.getName());
+        String resultName = resultFile.getName();
+        String regex = MATCH_DIGIT_TO_FIRST_ALPHA;
+        resultName = resultName.replaceFirst(regex, "");
+
+        // Rename file
+        String targetName = resultFile.getParent() + File.separator + prefix + "_" + resultName;
+        File targetFile = new File(targetName);
+        Path result = Files.move(resultFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        return result.toFile().equals(targetFile);
     }
 
     /**
