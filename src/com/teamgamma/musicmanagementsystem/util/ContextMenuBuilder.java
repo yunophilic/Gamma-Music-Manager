@@ -904,6 +904,7 @@ public class ContextMenuBuilder {
 
     /**
      * Function on context menu to shuffle all songs in playlist
+     * 
      * @param model      The playlist to use/alter
      * @return           The menu item containing logic to shuffle entire playlist
      */
