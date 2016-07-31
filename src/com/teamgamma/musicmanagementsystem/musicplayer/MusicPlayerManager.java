@@ -170,17 +170,16 @@ public class MusicPlayerManager {
             return;
         }
 
-        if (m_currentPlayList != playlistToPlay) {
+        boolean isChangingPlaylist = m_currentPlayList != playlistToPlay;
+        if (isChangingPlaylist) {
             clearPlaybackQueue();
         }
-
         m_currentPlayList = playlistToPlay;
 
         Song oldSong = m_currentSong;
-
         m_currentSong = m_currentPlayList.isThereASongLoadedInPlaylist() ? m_currentPlayList.getCurrentSong() : m_currentPlayList.moveToNextSong();
 
-        if (m_isPlayingOnHistory || !m_musicPlayer.isPlayingSong()) {
+        if (m_isPlayingOnHistory || !m_musicPlayer.isPlayingSong() || isChangingPlaylist) {
             m_isPlayingOnHistory = false;
             playSongRightNow(m_currentSong);
             seekSongTo(m_currentPlayList.getM_songResumeTime());
