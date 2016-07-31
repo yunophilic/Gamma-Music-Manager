@@ -286,6 +286,15 @@ public class ContentListUI extends StackPane {
 
             return row;
         });
+
+        // Set context menu on tableview to show PASTE option when no songs exist
+        m_table.setOnMouseClicked((event) -> {
+            if (event.getButton() == MouseButton.SECONDARY) {
+                m_contextMenu.hide();
+                m_contextMenu = generateContextMenu(null);
+                m_contextMenu.show(m_table, event.getScreenX(), event.getScreenY());
+            }
+        });
     }
 
     /**
