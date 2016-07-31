@@ -17,6 +17,7 @@ import java.util.List;
  * Class to manage libraries and playlists
  */
 public class SongManager {
+    private static final String TRACK_NUM = "001";
     private List<Library> m_libraries;
     private List<Playlist> m_playlists;
 
@@ -502,7 +503,7 @@ public class SongManager {
             File destFile = path.toFile();
 
             // Copy songs
-            String trackNum = "001";
+            String trackNum = TRACK_NUM;
             for (Song song : playlist.getM_songList()) {
                 trackNum = String.format("%03d", Integer.parseInt(trackNum));
                 FileManager.exportFile(song.getFile(), destFile, trackNum);
