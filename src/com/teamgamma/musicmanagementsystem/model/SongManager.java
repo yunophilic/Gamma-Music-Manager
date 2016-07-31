@@ -226,6 +226,10 @@ public class SongManager {
         List<Item> itemsToSkip = new ArrayList<>();
         for (Item itemToCopy : m_itemsToCopy) {
             try {
+                if (dest.getAbsolutePath().equals(itemToCopy.getFile().getParent())){
+                    return;
+                }
+
                 if (!FileManager.copyFilesRecursively(itemToCopy.getFile(), dest)) {
                     throw new IOException("Fail to copy");
                 }
@@ -261,6 +265,10 @@ public class SongManager {
         List<Item> itemsToSkip = new ArrayList<>();
         for(Item itemToMove : m_itemsToMove) {
             try {
+                if (itemToMove.getFile().getParent().equals(destDir.getAbsolutePath())) {
+                    return;
+                }
+
                 FileManager.moveFile(itemToMove.getFile(), destDir);
             } catch (FileAlreadyExistsException ex) {
                 System.out.println("### Skipping song: " + itemToMove.getFile());

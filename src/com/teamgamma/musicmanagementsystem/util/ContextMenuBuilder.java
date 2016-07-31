@@ -71,7 +71,7 @@ public class ContextMenuBuilder {
         MenuItem copy = createCopyMenuItem(model, tree);
         MenuItem paste = createFileTreePasteMenuItem(model, selectedItem);
         MenuItem rename = createRenameMenuItem(model, selectedItem);
-        MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, tree);
+        MenuItem delete = createTreeViewDeleteMenuItem(model, musicPlayerManager, databaseManager, tree);
 
         MenuItem createNewFolder = createAddNewFolderMenuItem(model, selectedItem);
         MenuItem removeLibrary = createRemoveLibraryMenuItem(model, databaseManager, selectedItem);
@@ -179,7 +179,7 @@ public class ContextMenuBuilder {
         MenuItem copy = createCopyMenuItem(model, selectedSongs);
         MenuItem paste = createCenterPanelPasteMenuItem(model);
         MenuItem rename = createRenameMenuItem(model, selectedItem);
-        MenuItem delete = createDeleteTableMenuItem(model, musicPlayerManager, databaseManager, selectedSongs);
+        MenuItem delete = createTablewViewDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedSongs);
 
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedItem);
 
@@ -244,7 +244,7 @@ public class ContextMenuBuilder {
         MenuItem editProperties = createEditPropertiesMenuItem(model, selectedSong);
 
         MenuItem rename = createRenameMenuItem(model, selectedSong);
-        MenuItem delete = createDeleteTableMenuItem(model, musicPlayerManager, databaseManager, selectedSongs);
+        MenuItem delete = createTablewViewDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedSongs);
 
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedSong);
         MenuItem openInLibrary = createShowInLibraryMenuItem(model, selectedSong);
@@ -471,7 +471,7 @@ public class ContextMenuBuilder {
     }
 
     /**
-     * Function to create the delete menu option based on the selected item
+     * Function to create the delete menu option based on the selected items (for TreeViews)
      *
      * @param model                 The model to do the operation.
      * @param musicPlayerManager    The music player manager to update if the song is currently playing
@@ -479,10 +479,10 @@ public class ContextMenuBuilder {
      * @param treeView              The tree view
      * @return                      A menu item containing the logic to delete a item.
      */
-    private static MenuItem createDeleteMenuItem(SongManager model,
-                                                 MusicPlayerManager musicPlayerManager,
-                                                 DatabaseManager databaseManager,
-                                                 TreeView<Item> treeView) {
+    private static MenuItem createTreeViewDeleteMenuItem(SongManager model,
+                                                         MusicPlayerManager musicPlayerManager,
+                                                         DatabaseManager databaseManager,
+                                                         TreeView<Item> treeView) {
         MenuItem delete = new MenuItem(DELETE);
 
         delete.setOnAction((event) -> {
@@ -498,6 +498,7 @@ public class ContextMenuBuilder {
     }
 
     /**
+     * Function to create the delete menu option based on the selected songs (for TableViews)
      *
      * @param model                 The model to do the operation.
      * @param musicPlayerManager    The music player manager to update if the song is currently playing
@@ -505,10 +506,10 @@ public class ContextMenuBuilder {
      * @param selectedSongs         The list of selected songs
      * @return                      A menu item containing the logic to delete a item.
      */
-    private static MenuItem createDeleteTableMenuItem(SongManager model,
-                                                 MusicPlayerManager musicPlayerManager,
-                                                 DatabaseManager databaseManager,
-                                                 List<Song> selectedSongs) {
+    private static MenuItem createTablewViewDeleteMenuItem(SongManager model,
+                                                           MusicPlayerManager musicPlayerManager,
+                                                           DatabaseManager databaseManager,
+                                                           List<Song> selectedSongs) {
         MenuItem delete = new MenuItem(DELETE);
 
         delete.setOnAction((event) -> {
