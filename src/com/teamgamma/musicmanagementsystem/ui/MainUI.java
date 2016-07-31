@@ -247,8 +247,8 @@ public class MainUI extends BorderPane {
      *  original places
      */
     public void minimodeTurnOff() {
-        this.setLeft(leftPane(m_library));
-        this.setRight(rightPane());
+        this.setLeft(m_leftPane);
+        this.setRight(m_rightPane);
         this.setCenter(centerPane(m_dynamicTree));
         this.setTop(topPane());
         m_centerPane.setVisible(true);

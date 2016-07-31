@@ -265,7 +265,7 @@ public class PlaylistUI extends VBox {
     }
 
     /**
-     * Function to create teh shuffle playlist button.
+     * Function to create the shuffle playlist button.
      *
      * @return The button that will control the shuffle playlist.
      */
@@ -284,6 +284,7 @@ public class PlaylistUI extends VBox {
             }
             selectedPlaylist.shuffleUnplayedSongs();
             m_model.notifyPlaylistSongsObservers();
+            m_musicPlayerManager.notifyQueingObserver();
         });
 
         return shufflePlaylistButton;

@@ -36,6 +36,7 @@ public class ApplicationController extends Application {
     private static final double ORIGINAL_WINDOW_HEIGHT = 650;
     private static final double MIN_WINDOW_WIDTH = 100;
     private static final double MIN_WINDOW_HEIGHT = 100;
+    private static final double UNDO_SET_MAX_WIDTH = 9000;
     private static final String APP_TITLE = "Gamma Music Manager";
     private static final String GAMMA_LOGO_IMAGE_URL = "res" + File.separator + "gamma-logo.png";
     private static final String START_SOUND_PATH = System.getProperty("user.dir") + File.separator + "src" + File.separator + "res" + File.separator +"start-sound.mp3";
@@ -340,6 +341,7 @@ public class ApplicationController extends Application {
     public void minimodeTurnOn() {
         m_stageCopy.setHeight(MINI_MODE_HEIGHT);
         m_stageCopy.setWidth(MINI_MODE_WIDTH);
+        m_stageCopy.setMaxWidth(MINI_MODE_WIDTH);
     }
 
     /**
@@ -348,5 +350,6 @@ public class ApplicationController extends Application {
     public void minimodeTurnOff() {
         m_stageCopy.setWidth(ORIGINAL_WINDOW_WIDTH);
         m_stageCopy.setHeight(ORIGINAL_WINDOW_HEIGHT);
+        m_stageCopy.setMaxWidth(MINI_MODE_WIDTH + UNDO_SET_MAX_WIDTH);
     }
 }
