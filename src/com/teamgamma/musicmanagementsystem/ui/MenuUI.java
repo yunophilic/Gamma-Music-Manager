@@ -280,7 +280,7 @@ public class MenuUI extends MenuBar{
         Menu minimodeMenu = new Menu(MINI_MODE);
         CheckMenuItem menuItem = new CheckMenuItem(MINI_MODE + "!");
 
-        menuItem.setOnAction(event -> {
+        menuItem.setOnAction((event) -> {
             if (menuItem.isSelected()) {
                 m_applicationController.minimodeTurnOn();
                 m_main.minimodeTurnOn();
