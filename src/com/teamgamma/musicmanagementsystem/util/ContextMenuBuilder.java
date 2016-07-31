@@ -9,7 +9,6 @@ import javafx.scene.control.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +71,7 @@ public class ContextMenuBuilder {
         MenuItem copy = createCopyMenuItem(model, tree);
         MenuItem paste = createFileTreePasteMenuItem(model, selectedItem);
         MenuItem rename = createRenameMenuItem(model, selectedItem);
-        MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedItem);
+        MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, tree);
 
         MenuItem createNewFolder = createAddNewFolderMenuItem(model, selectedItem);
         MenuItem removeLibrary = createRemoveLibraryMenuItem(model, databaseManager, selectedItem);
@@ -180,7 +179,7 @@ public class ContextMenuBuilder {
         MenuItem copy = createCopyMenuItem(model, selectedSongs);
         MenuItem paste = createCenterPanelPasteMenuItem(model);
         MenuItem rename = createRenameMenuItem(model, selectedItem);
-        MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedItem);
+        MenuItem delete = createDeleteTableMenuItem(model, musicPlayerManager, databaseManager, selectedSongs);
 
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedItem);
 
@@ -231,7 +230,8 @@ public class ContextMenuBuilder {
     public static ContextMenu buildPlaylistContextMenu(SongManager model,
                                                        MusicPlayerManager musicPlayerManager,
                                                        DatabaseManager databaseManager,
-                                                       int selectedSongIndex) {
+                                                       int selectedSongIndex,
+                                                       List<Song> selectedSongs) {
         Playlist selectedPlaylist = model.getM_selectedPlaylist();
         Song selectedSong = selectedPlaylist.isValid(selectedSongIndex) ? selectedPlaylist.getSongByIndex(selectedSongIndex) : null;
 
@@ -244,7 +244,7 @@ public class ContextMenuBuilder {
         MenuItem editProperties = createEditPropertiesMenuItem(model, selectedSong);
 
         MenuItem rename = createRenameMenuItem(model, selectedSong);
-        MenuItem delete = createDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedSong);
+        MenuItem delete = createDeleteTableMenuItem(model, musicPlayerManager, databaseManager, selectedSongs);
 
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedSong);
         MenuItem openInLibrary = createShowInLibraryMenuItem(model, selectedSong);
@@ -476,20 +476,47 @@ public class ContextMenuBuilder {
      * @param model                 The model to do the operation.
      * @param musicPlayerManager    The music player manager to update if the song is currently playing
      * @param databaseManager       The database to update
-     * @param selectedItem          The item to delete.
+     * @param treeView              The tree view
      * @return                      A menu item containing the logic to delete a item.
      */
     private static MenuItem createDeleteMenuItem(SongManager model,
                                                  MusicPlayerManager musicPlayerManager,
                                                  DatabaseManager databaseManager,
-                                                 Item selectedItem) {
+                                                 TreeView<Item> treeView) {
         MenuItem delete = new MenuItem(DELETE);
 
         delete.setOnAction((event) -> {
-            if (selectedItem != null) {
-                File fileToDelete = selectedItem.getFile();
-                UserInterfaceUtils.deleteFileAction(model, musicPlayerManager, databaseManager, fileToDelete);
+            List<Item> selectedItems = FileTreeUtils.getItems(treeView.getSelectionModel().getSelectedItems());
+            List<File> filesToDelete = new ArrayList<>();
+            for (Item item: selectedItems) {
+                filesToDelete.add(item.getFile());
             }
+            UserInterfaceUtils.deleteFileAction(model, musicPlayerManager, databaseManager, filesToDelete);
+        });
+
+        return delete;
+    }
+
+    /**
+     *
+     * @param model                 The model to do the operation.
+     * @param musicPlayerManager    The music player manager to update if the song is currently playing
+     * @param databaseManager       The database to update
+     * @param selectedSongs         The list of selected songs
+     * @return                      A menu item containing the logic to delete a item.
+     */
+    private static MenuItem createDeleteTableMenuItem(SongManager model,
+                                                 MusicPlayerManager musicPlayerManager,
+                                                 DatabaseManager databaseManager,
+                                                 List<Song> selectedSongs) {
+        MenuItem delete = new MenuItem(DELETE);
+
+        delete.setOnAction((event) -> {
+            List<File> filesToDelete = new ArrayList<>();
+            for (Song item: selectedSongs) {
+                filesToDelete.add(item.getFile());
+            }
+            UserInterfaceUtils.deleteFileAction(model, musicPlayerManager, databaseManager, filesToDelete);
         });
 
         return delete;

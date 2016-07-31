@@ -38,8 +38,6 @@ public class SongManager {
     private List<Item> m_itemsToMove;
     private File m_copyDest;
     private File m_moveDest;
-    private File m_addedFile;
-    private File m_deletedFile;
     private File m_renamedFile;
 
     // For observer pattern
@@ -83,8 +81,6 @@ public class SongManager {
         m_itemsToMove = null;
         m_copyDest = null;
         m_moveDest = null;
-        m_addedFile = null;
-        m_deletedFile = null;
         m_renamedFile = null;
 
         m_selectedCenterFolder = null;
@@ -286,31 +282,34 @@ public class SongManager {
     /**
      * Delete a file
      *
-     * @param fileToDelete
+     * @param filesToDelete
      * @throws Exception
      */
-    public void deleteFile(File fileToDelete) throws Exception {
-        if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
-            m_rightFolderSelected = null;
-        }
-        if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
-            m_selectedCenterFolder = null;
-        }
+    public void deleteFile(List<File> filesToDelete) throws Exception {
+        FileActions deleteFileAction = new ConcreteFileActions();
+        for (File fileToDelete: filesToDelete) {
+            // Skip this song if it does not exist in the file system
+            if (!fileToDelete.exists()) {
+                break;
+            }
 
-        if (!FileManager.removeFile(fileToDelete)) {
-            throw new FileSystemException("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
+            if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
+                m_rightFolderSelected = null;
+            }
+            if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
+                m_selectedCenterFolder = null;
+            }
+
+            if (!FileManager.removeFile(fileToDelete)) {
+                throw new FileSystemException("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
+            }
+
+            deleteFileAction.add(Action.DELETE, fileToDelete);
         }
-
-        m_deletedFile = fileToDelete;
-
-        FileActions deleteFileAction = new ConcreteFileActions(Action.DELETE, fileToDelete);
 
         updateFilesInFileTree(deleteFileAction);
 
         notifyFileObservers(deleteFileAction);
-
-        // Clear file to delete buffer
-        m_deletedFile = null;
     }
 
     /**
@@ -614,14 +613,6 @@ public class SongManager {
     /**********
      * Getters and setters
      *************/
-
-    public File getM_addedFile(){
-        return m_addedFile;
-    }
-
-    public File getM_deletedFile() {
-        return m_deletedFile;
-    }
 
     public File getM_renamedFile() {
         return m_renamedFile;
