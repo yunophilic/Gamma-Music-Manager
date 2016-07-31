@@ -218,6 +218,9 @@ public class ApplicationController extends Application {
 
         Stage closingStage = new Stage();
         closingStage.setTitle(APP_TITLE);
+        closingStage.getIcons().add(
+                getLogoIcon()
+        );
         closingStage.setScene(new Scene(closingWindow, CLOSING_WINDOW_WIDTH, CLOSING_WINDOW_HEIGHT));
         closingStage.initStyle(StageStyle.TRANSPARENT);
         closingStage.show();
@@ -247,6 +250,10 @@ public class ApplicationController extends Application {
         progress.progressProperty().bind(closeTask.progressProperty());
 
         new Thread(closeTask).start();
+    }
+
+    private Image getLogoIcon() {
+        return new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"));
     }
 
     /**

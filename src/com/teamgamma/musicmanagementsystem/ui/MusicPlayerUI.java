@@ -602,7 +602,8 @@ public class MusicPlayerUI extends VBox {
                 TranslateTransition songTitleAnimation = new TranslateTransition(
                         new Duration(TITLE_ANIMATION_TIME_MS), songTitle);
                 songTitleAnimation.setFromX(songTitleWrapper.getWidth());
-                songTitleAnimation.setToX(0);
+                final int maxLeftPosition = 7;
+                songTitleAnimation.setToX(maxLeftPosition);
                 songTitleAnimation.play();
             }
         }));
