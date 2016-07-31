@@ -18,6 +18,7 @@ import java.util.List;
  */
 public class FileManager {
     private static final String[] extensions = new String[]{".mp3"}; //edit this if later support more file types.
+    private static final String MATCH_DIGIT_TO_FIRST_ALPHA = "^(\\p{Digit}.*?)(?=\\p{Alpha})";
 
     /**
      * Generate list of Song objects based on path
@@ -159,7 +160,7 @@ public class FileManager {
         // Resolve file name
         File resultFile = new File(dest.getAbsolutePath() + File.separator + file.getName());
         String resultName = resultFile.getName();
-        String regex = "^(\\p{Digit}.*?)(?=\\p{Alpha})";
+        String regex = MATCH_DIGIT_TO_FIRST_ALPHA;
         resultName = resultName.replaceFirst(regex, "");
 
         // Rename file
