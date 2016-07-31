@@ -49,6 +49,7 @@ public class JlayerMP3Player implements IMusicPlayer{
     private FileInputStream m_fs;
 
     private boolean m_isUserInterrupted = false;
+
     /**
      * Constructor
      *
@@ -60,14 +61,19 @@ public class JlayerMP3Player implements IMusicPlayer{
 
     @Override
     public void playSong(Song songToPlay) {
-        if (m_isPlaying) {
+        try {
+            m_lock.lock();
             stopSongAndWait();
+        } finally {
+            m_lock.unlock();
         }
+
         try {
             setUpMusicPlayer(songToPlay);
         } catch (Exception e) {
             return;
         }
+
         m_currentPlaybackThread = createPlayBackThread();
         m_currentPlaybackThread.start();
 
@@ -157,7 +163,6 @@ public class JlayerMP3Player implements IMusicPlayer{
      * Helper function to create a thread with the logic to interrupt and join the thread given.
      *
      * @param threadToTerminate The thread to terminate
-     *
      * @return  A Thread that can be used to terminate the thread in the parameter.
      */
     private Thread createTerminationThread(Thread threadToTerminate) {
@@ -175,6 +180,7 @@ public class JlayerMP3Player implements IMusicPlayer{
 
     /**
      * Function to create a playback thread that will play the song from the beginning.
+     *
      * @return  A thread that will play the song from the beginning.
      */
     private Thread createPlayBackThread() {
@@ -393,7 +399,6 @@ public class JlayerMP3Player implements IMusicPlayer{
      * Helper function to convert from milliseconds to the number of frames based on the current song playing.
      *
      * @param milliseconds   The number of milliseconds to convert.
-     *
      * @return The number of frames that is equal to the given milliseconds.
      */
     private long convertMilisecondsToFrame(int milliseconds) {
