@@ -34,8 +34,8 @@ public class SongManager {
     private List<GeneralObserver> m_rightPanelObservers;
 
     // Buffers
-    private Item m_itemToCopy;
-    private Item m_itemToMove;
+    private List<Item> m_itemsToCopy;
+    private List<Item> m_itemsToMove;
     private File m_copyDest;
     private File m_moveDest;
     private File m_addedFile;
@@ -79,8 +79,8 @@ public class SongManager {
         m_libraries = new ArrayList<>();
         m_playlists = new ArrayList<>();
 
-        m_itemToCopy = null;
-        m_itemToMove = null;
+        m_itemsToCopy = null;
+        m_itemsToMove = null;
         m_copyDest = null;
         m_moveDest = null;
         m_addedFile = null;
@@ -206,20 +206,19 @@ public class SongManager {
      * Copy files in buffer to destination
      *
      * @param dest the destination folder
+     * @throws Exception if m_itemsToCopy is null
      * @throws IOException If copy file fails
      * @throws InvalidPathException If file path is invalid
      */
     public void copyToDestination(File dest) throws Exception {
-        if (m_itemToCopy == null) {
-            throw new Exception("File to copy should not be null");
+        if (m_itemsToCopy == null) {
+            throw new Exception("Files to copy should not be null");
         }
 
-        if (dest.getAbsolutePath().equals(m_itemToCopy.getFile().getParent())) {
-            return;
-        }
-
-        if (!FileManager.copyFilesRecursively(m_itemToCopy.getFile(), dest)) {
-            throw new IOException("Fail to copy");
+        for (Item itemToCopy : m_itemsToCopy) {
+            if (!FileManager.copyFilesRecursively(itemToCopy.getFile(), dest)) {
+                throw new IOException("Fail to copy");
+            }
         }
 
         m_copyDest = dest;
@@ -232,18 +231,20 @@ public class SongManager {
     }
 
     /**
-     * Update UI and move file from source to destination
+     * Move files in buffer to destination
      *
-     * @param fileToMove File to move
-     * @param destDir Destination file directory
+     * @param destDir the destination dir in File object form
+     * @throws Exception if m_itemsToMove is null
      * @throws IOException If moving file fails
      */
-    public void moveFile(File fileToMove, File destDir) throws IOException {
-        if (fileToMove.getParent().equals(destDir.getAbsolutePath())) {
-            return;
+    public void moveToDest(File destDir) throws Exception {
+        if (m_itemsToMove == null) {
+            throw new Exception("Files to move should not be null");
         }
 
-        FileManager.moveFile(fileToMove, destDir);
+        for(Item itemToMove : m_itemsToMove) {
+            FileManager.moveFile(itemToMove.getFile(), destDir);
+        }
 
         m_moveDest = destDir;
 
@@ -447,18 +448,28 @@ public class SongManager {
     /**
      * Add song to playlist
      *
-     * @param selectedSong Song
+     * @param selectedItem Song
      * @param playlistToAdd Playlist
      * @return true if song added successfully, false otherwise
      */
-    public boolean addSongToPlaylist(Song selectedSong, Playlist playlistToAdd) {
-        if (playlistToAdd.addSong(selectedSong)) {
-            // Notify playlist observers of changes
-            notifyPlaylistSongsObservers();
-            return true;
+    public boolean addItemToPlaylist(Item selectedItem, Playlist playlistToAdd) {
+        boolean addSuccess = false;
+        if (selectedItem instanceof Song) {
+            Song selectedSong = (Song) selectedItem;
+            if (playlistToAdd.addSong(selectedSong)) {
+                // Notify playlist observers of changes
+                notifyPlaylistSongsObservers();
+                addSuccess = true;
+            }
         } else {
-            return false;
+            TreeItem<Item> treeItem = FileTreeUtils.searchTreeItem(m_fileTreeRoot, selectedItem.getFile().getAbsolutePath());
+            if (treeItem != null) {
+                for (TreeItem<Item> child : treeItem.getChildren()) {
+                    addSuccess = addItemToPlaylist(child.getValue(), playlistToAdd);
+                }
+            }
         }
+        return addSuccess;
     }
 
     /**
@@ -539,17 +550,17 @@ public class SongManager {
     }
 
     /**
-     * Get the File object in item to copy
+     * Check if items to move are all songs
+     *
+     * @return True if all items in m_itemsToMove are Songs, false otherwise
      */
-    public File getFileToCopy() {
-        return m_itemToCopy.getFile();
-    }
-
-    /**
-     * Get the File object in item to move
-     */
-    public File getFileToMove() {
-        return m_itemToMove.getFile();
+    public boolean itemsToMoveAreAllSongs() {
+        for (Item item : m_itemsToMove) {
+            if (!(item instanceof Song)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -620,20 +631,20 @@ public class SongManager {
         this.m_selectedPlaylist = m_selectedPlaylist;
     }
 
-    public Item getM_itemToCopy() {
-        return m_itemToCopy;
+    public List<Item> getM_itemsToCopy() {
+        return m_itemsToCopy;
     }
 
-    public void setM_itemToCopy(Item m_itemToCopy) {
-        this.m_itemToCopy = m_itemToCopy;
+    public void setM_itemsToCopy(List<Item> m_itemsToCopy) {
+        this.m_itemsToCopy = m_itemsToCopy;
     }
 
-    public Item getM_itemToMove() {
-        return m_itemToMove;
+    public List<Item> getM_itemsToMove() {
+        return m_itemsToMove;
     }
 
-    public void setM_itemToMove(Item m_itemToMove) {
-        this.m_itemToMove = m_itemToMove;
+    public void setM_itemsToMove(List<Item> m_itemsToMove) {
+        this.m_itemsToMove = m_itemsToMove;
     }
 
     public List<Playlist> getM_playlists() {

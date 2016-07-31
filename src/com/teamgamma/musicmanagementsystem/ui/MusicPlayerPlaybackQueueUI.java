@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.model.Item;
 import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -98,18 +99,20 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
             SongManager songManager,
             TitledPane queuingList) {
 
-        queuingList.setOnDragDone(event -> {
-            songManager.setM_itemToMove(null);
+        queuingList.setOnDragDone((event) -> {
+            songManager.setM_itemsToMove(null);
             event.consume();
         });
 
-        queuingList.setOnDragDropped(event -> {
-            musicPlayerManager.placeSongOnBackOfPlaybackQueue((Song) songManager.getM_itemToMove());
+        queuingList.setOnDragDropped((event) -> {
+            for (Item itemToMove : songManager.getM_itemsToMove()) {
+                musicPlayerManager.placeSongOnBackOfPlaybackQueue((Song) itemToMove);
+            }
             event.consume();
         });
 
-        queuingList.setOnDragOver(event -> {
-            if (songManager.getM_itemToMove() instanceof Song) {
+        queuingList.setOnDragOver((event) -> {
+            if (songManager.itemsToMoveAreAllSongs()) {
                 event.acceptTransferModes(TransferMode.MOVE);
                 event.consume();
             }
@@ -136,10 +139,10 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
 
             ContextMenu playbackMenu = ContextMenuBuilder.buildPlaybackContextMenu(m_manager, songManager, songForRow);
             MenuItem removeSong = new MenuItem(REMOVE_SONG_FROM_QUEUE_MENU_MESSAGE);
-            removeSong.setOnAction(event -> m_manager.removeSongFromPlaybackQueue(songNumber - 1));
+            removeSong.setOnAction((event) -> m_manager.removeSongFromPlaybackQueue(songNumber - 1));
             playbackMenu.getItems().add(removeSong);
 
-            row.setOnMouseClicked(event -> {
+            row.setOnMouseClicked((event) -> {
                 if (event.getButton() == MouseButton.SECONDARY) {
                     playbackMenu.hide();
                     playbackMenu.show(row, event.getScreenX(), event.getScreenY());

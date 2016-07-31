@@ -21,6 +21,8 @@ import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.Collection;
 
 /**
@@ -101,9 +103,12 @@ public class UserInterfaceUtils {
     }
 
     /**
-     * Delete a song that has been selected by the user.
+     * Delete a file that has been selected by the user.
      *
-     * @param fileToDelete song selected
+     * @param model The model
+     * @param musicPlayerManager The music player manager
+     * @param databaseManager The database manager
+     * @param fileToDelete file to be deleted
      */
     public static void deleteFileAction(SongManager model,
                                         MusicPlayerManager musicPlayerManager,
@@ -153,6 +158,29 @@ public class UserInterfaceUtils {
         musicPlayerManager.notifyChangeStateObservers();
 
         databaseManager.removeLibrary(fileToDelete.getAbsolutePath()); //only succeed if fileToDelete is library folder
+    }
+
+    /**
+     * Move file in the buffer (m_itemsToMove) in the model to destination, will fail if buffer is null
+     *
+     * @param model The model
+     * @param dest The destination in File object form
+     */
+    public static void moveFileAction(SongManager model, File dest) {
+        try {
+            model.moveToDest(dest);
+        } catch (FileAlreadyExistsException ex) {
+            PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
+        } catch (AccessDeniedException ex) {
+            PromptUI.customPromptError("Error", null, "AccessDeniedException: \n" + ex.getMessage());
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
+            ex.printStackTrace();
+        } catch (Exception ex) {
+            PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     /**
