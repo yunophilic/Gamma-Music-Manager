@@ -85,6 +85,7 @@ public class ContentListUI extends StackPane {
         m_table = new TableView<>();
         setTableColumns();
         setTableRowMouseEvents();
+        setDragEvents();
         super.getChildren().add(m_table);
         updateTable();
     }
@@ -283,28 +284,33 @@ public class ContentListUI extends StackPane {
                 mouseEvent.consume();
             });
 
-            row.setOnDragOver((dragEvent) -> {
-                System.out.println("Drag over on center");
-                dragEvent.acceptTransferModes(TransferMode.MOVE);
-                dragEvent.consume();
-            });
-
-            row.setOnDragDropped((dragEvent) -> {
-                System.out.println("Drag dropped on center");
-
-                //move to the selected center folder
-                UserInterfaceUtils.moveFileAction(m_model, m_model.getM_selectedCenterFolder());
-
-                dragEvent.consume();
-            });
-
-            row.setOnDragDone((dragEvent) -> {
-                System.out.println("Drag done");
-                m_model.setM_itemsToMove(null);
-                dragEvent.consume();
-            });
-
             return row;
+        });
+    }
+
+    /**
+     * Set drag events on the TableView
+     */
+    private void setDragEvents() {
+        m_table.setOnDragOver((dragEvent) -> {
+            System.out.println("Drag over on center");
+            dragEvent.acceptTransferModes(TransferMode.MOVE);
+            dragEvent.consume();
+        });
+
+        m_table.setOnDragDropped((dragEvent) -> {
+            System.out.println("Drag dropped on center");
+
+            //move to the selected center folder
+            UserInterfaceUtils.moveFileAction(m_model, m_model.getM_selectedCenterFolder());
+
+            dragEvent.consume();
+        });
+
+        m_table.setOnDragDone((dragEvent) -> {
+            System.out.println("Drag done");
+            m_model.setM_itemsToMove(null);
+            dragEvent.consume();
         });
     }
 
