@@ -30,6 +30,7 @@ public class MusicPlayerUI extends VBox {
 
     // Constants for MusicPlayerUI.
     public static final double SEEK_BAR_Y_SCALE = 3;
+    public static final double SONG_PLAY_BAR_SCALE = 290;
     public static final int HEADER_FONT_SIZE = 20;
     public static final int SONG_TITLE_HEADER_SIZE = 13;
     public static final double FADED = 0.5;
@@ -64,8 +65,11 @@ public class MusicPlayerUI extends VBox {
     public static final String PAUSE_SONG_TOOL_TIP_MESSAGE = "Pause Song";
     public static final String RESUME_SONG_TOOL_TIP_MESSAGE = "Resume Song";
     public static final String DELETE_SONG_TOOL_TIP_MESSAGE = "Delete Song";
-    public static final String RATING_SONG_POOR_STAR_TOOL_TIP_MESSAGE = "1 Star";
-    public static final String RATING_SONG_HIGH_STAR_TOOL_TIP_MESSAGE = " Stars";
+    public static final String RATING_SONG_ONE_STAR_TOOL_TIP_MESSAGE = "Poor";
+    public static final String RATING_SONG_TWO_STAR_TOOL_TIP_MESSAGE = "Fair";
+    public static final String RATING_SONG_THREE_STARS_TOOL_TIP_MESSAGE = "Good";
+    public static final String RATING_SONG_FOUR_STARS_TOOL_TIP_MESSAGE = "Very Good";
+    public static final String RATING_SONG_FIVE_STARS_TOOL_TIP_MESSAGE = "Excellent";
     public static final String DEFAULT_PLAY_BUTTON_TOOL_TIP_MESSAGE = "Pick a Song To Play!";
 
     public static final String DEFAULT_TIME_STRING = "0:00";
@@ -410,9 +414,15 @@ public class MusicPlayerUI extends VBox {
             initializeRating(currentSongRating, i, starIcon);
             Node defaultGraphic = starIcon.getGraphic();
             starIcon.setOnMouseEntered(event -> {
-                String tooltipMessage = RATING_SONG_POOR_STAR_TOOL_TIP_MESSAGE;
-                if (1 < rating) {
-                    tooltipMessage = rating + RATING_SONG_HIGH_STAR_TOOL_TIP_MESSAGE;
+                String tooltipMessage = RATING_SONG_ONE_STAR_TOOL_TIP_MESSAGE;
+                if (rating == 2) {
+                    tooltipMessage = RATING_SONG_TWO_STAR_TOOL_TIP_MESSAGE;
+                } else if (rating == 3) {
+                    tooltipMessage = RATING_SONG_THREE_STARS_TOOL_TIP_MESSAGE;
+                } else if (rating == 4) {
+                    tooltipMessage = RATING_SONG_FOUR_STARS_TOOL_TIP_MESSAGE;
+                } else if (rating == 5) {
+                    tooltipMessage = RATING_SONG_FIVE_STARS_TOOL_TIP_MESSAGE;
                 }
                 starIcon.setTooltip(new Tooltip(tooltipMessage));
                 starIcon.setGraphic(UserInterfaceUtils.createImageViewForImage(MOUSE_OVER_STAR_ICON_PATH));
@@ -527,7 +537,8 @@ public class MusicPlayerUI extends VBox {
         songPlaybar.setMaxWidth(Double.MAX_VALUE);
         songPlaybar.setProgress(0);
         progressWrapper.getChildren().addAll(songStartLable, songPlaybar, songEndTimeProgressBar);
-        HBox.setHgrow(songPlaybar, Priority.ALWAYS);
+        songPlaybar.setPrefWidth(SONG_PLAY_BAR_SCALE);
+        progressWrapper.setAlignment(Pos.CENTER);
 
         // Have a slider for the underlying control but do not show it.
         HBox playbackSliderWrapper = new HBox();
