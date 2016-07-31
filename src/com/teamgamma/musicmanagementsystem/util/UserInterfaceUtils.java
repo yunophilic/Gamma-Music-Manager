@@ -5,18 +5,13 @@ import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import com.teamgamma.musicmanagementsystem.ui.MusicPlayerPlaybackQueueUI;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -169,8 +164,6 @@ public class UserInterfaceUtils {
     public static void moveFileAction(SongManager model, File dest) {
         try {
             model.moveToDest(dest);
-        } catch (FileAlreadyExistsException ex) {
-            PromptUI.customPromptError("Error", null, "The following file or folder already exist!\n" + ex.getMessage());
         } catch (AccessDeniedException ex) {
             PromptUI.customPromptError("Error", null, "AccessDeniedException: \n" + ex.getMessage());
             ex.printStackTrace();

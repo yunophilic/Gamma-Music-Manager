@@ -203,6 +203,18 @@ public class SongManager {
     }
 
     /**
+     * Remove itemsToSkip from the list of items
+     *
+     * @param items         list of items
+     * @param itemsToSkip   list of items to remove from items
+     */
+    private void removeItemsToSkip(List<Item> items, List<Item> itemsToSkip) {
+        for (Item itemToSkip: itemsToSkip) {
+            items.remove(itemToSkip);
+        }
+    }
+
+    /**
      * Copy files in buffer to destination
      *
      * @param dest the destination folder
@@ -215,11 +227,19 @@ public class SongManager {
             throw new Exception("Files to copy should not be null");
         }
 
+        List<Item> itemsToSkip = new ArrayList<>();
         for (Item itemToCopy : m_itemsToCopy) {
-            if (!FileManager.copyFilesRecursively(itemToCopy.getFile(), dest)) {
-                throw new IOException("Fail to copy");
+            try {
+                if (!FileManager.copyFilesRecursively(itemToCopy.getFile(), dest)) {
+                    throw new IOException("Fail to copy");
+                }
+            } catch (FileAlreadyExistsException ex) {
+                System.out.println("### Skipping song: " + itemToCopy.getFile());
+                itemsToSkip.add(itemToCopy);
             }
         }
+
+        removeItemsToSkip(m_itemsToCopy, itemsToSkip);
 
         m_copyDest = dest;
 
@@ -242,9 +262,17 @@ public class SongManager {
             throw new Exception("Files to move should not be null");
         }
 
+        List<Item> itemsToSkip = new ArrayList<>();
         for(Item itemToMove : m_itemsToMove) {
-            FileManager.moveFile(itemToMove.getFile(), destDir);
+            try {
+                FileManager.moveFile(itemToMove.getFile(), destDir);
+            } catch (FileAlreadyExistsException ex) {
+                System.out.println("### Skipping song: " + itemToMove.getFile());
+                itemsToSkip.add(itemToMove);
+            }
         }
+
+        removeItemsToSkip(m_itemsToMove, itemsToSkip);
 
         m_moveDest = destDir;
 
