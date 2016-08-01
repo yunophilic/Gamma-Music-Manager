@@ -315,8 +315,6 @@ public class PlaylistUI extends VBox {
         playPlaylistButton.setOnMouseClicked((event) -> {
             if (m_model.getM_selectedPlaylist() != null) {
                 m_musicPlayerManager.playPlaylist(m_model.getM_selectedPlaylist());
-                double percentage = m_musicPlayerManager.getCurrentPlaylist().getM_songResumeTime();
-                m_musicPlayerManager.seekSongTo(percentage);
             }
         });
 
@@ -621,7 +619,7 @@ public class PlaylistUI extends VBox {
                     if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
                         Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
                         if (selectedPlaylist.isValid(selectedSongIndex)) {
-                            selectedPlaylist.setM_currentSongIndex(selectedSongIndex);
+                            selectedPlaylist.setSongToPlay(selectedSongIndex);
                             m_musicPlayerManager.playPlaylist(selectedPlaylist);
                         }
                     } else if (event.getButton() == MouseButton.PRIMARY) {

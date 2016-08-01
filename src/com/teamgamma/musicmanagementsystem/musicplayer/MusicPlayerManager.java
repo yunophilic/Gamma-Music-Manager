@@ -170,12 +170,23 @@ public class MusicPlayerManager {
             return;
         }
 
+        boolean isChangingPlaylist = m_currentPlayList != playlistToPlay;
+        if (isChangingPlaylist) {
+            clearPlaybackQueue();
+        }
         m_currentPlayList = playlistToPlay;
+
+        Song oldSong = m_currentSong;
         m_currentSong = m_currentPlayList.isThereASongLoadedInPlaylist() ? m_currentPlayList.getCurrentSong() : m_currentPlayList.moveToNextSong();
 
-        m_isPlayingOnHistory = false;
-
-        playSongRightNow(m_currentSong);
+        if (m_isPlayingOnHistory || !m_musicPlayer.isPlayingSong() || isChangingPlaylist) {
+            m_isPlayingOnHistory = false;
+            playSongRightNow(m_currentSong);
+            seekSongTo(m_currentPlayList.getM_songResumeTime());
+        } else if (oldSong != m_currentSong) {
+            m_isPlayingOnHistory = false;
+            playSongRightNow(m_currentSong);
+        }
     }
 
     /**
@@ -849,4 +860,11 @@ public class MusicPlayerManager {
         return m_currentPlayList;
     }
 
+    /**
+     * Function to clear the playback queue.
+     */
+    private void clearPlaybackQueue() {
+        m_playingQueue = new ArrayList<>();
+        notifyQueingObserver();
+    }
 }
