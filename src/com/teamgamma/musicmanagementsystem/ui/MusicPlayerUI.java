@@ -20,6 +20,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -484,7 +485,9 @@ public class MusicPlayerUI extends VBox {
 
                 deleteSongIcon.setOnMouseClicked(event -> {
                     if (currentSongPlaying != null) {
-                        UserInterfaceUtils.deleteFileAction(m_model, manager, m_databaseManager, currentSongPlaying.getFile());
+                        List<File> files = new ArrayList<>();
+                        files.add(currentSongPlaying.getFile());
+                        UserInterfaceUtils.deleteFileAction(m_model, manager, m_databaseManager, files);
                     }
                 });
             }

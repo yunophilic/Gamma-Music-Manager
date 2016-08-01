@@ -670,10 +670,12 @@ public class PlaylistUI extends VBox {
      * @return A context menu for that will work on the song at the index
      */
     private ContextMenu generateContextMenu(int selectedSongIndex) {
+        List<Song> selectedSongs = m_table.getSelectionModel().getSelectedItems();
         return ContextMenuBuilder.buildPlaylistContextMenu(m_model,
                                                            m_musicPlayerManager,
                                                            m_databaseManager,
-                                                           selectedSongIndex);
+                                                           selectedSongIndex,
+                                                           selectedSongs);
     }
 
 }
