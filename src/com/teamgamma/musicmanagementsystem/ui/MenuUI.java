@@ -37,26 +37,24 @@ public class MenuUI extends MenuBar{
     private static final String CREATE_NEW_PLAYLIST = "Create New Playlist";
     private static final String REMOVE_EXISTING_PLAYLIST = "Remove Existing Playlist";
     private static final String EXPORT_PLAYLIST = "Export Playlist";
-    public static final String SEARCH_HEADER = "Search";
-    public static final String SHOW_FILES_IN_FOLDER_HITS_HEADER = "Show Files In Folder Hits";
+    private static final String SEARCH_HEADER = "Search";
+    private static final String SHOW_FILES_IN_FOLDER_HITS_HEADER = "Show Files In Folder Hits";
 
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
     private ApplicationController m_applicationController;
     private MainUI m_main;
     private boolean m_miniCheck = false;
-
     private CheckMenuItem menuItem;
-
 
     /**
      * Constructor
      *
-     * @param model The song manager
-     * @param databaseManager The database manager
+     * @param model                 The song manager
+     * @param databaseManager       The database manager
      * @param filePersistentStorage The configuration file
-	 * @param mainUI  The Main UI
-     * @param applicationController   The application controller
+	 * @param mainUI                The Main UI
+     * @param applicationController The application controller
      */
     public MenuUI(SongManager model, DatabaseManager databaseManager, FilePersistentStorage filePersistentStorage,
                   MainUI mainUI, ApplicationController applicationController){
@@ -74,7 +72,7 @@ public class MenuUI extends MenuBar{
      * @param filePersistentStorage The configuration file
      */
     private void setMenu(FilePersistentStorage filePersistentStorage) {
-        super.getMenus().addAll(getMenuFile(), getMenuOptions(filePersistentStorage), getPlaylistSubMenu(), miniMode());
+        super.getMenus().addAll(getMenuFile(), getMenuOptions(filePersistentStorage), getPlaylistSubMenu(), getMinimodeMenu());
     }
 
     private Menu getMenuFile() {
@@ -102,7 +100,7 @@ public class MenuUI extends MenuBar{
      * Get the menu options
      *
      * @param filePersistentStorage The configuration file
-     * @return The menu options
+     * @return                      The menu options
      */
     private Menu getMenuOptions(FilePersistentStorage filePersistentStorage) {
         final Menu menuOptions = new Menu(OPTIONS_TITLE);
@@ -118,8 +116,8 @@ public class MenuUI extends MenuBar{
     /**
      * Function to create the right panel submenu for the top.
      *
-     * @param filePersistentStorage            The file storage to retrieve the state.
-     * @return                                 A Menu object that is the right panel submenu
+     * @param filePersistentStorage The file storage to retrieve the state.
+     * @return                      A Menu object that is the right panel submenu
      */
     private Menu getRightPanelSubMenu(FilePersistentStorage filePersistentStorage) {
         Menu rightPanelSubMenu = new Menu(RIGHT_PANEL_OPTION);
@@ -151,8 +149,8 @@ public class MenuUI extends MenuBar{
     /**
      * Function to create the search submenu for the top.
      *
-     * @param filePersistentStorage         The file storage to retrieve the state.
-     * @return                              The search submenu options.
+     * @param filePersistentStorage The file storage to retrieve the state.
+     * @return                      The search submenu options.
      */
     private Menu createSearchSubmenu(FilePersistentStorage filePersistentStorage) {
         Menu searchSubMenu = new Menu(SEARCH_HEADER);
@@ -177,7 +175,7 @@ public class MenuUI extends MenuBar{
      * Get the left panel sub menu
      *
      * @param config The previous configuration of the sub menu
-     * @return The left panel sub menu
+     * @return       The left panel sub menu
      */
     private Menu getLeftPanelSubMenu(FilePersistentStorage config) {
         Menu leftPanelSubMenu = new Menu(LEFT_PANEL_OPTION);
@@ -206,7 +204,7 @@ public class MenuUI extends MenuBar{
      * Get the center panel sub menu
      *
      * @param config The previous configuration of the sub menu
-     * @return The center panel sub menu
+     * @return       The center panel sub menu
      */
     private Menu getCenterPanelSubMenu(FilePersistentStorage config) {
         Menu centerPanelSubMenu = new Menu(CENTER_PANEL_OPTION);
@@ -276,12 +274,12 @@ public class MenuUI extends MenuBar{
     }
 
     /**
-     * Toggles minimode on or off on button click
+     * Get the minimode Menu
 	 *
-     * @return a Menu object: minimodeButton
+     * @return The minimode menu
      */
-    private Menu miniMode() {
-        Menu minimodeButton = new Menu(MINI_MODE);
+    private Menu getMinimodeMenu() {
+        Menu minimodeMenu = new Menu(MINI_MODE);
         menuItem = new CheckMenuItem(MINI_MODE + "!");
         menuItem.setOnAction(event -> {
             System.out.println("Clicked minimode");
@@ -296,11 +294,9 @@ public class MenuUI extends MenuBar{
                 m_applicationController.minimodeTurnOff();
                 m_main.minimodeTurnOff();
             }
-
         });
-
-        minimodeButton.getItems().addAll(menuItem);
-        return minimodeButton;
+        minimodeMenu.getItems().addAll(menuItem);
+        return minimodeMenu;
     }
 
     /**

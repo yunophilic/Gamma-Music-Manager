@@ -17,6 +17,7 @@ import java.util.List;
  * Class to manage libraries and playlists
  */
 public class SongManager {
+    private static final String TRACK_NUM = "001";
     private List<Library> m_libraries;
     private List<Playlist> m_playlists;
 
@@ -33,12 +34,10 @@ public class SongManager {
     private List<GeneralObserver> m_rightPanelObservers;
 
     // Buffers
-    private Item m_itemToCopy;
-    private Item m_itemToMove;
+    private List<Item> m_itemsToCopy;
+    private List<Item> m_itemsToMove;
     private File m_copyDest;
     private File m_moveDest;
-    private File m_addedFile;
-    private File m_deletedFile;
     private File m_renamedFile;
 
     // For observer pattern
@@ -78,12 +77,10 @@ public class SongManager {
         m_libraries = new ArrayList<>();
         m_playlists = new ArrayList<>();
 
-        m_itemToCopy = null;
-        m_itemToMove = null;
+        m_itemsToCopy = null;
+        m_itemsToMove = null;
         m_copyDest = null;
         m_moveDest = null;
-        m_addedFile = null;
-        m_deletedFile = null;
         m_renamedFile = null;
 
         m_selectedCenterFolder = null;
@@ -202,24 +199,47 @@ public class SongManager {
     }
 
     /**
+     * Remove itemsToSkip from the list of items
+     *
+     * @param items         list of items
+     * @param itemsToSkip   list of items to remove from items
+     */
+    private void removeItemsToSkip(List<Item> items, List<Item> itemsToSkip) {
+        for (Item itemToSkip: itemsToSkip) {
+            items.remove(itemToSkip);
+        }
+    }
+
+    /**
      * Copy files in buffer to destination
      *
      * @param dest the destination folder
+     * @throws Exception if m_itemsToCopy is null
      * @throws IOException If copy file fails
      * @throws InvalidPathException If file path is invalid
      */
     public void copyToDestination(File dest) throws Exception {
-        if (m_itemToCopy == null) {
-            throw new Exception("File to copy should not be null");
+        if (m_itemsToCopy == null) {
+            throw new Exception("Files to copy should not be null");
         }
 
-        if (dest.getAbsolutePath().equals(m_itemToCopy.getFile().getParent())) {
-            return;
+        List<Item> itemsToSkip = new ArrayList<>();
+        for (Item itemToCopy : m_itemsToCopy) {
+            try {
+                if (dest.getAbsolutePath().equals(itemToCopy.getFile().getParent())){
+                    return;
+                }
+
+                if (!FileManager.copyFilesRecursively(itemToCopy.getFile(), dest)) {
+                    throw new IOException("Fail to copy");
+                }
+            } catch (FileAlreadyExistsException ex) {
+                System.out.println("### Skipping song: " + itemToCopy.getFile());
+                itemsToSkip.add(itemToCopy);
+            }
         }
 
-        if (!FileManager.copyFilesRecursively(m_itemToCopy.getFile(), dest)) {
-            throw new IOException("Fail to copy");
-        }
+        removeItemsToSkip(m_itemsToCopy, itemsToSkip);
 
         m_copyDest = dest;
 
@@ -231,18 +251,32 @@ public class SongManager {
     }
 
     /**
-     * Update UI and move file from source to destination
+     * Move files in buffer to destination
      *
-     * @param fileToMove File to move
-     * @param destDir Destination file directory
+     * @param destDir the destination dir in File object form
+     * @throws Exception if m_itemsToMove is null
      * @throws IOException If moving file fails
      */
-    public void moveFile(File fileToMove, File destDir) throws IOException {
-        if (fileToMove.getParent().equals(destDir.getAbsolutePath())) {
-            return;
+    public void moveToDest(File destDir) throws Exception {
+        if (m_itemsToMove == null) {
+            throw new Exception("Files to move should not be null");
         }
 
-        FileManager.moveFile(fileToMove, destDir);
+        List<Item> itemsToSkip = new ArrayList<>();
+        for(Item itemToMove : m_itemsToMove) {
+            try {
+                if (itemToMove.getFile().getParent().equals(destDir.getAbsolutePath())) {
+                    return;
+                }
+
+                FileManager.moveFile(itemToMove.getFile(), destDir);
+            } catch (FileAlreadyExistsException ex) {
+                System.out.println("### Skipping song: " + itemToMove.getFile());
+                itemsToSkip.add(itemToMove);
+            }
+        }
+
+        removeItemsToSkip(m_itemsToMove, itemsToSkip);
 
         m_moveDest = destDir;
 
@@ -256,31 +290,34 @@ public class SongManager {
     /**
      * Delete a file
      *
-     * @param fileToDelete
+     * @param filesToDelete
      * @throws Exception
      */
-    public void deleteFile(File fileToDelete) throws Exception {
-        if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
-            m_rightFolderSelected = null;
-        }
-        if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
-            m_selectedCenterFolder = null;
-        }
+    public void deleteFile(List<File> filesToDelete) throws Exception {
+        FileActions deleteFileAction = new ConcreteFileActions();
+        for (File fileToDelete: filesToDelete) {
+            // Skip this song if it does not exist in the file system
+            if (!fileToDelete.exists()) {
+                break;
+            }
 
-        if (!FileManager.removeFile(fileToDelete)) {
-            throw new FileSystemException("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
+            if (m_rightFolderSelected != null && m_rightFolderSelected.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
+                m_rightFolderSelected = null;
+            }
+            if (m_selectedCenterFolder != null && m_selectedCenterFolder.getAbsolutePath().equals(fileToDelete.getAbsolutePath())) {
+                m_selectedCenterFolder = null;
+            }
+
+            if (!FileManager.removeFile(fileToDelete)) {
+                throw new FileSystemException("File " + fileToDelete.getAbsolutePath() + " could not be deleted");
+            }
+
+            deleteFileAction.add(Action.DELETE, fileToDelete);
         }
-
-        m_deletedFile = fileToDelete;
-
-        FileActions deleteFileAction = new ConcreteFileActions(Action.DELETE, fileToDelete);
 
         updateFilesInFileTree(deleteFileAction);
 
         notifyFileObservers(deleteFileAction);
-
-        // Clear file to delete buffer
-        m_deletedFile = null;
     }
 
     /**
@@ -446,18 +483,28 @@ public class SongManager {
     /**
      * Add song to playlist
      *
-     * @param selectedSong Song
+     * @param selectedItem Song
      * @param playlistToAdd Playlist
      * @return true if song added successfully, false otherwise
      */
-    public boolean addSongToPlaylist(Song selectedSong, Playlist playlistToAdd) {
-        if (playlistToAdd.addSong(selectedSong)) {
-            // Notify playlist observers of changes
-            notifyPlaylistSongsObservers();
-            return true;
+    public boolean addItemToPlaylist(Item selectedItem, Playlist playlistToAdd) {
+        boolean addSuccess = false;
+        if (selectedItem instanceof Song) {
+            Song selectedSong = (Song) selectedItem;
+            if (playlistToAdd.addSong(selectedSong)) {
+                // Notify playlist observers of changes
+                notifyPlaylistSongsObservers();
+                addSuccess = true;
+            }
         } else {
-            return false;
+            TreeItem<Item> treeItem = FileTreeUtils.searchTreeItem(m_fileTreeRoot, selectedItem.getFile().getAbsolutePath());
+            if (treeItem != null) {
+                for (TreeItem<Item> child : treeItem.getChildren()) {
+                    addSuccess = addItemToPlaylist(child.getValue(), playlistToAdd);
+                }
+            }
         }
+        return addSuccess;
     }
 
     /**
@@ -494,13 +541,19 @@ public class SongManager {
     public void copyPlaylistToDestination(Playlist playlist, File file) {
         try {
             // Create playlist folder
-            String path = file.getAbsolutePath() + File.separator + playlist.getM_playlistName();
-            Path destPath = Files.createDirectory(Paths.get(path));
-            File destFile = destPath.toFile();
+            String target = file.getAbsolutePath() + File.separator + playlist.getM_playlistName();
+            Path path = Paths.get(target);
+            if(!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+            File destFile = path.toFile();
 
             // Copy songs
+            String trackNum = TRACK_NUM;
             for (Song song : playlist.getM_songList()) {
-                FileManager.copyFile(song.getFile(), destFile);
+                trackNum = String.format("%03d", Integer.parseInt(trackNum));
+                FileManager.exportFile(song.getFile(), destFile, trackNum);
+                trackNum = String.valueOf(Integer.parseInt(trackNum) + 1);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -532,17 +585,17 @@ public class SongManager {
     }
 
     /**
-     * Get the File object in item to copy
+     * Check if items to move are all songs
+     *
+     * @return True if all items in m_itemsToMove are Songs, false otherwise
      */
-    public File getFileToCopy() {
-        return m_itemToCopy.getFile();
-    }
-
-    /**
-     * Get the File object in item to move
-     */
-    public File getFileToMove() {
-        return m_itemToMove.getFile();
+    public boolean itemsToMoveAreAllSongs() {
+        for (Item item : m_itemsToMove) {
+            if (!(item instanceof Song)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -565,17 +618,22 @@ public class SongManager {
         }
     }
 
+    /**
+     * Add a new folder
+     * 
+     * @param file New folder to add
+     * @throws IOException if updating the file tree failed
+     */
+    public void addNewFolder(File file) throws IOException{
+        FileActions fileActions = new ConcreteFileActions(Action.ADD, file);
+
+        updateFilesInFileTree(fileActions);
+        notifyFileObservers(fileActions);
+    }
+
     /**********
      * Getters and setters
      *************/
-
-    public File getM_addedFile(){
-        return m_addedFile;
-    }
-
-    public File getM_deletedFile() {
-        return m_deletedFile;
-    }
 
     public File getM_renamedFile() {
         return m_renamedFile;
@@ -613,20 +671,20 @@ public class SongManager {
         this.m_selectedPlaylist = m_selectedPlaylist;
     }
 
-    public Item getM_itemToCopy() {
-        return m_itemToCopy;
+    public List<Item> getM_itemsToCopy() {
+        return m_itemsToCopy;
     }
 
-    public void setM_itemToCopy(Item m_itemToCopy) {
-        this.m_itemToCopy = m_itemToCopy;
+    public void setM_itemsToCopy(List<Item> m_itemsToCopy) {
+        this.m_itemsToCopy = m_itemsToCopy;
     }
 
-    public Item getM_itemToMove() {
-        return m_itemToMove;
+    public List<Item> getM_itemsToMove() {
+        return m_itemsToMove;
     }
 
-    public void setM_itemToMove(Item m_itemToMove) {
-        this.m_itemToMove = m_itemToMove;
+    public void setM_itemsToMove(List<Item> m_itemsToMove) {
+        this.m_itemsToMove = m_itemsToMove;
     }
 
     public List<Playlist> getM_playlists() {
@@ -693,7 +751,7 @@ public class SongManager {
         notifySpecifiedFileObservers(m_rightFolderObservers, m_emptyFileAction);
     }
 
-    public void notifyFileObservers(FileActions fileActions) {
+    private void notifyFileObservers(FileActions fileActions) {
         notifySpecifiedFileObservers(m_fileObservers, fileActions);
     }
 

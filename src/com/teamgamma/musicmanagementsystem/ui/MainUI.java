@@ -16,20 +16,21 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+import java.io.File;
 import java.util.List;
 
 /**
  * MainUI Class.
  */
 public class MainUI extends BorderPane {
-    public static final String SEARCH_ICON_PATH = "res\\search.png";
-    public static final String SEARCH_PROMPT_TEXT = "Search";
-    public static final String SEARCH_TOOL_TIP = "Find songs or libraries";
-    public static final String SEARCH_TAB_HEADER = "Search Results";
-    public static final String FILE_TREE_TAB_HEADER = "File Tree";
+    private static final String SEARCH_ICON_PATH = "res"  + File.separator + "search.png";
+    private static final String SEARCH_PROMPT_TEXT = "Search";
+    private static final String SEARCH_TOOL_TIP = "Find songs or libraries";
+    private static final String SEARCH_TAB_HEADER = "Search Results";
+    private static final String FILE_TREE_TAB_HEADER = "File Tree";
 
-    private final double TWO_HUNDRED_AND_FIFTY = 250;
-    private final double THREE_HUNDRED_AND_FIFTY = 350;
+    private final double LEFT_PANEL_PREF_WIDTH = 250;
+    private final double RIGHT_PANEL_PREF_WIDTH = 350;
 
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
@@ -41,8 +42,6 @@ public class MainUI extends BorderPane {
     private BorderPane m_leftPane;
     private BorderPane m_centerPane;
     private BorderPane m_rightPane;
-    private List<String> m_library;
-    private List<String> m_dynamicTree;
     private MenuUI m_menuUI;
 
     public MainUI(SongManager model,
@@ -59,11 +58,8 @@ public class MainUI extends BorderPane {
         m_databaseManager = databaseManager;
         m_filePersistentStorage = filePersistentStorage;
         m_applicationController = applicationController;
-
-        m_library = libraryExpandedPaths;
-        m_dynamicTree = dynamicTreeViewExpandedPaths;
-
         m_menuUI = new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, this, m_applicationController);
+
         this.setLeft(leftPane(libraryExpandedPaths));
         this.setRight(rightPane());
         this.setCenter(centerPane(dynamicTreeViewExpandedPaths));
@@ -81,7 +77,7 @@ public class MainUI extends BorderPane {
 
         m_leftPane = new BorderPane();
         m_leftPane.setCenter(m_libraryUI);
-        m_leftPane.setPrefWidth(TWO_HUNDRED_AND_FIFTY);
+        m_leftPane.setPrefWidth(LEFT_PANEL_PREF_WIDTH);
         return m_leftPane;
     }
 
@@ -102,7 +98,7 @@ public class MainUI extends BorderPane {
         m_rightPane = new BorderPane();
         m_rightPane.setCenter(playlistUI);
         m_rightPane.setBottom(musicPlayerWrapper);
-        m_rightPane.setPrefWidth(THREE_HUNDRED_AND_FIFTY);
+        m_rightPane.setPrefWidth(RIGHT_PANEL_PREF_WIDTH);
 
         return m_rightPane;
     }
@@ -242,6 +238,7 @@ public class MainUI extends BorderPane {
      */
     public void minimodeTurnOn() {
         this.setLeft(rightPane());
+        this.setCenter(null);
     }
 
     /**
@@ -249,11 +246,8 @@ public class MainUI extends BorderPane {
      *  original places
      */
     public void minimodeTurnOff() {
-        this.setLeft(leftPane(m_library));
+        this.setLeft(m_leftPane);
         this.setRight(rightPane());
-        this.setCenter(centerPane(m_dynamicTree));
-        this.setTop(topPane());
-        m_centerPane.setVisible(true);
-        m_rightPane.setVisible(true);
+        this.setCenter(m_centerPane);
     }
 }

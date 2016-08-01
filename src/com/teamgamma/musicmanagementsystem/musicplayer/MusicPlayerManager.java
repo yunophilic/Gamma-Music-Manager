@@ -3,8 +3,8 @@ package com.teamgamma.musicmanagementsystem.musicplayer;
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
-
 import com.teamgamma.musicmanagementsystem.util.GeneralObserver;
+
 import javafx.util.Duration;
 
 import javax.sound.sampled.*;
@@ -391,6 +391,7 @@ public class MusicPlayerManager {
         // Check first to see if we can recover.
         if (m_lastException instanceof FileNotFoundException){
             removeSongFromHistory(m_currentSong);
+            removeAllInstancesOfSongFromPlaybackQueue(m_currentSong.getFile().getAbsolutePath());
             playPreviousSong();
         }
         notifyAll(m_errorObservers);
@@ -733,6 +734,7 @@ public class MusicPlayerManager {
 
     /**
      * Function to remove a song from the playback queue based on the index of its location.
+     *
      * @param index
      */
     public void removeSongFromPlaybackQueue(int index){
@@ -740,6 +742,49 @@ public class MusicPlayerManager {
             m_playingQueue.remove(index);
         }
         notifyQueingObserver();
+    }
+
+    /**
+     * Function to remove all instances of a song specified by the path in the playback queue.
+     *
+     * @param path      The path to the song that is to be deleted.
+     */
+    public void removeAllInstancesOfSongFromPlaybackQueue(String path) {
+        removeSongFromList(path, m_playingQueue);
+        notifyQueingObserver();
+    }
+
+    /**
+     * Function to remove all instances of the song specifed by the path from the history.
+     *
+     * @param path      The path to the song.
+     */
+    public void removeAllInstancesOfSongFromHistory(String path) {
+        for (int i = 0; i < m_songHistory.size(); ++i) {
+            if (m_songHistory.get(i).getFile().getAbsolutePath().equals(path)) {
+                if (i < m_historyIndex) {
+                    m_historyIndex--;
+                }
+                m_songHistory.remove(i);
+            }
+        }
+        notifyNewSongObservers();
+    }
+
+    /**
+     * Function to remove a song from the list passed in.
+     *
+     * @param path              The path of the song that is to be removed.
+     * @param listToModify      The list to modify.
+     */
+    private void removeSongFromList(String path, List<Song> listToModify) {
+        List<Song> songsToRemove = new ArrayList<>();
+        for (Song song : listToModify) {
+            if (song.getFile().getAbsolutePath().equals(path) && !songsToRemove.contains(song)) {
+                songsToRemove.add(song);
+            }
+        }
+        listToModify.removeAll(songsToRemove);
     }
 
     /**
@@ -803,4 +848,5 @@ public class MusicPlayerManager {
     public Playlist getCurrentPlaylist() {
         return m_currentPlayList;
     }
+
 }
