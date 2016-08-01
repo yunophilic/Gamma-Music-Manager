@@ -213,7 +213,7 @@ public class DatabaseManager {
     /**
      * Function to see if there is something that is saved.
      *
-     * @return true if something, false otherwise
+     * @return true if there is data exists in the file, false otherwise
      */
     public boolean isDatabaseFileExist() {
         return new File(DB_FILE_PATH).exists();
@@ -329,7 +329,7 @@ public class DatabaseManager {
     /**
      * Update db by adding a new library
      *
-     * @param libraryPath String
+     * @param libraryPath, the path of the library to be added
      */
     public void addLibrary(String libraryPath) {
         try {
@@ -343,8 +343,8 @@ public class DatabaseManager {
     /**
      * Update db by removing an existing library
      *
-     * @param libraryPath String
-     * @return success or fail boolean
+     * @param libraryPath, the path of the library to be removed
+     * @return true if the library is successfully removed, false otherwise
      */
     public boolean removeLibrary(String libraryPath) {
         try {
@@ -360,7 +360,7 @@ public class DatabaseManager {
     /**
      * Update db by adding a new playlist
      *
-     * @param playlistName String
+     * @param playlistName, name of the playlist to be added
      */
     public void addPlaylist(String playlistName) {
         try {
@@ -374,7 +374,7 @@ public class DatabaseManager {
     /**
      * Update db by removing an existing playlist
      *
-     * @param playlistName String
+     * @param playlistName, name of the playlist to be removed
      */
     public void removePlaylist(String playlistName) {
         try {
@@ -388,8 +388,8 @@ public class DatabaseManager {
     /**
      * Rename a playlist in the Playlist table
      *
-     * @param oldPlaylistName
-     * @param newPlaylistName
+     * @param oldPlaylistName, the current name of a playlist
+     * @param newPlaylistName, the new name that the playlist to change to
      */
     public void renamePlaylist(String oldPlaylistName, String newPlaylistName) {
         try {
@@ -442,6 +442,8 @@ public class DatabaseManager {
 
     /**
      * Save state of the left tree view
+     *
+     * @param expandedPaths, the list of paths that are expanded
      */
     public void saveLeftTreeViewState(List<String> expandedPaths) {
         try {
@@ -457,6 +459,8 @@ public class DatabaseManager {
 
     /**
      * Save state of the right tree view
+     *
+     * @param expandedPaths, the list of paths that are expanded
      */
     public void saveRightTreeViewState(List<String> expandedPaths) {
         try {
@@ -466,21 +470,6 @@ public class DatabaseManager {
                 m_addRightTreeItem.executeUpdate();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Save the path for the folder on the right panel
-     *
-     * @param folderPath
-     */
-    public void addRightFolder(String folderPath) {
-        try {
-            m_addRightFolderToTree.setString(1, folderPath);
-            m_addRightFolderToTree.executeUpdate();
-        }
-        catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -555,7 +544,7 @@ public class DatabaseManager {
     /**
      * Get a list of songs in the table History
      *
-     * @return
+     * @return a list of song paths in the history table
      */
     public List<String> getHistory() {
         try {
@@ -623,7 +612,7 @@ public class DatabaseManager {
      * Helper Function for addPlaylistQueueTail()
      * Get the largest value of the order number in PlaybackQueue table
      *
-     * @return int
+     * @return the largest order number in the PlaybackQueue table
      */
     private int getMaxOrderNumberOfPlaybackQueue() {
         try {
@@ -675,7 +664,7 @@ public class DatabaseManager {
     /**
      * Get a list of song paths that are in the Playback Queue
      *
-     * @return List
+     * @return a list of song paths that are in the playback queue
      */
     public List<String> getPlaybackQueue() {
         try {
@@ -706,8 +695,8 @@ public class DatabaseManager {
     /**
      * Add a new song to the PlaylistSongs table
      *
-     * @param songPath
-     * @param playlistName
+     * @param songPath, path of a song to be added into the PlaylistSongs table
+     * @param playlistName, the name of the playlist which the song is belong to
      */
     private void addToPlaylistSongs(String playlistName, String songPath) {
         try {
@@ -726,8 +715,8 @@ public class DatabaseManager {
      * Helper function for addToPlaylistSongs
      * To get the next order number which should be added along the new record
      *
-     * @param playlistName
-     * @return
+     * @param playlistName, the playlist to check the order numbers
+     * @return the order number of the next inserting song
      */
     private int getNextOrderNumber(String playlistName) {
         try {
@@ -745,8 +734,8 @@ public class DatabaseManager {
     /**
      * Delete the specified song in the specified playlist then update the order numbers of that playlist
      *
-     * @param playlistName
-     * @param songPath
+     * @param playlistName, the playlist which the song belongs to
+     * @param songPath, the path of the song that is to be deleted
      */
     public void deleteFromPlaylistSongs(String playlistName, String songPath ) {
         try {
@@ -768,9 +757,9 @@ public class DatabaseManager {
      * Helper function for table PlaylistSongs
      * Get the order number of the specified song in the specified playlist
      *
-     * @param playlistName
-     * @param songPath
-     * @return
+     * @param playlistName, the playlist that contains the song
+     * @param songPath, the path of the specified song
+     * @return the order number of the specified song
      */
     private int getOrderNumber(String playlistName, String songPath) {
         try {
@@ -790,8 +779,8 @@ public class DatabaseManager {
      * Helper function for deleteFromPlaylistSongs
      * Update the order numbers after a song is deleted from one of the playlist
      *
-     * @param playlistName
-     * @param orderNumber
+     * @param playlistName, the playlist which a song is deleted from
+     * @param orderNumber, the order number of the song that has been deleted
      */
     private void updatePlaylistSongsOrderNumber(String playlistName, int orderNumber) {
         try {
@@ -807,8 +796,8 @@ public class DatabaseManager {
     /**
      * Get a list of song paths of the specified playlist
      *
-     * @param playlistName
-     * @return
+     * @param playlistName, the name of the targeted playlist
+     * @return a list of song paths that are in the specified playlist
      */
     public List<String> getSongsInPlaylist(String playlistName) {
         try {
@@ -886,8 +875,8 @@ public class DatabaseManager {
     /**
      * Add a record of a playlist and the time of its current playing song when the application closes
      *
-     * @param playlistName
-     * @param percentage
+     * @param playlistName, the playlist to have a resume time (percentage)
+     * @param percentage, the percentage of the song when left off
      */
     public void savePlaylistResumeTime(String playlistName, double percentage) {
         try {
@@ -915,12 +904,12 @@ public class DatabaseManager {
     /**
      * To update the resume time of an record for a playlist
      *
-     * @param playlistName
-     * @param time
+     * @param playlistName, the playlist to be updated
+     * @param percentage, the resume time to update
      */
-    public void updateResumeTime(String playlistName, double time) {
+    public void updateResumeTime(String playlistName, double percentage) {
         try {
-            m_updateResumeTime.setDouble(1, time);
+            m_updateResumeTime.setDouble(1, percentage);
             m_updateResumeTime.setString(2, playlistName);
             m_updateResumeTime.executeUpdate();
         }
@@ -932,15 +921,15 @@ public class DatabaseManager {
     /**
      * Retrieve the time to resume for each playlist when application starts up
      * 
-     * @param playlistName
+     * @param playlistName, the playlist to get the resume time from
      * @return the resume time of the specified playlist
      */
     public double getResumeTime(String playlistName) {
         try {
             m_getResumeTime.setString(1, playlistName);
             ResultSet resultSet = m_getResumeTime.executeQuery();
-            double resumeTime = resultSet.getDouble("resumeTime");
-            return resumeTime;
+            double percentage = resultSet.getDouble("resumeTime");
+            return percentage;
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -951,7 +940,7 @@ public class DatabaseManager {
     /**
      * Check if the resume time is already stored in the table ResumeTime
      *
-     * @param playlistName
+     * @param playlistName, the playlist to be checked
      * @return boolean indicates whether if there is a percentage value corresponds to the specified playlist in the table
      */
     public boolean checkIfResumeTimeExists(String playlistName) {

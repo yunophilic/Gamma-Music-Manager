@@ -5,23 +5,20 @@ import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-import com.teamgamma.musicmanagementsystem.ui.MusicPlayerPlaybackQueueUI;
 import com.teamgamma.musicmanagementsystem.ui.PromptUI;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Class to hold some helper function for building UIs.
@@ -101,30 +98,27 @@ public class UserInterfaceUtils {
     }
 
     /**
-     * Delete a song that has been selected by the user.
+     * Delete a file that has been selected by the user.
      *
-     * @param fileToDelete song selected
+     * @param model The model
+     * @param musicPlayerManager The music player manager
+     * @param databaseManager The database manager
+     * @param filesToDelete files to be deleted
      */
     public static void deleteFileAction(SongManager model,
                                         MusicPlayerManager musicPlayerManager,
                                         DatabaseManager databaseManager,
-                                        File fileToDelete) {
-        //confirmation dialog
-        if (fileToDelete.isDirectory()) {
-            if (!PromptUI.recycleLibrary(fileToDelete)) {
-                return;
-            }
-        } else {
-            if (!PromptUI.recycleSong(fileToDelete)) {
-                return;
-            }
+                                        List<File> filesToDelete) {
+        // TODO: update confirmation dialog
+        if (!PromptUI.customPromptConfirmation("Delete", "Are you sure you want to delete the selected items?", "")) {
+            return;
         }
 
         //try to actually delete (retry if FileSystemException happens)
         final int NUM_TRIES = 2;
         for (int i = 0; i < NUM_TRIES; i++) {
             try {
-                model.deleteFile(fileToDelete);
+                model.deleteFile(filesToDelete);
                 break;
             } catch (IOException ex) {
                 musicPlayerManager.stopSong();
@@ -152,7 +146,30 @@ public class UserInterfaceUtils {
         musicPlayerManager.notifyQueingObserver();
         musicPlayerManager.notifyChangeStateObservers();
 
-        databaseManager.removeLibrary(fileToDelete.getAbsolutePath()); //only succeed if fileToDelete is library folder
+        for (File fileToDelete: filesToDelete) {
+            databaseManager.removeLibrary(fileToDelete.getAbsolutePath()); //only succeed if fileToDelete is library folder
+        }
+    }
+
+    /**
+     * Move file in the buffer (m_itemsToMove) in the model to destination, will fail if buffer is null
+     *
+     * @param model The model
+     * @param dest The destination in File object form
+     */
+    public static void moveFileAction(SongManager model, File dest) {
+        try {
+            model.moveToDest(dest);
+        } catch (AccessDeniedException ex) {
+            PromptUI.customPromptError("Error", null, "AccessDeniedException: \n" + ex.getMessage());
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            PromptUI.customPromptError("Error", null, "IOException: \n" + ex.getMessage());
+            ex.printStackTrace();
+        } catch (Exception ex) {
+            PromptUI.customPromptError("Error", null, "Exception: \n" + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     /**

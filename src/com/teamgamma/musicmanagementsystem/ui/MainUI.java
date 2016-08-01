@@ -9,28 +9,28 @@ import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+import java.io.File;
 import java.util.List;
 
 /**
  * MainUI Class.
  */
 public class MainUI extends BorderPane {
-    public static final String SEARCH_BUTTON_HEADER = "Search";
-    public static final String SEARCH_TAB_HEADER = "Search Results";
-    public static final String FILE_TREE_TAB_HEADER = "File Tree";
+    private static final String SEARCH_ICON_PATH = "res"  + File.separator + "search.png";
+    private static final String SEARCH_PROMPT_TEXT = "Search";
+    private static final String SEARCH_TOOL_TIP = "Find songs or libraries";
+    private static final String SEARCH_TAB_HEADER = "Search Results";
+    private static final String FILE_TREE_TAB_HEADER = "File Tree";
 
-    private final double TWO_HUNDRED_AND_FIFTY = 250;
-    private final double THREE_HUNDRED_AND_FIFTY = 350;
+    private final double LEFT_PANEL_PREF_WIDTH = 250;
+    private final double RIGHT_PANEL_PREF_WIDTH = 350;
 
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
@@ -42,8 +42,6 @@ public class MainUI extends BorderPane {
     private BorderPane m_leftPane;
     private BorderPane m_centerPane;
     private BorderPane m_rightPane;
-    private List<String> m_library;
-    private List<String> m_dynamicTree;
 
     public MainUI(SongManager model,
                   MusicPlayerManager musicPlayerManager,
@@ -63,9 +61,9 @@ public class MainUI extends BorderPane {
         m_library = libraryExpandedPaths;
         m_dynamicTree = dynamicTreeViewExpandedPaths;
 
+        this.setLeft(leftPane(libraryExpandedPaths));
         this.setRight(rightPane());
         this.setCenter(centerPane(dynamicTreeViewExpandedPaths));
-        this.setLeft(leftPane(libraryExpandedPaths));
         this.setTop(topPane());
     }
 
@@ -80,7 +78,7 @@ public class MainUI extends BorderPane {
 
         m_leftPane = new BorderPane();
         m_leftPane.setCenter(m_libraryUI);
-        m_leftPane.setPrefWidth(TWO_HUNDRED_AND_FIFTY);
+        m_leftPane.setPrefWidth(LEFT_PANEL_PREF_WIDTH);
         return m_leftPane;
     }
 
@@ -101,7 +99,7 @@ public class MainUI extends BorderPane {
         m_rightPane = new BorderPane();
         m_rightPane.setCenter(playlistUI);
         m_rightPane.setBottom(musicPlayerWrapper);
-        m_rightPane.setPrefWidth(THREE_HUNDRED_AND_FIFTY);
+        m_rightPane.setPrefWidth(RIGHT_PANEL_PREF_WIDTH);
 
         return m_rightPane;
     }
@@ -117,7 +115,8 @@ public class MainUI extends BorderPane {
 
         HBox searchWrapper = new HBox();
         TextField searchText = new TextField();
-
+        searchText.setTooltip(new Tooltip(SEARCH_TOOL_TIP));
+        searchText.setPromptText(SEARCH_PROMPT_TEXT);
         searchText.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER){
                 searchForFiles(searchText);
@@ -130,12 +129,10 @@ public class MainUI extends BorderPane {
             }
         });
 
-        Button search = new Button(SEARCH_BUTTON_HEADER);
+        Button search = new Button();
+        search.setStyle("-fx-background-color: transparent");
+        search.setGraphic(UserInterfaceUtils.createImageViewForImage(SEARCH_ICON_PATH));
         UserInterfaceUtils.createMouseOverUIChange(search, search.getStyle());
-
-        search.setMaxHeight(wrapper.getHeight());
-        search.setPrefHeight(wrapper.getHeight());
-        search.setScaleShape(false);
 
         search.setOnMouseClicked(event -> {
             System.out.println("Searching for " + searchText.getText());
@@ -241,7 +238,9 @@ public class MainUI extends BorderPane {
      *  the rightPane (MusicPlayer)
      */
     public void minimodeTurnOn() {
-        this.setLeft(rightPane());
+        this.setRight(null);
+        this.setLeft(m_rightPane);
+        this.setCenter(null);
     }
 
     /**
@@ -249,11 +248,8 @@ public class MainUI extends BorderPane {
      *  original places
      */
     public void minimodeTurnOff() {
-        this.setLeft(leftPane(m_library));
-        this.setRight(rightPane());
-        this.setCenter(centerPane(m_dynamicTree));
-        this.setTop(topPane());
-        m_centerPane.setVisible(true);
-        m_rightPane.setVisible(true);
+        this.setLeft(m_leftPane);
+        this.setRight(m_rightPane);
+        this.setCenter(m_centerPane);
     }
 }

@@ -218,7 +218,9 @@ public class FileTreeUtils {
             }
 
             case PASTE: {
-                createNewNodes(tree, model.getFileToCopy().getName(), model.getM_copyDest().getAbsolutePath());
+                for (Item itemToCopy : model.getM_itemsToCopy()) {
+                    createNewNodes(tree, itemToCopy.getFile().getName(), model.getM_copyDest().getAbsolutePath());
+                }
                 break;
             }
 
@@ -359,12 +361,14 @@ public class FileTreeUtils {
     }
 
     /**
-     * Delete node recursively
+     * Delete node if it exists
      *
      * @param nodeToDelete node to be deleted
      */
     private static void deleteNode(TreeItem<Item> nodeToDelete) {
-        nodeToDelete.getParent().getChildren().remove(nodeToDelete);
+        if (nodeToDelete != null) {
+            nodeToDelete.getParent().getChildren().remove(nodeToDelete);
+        }
     }
 
     /**
