@@ -1315,10 +1315,11 @@ public class PromptUI {
     /**
      * Function to create a loading screen that will show until the background task is done.
      *
+     * @param stage             The stage to use.
      * @param message           The message to display.
      * @param backgroundTask    The task to do in the background.
      */
-    public static void createLoadingScreen(String message, Task backgroundTask) {
+    public static void createLoadingScreen(Stage stage, String message, Task backgroundTask) {
         final int CLOSING_WINDOW_WIDTH = 400;
         final int CLOSING_WINDOW_HEIGHT = 100;
         final int LOADING_SIZE = 60;
@@ -1340,15 +1341,13 @@ public class PromptUI {
         text.setOpacity(MESSAGE_OPACITY);
         closingWindow.setCenter(text);
 
-        Stage closingStage = new Stage();
-        closingStage.setTitle(ApplicationController.APP_TITLE);
-        closingStage.getIcons().add(
+        stage.setTitle(ApplicationController.APP_TITLE);
+        stage.getIcons().add(
                 getLogoIcon()
         );
-        closingStage.setScene(new Scene(closingWindow, CLOSING_WINDOW_WIDTH, CLOSING_WINDOW_HEIGHT));
-        closingStage.initStyle(StageStyle.TRANSPARENT);
-        closingStage.show();
-
+        stage.setScene(new Scene(closingWindow, CLOSING_WINDOW_WIDTH, CLOSING_WINDOW_HEIGHT));
+        stage.initStyle(StageStyle.TRANSPARENT);
+        stage.show();
         progress.progressProperty().bind(backgroundTask.progressProperty());
 
         new Thread(backgroundTask).start();

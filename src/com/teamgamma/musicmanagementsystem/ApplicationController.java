@@ -196,7 +196,7 @@ public class ApplicationController extends Application {
 
         watcher.stopWatcher();
         musicPlayerManager.setCurrentPlaylistSongPercentage();
-
+        Stage closingStage = new Stage();
         Task closeTask = new Task() {
             @Override
             protected Object call() throws Exception {
@@ -219,7 +219,7 @@ public class ApplicationController extends Application {
             }
         };
 
-        PromptUI.createLoadingScreen(SAVING_MESSAGE ,closeTask);
+        PromptUI.createLoadingScreen(closingStage, SAVING_MESSAGE ,closeTask);
     }
 
     /**
