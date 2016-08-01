@@ -237,8 +237,9 @@ public class MainUI extends BorderPane {
      *  the rightPane (MusicPlayer)
      */
     public void minimodeTurnOn() {
-        this.setLeft(rightPane());
+        this.setRight(null);
         this.setCenter(null);
+        this.setLeft(m_rightPane);
     }
 
     /**
@@ -247,7 +248,7 @@ public class MainUI extends BorderPane {
      */
     public void minimodeTurnOff() {
         this.setLeft(m_leftPane);
-        this.setRight(rightPane());
+        this.setRight(m_rightPane);
         this.setCenter(m_centerPane);
     }
 }
