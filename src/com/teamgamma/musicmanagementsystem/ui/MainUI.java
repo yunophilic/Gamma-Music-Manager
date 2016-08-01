@@ -43,6 +43,7 @@ public class MainUI extends BorderPane {
     private BorderPane m_rightPane;
     private List<String> m_library;
     private List<String> m_dynamicTree;
+    private MenuUI m_menuUI;
 
     public MainUI(SongManager model,
                   MusicPlayerManager musicPlayerManager,
@@ -62,6 +63,7 @@ public class MainUI extends BorderPane {
         m_library = libraryExpandedPaths;
         m_dynamicTree = dynamicTreeViewExpandedPaths;
 
+        m_menuUI = new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, this, m_applicationController);
         this.setLeft(leftPane(libraryExpandedPaths));
         this.setRight(rightPane());
         this.setCenter(centerPane(dynamicTreeViewExpandedPaths));
@@ -94,7 +96,7 @@ public class MainUI extends BorderPane {
         VBox musicPlayerWrapper = new VBox();
         musicPlayerWrapper.getChildren().add(new MusicPlayerHistoryUI(m_model, m_musicPlayerManager));
         musicPlayerWrapper.getChildren().add(new MusicPlayerUI(m_model, m_musicPlayerManager, m_databaseManager,
-                m_filePersistentStorage));
+                m_filePersistentStorage, m_menuUI));
         musicPlayerWrapper.getChildren().add(new MusicPlayerPlaybackQueueUI(m_musicPlayerManager, m_model));
 
         m_rightPane = new BorderPane();
@@ -112,7 +114,7 @@ public class MainUI extends BorderPane {
      */
     private Node topPane() {
         BorderPane wrapper = new BorderPane();
-        wrapper.setCenter(new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, this, m_applicationController));
+        wrapper.setCenter(m_menuUI);
 
         HBox searchWrapper = new HBox();
         TextField searchText = new TextField();

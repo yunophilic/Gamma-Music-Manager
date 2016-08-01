@@ -83,6 +83,7 @@ public class MusicPlayerUI extends VBox {
     private DatabaseManager m_databaseManager;
 
     private List<Button> m_ratingIcons;
+    private MenuUI m_menuUI;
 
     /**
      * Constructor
@@ -93,10 +94,11 @@ public class MusicPlayerUI extends VBox {
     public MusicPlayerUI(SongManager model,
                          MusicPlayerManager manager,
                          DatabaseManager databaseManager,
-                         FilePersistentStorage config) {
+                         FilePersistentStorage config, MenuUI menuUI) {
         super();
         m_model = model;
         m_databaseManager = databaseManager;
+        m_menuUI = menuUI;
         VBox topWrapper = new VBox();
         topWrapper.setSpacing(0);
         topWrapper.getChildren().add(makeSongTitleHeader(manager));
@@ -183,19 +185,19 @@ public class MusicPlayerUI extends VBox {
      */
     private Button createMiniModeButton() {
         Button miniModeButton;
-        if (MenuUI.miniModeStatus()) {
+        if (m_menuUI.miniModeStatus()) {
             System.out.println("Minimode Status: On");
             miniModeButton = UserInterfaceUtils.createIconButton(MINIMODE_OFF_ICON_PATH);
             miniModeButton.setTooltip(new Tooltip(MINIMODE_OFF_TOOL_TIP));
-            miniModeButton.setOnMouseClicked(event -> {
-                MenuUI.mini.fire();
+            miniModeButton.setOnMouseClicked((event) -> {
+                m_menuUI.fireMiniMode();
             });
         } else {
             System.out.println("Minimode Status: Off");
             miniModeButton = UserInterfaceUtils.createIconButton(MINIMODE_ON_ICON_PATH);
             miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
-            miniModeButton.setOnMouseClicked(event -> {
-                MenuUI.mini.fire();
+            miniModeButton.setOnMouseClicked((event) -> {
+                m_menuUI.fireMiniMode();
             });
         }
         UserInterfaceUtils.createMouseOverUIChange(miniModeButton, miniModeButton.getStyle());
