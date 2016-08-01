@@ -182,24 +182,25 @@ public class MusicPlayerUI extends VBox {
      *
      * @return          A button for enabling/disabling minimode.
      */
-    private Button createMiniModeButton() {
-        Button miniModeButton;
-        if (m_menuUI.miniModeStatus()) {
-            System.out.println("Minimode Status: On");
-            miniModeButton = UserInterfaceUtils.createIconButton(MINIMODE_OFF_ICON_PATH);
-            miniModeButton.setTooltip(new Tooltip(MINIMODE_OFF_TOOL_TIP));
-            miniModeButton.setOnMouseClicked((event) -> {
-                m_menuUI.fireMiniMode();
-            });
-        } else {
-            System.out.println("Minimode Status: Off");
-            miniModeButton = UserInterfaceUtils.createIconButton(MINIMODE_ON_ICON_PATH);
-            miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
-            miniModeButton.setOnMouseClicked((event) -> {
-                m_menuUI.fireMiniMode();
-            });
-        }
+    private ToggleButton createMiniModeButton() {
+        ToggleButton miniModeButton = new ToggleButton();
+        miniModeButton.setStyle("-fx-background-color: transparent");
+        miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
+        miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_ON_ICON_PATH));
+
         UserInterfaceUtils.createMouseOverUIChange(miniModeButton, miniModeButton.getStyle());
+
+        miniModeButton.setOnMouseClicked((event) -> {
+            m_menuUI.fireMiniMode();
+            if (miniModeButton.isSelected()) {
+                miniModeButton.setTooltip(new Tooltip(MINIMODE_OFF_TOOL_TIP));
+                miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_OFF_ICON_PATH));
+            } else {
+                miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
+                miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_ON_ICON_PATH));
+            }
+            UserInterfaceUtils.createMouseOverUIChange(miniModeButton, miniModeButton.getStyle());
+        });
 
         return miniModeButton;
     }
@@ -380,7 +381,7 @@ public class MusicPlayerUI extends VBox {
         m_ratingIcons.add(ratingIcon5);
         activateRatingBar(manager);
 
-        Button miniModeButton = createMiniModeButton();
+        ToggleButton miniModeButton = createMiniModeButton();
 
         otherControlBox.getChildren().addAll(volumeDownIcon, volumeControlSlider, volumeUpIcon, deleteSongIcon,
                 ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5, miniModeButton);
