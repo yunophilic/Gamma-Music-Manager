@@ -399,7 +399,6 @@ public class SongManager {
                         }
                     } else {
                         String songParentPath = song.getFile().getParent();
-                        //System.out.println("== Song parent path: " + songParentPath);
                         if (songParentPath.equals(m_selectedCenterFolder.getAbsolutePath())) {
                             centerPanelSongs.add(song);
                         }

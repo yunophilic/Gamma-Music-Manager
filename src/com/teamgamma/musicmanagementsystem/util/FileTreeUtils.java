@@ -561,7 +561,6 @@ public class FileTreeUtils {
      */
     private static void expandNodeAndParents(TreeItem<Item> node) {
         if (node != null) {
-            //System.out.println("Expanding path: " + node.getValue().getFile());
             node.setExpanded(true);
             expandNodeAndParents(node.getParent());
         }

@@ -459,7 +459,6 @@ public class PlaylistUI extends VBox {
      * Function to clear the playlist table.
      */
     private void clearTable() {
-        //System.out.println("Clearing playlist panel...");
         m_table.getItems().clear();
     }
 
@@ -467,7 +466,6 @@ public class PlaylistUI extends VBox {
      * Function to update the table based on new values from the model.
      */
     private void updateTable() {
-        //System.out.println("Updating playlist panel...");
         Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
         if (selectedPlaylist != null) {
             List<Song> songs = selectedPlaylist.getM_songList();
@@ -582,7 +580,6 @@ public class PlaylistUI extends VBox {
         });
 
         m_table.setOnDragDropped((dragEvent) -> {
-            //System.out.println("Drag dropped on playlist");
             for (Item itemToMove : m_model.getM_itemsToMove()) {
                 m_model.addItemToPlaylist(itemToMove, m_model.getM_selectedPlaylist());
                 m_musicPlayerManager.notifyQueingObserver();
@@ -591,7 +588,6 @@ public class PlaylistUI extends VBox {
         });
 
         m_table.setOnDragDone((dragEvent) -> {
-            //System.out.println("Drag done on playlist");
             m_model.setM_itemsToMove(null);
             dragEvent.consume();
         });
