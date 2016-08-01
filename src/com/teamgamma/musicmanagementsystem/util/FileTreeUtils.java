@@ -387,12 +387,14 @@ public class FileTreeUtils {
     }
 
     /**
-     * Delete node recursively
+     * Delete node if it exists
      *
      * @param nodeToDelete node to be deleted
      */
     private static void deleteNode(TreeItem<Item> nodeToDelete) {
-        nodeToDelete.getParent().getChildren().remove(nodeToDelete);
+        if (nodeToDelete != null) {
+            nodeToDelete.getParent().getChildren().remove(nodeToDelete);
+        }
     }
 
     /**

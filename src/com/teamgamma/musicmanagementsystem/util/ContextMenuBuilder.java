@@ -515,7 +515,11 @@ public class ContextMenuBuilder {
                 Path newPath = PromptUI.createNewFolder(folderSelected);
 
                 if (newPath != null) {
-                    model.notifyFileObservers(new ConcreteFileActions(Action.ADD, newPath.toFile()));
+                    try {
+                        model.addNewFolder(newPath.toFile());
+                    } catch (IOException ex) {
+                        PromptUI.customPromptError("Create new folder", null, "Unable to create new folder " + newPath);
+                    }
                 }
             }
         });
