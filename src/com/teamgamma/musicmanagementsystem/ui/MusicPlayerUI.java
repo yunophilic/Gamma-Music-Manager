@@ -142,9 +142,6 @@ public class MusicPlayerUI extends VBox {
         Button skipButton = createSkipSongButton(manager);
         playbackControls.getChildren().add(skipButton);
 
-        Button miniModeButton = createMiniModeButton();
-        playbackControls.getChildren().add(miniModeButton);
-
         return playbackControls;
     }
 
@@ -381,8 +378,10 @@ public class MusicPlayerUI extends VBox {
         m_ratingIcons.add(ratingIcon5);
         activateRatingBar(manager);
 
+        Button miniModeButton = createMiniModeButton();
+
         otherControlBox.getChildren().addAll(volumeDownIcon, volumeControlSlider, volumeUpIcon, deleteSongIcon,
-                ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5);
+                ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5, miniModeButton);
         otherControlBox.setAlignment(Pos.BASELINE_CENTER);
         otherControlBox.setSpacing(0);
 
