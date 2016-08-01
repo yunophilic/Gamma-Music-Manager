@@ -587,6 +587,7 @@ public class SongManager {
      * Add a new folder
      * 
      * @param file New folder to add
+     * @throws IOException if updating the file tree failed
      */
     public void addNewFolder(File file) throws IOException{
         FileActions fileActions = new ConcreteFileActions(Action.ADD, file);
