@@ -310,6 +310,15 @@ public class Playlist {
     }
 
     /**
+     * Function to set the current song to be the song specifed by the index and reset the resume time.
+     *
+     * @param index The index of the song you want to be the current song in the playlist.
+     */
+    public void setSongToPlay(int index) {
+        m_songResumeTime = 0;
+        m_currentSongIndex = index;
+    }
+    /**
      * Function to set the resume time of the song from this playlist when the application closes
      *
      * @param resumeTime in percentage

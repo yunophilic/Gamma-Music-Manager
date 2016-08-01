@@ -211,6 +211,8 @@ public class MainUI extends BorderPane {
             }
         });
 
+        m_model.notifyRightPanelOptionsObservers();
+
         return pane;
     }
 

@@ -296,7 +296,11 @@ public class ContextMenuBuilder {
         MenuItem placeSongOnQueue = createPlaceSongOnQueueMenuItem(musicPlayerManager, selectedItem);
         MenuItem openInLibrary = createShowInLibraryMenuItem(songManager, selectedItem);
 
-        playbackMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue, openInLibrary);
+        MenuItem songOptionsSeparator = new SeparatorMenuItem();
+
+        playbackMenu.getItems().addAll(playSong, playSongNext, placeSongOnQueue,
+                songOptionsSeparator,
+                openInLibrary);
 
         return playbackMenu;
     }

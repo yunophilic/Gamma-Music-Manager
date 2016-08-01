@@ -45,7 +45,7 @@ public class MenuUI extends MenuBar{
     private ApplicationController m_applicationController;
     private MainUI m_main;
     private boolean m_miniCheck = false;
-    private CheckMenuItem m_menuItem;
+    private CheckMenuItem m_minimodeMenuItem;
 
     /**
      * Constructor
@@ -280,22 +280,13 @@ public class MenuUI extends MenuBar{
      */
     private Menu getMinimodeMenu() {
         Menu minimodeMenu = new Menu(MINI_MODE);
-        m_menuItem = new CheckMenuItem(MINI_MODE + "!");
-        m_menuItem.setOnAction(event -> {
-            System.out.println("Clicked minimode");
-            if (!m_miniCheck) {
-                m_miniCheck = true;
-                m_applicationController.minimodeTurnOn();
-                m_main.minimodeTurnOn();
-            }
-            else {
-                System.out.println("Clicked minimode");
-                m_miniCheck = false;
-                m_applicationController.minimodeTurnOff();
-                m_main.minimodeTurnOff();
-            }
+        m_minimodeMenuItem = new CheckMenuItem(MINI_MODE + "!");
+        m_minimodeMenuItem.setSelected(m_miniCheck);
+        m_minimodeMenuItem.setOnAction(event -> {
+            System.out.println("Clicked minimode menu");
+            fireMiniMode();
         });
-        minimodeMenu.getItems().addAll(m_menuItem);
+        minimodeMenu.getItems().addAll(m_minimodeMenuItem);
         return minimodeMenu;
     }
 
@@ -303,34 +294,17 @@ public class MenuUI extends MenuBar{
      * Enable minimode from external source
      */
     public void fireMiniMode() {
-        m_menuItem.fire();
-    }
-
-    /**
-     * Get the minimode menu item
-     *
-     * @return minimode CheckMenuItem
-     */
-    public CheckMenuItem getMenuItem() {
-        return m_menuItem;
-    }
-
-    /**
-     * Set the minimode menu item
-     *
-     * @param miniModeMenuItem CheckMenuItem
-     */
-    public void setMenuItem(CheckMenuItem miniModeMenuItem) {
-        m_menuItem = miniModeMenuItem;
-    }
-
-    /**
-     * Set status of minimode to on or off
-     *
-     * @param enable minimode
-     */
-    public void setMiniModeOn(boolean enable) {
-        m_miniCheck = enable;
+        if (!m_miniCheck) {
+            m_miniCheck = true;
+            m_applicationController.minimodeTurnOn();
+            m_main.minimodeTurnOn();
+        }
+        else {
+            m_miniCheck = false;
+            m_applicationController.minimodeTurnOff();
+            m_main.minimodeTurnOff();
+        }
+        m_minimodeMenuItem.setSelected(m_miniCheck);
     }
 
     /**
@@ -338,7 +312,7 @@ public class MenuUI extends MenuBar{
      *
      * @return minimode status
      */
-    public boolean miniModeStatus() {
+    public boolean getMiniModeStatus() {
         return m_miniCheck;
     }
 }
