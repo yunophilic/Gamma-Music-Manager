@@ -1001,7 +1001,7 @@ public class PromptUI {
         Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
         stage.getIcons().add(PROMPT_ICON);
         dialog.setTitle(ADD_TO_PLAYLIST_TITLE);
-        final String ADD_TO_PLAYLIST = "Add \"" + songToAdd.getFileName() + "\" to playlist";
+        final String ADD_TO_PLAYLIST = "Add selected songs to playlist";
         dialog.setHeaderText(ADD_TO_PLAYLIST);
         setDialogIcon(dialog, "add-song-playlist.png");
         dialog.setContentText(SELECT_PLAYLIST_LABEL);
