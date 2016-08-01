@@ -45,7 +45,7 @@ public class MenuUI extends MenuBar{
     private ApplicationController m_applicationController;
     private MainUI m_main;
     private boolean m_miniCheck = false;
-    private CheckMenuItem menuItem;
+    private CheckMenuItem m_menuItem;
 
     /**
      * Constructor
@@ -280,8 +280,8 @@ public class MenuUI extends MenuBar{
      */
     private Menu getMinimodeMenu() {
         Menu minimodeMenu = new Menu(MINI_MODE);
-        menuItem = new CheckMenuItem(MINI_MODE + "!");
-        menuItem.setOnAction(event -> {
+        m_menuItem = new CheckMenuItem(MINI_MODE + "!");
+        m_menuItem.setOnAction(event -> {
             System.out.println("Clicked minimode");
             if (!m_miniCheck) {
                 m_miniCheck = true;
@@ -295,7 +295,7 @@ public class MenuUI extends MenuBar{
                 m_main.minimodeTurnOff();
             }
         });
-        minimodeMenu.getItems().addAll(menuItem);
+        minimodeMenu.getItems().addAll(m_menuItem);
         return minimodeMenu;
     }
 
@@ -303,7 +303,7 @@ public class MenuUI extends MenuBar{
      * Enable minimode from external source
      */
     public void fireMiniMode() {
-        menuItem.fire();
+        m_menuItem.fire();
     }
 
     /**
@@ -312,7 +312,7 @@ public class MenuUI extends MenuBar{
      * @return minimode CheckMenuItem
      */
     public CheckMenuItem getMenuItem() {
-        return menuItem;
+        return m_menuItem;
     }
 
     /**
@@ -321,7 +321,7 @@ public class MenuUI extends MenuBar{
      * @param miniModeMenuItem CheckMenuItem
      */
     public void setMenuItem(CheckMenuItem miniModeMenuItem) {
-        menuItem = miniModeMenuItem;
+        m_menuItem = miniModeMenuItem;
     }
 
     /**
@@ -338,7 +338,7 @@ public class MenuUI extends MenuBar{
      *
      * @return minimode status
      */
-    public  boolean miniModeStatus() {
+    public boolean miniModeStatus() {
         return m_miniCheck;
     }
 }

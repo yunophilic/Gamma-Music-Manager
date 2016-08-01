@@ -95,7 +95,8 @@ public class MusicPlayerUI extends VBox {
     public MusicPlayerUI(SongManager model,
                          MusicPlayerManager manager,
                          DatabaseManager databaseManager,
-                         FilePersistentStorage config, MenuUI menuUI) {
+                         FilePersistentStorage config,
+                         MenuUI menuUI) {
         super();
         m_model = model;
         m_databaseManager = databaseManager;
