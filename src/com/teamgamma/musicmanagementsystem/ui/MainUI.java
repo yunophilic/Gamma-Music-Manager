@@ -58,9 +58,6 @@ public class MainUI extends BorderPane {
         m_filePersistentStorage = filePersistentStorage;
         m_applicationController = applicationController;
 
-        m_library = libraryExpandedPaths;
-        m_dynamicTree = dynamicTreeViewExpandedPaths;
-
         this.setLeft(leftPane(libraryExpandedPaths));
         this.setRight(rightPane());
         this.setCenter(centerPane(dynamicTreeViewExpandedPaths));
