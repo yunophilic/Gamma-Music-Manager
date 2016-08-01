@@ -42,6 +42,7 @@ public class MainUI extends BorderPane {
     private BorderPane m_leftPane;
     private BorderPane m_centerPane;
     private BorderPane m_rightPane;
+    private MenuUI m_menuUI;
 
     public MainUI(SongManager model,
                   MusicPlayerManager musicPlayerManager,
@@ -57,6 +58,7 @@ public class MainUI extends BorderPane {
         m_databaseManager = databaseManager;
         m_filePersistentStorage = filePersistentStorage;
         m_applicationController = applicationController;
+        m_menuUI = new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, this, m_applicationController);
 
         this.setLeft(leftPane(libraryExpandedPaths));
         this.setRight(rightPane());
@@ -90,7 +92,7 @@ public class MainUI extends BorderPane {
         VBox musicPlayerWrapper = new VBox();
         musicPlayerWrapper.getChildren().add(new MusicPlayerHistoryUI(m_model, m_musicPlayerManager));
         musicPlayerWrapper.getChildren().add(new MusicPlayerUI(m_model, m_musicPlayerManager, m_databaseManager,
-                m_filePersistentStorage));
+                m_filePersistentStorage, m_menuUI));
         musicPlayerWrapper.getChildren().add(new MusicPlayerPlaybackQueueUI(m_musicPlayerManager, m_model));
 
         m_rightPane = new BorderPane();
@@ -108,7 +110,7 @@ public class MainUI extends BorderPane {
      */
     private Node topPane() {
         BorderPane wrapper = new BorderPane();
-        wrapper.setCenter(new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, this, m_applicationController));
+        wrapper.setCenter(m_menuUI);
 
         HBox searchWrapper = new HBox();
         TextField searchText = new TextField();
@@ -235,8 +237,7 @@ public class MainUI extends BorderPane {
      *  the rightPane (MusicPlayer)
      */
     public void minimodeTurnOn() {
-        this.setRight(null);
-        this.setLeft(m_rightPane);
+        this.setLeft(rightPane());
         this.setCenter(null);
     }
 
@@ -246,7 +247,7 @@ public class MainUI extends BorderPane {
      */
     public void minimodeTurnOff() {
         this.setLeft(m_leftPane);
-        this.setRight(m_rightPane);
+        this.setRight(rightPane());
         this.setCenter(m_centerPane);
     }
 }

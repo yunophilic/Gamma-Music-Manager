@@ -44,6 +44,8 @@ public class MenuUI extends MenuBar{
     private DatabaseManager m_databaseManager;
     private ApplicationController m_applicationController;
     private MainUI m_main;
+    private boolean m_miniCheck = false;
+    private CheckMenuItem m_menuItem;
 
     /**
      * Constructor
@@ -278,20 +280,65 @@ public class MenuUI extends MenuBar{
      */
     private Menu getMinimodeMenu() {
         Menu minimodeMenu = new Menu(MINI_MODE);
-        CheckMenuItem menuItem = new CheckMenuItem(MINI_MODE + "!");
-
-        menuItem.setOnAction((event) -> {
-            if (menuItem.isSelected()) {
+        m_menuItem = new CheckMenuItem(MINI_MODE + "!");
+        m_menuItem.setOnAction(event -> {
+            System.out.println("Clicked minimode");
+            if (!m_miniCheck) {
+                m_miniCheck = true;
                 m_applicationController.minimodeTurnOn();
                 m_main.minimodeTurnOn();
-            } else {
+            }
+            else {
+                System.out.println("Clicked minimode");
+                m_miniCheck = false;
                 m_applicationController.minimodeTurnOff();
                 m_main.minimodeTurnOff();
             }
         });
-
-        minimodeMenu.getItems().addAll(menuItem);
+        minimodeMenu.getItems().addAll(m_menuItem);
         return minimodeMenu;
     }
 
+    /**
+     * Enable minimode from external source
+     */
+    public void fireMiniMode() {
+        m_menuItem.fire();
+    }
+
+    /**
+     * Get the minimode menu item
+     *
+     * @return minimode CheckMenuItem
+     */
+    public CheckMenuItem getMenuItem() {
+        return m_menuItem;
+    }
+
+    /**
+     * Set the minimode menu item
+     *
+     * @param miniModeMenuItem CheckMenuItem
+     */
+    public void setMenuItem(CheckMenuItem miniModeMenuItem) {
+        m_menuItem = miniModeMenuItem;
+    }
+
+    /**
+     * Set status of minimode to on or off
+     *
+     * @param enable minimode
+     */
+    public void setMiniModeOn(boolean enable) {
+        m_miniCheck = enable;
+    }
+
+    /**
+     * Get the current status of minimode
+     *
+     * @return minimode status
+     */
+    public boolean miniModeStatus() {
+        return m_miniCheck;
+    }
 }
