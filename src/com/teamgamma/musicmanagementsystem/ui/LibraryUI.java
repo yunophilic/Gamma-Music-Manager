@@ -121,6 +121,7 @@ public class LibraryUI extends StackPane {
             setFileVisibility();
         });
         m_model.addCenterFolderObserver((FileActions fileActions) -> {
+            FileTreeUtils.expandSelectedCenterFolderNode(m_tree.getRoot(), m_model.getM_selectedCenterFolder());
             setTreeCellFactory();
         });
     }

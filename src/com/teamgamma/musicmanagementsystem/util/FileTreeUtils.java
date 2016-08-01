@@ -438,7 +438,7 @@ public class FileTreeUtils {
     }
 
     /**
-     * Copy tree rooted at rootNode, newly created tree hold the same reference for the values
+     * Expand all nodes in the list of expanded paths
      *
      * @param node the root tree item
      * @param expandedPaths list of expanded paths
@@ -540,6 +540,29 @@ public class FileTreeUtils {
     private static void notifyObservers() {
         for (LoadingObserver observer : filePathObservers) {
             observer.loadNextElement();
+        }
+    }
+
+    /**
+     * Expand the node for the selected center panel folder and its parents
+     *
+     * @param selectedCenterFolder Selected center folder
+     */
+    public static void expandSelectedCenterFolderNode(TreeItem<Item> rootNode, File selectedCenterFolder) {
+        TreeItem<Item> selectedNode = searchTreeItem(rootNode, selectedCenterFolder.getAbsolutePath());
+
+        expandNodeAndParents(selectedNode);
+    }
+
+    /**
+     * Recursively expand the node and its parents
+     *
+     * @param node The node to expand
+     */
+    private static void expandNodeAndParents(TreeItem<Item> node) {
+        if (node != null) {
+            node.setExpanded(true);
+            expandNodeAndParents(node.getParent());
         }
     }
 }
