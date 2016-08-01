@@ -179,7 +179,7 @@ public class ContextMenuBuilder {
         MenuItem copy = createCopyMenuItem(model, selectedSongs);
         MenuItem paste = createCenterPanelPasteMenuItem(model);
         MenuItem rename = createRenameMenuItem(model, selectedItem);
-        MenuItem delete = createTablewViewDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedSongs);
+        MenuItem delete = createTableViewDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedSongs);
 
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedItem);
 
@@ -244,7 +244,7 @@ public class ContextMenuBuilder {
         MenuItem editProperties = createEditPropertiesMenuItem(model, selectedSong);
 
         MenuItem rename = createRenameMenuItem(model, selectedSong);
-        MenuItem delete = createTablewViewDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedSongs);
+        MenuItem delete = createTableViewDeleteMenuItem(model, musicPlayerManager, databaseManager, selectedSongs);
 
         MenuItem openFileLocation = createShowInExplorerMenuItem(selectedSong);
         MenuItem openInLibrary = createShowInLibraryMenuItem(model, selectedSong);
@@ -506,10 +506,10 @@ public class ContextMenuBuilder {
      * @param selectedSongs         The list of selected songs
      * @return                      A menu item containing the logic to delete a item.
      */
-    private static MenuItem createTablewViewDeleteMenuItem(SongManager model,
-                                                           MusicPlayerManager musicPlayerManager,
-                                                           DatabaseManager databaseManager,
-                                                           List<Song> selectedSongs) {
+    private static MenuItem createTableViewDeleteMenuItem(SongManager model,
+                                                          MusicPlayerManager musicPlayerManager,
+                                                          DatabaseManager databaseManager,
+                                                          List<Song> selectedSongs) {
         MenuItem delete = new MenuItem(DELETE);
 
         delete.setOnAction((event) -> {
