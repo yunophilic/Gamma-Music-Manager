@@ -1,6 +1,5 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.ApplicationController;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -184,7 +183,7 @@ public class MusicPlayerUI extends VBox {
      */
     private Button createMiniModeButton() {
         Button miniModeButton;
-        if (m_menuUI.miniModeStatus()) {
+        if (m_menuUI.getMiniModeStatus()) {
             System.out.println("Minimode Status: On");
             miniModeButton = UserInterfaceUtils.createIconButton(MINIMODE_OFF_ICON_PATH);
             miniModeButton.setTooltip(new Tooltip(MINIMODE_OFF_TOOL_TIP));
