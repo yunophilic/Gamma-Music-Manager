@@ -239,9 +239,8 @@ public class MainUI extends BorderPane {
      *  the rightPane (MusicPlayer)
      */
     public void minimodeTurnOn() {
-        this.setRight(null);
         this.setCenter(null);
-        this.setLeft(m_rightPane);
+        this.setLeft(rightPane());
     }
 
     /**
