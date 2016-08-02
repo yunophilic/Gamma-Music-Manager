@@ -5,12 +5,15 @@ import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.util.ConcreteFileActions;
 import com.teamgamma.musicmanagementsystem.util.FileActions;
 import com.teamgamma.musicmanagementsystem.ApplicationController;
-
 import com.teamgamma.musicmanagementsystem.util.GeneralObserver;
+
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.stage.Stage;
 import javafx.util.Pair;
 
 import java.io.File;
@@ -42,6 +45,7 @@ public class MenuUI extends MenuBar{
     private static final String EXPORT_PLAYLIST = "Export Playlist";
     private static final String SEARCH_HEADER = "Search";
     private static final String SHOW_FILES_IN_FOLDER_HITS_HEADER = "Show Files In Folder Hits";
+    private static final String LOADING_LIBRARY_MESSAGE = "Loading Library";
 
     private static List<GeneralObserver> miniModeObservers = new ArrayList<>();
 
@@ -88,15 +92,32 @@ public class MenuUI extends MenuBar{
             if (pathInput == null) {
                 return;
             }
-            if (!m_model.addLibrary(pathInput)) {
-                PromptUI.customPromptError("Error", null, "Path doesn't exist or duplicate library added");
-                return;
-            }
-            m_databaseManager.addLibrary(pathInput);
 
-            FileActions libraryFileActions = new ConcreteFileActions(Action.ADD, new File(pathInput));
-            m_model.notifyLibraryObservers(libraryFileActions);
+            Stage loadingScreen = new Stage();
+            Task libraryLoading = new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    if (!m_model.addLibrary(pathInput)) {
+                        Platform.runLater(() -> {
+                            loadingScreen.close();
+                            PromptUI.customPromptError("Error", null, "Path doesn't exist or duplicate library added");
+                        });
+                        return null;
+                    }
+                    m_databaseManager.addLibrary(pathInput);
+
+                    Platform.runLater(() -> {
+                        FileActions libraryFileActions = new ConcreteFileActions(Action.ADD, new File(pathInput));
+                        m_model.notifyLibraryObservers(libraryFileActions);
+                        loadingScreen.close();
+                    });
+                    return null;
+                }
+            };
+
+            PromptUI.createLoadingScreen(loadingScreen, LOADING_LIBRARY_MESSAGE, libraryLoading);
         });
+
         menuFile.getItems().addAll(addLibraryMenu);
         return menuFile;
     }

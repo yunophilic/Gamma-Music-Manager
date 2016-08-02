@@ -31,9 +31,9 @@ import java.util.List;
  * Event handling class used in LibraryUI and DynamicTreeViewUI
  */
 public class CustomTreeCell extends TextFieldTreeCell<Item> {
-    public static final String OPEN_FOLDER_ICON_URL = "res" + File.separator + "Status-folder-open-icon.png";
-    public static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
-    public static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
+    private static final String OPEN_FOLDER_ICON_URL = "res" + File.separator + "Status-folder-open-icon.png";
+    private static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
+    private static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
 
     //attributes
     private SongManager m_model;
