@@ -375,6 +375,11 @@ public class ContentListUI extends StackPane {
         return ContextMenuBuilder.buildCenterPanelContextMenu(m_model, m_musicPlayerManager, m_databaseManager, selectedSong, selectedSongs);
     }
 
+    /**
+     * Get the table columns visibility state in map form
+     *
+     * @return <column id, visibility state> map
+     */
     public Map<String, Boolean> getColumnsVisibility() {
         Map<String, Boolean> map = new HashMap<>();
         for (TableColumn<Song, ?> column : m_table.getColumns()) {

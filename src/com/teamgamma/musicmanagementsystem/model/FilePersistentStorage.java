@@ -326,21 +326,41 @@ public class FilePersistentStorage {
         return (boolean) getValueFromJson(HIDE_RIGHT_FILE_PANE_OPTION, false);
     }
 
+    /**
+     * Save center table columns visibility state.
+     *
+     * @param map <column id, visibility state> map.
+     */
     @SuppressWarnings("unchecked")
     public void saveCenterTableColumnsVisibility(Map<String, Boolean> map) {
         m_jsonObject.put(CENTER_TABLE_COLUMNS_VISIBILITY, map);
     }
 
+    /**
+     * Returns center table visibility state from config file.
+     *
+     * @return <column id, visibility state> map
+     */
     @SuppressWarnings("unchecked")
     public Map<String, Boolean> getCenterTableColumnsVisibility() {
         return (Map<String, Boolean>) getValueFromJson(CENTER_TABLE_COLUMNS_VISIBILITY, new HashMap<>());
     }
 
+    /**
+     * Save playlist table columns visibility state.
+     *
+     * @param map <column id, visibility state> map.
+     */
     @SuppressWarnings("unchecked")
     public void savePlaylistTableColumnsVisibility(Map<String, Boolean> map) {
         m_jsonObject.put(PLAYLIST_TABLE_COLUMNS_VISIBILITY, map);
     }
 
+    /**
+     * Returns playlist table visibility state from config file.
+     *
+     * @return <column id, visibility state> map
+     */
     @SuppressWarnings("unchecked")
     public Map<String, Boolean> getPlaylistTableColumnsVisibility() {
         return (Map<String, Boolean>) getValueFromJson(PLAYLIST_TABLE_COLUMNS_VISIBILITY, new HashMap<>());

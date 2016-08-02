@@ -717,7 +717,13 @@ public class PlaylistUI extends VBox {
                                                            selectedSongs);
     }
 
-    public Map<String, Boolean> getColumnsVisibility() {
+
+    /**
+     * Get the table columns visibility state in map form
+     *
+     * @return <column id, visibility state> map
+     */
+    public Map<String, Boolean> getTableColumnsVisibility() {
         Map<String, Boolean> map = new HashMap<>();
         for (TableColumn<Song, ?> column : m_table.getColumns()) {
             map.put(column.getId(), column.isVisible());

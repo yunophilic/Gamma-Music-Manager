@@ -248,8 +248,13 @@ public class MainUI extends BorderPane {
         return m_contentListUI.getColumnsVisibility();
     }
 
+    /**
+     * Function to get playlist table columns visibility state
+     *
+     * @return <column id, visibility state> map
+     */
     public Map<String, Boolean> getPlaylistTableColumnsVisibility() {
-        return m_playlistUI.getColumnsVisibility();
+        return m_playlistUI.getTableColumnsVisibility();
     }
 
     /**
