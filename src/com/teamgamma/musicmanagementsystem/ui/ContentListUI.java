@@ -5,7 +5,6 @@ import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
-import com.teamgamma.musicmanagementsystem.util.FileActions;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -17,12 +16,10 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * UI class for list of songs in center of application
@@ -35,6 +32,23 @@ public class ContentListUI extends StackPane {
     private TableView<Song> m_table;
 
     //constants
+    private static final String FILE_PATH_COLUMN_ID = "file_path";
+    private static final String FILE_NAME_COLUMN_ID = "file_name";
+    private static final String TITLE_COLUMN_ID = "title";
+    private static final String ARTIST_COLUMN_ID = "artist";
+    private static final String ALBUM_COLUMN_ID = "album";
+    private static final String GENRE_COLUMN_ID = "genre";
+    private static final String RATING_COLUMN_ID = "rating";
+    private static final String LENGTH_COLUMN_ID = "length";
+
+    private static final String FILE_PATH_COLUMN_HEADING = "File Path";
+    private static final String FILE_NAME_COLUMN_HEADING = "File Name";
+    private static final String TITLE_COLUMN_HEADING = "Title";
+    private static final String ARTIST_COLUMN_HEADING = "Artist";
+    private static final String ALBUM_COLUMN_HEADING = "Album";
+    private static final String GENRE_COLUMN_HEADING = "Genre";
+    private static final String RATING_COLUMN_HEADING = "Rating";
+    private static final String LENGTH_COLUMN_HEADING = "Length";
     private static final int FILE_COLUMN_MIN_WIDTH = 80;
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
@@ -47,13 +61,16 @@ public class ContentListUI extends StackPane {
      * @param musicPlayerManager
      * @param databaseManager
      */
-    public ContentListUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
+    public ContentListUI(SongManager model,
+                         MusicPlayerManager musicPlayerManager,
+                         DatabaseManager databaseManager,
+                         Map<String, Boolean> tableColumnVisibilityMap) {
         super();
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         m_contextMenu = new ContextMenu();
-        initTableView();
+        initTableView(tableColumnVisibilityMap);
         UserInterfaceUtils.applyBlackBoarder(this);
         registerAsCenterFolderObserver();
     }
@@ -79,11 +96,12 @@ public class ContentListUI extends StackPane {
     }
 
     /**
-     * Intitial table view
+     * Initialize table view
      */
-    private void initTableView() {
+    private void initTableView(Map<String, Boolean> tableColumnVisibilityMap) {
         m_table = new TableView<>();
-        setTableColumns();
+        m_table.setTableMenuButtonVisible(true);
+        setTableColumns(tableColumnVisibilityMap);
         setTableRowMouseEvents();
         setDragEvents();
         super.getChildren().add(m_table);
@@ -93,25 +111,46 @@ public class ContentListUI extends StackPane {
     /**
      * Set the various table column labels
      */
-    private void setTableColumns() {
-        TableColumn<Song, String> filePathCol = new TableColumn<>("File Path");
+    private void setTableColumns(Map<String, Boolean> tableColumnVisibilityMap) {
+        TableColumn<Song, String> filePathCol = new TableColumn<>(FILE_PATH_COLUMN_HEADING);
+        filePathCol.setId(FILE_PATH_COLUMN_ID);
         filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
-        TableColumn<Song, String> fileNameCol = new TableColumn<>("File Name");
+
+        TableColumn<Song, String> fileNameCol = new TableColumn<>(FILE_NAME_COLUMN_HEADING);
+        fileNameCol.setId(FILE_NAME_COLUMN_ID);
         fileNameCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
-        TableColumn<Song, String> titleCol = new TableColumn<>("Title");
+
+        TableColumn<Song, String> titleCol = new TableColumn<>(TITLE_COLUMN_HEADING);
+        titleCol.setId(TITLE_COLUMN_ID);
         titleCol.setMinWidth(COLUMN_MIN_WIDTH);
-        TableColumn<Song, String> artistCol = new TableColumn<>("Artist");
+
+        TableColumn<Song, String> artistCol = new TableColumn<>(ARTIST_COLUMN_HEADING);
+        artistCol.setId(ARTIST_COLUMN_ID);
         artistCol.setMinWidth(COLUMN_MIN_WIDTH);
-        TableColumn<Song, String> albumCol = new TableColumn<>("Album");
+
+        TableColumn<Song, String> albumCol = new TableColumn<>(ALBUM_COLUMN_HEADING);
+        albumCol.setId(ALBUM_COLUMN_ID);
         albumCol.setMinWidth(COLUMN_MIN_WIDTH);
-        TableColumn<Song, String> genreCol = new TableColumn<>("Genre");
+
+        TableColumn<Song, String> genreCol = new TableColumn<>(GENRE_COLUMN_HEADING);
+        genreCol.setId(GENRE_COLUMN_ID);
         genreCol.setMinWidth(COLUMN_MIN_WIDTH);
-        TableColumn<Song, Integer> ratingCol = new TableColumn<>("Rating");
+
+        TableColumn<Song, Integer> ratingCol = new TableColumn<>(RATING_COLUMN_HEADING);
+        ratingCol.setId(RATING_COLUMN_ID);
         ratingCol.setMinWidth(RATING_COLUMN_MIN_WIDTH);
-        TableColumn<Song, String> lengthCol = new TableColumn<>("Length");
+
+        TableColumn<Song, String> lengthCol = new TableColumn<>(LENGTH_COLUMN_HEADING);
+        lengthCol.setId(LENGTH_COLUMN_ID);
         lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
+
         setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, lengthCol, ratingCol);
-        showOrHideTableColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, lengthCol, ratingCol);
+
+        if (tableColumnVisibilityMap != null && !tableColumnVisibilityMap.isEmpty()) {
+            setColumnsVisibility(tableColumnVisibilityMap);
+        } else {
+            setDefaultVisibleColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, lengthCol, ratingCol);
+        }
     }
 
     /**
@@ -138,6 +177,13 @@ public class ContentListUI extends StackPane {
             m_table.setPlaceholder(new Label("Choose a folder to view its contents"));
         }
     }
+
+    private void setColumnsVisibility(Map<String, Boolean> map) {
+        for (TableColumn column : m_table.getColumns()) {
+            column.setVisible( map.get(column.getId()) );
+        }
+    }
+
     /**
      * Allows user to show or hide different columns
      *
@@ -150,16 +196,14 @@ public class ContentListUI extends StackPane {
      * @param lengthCol length of the song
      * @param ratingCol rating of the song
      */
-    private void showOrHideTableColumns(TableColumn<Song, String> filePathCol,
-                                        TableColumn<Song, String> fileNameCol,
-                                        TableColumn<Song, String> titleCol,
-                                        TableColumn<Song, String> artistCol,
-                                        TableColumn<Song, String> albumCol,
-                                        TableColumn<Song, String> genreCol,
-                                        TableColumn<Song, String> lengthCol,
-                                        TableColumn<Song, Integer> ratingCol) {
-        m_table.setTableMenuButtonVisible(true);
-
+    private void setDefaultVisibleColumns(TableColumn<Song, String> filePathCol,
+                                          TableColumn<Song, String> fileNameCol,
+                                          TableColumn<Song, String> titleCol,
+                                          TableColumn<Song, String> artistCol,
+                                          TableColumn<Song, String> albumCol,
+                                          TableColumn<Song, String> genreCol,
+                                          TableColumn<Song, String> lengthCol,
+                                          TableColumn<Song, Integer> ratingCol) {
         //default columns
         fileNameCol.setVisible(true);
         artistCol.setVisible(true);
@@ -338,4 +382,14 @@ public class ContentListUI extends StackPane {
         return ContextMenuBuilder.buildCenterPanelContextMenu(m_model, m_musicPlayerManager, m_databaseManager, selectedSong, selectedSongs);
     }
 
+    public Map<String, Boolean> getColumnsVisibility() {
+        Map<String, Boolean> map = new HashMap<>();
+
+        List<TableColumn<Song, ?>> columns = m_table.getColumns();
+        for (TableColumn<Song, ?> column : columns) {
+            map.put(column.getId(), column.isVisible());
+        }
+
+        return map;
+    }
 }
