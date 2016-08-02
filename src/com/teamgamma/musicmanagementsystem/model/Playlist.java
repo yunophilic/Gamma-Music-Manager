@@ -104,7 +104,7 @@ public class Playlist {
      * @param newSong The new song
      */
     public void changeSongs(Song oldSong, Song newSong) {
-        for (int i=0; i<m_songList.size(); i++) {
+        for (int i = 0; i < m_songList.size(); i++) {
             if (m_songList.get(i).equals(oldSong)) {
                 m_songList.set(i, newSong);
             }

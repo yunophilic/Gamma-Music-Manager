@@ -71,6 +71,7 @@ public class FileManager {
      *
      * @param fileToMove: File to be moved
      * @param destDir:    File object with path to destination directory
+     * @return The new File after move
      * @throws IOException If failed to move file
      */
     public static File moveFile(File fileToMove, File destDir) throws IOException {
