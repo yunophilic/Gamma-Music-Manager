@@ -13,6 +13,8 @@ import javafx.scene.control.MenuItem;
 import javafx.util.Pair;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class for the Menu Bar
@@ -39,6 +41,8 @@ public class MenuUI extends MenuBar{
     private static final String EXPORT_PLAYLIST = "Export Playlist";
     private static final String SEARCH_HEADER = "Search";
     private static final String SHOW_FILES_IN_FOLDER_HITS_HEADER = "Show Files In Folder Hits";
+
+    private static List<LoadingObserver> miniModeObservers = new ArrayList<>();
 
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
@@ -305,6 +309,7 @@ public class MenuUI extends MenuBar{
             m_applicationController.minimodeTurnOff();
             m_main.minimodeTurnOff();
         }
+        notifyObservers();
         m_minimodeMenuItem.setSelected(m_miniCheck);
     }
 
@@ -315,5 +320,23 @@ public class MenuUI extends MenuBar{
      */
     public boolean getMiniModeStatus() {
         return m_miniCheck;
+    }
+
+    /**
+     * Add observer to minimode observers
+     *
+     * @param  observer to add
+     */
+    public static void addObserver(LoadingObserver observer) {
+        miniModeObservers.add(observer);
+    }
+
+    /**
+     * Notify all observers in minimodeObservers when the user clicks minimode
+     */
+    private static void notifyObservers() {
+        for (LoadingObserver observer : miniModeObservers) {
+            observer.loadNextElement();
+        }
     }
 }

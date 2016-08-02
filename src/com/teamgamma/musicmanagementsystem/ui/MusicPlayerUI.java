@@ -86,6 +86,7 @@ public class MusicPlayerUI extends VBox {
 
     private List<Button> m_ratingIcons;
     private MenuUI m_menuUI;
+    private ToggleButton m_miniModeButton;
 
     /**
      * Constructor
@@ -102,6 +103,8 @@ public class MusicPlayerUI extends VBox {
         m_model = model;
         m_databaseManager = databaseManager;
         m_menuUI = menuUI;
+        m_miniModeButton = new ToggleButton();
+        registerObservers();
         VBox topWrapper = new VBox();
         topWrapper.setSpacing(0);
         topWrapper.getChildren().add(makeSongTitleHeader(manager));
@@ -184,26 +187,19 @@ public class MusicPlayerUI extends VBox {
      * @return          A button for enabling/disabling minimode.
      */
     private ToggleButton createMiniModeButton() {
-        ToggleButton miniModeButton = new ToggleButton();
-        miniModeButton.setStyle("-fx-background-color: transparent");
-        miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
-        miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_ON_ICON_PATH));
+        m_miniModeButton = new ToggleButton();
+        m_miniModeButton.setStyle("-fx-background-color: transparent");
+        m_miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
+        m_miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_ON_ICON_PATH));
 
-        UserInterfaceUtils.createMouseOverUIChange(miniModeButton, miniModeButton.getStyle());
+        UserInterfaceUtils.createMouseOverUIChange(m_miniModeButton, m_miniModeButton.getStyle());
 
-        miniModeButton.setOnMouseClicked((event) -> {
+        m_miniModeButton.setOnMouseClicked((event) -> {
             m_menuUI.fireMiniMode();
-            if (miniModeButton.isSelected()) {
-                miniModeButton.setTooltip(new Tooltip(MINIMODE_OFF_TOOL_TIP));
-                miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_OFF_ICON_PATH));
-            } else {
-                miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
-                miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_ON_ICON_PATH));
-            }
-            UserInterfaceUtils.createMouseOverUIChange(miniModeButton, miniModeButton.getStyle());
+            UserInterfaceUtils.createMouseOverUIChange(m_miniModeButton, m_miniModeButton.getStyle());
         });
 
-        return miniModeButton;
+        return m_miniModeButton;
     }
 
     /**
@@ -739,5 +735,20 @@ public class MusicPlayerUI extends VBox {
         });
 
         return volumeSlider;
+    }
+
+    /**
+     * Register observers if minimode status changed
+     */
+    private void registerObservers() {
+        m_menuUI.addObserver(() -> {
+            if (m_menuUI.getMiniModeStatus()) {
+                m_miniModeButton.setTooltip(new Tooltip(MINIMODE_OFF_TOOL_TIP));
+                m_miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_OFF_ICON_PATH));
+            } else {
+                m_miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
+                m_miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_ON_ICON_PATH));
+            }
+        });
     }
 }
