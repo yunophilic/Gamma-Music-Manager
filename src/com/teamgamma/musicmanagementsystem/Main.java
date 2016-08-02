@@ -12,7 +12,7 @@ import java.net.ServerSocket;
 public class Main {
 
     // According to https://en.wikipedia.org/wiki/Ephemeral_port, ports 49152 to 65535 are suggested
-    private static final int PORT_NUMBER = 49152;
+    private static final int PORT_NUMBER = 49553;
 
     public static void main(String[] args) {
         // Launch application if the server socket is not already open (i.e. no other instances running)
