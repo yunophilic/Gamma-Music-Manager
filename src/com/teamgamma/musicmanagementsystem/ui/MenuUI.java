@@ -6,6 +6,7 @@ import com.teamgamma.musicmanagementsystem.util.ConcreteFileActions;
 import com.teamgamma.musicmanagementsystem.util.FileActions;
 import com.teamgamma.musicmanagementsystem.ApplicationController;
 
+import com.teamgamma.musicmanagementsystem.util.GeneralObserver;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -42,7 +43,7 @@ public class MenuUI extends MenuBar{
     private static final String SEARCH_HEADER = "Search";
     private static final String SHOW_FILES_IN_FOLDER_HITS_HEADER = "Show Files In Folder Hits";
 
-    private static List<LoadingObserver> miniModeObservers = new ArrayList<>();
+    private static List<GeneralObserver> miniModeObservers = new ArrayList<>();
 
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
@@ -327,7 +328,7 @@ public class MenuUI extends MenuBar{
      *
      * @param  observer to add
      */
-    public static void addObserver(LoadingObserver observer) {
+    public static void addObserver(GeneralObserver observer) {
         miniModeObservers.add(observer);
     }
 
@@ -335,8 +336,8 @@ public class MenuUI extends MenuBar{
      * Notify all observers in minimodeObservers when the user clicks minimode
      */
     private static void notifyObservers() {
-        for (LoadingObserver observer : miniModeObservers) {
-            observer.loadNextElement();
+        for (GeneralObserver observer : miniModeObservers) {
+            observer.update();
         }
     }
 }
