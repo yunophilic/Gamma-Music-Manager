@@ -98,6 +98,20 @@ public class Playlist {
     }
 
     /**
+     * Change all occurrences of oldSong in m_songList into newSong
+     *
+     * @param oldSong The old song
+     * @param newSong The new song
+     */
+    public void changeSongs(Song oldSong, Song newSong) {
+        for (int i=0; i<m_songList.size(); i++) {
+            if (m_songList.get(i).equals(oldSong)) {
+                m_songList.set(i, newSong);
+            }
+        }
+    }
+
+    /**
      * Shuffle order of songs in playlist
      */
     public List<Song> shuffleAllSongs() {

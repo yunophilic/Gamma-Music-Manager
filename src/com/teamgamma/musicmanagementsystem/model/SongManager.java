@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class to manage libraries and playlists
@@ -264,6 +266,7 @@ public class SongManager {
         }
 
         FileActions moveFileAction = new ConcreteFileActions();
+        List<Pair<Song, File>> songFilePairs = new ArrayList<>();
         List<Item> itemsToSkip = new ArrayList<>();
         for(Item itemToMove : m_itemsToMove) {
             try {
@@ -272,10 +275,14 @@ public class SongManager {
                     return;
                 }
 
-                FileManager.moveFile(fileToMove, destDir);
+                File movedFile = FileManager.moveFile(fileToMove, destDir);
 
                 moveFileAction.add(Action.DELETE, fileToMove);
-                moveFileAction.add(Action.ADD, new File(destDir.getAbsoluteFile() + File.separator + fileToMove.getName()));
+                moveFileAction.add(Action.ADD, movedFile);
+
+                if (itemToMove instanceof Song) {
+                    songFilePairs.add(new Pair<>((Song) itemToMove, movedFile));
+                }
             } catch (FileAlreadyExistsException ex) {
                 System.out.println("### Skipping song: " + itemToMove.getFile());
                 itemsToSkip.add(itemToMove);
@@ -287,6 +294,12 @@ public class SongManager {
         m_moveDest = destDir;
 
         updateFilesInFileTree(moveFileAction);
+
+        for (Pair<Song, File> entry : songFilePairs) {
+            for (Playlist playlist : m_playlists) {
+                playlist.changeSongs(entry.getKey(), getSong(entry.getValue()));
+            }
+        }
 
         notifyFileObservers(moveFileAction);
     }
