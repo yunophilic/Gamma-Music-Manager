@@ -145,12 +145,21 @@ public class ContentListUI extends StackPane {
         lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
 
         setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, lengthCol, ratingCol);
-
         if (tableColumnVisibilityMap != null && !tableColumnVisibilityMap.isEmpty()) {
             setColumnsVisibility(tableColumnVisibilityMap);
         } else {
             setDefaultVisibleColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, lengthCol, ratingCol);
         }
+
+        m_table.getColumns().add(filePathCol);
+        m_table.getColumns().add(fileNameCol);
+        m_table.getColumns().add(titleCol);
+        m_table.getColumns().add(artistCol);
+        m_table.getColumns().add(albumCol);
+        m_table.getColumns().add(genreCol);
+        m_table.getColumns().add(ratingCol);
+        m_table.getColumns().add(lengthCol);
+        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
     /**
@@ -272,16 +281,6 @@ public class ContentListUI extends StackPane {
                 m_model.notifyCenterFolderObservers();
             }
         });
-
-        m_table.getColumns().add(filePathCol);
-        m_table.getColumns().add(fileNameCol);
-        m_table.getColumns().add(titleCol);
-        m_table.getColumns().add(artistCol);
-        m_table.getColumns().add(albumCol);
-        m_table.getColumns().add(genreCol);
-        m_table.getColumns().add(lengthCol);
-        m_table.getColumns().add(ratingCol);
-        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
     /**
