@@ -429,6 +429,7 @@ public class PlaylistUI extends VBox {
      */
     private void initTableView(Map<String, Boolean> tableColumnVisibilityMap) {
         m_table = new TableView<>();
+        m_table.setTableMenuButtonVisible(true);
         setTableColumns(tableColumnVisibilityMap);
         setTableDragEvents();
         setupTableRowFactory();
@@ -474,6 +475,8 @@ public class PlaylistUI extends VBox {
         lengthCol.setId(LENGTH_COLUMN_ID);
         lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
 
+        setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
+
         m_table.getColumns().add(filePathCol);
         m_table.getColumns().add(fileNameCol);
         m_table.getColumns().add(titleCol);
@@ -484,11 +487,10 @@ public class PlaylistUI extends VBox {
         m_table.getColumns().add(lengthCol);
         m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
         if (tableColumnVisibilityMap != null && !tableColumnVisibilityMap.isEmpty()) {
             setVisibleColumnsInTable(tableColumnVisibilityMap);
         } else {
-            setDefaultVisibleColumnsInTable(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
+            setDefaultVisibleColumnsInTable();
         }
     }
 
@@ -527,36 +529,15 @@ public class PlaylistUI extends VBox {
 
     /**
      * Function to set which columns will be shown in the playtlist UI table by default.
-     *
-     * @param filePathCol
-     * @param fileNameCol
-     * @param titleCol
-     * @param artistCol
-     * @param albumCol
-     * @param genreCol
-     * @param ratingCol
-     * @param lengthCol
      */
-    private void setDefaultVisibleColumnsInTable(TableColumn<Song, String> filePathCol,
-                                                 TableColumn<Song, String> fileNameCol,
-                                                 TableColumn<Song, String> titleCol,
-                                                 TableColumn<Song, String> artistCol,
-                                                 TableColumn<Song, String> albumCol,
-                                                 TableColumn<Song, String> genreCol,
-                                                 TableColumn<Song, Integer> ratingCol,
-                                                 TableColumn<Song, String> lengthCol) {
-        m_table.setTableMenuButtonVisible(true);
-
-        //default columns
-        fileNameCol.setVisible(true);
-        artistCol.setVisible(true);
-        lengthCol.setVisible(true);
-
-        filePathCol.setVisible(false);
-        titleCol.setVisible(false);
-        albumCol.setVisible(false);
-        genreCol.setVisible(false);
-        ratingCol.setVisible(false);
+    private void setDefaultVisibleColumnsInTable() {
+        for (TableColumn column : m_table.getColumns()) {
+            if (column.getId().equals(FILE_NAME_COLUMN_ID) || column.getId().equals(ARTIST_COLUMN_ID)) {
+                column.setVisible(true);
+            } else {
+                column.setVisible(false);
+            }
+        }
     }
 
     /**

@@ -200,17 +200,6 @@ public class ContentListUI extends StackPane {
      * Set default visible columns
      */
     private void setDefaultVisibleColumns() {
-        //default columns
-        /*fileNameCol.setVisible(true);
-        artistCol.setVisible(true);
-
-        filePathCol.setVisible(false);
-        titleCol.setVisible(false);
-        albumCol.setVisible(false);
-        genreCol.setVisible(false);
-        lengthCol.setVisible(false);
-        ratingCol.setVisible(false);*/
-
         for (TableColumn column : m_table.getColumns()) {
             if (column.getId().equals(FILE_NAME_COLUMN_ID) || column.getId().equals(ARTIST_COLUMN_ID)) {
                 column.setVisible(true);
