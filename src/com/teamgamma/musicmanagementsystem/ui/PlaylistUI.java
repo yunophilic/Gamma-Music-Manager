@@ -22,7 +22,9 @@ import javafx.util.Callback;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * UI class for list of songs in center of application
@@ -36,6 +38,24 @@ public class PlaylistUI extends VBox {
     private ComboBox<Playlist> m_dropDownMenu;
 
     //constants
+    private static final String FILE_PATH_COLUMN_ID = "file_path";
+    private static final String FILE_NAME_COLUMN_ID = "file_name";
+    private static final String TITLE_COLUMN_ID = "title";
+    private static final String ARTIST_COLUMN_ID = "artist";
+    private static final String ALBUM_COLUMN_ID = "album";
+    private static final String GENRE_COLUMN_ID = "genre";
+    private static final String RATING_COLUMN_ID = "rating";
+    private static final String LENGTH_COLUMN_ID = "length";
+
+    private static final String FILE_PATH_COLUMN_HEADING = "File Path";
+    private static final String FILE_NAME_COLUMN_HEADING = "File Name";
+    private static final String TITLE_COLUMN_HEADING = "Title";
+    private static final String ARTIST_COLUMN_HEADING = "Artist";
+    private static final String ALBUM_COLUMN_HEADING = "Album";
+    private static final String GENRE_COLUMN_HEADING = "Genre";
+    private static final String RATING_COLUMN_HEADING = "Rating";
+    private static final String LENGTH_COLUMN_HEADING = "Length";
+
     private static final int DROP_DOWN_MENU_MIN_WIDTH = 100;
     private static final int DROP_DOWN_MENU_MAX_WIDTH = 700;
     private static final int DROP_DOWN_MENU_PREF_WIDTH = 200;
@@ -70,7 +90,10 @@ public class PlaylistUI extends VBox {
     private static final String REPEAT_PLAYLIST_TOOL_TIP_BUTTON = "Repeat Playlist Mode";
     private static final String EMPTY_PLAYLIST_MESSAGE = "Playlist empty";
 
-    public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
+    public PlaylistUI(SongManager model,
+                      MusicPlayerManager musicPlayerManager,
+                      DatabaseManager databaseManager,
+                      Map<String, Boolean> tableColumnVisibilityMap) {
         super();
         m_model = model;
         m_musicPlayerManager = musicPlayerManager;
@@ -83,7 +106,7 @@ public class PlaylistUI extends VBox {
                     createRemovePlaylistButton(),
                     createRenamePlaylistButton(),
                     createShufflePlaylistButton());
-        initTableView();
+        initTableView(tableColumnVisibilityMap);
         UserInterfaceUtils.applyBlackBoarder(this);
         registerAsPlaylistObserver();
         this.setSpacing(0);
@@ -404,9 +427,9 @@ public class PlaylistUI extends VBox {
     /**
      * Function to initialize and build the table for the playlist.
      */
-    private void initTableView() {
+    private void initTableView(Map<String, Boolean> tableColumnVisibilityMap) {
         m_table = new TableView<>();
-        setTableColumns();
+        setTableColumns(tableColumnVisibilityMap);
         setTableDragEvents();
         setupTableRowFactory();
         super.getChildren().add(m_table);
@@ -418,26 +441,38 @@ public class PlaylistUI extends VBox {
     /**
      * Function to set the columns for the playlist table.
      */
-    private void setTableColumns() {
-        TableColumn<Song, String> filePathCol = new TableColumn<>("File Path");
+    private void setTableColumns(Map<String, Boolean> tableColumnVisibilityMap) {
+        TableColumn<Song, String> filePathCol = new TableColumn<>(FILE_PATH_COLUMN_HEADING);
+        filePathCol.setId(FILE_PATH_COLUMN_ID);
         filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
-        TableColumn<Song, String> fileNameCol = new TableColumn<>("File Name");
-        fileNameCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
-        TableColumn<Song, String> titleCol = new TableColumn<>("Title");
-        titleCol.setMinWidth(COLUMN_MIN_WIDTH);
-        TableColumn<Song, String> artistCol = new TableColumn<>("Artist");
-        artistCol.setMinWidth(COLUMN_MIN_WIDTH);
-        TableColumn<Song, String> albumCol = new TableColumn<>("Album");
-        albumCol.setMinWidth(COLUMN_MIN_WIDTH);
-        TableColumn<Song, String> genreCol = new TableColumn<>("Genre");
-        genreCol.setMinWidth(COLUMN_MIN_WIDTH);
-        TableColumn<Song, Integer> ratingCol = new TableColumn<>("Rating");
-        ratingCol.setMinWidth(RATING_COLUMN_MIN_WIDTH);
-        TableColumn<Song, String> lengthCol = new TableColumn<>("Length");
-        lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
 
-        setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
-        setDefaultVisibleColumnsInTable(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
+        TableColumn<Song, String> fileNameCol = new TableColumn<>(FILE_NAME_COLUMN_HEADING);
+        fileNameCol.setId(FILE_NAME_COLUMN_ID);
+        fileNameCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
+
+        TableColumn<Song, String> titleCol = new TableColumn<>(TITLE_COLUMN_HEADING);
+        titleCol.setId(TITLE_COLUMN_ID);
+        titleCol.setMinWidth(COLUMN_MIN_WIDTH);
+
+        TableColumn<Song, String> artistCol = new TableColumn<>(ARTIST_COLUMN_HEADING);
+        artistCol.setId(ARTIST_COLUMN_ID);
+        artistCol.setMinWidth(COLUMN_MIN_WIDTH);
+
+        TableColumn<Song, String> albumCol = new TableColumn<>(ALBUM_COLUMN_HEADING);
+        albumCol.setId(ALBUM_COLUMN_ID);
+        albumCol.setMinWidth(COLUMN_MIN_WIDTH);
+
+        TableColumn<Song, String> genreCol = new TableColumn<>(GENRE_COLUMN_HEADING);
+        genreCol.setId(GENRE_COLUMN_ID);
+        genreCol.setMinWidth(COLUMN_MIN_WIDTH);
+
+        TableColumn<Song, Integer> ratingCol = new TableColumn<>(RATING_COLUMN_HEADING);
+        ratingCol.setId(RATING_COLUMN_ID);
+        ratingCol.setMinWidth(RATING_COLUMN_MIN_WIDTH);
+
+        TableColumn<Song, String> lengthCol = new TableColumn<>(LENGTH_COLUMN_HEADING);
+        lengthCol.setId(LENGTH_COLUMN_ID);
+        lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
 
         m_table.getColumns().add(filePathCol);
         m_table.getColumns().add(fileNameCol);
@@ -448,6 +483,13 @@ public class PlaylistUI extends VBox {
         m_table.getColumns().add(ratingCol);
         m_table.getColumns().add(lengthCol);
         m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
+        if (tableColumnVisibilityMap != null && !tableColumnVisibilityMap.isEmpty()) {
+            setVisibleColumnsInTable(tableColumnVisibilityMap);
+        } else {
+            setDefaultVisibleColumnsInTable(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
+        }
     }
 
     /**
@@ -475,6 +517,12 @@ public class PlaylistUI extends VBox {
         }
 
         m_table.refresh();
+    }
+
+    private void setVisibleColumnsInTable(Map<String, Boolean> map) {
+        for (TableColumn column : m_table.getColumns()) {
+            column.setVisible( map.get(column.getId()) );
+        }
     }
 
     /**
@@ -669,4 +717,11 @@ public class PlaylistUI extends VBox {
                                                            selectedSongs);
     }
 
+    public Map<String, Boolean> getColumnsVisibility() {
+        Map<String, Boolean> map = new HashMap<>();
+        for (TableColumn<Song, ?> column : m_table.getColumns()) {
+            map.put(column.getId(), column.isVisible());
+        }
+        return map;
+    }
 }

@@ -105,11 +105,13 @@ public class FilePersistentStorage {
                                File centerPanelFile,
                                Playlist selectedPlaylist,
                                MenuOptions menuOptions,
-                               Map<String, Boolean> centerTableColumnVisibilityMap) {
+                               Map<String, Boolean> centerTableColumnVisibilityMap,
+                               Map<String, Boolean> playlistTableColumnVisibilityMap) {
         System.out.println("RIGHT FOLDER: " + rightPanelFile);
         System.out.println("CENTER FOLDER: " + centerPanelFile);
         System.out.println("SELECTED PLAYLIST: " + selectedPlaylist);
         System.out.println("CENTER TABLE COLUMNS: " + centerTableColumnVisibilityMap);
+        System.out.println("PLAYLIST TABLE COLUMNS: " + playlistTableColumnVisibilityMap);
 
         if (rightPanelFile != null) {
             saveRightPanelFolder(rightPanelFile.getAbsolutePath());
@@ -135,6 +137,7 @@ public class FilePersistentStorage {
         saveHideRightFilePane(menuOptions.getHideRightPanel());
 
         saveCenterTableColumnsVisibility(centerTableColumnVisibilityMap);
+        savePlaylistTableColumnsVisibility(playlistTableColumnVisibilityMap);
 
         writeConfigFile();
     }
@@ -331,6 +334,16 @@ public class FilePersistentStorage {
     @SuppressWarnings("unchecked")
     public Map<String, Boolean> getCenterTableColumnsVisibility() {
         return (Map<String, Boolean>) getValueFromJson(CENTER_TABLE_COLUMNS_VISIBILITY, new HashMap<>());
+    }
+
+    @SuppressWarnings("unchecked")
+    public void savePlaylistTableColumnsVisibility(Map<String, Boolean> map) {
+        m_jsonObject.put(PLAYLIST_TABLE_COLUMNS_VISIBILITY, map);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Boolean> getPlaylistTableColumnsVisibility() {
+        return (Map<String, Boolean>) getValueFromJson(PLAYLIST_TABLE_COLUMNS_VISIBILITY, new HashMap<>());
     }
 
     /**

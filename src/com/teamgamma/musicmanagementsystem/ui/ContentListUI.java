@@ -49,6 +49,7 @@ public class ContentListUI extends StackPane {
     private static final String GENRE_COLUMN_HEADING = "Genre";
     private static final String RATING_COLUMN_HEADING = "Rating";
     private static final String LENGTH_COLUMN_HEADING = "Length";
+
     private static final int FILE_COLUMN_MIN_WIDTH = 80;
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
@@ -145,11 +146,6 @@ public class ContentListUI extends StackPane {
         lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
 
         setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, lengthCol, ratingCol);
-        if (tableColumnVisibilityMap != null && !tableColumnVisibilityMap.isEmpty()) {
-            setColumnsVisibility(tableColumnVisibilityMap);
-        } else {
-            setDefaultVisibleColumns(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, lengthCol, ratingCol);
-        }
 
         m_table.getColumns().add(filePathCol);
         m_table.getColumns().add(fileNameCol);
@@ -160,6 +156,12 @@ public class ContentListUI extends StackPane {
         m_table.getColumns().add(ratingCol);
         m_table.getColumns().add(lengthCol);
         m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        if (tableColumnVisibilityMap != null && !tableColumnVisibilityMap.isEmpty()) {
+            setVisibleColumns(tableColumnVisibilityMap);
+        } else {
+            setDefaultVisibleColumns();
+        }
     }
 
     /**
@@ -187,34 +189,18 @@ public class ContentListUI extends StackPane {
         }
     }
 
-    private void setColumnsVisibility(Map<String, Boolean> map) {
+    private void setVisibleColumns(Map<String, Boolean> map) {
         for (TableColumn column : m_table.getColumns()) {
             column.setVisible( map.get(column.getId()) );
         }
     }
 
     /**
-     * Allows user to show or hide different columns
-     *
-     * @param filePathCol full path of the song file
-     * @param fileNameCol name of the song file
-     * @param titleCol title of the song
-     * @param artistCol artist of the song
-     * @param albumCol album of the song
-     * @param genreCol genre of the song
-     * @param lengthCol length of the song
-     * @param ratingCol rating of the song
+     * Set default visible columns
      */
-    private void setDefaultVisibleColumns(TableColumn<Song, String> filePathCol,
-                                          TableColumn<Song, String> fileNameCol,
-                                          TableColumn<Song, String> titleCol,
-                                          TableColumn<Song, String> artistCol,
-                                          TableColumn<Song, String> albumCol,
-                                          TableColumn<Song, String> genreCol,
-                                          TableColumn<Song, String> lengthCol,
-                                          TableColumn<Song, Integer> ratingCol) {
+    private void setDefaultVisibleColumns() {
         //default columns
-        fileNameCol.setVisible(true);
+        /*fileNameCol.setVisible(true);
         artistCol.setVisible(true);
 
         filePathCol.setVisible(false);
@@ -222,7 +208,15 @@ public class ContentListUI extends StackPane {
         albumCol.setVisible(false);
         genreCol.setVisible(false);
         lengthCol.setVisible(false);
-        ratingCol.setVisible(false);
+        ratingCol.setVisible(false);*/
+
+        for (TableColumn column : m_table.getColumns()) {
+            if (column.getId().equals(FILE_NAME_COLUMN_ID) || column.getId().equals(ARTIST_COLUMN_ID)) {
+                column.setVisible(true);
+            } else {
+                column.setVisible(false);
+            }
+        }
     }
 
     /**
@@ -383,12 +377,9 @@ public class ContentListUI extends StackPane {
 
     public Map<String, Boolean> getColumnsVisibility() {
         Map<String, Boolean> map = new HashMap<>();
-
-        List<TableColumn<Song, ?>> columns = m_table.getColumns();
-        for (TableColumn<Song, ?> column : columns) {
+        for (TableColumn<Song, ?> column : m_table.getColumns()) {
             map.put(column.getId(), column.isVisible());
         }
-
         return map;
     }
 }

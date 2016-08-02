@@ -40,6 +40,7 @@ public class MainUI extends BorderPane {
     private LibraryUI m_libraryUI;
     private DynamicTreeViewUI m_dynamicTreeViewUI;
     private ContentListUI m_contentListUI;
+    private PlaylistUI m_playlistUI;
     private MenuUI m_menuUI;
 
     private BorderPane m_leftPane;
@@ -54,6 +55,7 @@ public class MainUI extends BorderPane {
                   List<String> libraryExpandedPaths,
                   List<String> dynamicTreeViewExpandedPaths,
                   Map<String, Boolean> centerTableColumnVisibilityMap,
+                  Map<String, Boolean> playlistTableColumnVisibilityMap,
                   ApplicationController applicationController) {
         super();
 
@@ -64,7 +66,7 @@ public class MainUI extends BorderPane {
         m_menuUI = new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, this, applicationController);
 
         this.setLeft(leftPane(libraryExpandedPaths));
-        this.setRight(rightPane());
+        this.setRight(rightPane(playlistTableColumnVisibilityMap));
         this.setCenter(centerPane(dynamicTreeViewExpandedPaths, centerTableColumnVisibilityMap));
         this.setTop(topPane());
     }
@@ -89,17 +91,17 @@ public class MainUI extends BorderPane {
      *
      * @return  The UI elements that are to be shown in the right side of the application.
      */
-    private Node rightPane() {
-        PlaylistUI playlistUI = new PlaylistUI(m_model, m_musicPlayerManager, m_databaseManager);
+    private Node rightPane(Map<String, Boolean> playlistTableColumnVisibilityMap) {
+        m_playlistUI = new PlaylistUI(m_model, m_musicPlayerManager, m_databaseManager, playlistTableColumnVisibilityMap);
 
         VBox musicPlayerWrapper = new VBox();
         musicPlayerWrapper.getChildren().add(new MusicPlayerHistoryUI(m_model, m_musicPlayerManager));
         musicPlayerWrapper.getChildren().add(new MusicPlayerUI(m_model, m_musicPlayerManager, m_databaseManager,
-                m_filePersistentStorage, m_menuUI));
+                                                            m_filePersistentStorage, m_menuUI));
         musicPlayerWrapper.getChildren().add(new MusicPlayerPlaybackQueueUI(m_musicPlayerManager, m_model));
 
         m_rightPane = new BorderPane();
-        m_rightPane.setCenter(playlistUI);
+        m_rightPane.setCenter(m_playlistUI);
         m_rightPane.setBottom(musicPlayerWrapper);
         m_rightPane.setPrefWidth(RIGHT_PANEL_PREF_WIDTH);
 
@@ -238,12 +240,16 @@ public class MainUI extends BorderPane {
     }
 
     /**
-     * Function to get columns visibility state
+     * Function to get center table columns visibility state
      *
      * @return <column id, boolean> map
      */
     public Map<String, Boolean> getCenterTableColumnsVisibility() {
         return m_contentListUI.getColumnsVisibility();
+    }
+
+    public Map<String, Boolean> getPlaylistTableColumnsVisibility() {
+        return m_playlistUI.getColumnsVisibility();
     }
 
     /**

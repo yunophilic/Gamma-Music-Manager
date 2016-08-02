@@ -239,7 +239,8 @@ public class ApplicationController extends Application {
                         m_songManager.getM_selectedCenterFolder(),
                         m_songManager.getM_selectedPlaylist(),
                         m_songManager.getM_menuOptions(),
-                        m_rootUI.getCenterTableColumnsVisibility()
+                        m_rootUI.getCenterTableColumnsVisibility(),
+                        m_rootUI.getPlaylistTableColumnsVisibility()
                 );
                 m_databaseManager.closeConnection();
 
@@ -300,6 +301,7 @@ public class ApplicationController extends Application {
         List<String> libraryUIExpandedPaths = m_databaseManager.getExpandedLeftTreeViewItems();
         List<String> rightPanelExpandedPaths = m_databaseManager.getExpandedRightTreeViewItems();
         Map<String, Boolean> centerTableColumnVisibilityMap = m_filePersistentStorage.getCenterTableColumnsVisibility();
+        Map<String, Boolean> playlistTableColumnVisibilityMap = m_filePersistentStorage.getPlaylistTableColumnsVisibility();
 
         // Create main UI
         m_rootUI = new MainUI(songManager,
@@ -309,6 +311,7 @@ public class ApplicationController extends Application {
                               libraryUIExpandedPaths,
                               rightPanelExpandedPaths,
                               centerTableColumnVisibilityMap,
+                              playlistTableColumnVisibilityMap,
                               this);
     }
 
