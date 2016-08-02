@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class SearchResultUI extends BorderPane{
 
-    public static final String DEFAULT_SEARCH_MESSAGE = "Search Something";
+    private static final String DEFAULT_SEARCH_MESSAGE = "Search Something";
 
     /**
      * Constructor

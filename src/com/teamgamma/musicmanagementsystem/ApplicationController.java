@@ -37,9 +37,10 @@ public class ApplicationController extends Application {
     private static final double MIN_WINDOW_WIDTH = 100;
     private static final double MIN_WINDOW_HEIGHT = 100;
     private static final double UNDO_SET_MAX_WIDTH = 9000;
-    private static final String APP_TITLE = "Gamma Music Manager";
     private static final String GAMMA_LOGO_IMAGE_URL = "res" + File.separator + "gamma-logo.png";
     private static final String START_SOUND_PATH = System.getProperty("user.dir") + File.separator + "src" + File.separator + "res" + File.separator +"start-sound.mp3";
+    public static final String SAVING_MESSAGE = "Saving current session...";
+    public static final String APP_TITLE = "Gamma Music Manager";
 
     private SongManager m_songManager;
     private MusicPlayerManager m_musicPlayerManager;
@@ -192,39 +193,10 @@ public class ApplicationController extends Application {
      * @param watcher
      */
     private void closeApp(final MusicPlayerManager musicPlayerManager, final Watcher watcher) {
-        final int CLOSING_WINDOW_WIDTH = 400;
-        final int CLOSING_WINDOW_HEIGHT = 100;
-        final int LOADING_SIZE = 60;
-        final double MESSAGE_OPACITY = .8;
-        final int FONT_SIZE = 14;
-        final String LOADING_BACKGROUND_IMAGE = "res\\loading-bg.png";
+
         watcher.stopWatcher();
         musicPlayerManager.setCurrentPlaylistSongPercentage();
-
-        ProgressIndicator progress = new ProgressIndicator();
-
-        BorderPane closingWindow = new BorderPane();
-        closingWindow.setBottom(progress);
-        closingWindow.setPrefSize(LOADING_SIZE, LOADING_SIZE);
-
-        Image backgroundImage = new Image(LOADING_BACKGROUND_IMAGE);
-        closingWindow.setBackground(new Background(new BackgroundImage(backgroundImage, BackgroundRepeat.REPEAT,
-                BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
-
-        Label text = new Label("Saving current session...");
-        text.setFont(new Font(FONT_SIZE));
-        text.setOpacity(MESSAGE_OPACITY);
-        closingWindow.setCenter(text);
-
         Stage closingStage = new Stage();
-        closingStage.setTitle(APP_TITLE);
-        closingStage.getIcons().add(
-                getLogoIcon()
-        );
-        closingStage.setScene(new Scene(closingWindow, CLOSING_WINDOW_WIDTH, CLOSING_WINDOW_HEIGHT));
-        closingStage.initStyle(StageStyle.TRANSPARENT);
-        closingStage.show();
-
         Task closeTask = new Task() {
             @Override
             protected Object call() throws Exception {
@@ -247,13 +219,7 @@ public class ApplicationController extends Application {
             }
         };
 
-        progress.progressProperty().bind(closeTask.progressProperty());
-
-        new Thread(closeTask).start();
-    }
-
-    private Image getLogoIcon() {
-        return new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"));
+        PromptUI.createLoadingScreen(closingStage, SAVING_MESSAGE ,closeTask);
     }
 
     /**

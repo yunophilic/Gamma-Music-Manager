@@ -20,9 +20,9 @@ import java.io.File;
 public class MusicPlayerHistoryUI extends Accordion{
 
     // Constants
-    public static final String PLAYBACK_HISTORY_HEADER = "History";
+    private static final String PLAYBACK_HISTORY_HEADER = "History";
 
-    public static final int DOUBLE_CLICK = 2;
+    private static final int DOUBLE_CLICK = 2;
 
     private MusicPlayerManager m_manager;
 

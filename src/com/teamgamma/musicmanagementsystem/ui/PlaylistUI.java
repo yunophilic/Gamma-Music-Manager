@@ -28,13 +28,6 @@ import java.util.List;
  * UI class for list of songs in center of application
  */
 public class PlaylistUI extends VBox {
-    private SongManager m_model;
-    private MusicPlayerManager m_musicPlayerManager;
-    private DatabaseManager m_databaseManager;
-    private ContextMenu m_contextMenu;
-    private TableView<Song> m_table;
-    private ComboBox<Playlist> m_dropDownMenu;
-
     //constants
     private static final int DROP_DOWN_MENU_MIN_WIDTH = 100;
     private static final int DROP_DOWN_MENU_MAX_WIDTH = 700;
@@ -69,6 +62,13 @@ public class PlaylistUI extends VBox {
     private static final String PLAY_PLAYLIST_TOOL_TIP_MESSAGE = "Play Playlist";
     private static final String REPEAT_PLAYLIST_TOOL_TIP_BUTTON = "Repeat Playlist Mode";
     private static final String EMPTY_PLAYLIST_MESSAGE = "Playlist empty";
+
+    private SongManager m_model;
+    private MusicPlayerManager m_musicPlayerManager;
+    private DatabaseManager m_databaseManager;
+    private ContextMenu m_contextMenu;
+    private TableView<Song> m_table;
+    private ComboBox<Playlist> m_dropDownMenu;
 
     public PlaylistUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager) {
         super();
