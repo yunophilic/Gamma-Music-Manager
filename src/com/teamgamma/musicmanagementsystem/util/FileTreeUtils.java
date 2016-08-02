@@ -208,32 +208,6 @@ public class FileTreeUtils {
                 break;
             }
 
-            case DRAG: {
-                // Nothing to do for now...
-                break;
-            }
-
-            case DROP: {
-                for (Item itemToMove : model.getM_itemsToMove()) {
-                    File fileToMove = itemToMove.getFile();
-                    TreeItem<Item> nodeToMove = searchTreeItem(tree.getRoot(), fileToMove.getAbsolutePath());
-
-                    // Search in model if it does not exists in current tree
-                    if (nodeToMove == null) {
-                        nodeToMove = model.search(fileToMove);
-                    }
-
-                    TreeItem<Item> destParentNode = searchTreeItem(tree.getRoot(), model.getM_moveDest().getAbsolutePath());
-
-                    if (destParentNode == null) {
-                        deleteNode(nodeToMove);
-                    } else if (!(destParentNode.getValue() instanceof DummyItem)) {
-                        moveNode(nodeToMove, destParentNode);
-                    }
-                }
-                break;
-            }
-
             case DELETE: {
                 String deletedFilePath = changedFile.getAbsolutePath();
                 TreeItem<Item> removedNode = searchTreeItem(tree.getRoot(), deletedFilePath);

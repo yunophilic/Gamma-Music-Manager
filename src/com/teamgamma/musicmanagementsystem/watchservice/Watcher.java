@@ -78,6 +78,7 @@ public class Watcher {
                 // WatchKey failed to grab more events
                 if (m_watchKey == null) {
                     Platform.runLater(() -> {
+                        System.out.println("**** NOTIFYING FILE SYS CHANGE...");
                         try {
                             m_model.updateAndNotifyFileSysChange(fileActions);
                         } catch (IOException ex) {
