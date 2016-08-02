@@ -144,6 +144,18 @@ public class MainUI extends BorderPane {
         return wrapper;
     }
 
+
+    /**
+     * Function to create the top UI component for the application when mini mode is enabled.
+     *
+     * @return  All the UI components that will be shown in the top area of the application during minimode session.
+     */
+    private Node topPaneMiniMode() {
+        BorderPane wrapper = new BorderPane();
+        wrapper.setCenter(m_menuUI);
+        return wrapper;
+    }
+
     /**
      * Function to call the search function for model depending on the input.
      *
@@ -239,8 +251,10 @@ public class MainUI extends BorderPane {
      *  the rightPane (MusicPlayer)
      */
     public void minimodeTurnOn() {
-        this.setLeft(rightPane());
+        this.setRight(null);
         this.setCenter(null);
+        this.setLeft(m_rightPane);
+        this.setTop(topPaneMiniMode());
     }
 
     /**
@@ -249,7 +263,7 @@ public class MainUI extends BorderPane {
      */
     public void minimodeTurnOff() {
         this.setLeft(m_leftPane);
-        this.setRight(rightPane());
+        this.setRight(m_rightPane);
         this.setCenter(m_centerPane);
     }
 }

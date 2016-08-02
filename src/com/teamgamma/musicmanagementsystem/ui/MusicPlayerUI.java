@@ -186,22 +186,22 @@ public class MusicPlayerUI extends VBox {
     private ToggleButton createMiniModeButton() {
         ToggleButton miniModeButton = new ToggleButton();
         miniModeButton.setStyle("-fx-background-color: transparent");
-        if (m_menuUI.getMiniModeStatus()) {
-            System.out.println("Minimode Status: On");
-            miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_OFF_ICON_PATH));
-            miniModeButton.setTooltip(new Tooltip(MINIMODE_OFF_TOOL_TIP));
-            miniModeButton.setOnMouseClicked((event) -> {
-                m_menuUI.fireMiniMode();
-            });
-        } else {
-            System.out.println("Minimode Status: Off");
-            miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_ON_ICON_PATH));
-            miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
-            miniModeButton.setOnMouseClicked((event) -> {
-                m_menuUI.fireMiniMode();
-            });
-        }
+        miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
+        miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_ON_ICON_PATH));
+
         UserInterfaceUtils.createMouseOverUIChange(miniModeButton, miniModeButton.getStyle());
+
+        miniModeButton.setOnMouseClicked((event) -> {
+            m_menuUI.fireMiniMode();
+            if (miniModeButton.isSelected()) {
+                miniModeButton.setTooltip(new Tooltip(MINIMODE_OFF_TOOL_TIP));
+                miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_OFF_ICON_PATH));
+            } else {
+                miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
+                miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_ON_ICON_PATH));
+            }
+            UserInterfaceUtils.createMouseOverUIChange(miniModeButton, miniModeButton.getStyle());
+        });
 
         return miniModeButton;
     }
