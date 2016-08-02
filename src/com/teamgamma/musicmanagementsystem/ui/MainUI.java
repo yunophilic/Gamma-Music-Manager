@@ -265,5 +265,6 @@ public class MainUI extends BorderPane {
         this.setLeft(m_leftPane);
         this.setRight(m_rightPane);
         this.setCenter(m_centerPane);
+        this.setTop(topPane());
     }
 }

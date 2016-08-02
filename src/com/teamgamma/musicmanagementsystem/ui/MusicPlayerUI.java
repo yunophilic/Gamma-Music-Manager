@@ -187,7 +187,6 @@ public class MusicPlayerUI extends VBox {
      * @return          A button for enabling/disabling minimode.
      */
     private ToggleButton createMiniModeButton() {
-        m_miniModeButton = new ToggleButton();
         m_miniModeButton.setStyle("-fx-background-color: transparent");
         m_miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
         m_miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_ON_ICON_PATH));

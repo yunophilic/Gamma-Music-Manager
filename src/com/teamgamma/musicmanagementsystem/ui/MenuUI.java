@@ -47,7 +47,7 @@ public class MenuUI extends MenuBar{
     private static final String SHOW_FILES_IN_FOLDER_HITS_HEADER = "Show Files In Folder Hits";
     private static final String LOADING_LIBRARY_MESSAGE = "Loading Library";
 
-    private static List<GeneralObserver> miniModeObservers = new ArrayList<>();
+    private static List<GeneralObserver> m_miniModeObservers = new ArrayList<>();
 
     private SongManager m_model;
     private DatabaseManager m_databaseManager;
@@ -350,14 +350,14 @@ public class MenuUI extends MenuBar{
      * @param  observer to add
      */
     public static void addObserver(GeneralObserver observer) {
-        miniModeObservers.add(observer);
+        m_miniModeObservers.add(observer);
     }
 
     /**
      * Notify all observers in minimodeObservers when the user clicks minimode
      */
     private static void notifyObservers() {
-        for (GeneralObserver observer : miniModeObservers) {
+        for (GeneralObserver observer : m_miniModeObservers) {
             observer.update();
         }
     }
