@@ -60,6 +60,12 @@ public class MusicPlayerHistoryUI extends Accordion{
 
         });
 
+        model.addMinimodeObserver(() -> {
+            TitledPane expandedPane = this.getExpandedPane();
+            if (expandedPane != null) {
+                expandedPane.setExpanded(false);
+            }
+        });
     }
 
     /**

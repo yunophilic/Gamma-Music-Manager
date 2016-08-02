@@ -295,6 +295,7 @@ public class MenuUI extends MenuBar{
      */
     public void fireMiniMode() {
         if (!m_miniCheck) {
+            m_model.notifyMinimodeObservers();
             m_miniCheck = true;
             m_applicationController.minimodeTurnOn();
             m_main.minimodeTurnOn();
