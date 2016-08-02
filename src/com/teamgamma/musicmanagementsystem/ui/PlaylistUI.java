@@ -5,7 +5,6 @@ import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
-import com.teamgamma.musicmanagementsystem.util.FileActions;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -17,11 +16,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.Duration;
 
@@ -369,6 +365,7 @@ public class PlaylistUI extends VBox {
         wrapper.getChildren().add(createPlaylistRepeatButton());
         wrapper.setPadding(new Insets(0));
         wrapper.setAlignment(Pos.CENTER);
+        wrapper.setStyle("-fx-background-color: #F4F4F4;");
         return wrapper;
     }
 
@@ -457,7 +454,6 @@ public class PlaylistUI extends VBox {
      * Function to clear the playlist table.
      */
     private void clearTable() {
-        //System.out.println("Clearing playlist panel...");
         m_table.getItems().clear();
     }
 
@@ -465,7 +461,6 @@ public class PlaylistUI extends VBox {
      * Function to update the table based on new values from the model.
      */
     private void updateTable() {
-        //System.out.println("Updating playlist panel...");
         Playlist selectedPlaylist = m_model.getM_selectedPlaylist();
         if (selectedPlaylist != null) {
             List<Song> songs = selectedPlaylist.getM_songList();
@@ -580,7 +575,6 @@ public class PlaylistUI extends VBox {
         });
 
         m_table.setOnDragDropped((dragEvent) -> {
-            //System.out.println("Drag dropped on playlist");
             for (Item itemToMove : m_model.getM_itemsToMove()) {
                 m_model.addItemToPlaylist(itemToMove, m_model.getM_selectedPlaylist());
                 m_musicPlayerManager.notifyQueingObserver();
@@ -589,7 +583,6 @@ public class PlaylistUI extends VBox {
         });
 
         m_table.setOnDragDone((dragEvent) -> {
-            //System.out.println("Drag done on playlist");
             m_model.setM_itemsToMove(null);
             dragEvent.consume();
         });

@@ -13,10 +13,7 @@ import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
@@ -72,6 +69,7 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
                 }
             )
         );
+
         songManager.addFileObserver(fileActions -> {
             for (Pair<Action, File> action : fileActions){
                 if (action.getKey() == Action.DELETE) {
@@ -84,6 +82,13 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
                             createPlaybackQueueAction(songManager),
                             BRIGHT_BACKGROUND_COLOR))
             );
+        });
+
+        songManager.addMinimodeObserver(() -> {
+            TitledPane expandedPane = this.getExpandedPane();
+            if (expandedPane != null) {
+                expandedPane.setExpanded(false);
+            }
         });
     }
 

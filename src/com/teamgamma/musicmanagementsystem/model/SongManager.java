@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class to manage libraries and playlists
@@ -32,6 +34,7 @@ public class SongManager {
     private List<GeneralObserver> m_searchObservers;
     private List<GeneralObserver> m_intialSearchModeObserver;
     private List<GeneralObserver> m_rightPanelObservers;
+    private List<GeneralObserver> m_minimodeObservers;
 
     // Buffers
     private List<Item> m_itemsToCopy;
@@ -73,6 +76,8 @@ public class SongManager {
 
         m_playlistObservers = new ArrayList<>();
         m_playlistSongsObservers = new ArrayList<>();
+
+        m_minimodeObservers = new ArrayList<>();
 
         m_libraries = new ArrayList<>();
         m_playlists = new ArrayList<>();
@@ -189,6 +194,7 @@ public class SongManager {
      * @throws IOException
      */
     private void updateFilesInFileTree(FileActions fileActions) throws IOException {
+        System.out.println("~~~ SONGMANAGER UPDATE FILE TREE");
         for (Pair<Action, File> fileAction : fileActions) {
             Action action = fileAction.getKey();
             if (fileAction != null && action != Action.NONE) {
@@ -262,14 +268,24 @@ public class SongManager {
             throw new Exception("Files to move should not be null");
         }
 
+        FileActions moveFileAction = new ConcreteFileActions();
+        List<Pair<Song, File>> songFilePairs = new ArrayList<>();
         List<Item> itemsToSkip = new ArrayList<>();
         for(Item itemToMove : m_itemsToMove) {
             try {
-                if (itemToMove.getFile().getParent().equals(destDir.getAbsolutePath())) {
+                File fileToMove = itemToMove.getFile();
+                if (fileToMove.getParent().equals(destDir.getAbsolutePath())) {
                     return;
                 }
 
-                FileManager.moveFile(itemToMove.getFile(), destDir);
+                File movedFile = FileManager.moveFile(fileToMove, destDir);
+
+                moveFileAction.add(Action.DELETE, fileToMove);
+                moveFileAction.add(Action.ADD, movedFile);
+
+                if (itemToMove instanceof Song) {
+                    songFilePairs.add(new Pair<>((Song) itemToMove, movedFile));
+                }
             } catch (FileAlreadyExistsException ex) {
                 System.out.println("### Skipping song: " + itemToMove.getFile());
                 itemsToSkip.add(itemToMove);
@@ -280,9 +296,13 @@ public class SongManager {
 
         m_moveDest = destDir;
 
-        FileActions moveFileAction = new ConcreteFileActions(Action.DROP, null);
-
         updateFilesInFileTree(moveFileAction);
+
+        for (Pair<Song, File> entry : songFilePairs) {
+            for (Playlist playlist : m_playlists) {
+                playlist.changeSongs(entry.getKey(), getSong(entry.getValue()));
+            }
+        }
 
         notifyFileObservers(moveFileAction);
     }
@@ -399,8 +419,8 @@ public class SongManager {
                         }
                     } else {
                         String songParentPath = song.getFile().getParent();
-                        //System.out.println("== Song parent path: " + songParentPath);
                         if (songParentPath.equals(m_selectedCenterFolder.getAbsolutePath())) {
+                            System.out.println("FOUND SONG FOR CENTER PANEL: " + song.getFile());
                             centerPanelSongs.add(song);
                         }
                     }
@@ -620,7 +640,7 @@ public class SongManager {
 
     /**
      * Add a new folder
-     * 
+     *
      * @param file New folder to add
      * @throws IOException if updating the file tree failed
      */
@@ -805,5 +825,13 @@ public class SongManager {
 
     public void notifyRightPanelOptionsObservers() {
         notifySpecifiedGeneralObservers(m_rightPanelObservers);
+    }
+
+    public void addMinimodeObserver(GeneralObserver observer) {
+        m_minimodeObservers.add(observer);
+    }
+
+    public void notifyMinimodeObservers(){
+        notifySpecifiedGeneralObservers(m_minimodeObservers);
     }
 }

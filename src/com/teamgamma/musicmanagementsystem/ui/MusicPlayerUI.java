@@ -1,6 +1,5 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
-import com.teamgamma.musicmanagementsystem.ApplicationController;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
@@ -59,6 +58,7 @@ public class MusicPlayerUI extends VBox {
     private static final String UNRATED_STAR_ICON_PATH = "res\\unrated-star.png";
     private static final String RATED_STAR_ICON_PATH = "res\\rated-star.png";
     private static final String MOUSE_OVER_STAR_ICON_PATH = "res\\mouseover-star.png";
+	private static final String CLEAR_RATING_ICON_PATH = "res\\blank.png";
 
     private static final String PREVIOUS_SONG_TOOL_TIP_DEFUALT = "No Previous Song";
     private static final String NEXT_SONG_TOOL_TIP_DEFAULT = "No Next Song";
@@ -69,12 +69,13 @@ public class MusicPlayerUI extends VBox {
     private static final String PAUSE_SONG_TOOL_TIP_MESSAGE = "Pause Song";
     private static final String RESUME_SONG_TOOL_TIP_MESSAGE = "Resume Song";
     private static final String DELETE_SONG_TOOL_TIP_MESSAGE = "Delete Song";
+    private static final String CLEAR_RATING_TOOL_TIP_MESSAGE = "Clear Rating";
     private static final String RATING_SONG_ONE_STAR_TOOL_TIP_MESSAGE = "Poor";
     private static final String RATING_SONG_TWO_STAR_TOOL_TIP_MESSAGE = "Fair";
     private static final String RATING_SONG_THREE_STARS_TOOL_TIP_MESSAGE = "Good";
     private static final String RATING_SONG_FOUR_STARS_TOOL_TIP_MESSAGE = "Very Good";
     private static final String RATING_SONG_FIVE_STARS_TOOL_TIP_MESSAGE = "Excellent";
-    private static final String DEFAULT_PLAY_BUTTON_TOOL_TIP_MESSAGE = "Pick a Song To Play!";
+    private static final String DEFAULT_PLAY_BUTTON_TOOL_TIP_MESSAGE = "Pick a Song to Play!";
     private static final String MINIMODE_OFF_TOOL_TIP = "Disable Minimode";
     private static final String MINIMODE_ON_TOOL_TIP = "Enable Minimode";
 
@@ -161,7 +162,7 @@ public class MusicPlayerUI extends VBox {
             skipButton.setOpacity(FADED);
         }
 
-        skipButton.setOnMouseClicked(event -> manager.playNextSong());
+        skipButton.setOnMouseClicked((event) -> manager.playNextSong());
         UserInterfaceUtils.createMouseOverUIChange(skipButton, skipButton.getStyle());
 
         Tooltip nextSongTip = new Tooltip(NEXT_SONG_TOOL_TIP_DEFAULT);
@@ -182,24 +183,25 @@ public class MusicPlayerUI extends VBox {
      *
      * @return          A button for enabling/disabling minimode.
      */
-    private Button createMiniModeButton() {
-        Button miniModeButton;
-        if (m_menuUI.miniModeStatus()) {
-            System.out.println("Minimode Status: On");
-            miniModeButton = UserInterfaceUtils.createIconButton(MINIMODE_OFF_ICON_PATH);
-            miniModeButton.setTooltip(new Tooltip(MINIMODE_OFF_TOOL_TIP));
-            miniModeButton.setOnMouseClicked((event) -> {
-                m_menuUI.fireMiniMode();
-            });
-        } else {
-            System.out.println("Minimode Status: Off");
-            miniModeButton = UserInterfaceUtils.createIconButton(MINIMODE_ON_ICON_PATH);
-            miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
-            miniModeButton.setOnMouseClicked((event) -> {
-                m_menuUI.fireMiniMode();
-            });
-        }
+    private ToggleButton createMiniModeButton() {
+        ToggleButton miniModeButton = new ToggleButton();
+        miniModeButton.setStyle("-fx-background-color: transparent");
+        miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
+        miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_ON_ICON_PATH));
+
         UserInterfaceUtils.createMouseOverUIChange(miniModeButton, miniModeButton.getStyle());
+
+        miniModeButton.setOnMouseClicked((event) -> {
+            m_menuUI.fireMiniMode();
+            if (miniModeButton.isSelected()) {
+                miniModeButton.setTooltip(new Tooltip(MINIMODE_OFF_TOOL_TIP));
+                miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_OFF_ICON_PATH));
+            } else {
+                miniModeButton.setTooltip(new Tooltip(MINIMODE_ON_TOOL_TIP));
+                miniModeButton.setGraphic(UserInterfaceUtils.createImageViewForImage(MINIMODE_ON_ICON_PATH));
+            }
+            UserInterfaceUtils.createMouseOverUIChange(miniModeButton, miniModeButton.getStyle());
+        });
 
         return miniModeButton;
     }
@@ -222,7 +224,7 @@ public class MusicPlayerUI extends VBox {
         Tooltip playPauseToolTip = new Tooltip(DEFAULT_PLAY_BUTTON_TOOL_TIP_MESSAGE);
         playPauseButton.setTooltip(playPauseToolTip);
 
-        playPauseButton.setOnMouseClicked(event -> {
+        playPauseButton.setOnMouseClicked((event) -> {
             if (playPauseButton.isSelected()) {
                 // Selected means that something is playing so we want to pause it
                 manager.pause();
@@ -257,7 +259,7 @@ public class MusicPlayerUI extends VBox {
      */
     private Button createPreviousSongButton(MusicPlayerManager manager) {
         Button previousSongButton = UserInterfaceUtils.createIconButton(PREVIOUS_ICON_PATH);
-        previousSongButton.setOnMouseClicked(event -> manager.playPreviousSong());
+        previousSongButton.setOnMouseClicked((event) -> manager.playPreviousSong());
         UserInterfaceUtils.createMouseOverUIChange(previousSongButton, previousSongButton.getStyle());
         previousSongButton.setAlignment(Pos.CENTER_LEFT);
         Tooltip previousSongToolTip = new Tooltip(PREVIOUS_SONG_TOOL_TIP_DEFUALT);
@@ -367,12 +369,15 @@ public class MusicPlayerUI extends VBox {
         volumeControlSlider.setMaxSize(VOLUME_MAX_WIDTH, VOLUME_MAX_HEIGHT);
 
         Button deleteSongIcon = createDeleteSongButton(manager);
-        Button ratingIcon1 = createStarButton(manager);
-        Button ratingIcon2 = createStarButton(manager);
-        Button ratingIcon3 = createStarButton(manager);
-        Button ratingIcon4 = createStarButton(manager);
-        Button ratingIcon5 = createStarButton(manager);
+        Button clearRatingIcon = createStarButton(manager, true);
+        Button space = createStarButton(manager, true);
+        Button ratingIcon1 = createStarButton(manager, false);
+        Button ratingIcon2 = createStarButton(manager, false);
+        Button ratingIcon3 = createStarButton(manager, false);
+        Button ratingIcon4 = createStarButton(manager, false);
+        Button ratingIcon5 = createStarButton(manager, false);
         m_ratingIcons = new ArrayList<>();
+        m_ratingIcons.add(clearRatingIcon);
         m_ratingIcons.add(ratingIcon1);
         m_ratingIcons.add(ratingIcon2);
         m_ratingIcons.add(ratingIcon3);
@@ -380,25 +385,24 @@ public class MusicPlayerUI extends VBox {
         m_ratingIcons.add(ratingIcon5);
         activateRatingBar(manager);
 
-        Button miniModeButton = createMiniModeButton();
+        ToggleButton miniModeButton = createMiniModeButton();
 
         otherControlBox.getChildren().addAll(volumeDownIcon, volumeControlSlider, volumeUpIcon, deleteSongIcon,
-                ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5, miniModeButton);
+               clearRatingIcon, ratingIcon1, ratingIcon2, ratingIcon3, ratingIcon4, ratingIcon5, space, miniModeButton);
         otherControlBox.setAlignment(Pos.BASELINE_CENTER);
         otherControlBox.setSpacing(0);
 
-        volumeDownIcon.setOnMouseClicked(event -> {
+        volumeDownIcon.setOnMouseClicked((event) -> {
             volumeControlSlider.adjustValue(MusicPlayerConstants.MIN_VOLUME);
             manager.setVolumeLevel(MusicPlayerConstants.MIN_VOLUME);
             config.saveVolumeState(MusicPlayerConstants.MIN_VOLUME);
         });
 
-        volumeUpIcon.setOnMouseClicked(event -> {
+        volumeUpIcon.setOnMouseClicked((event) -> {
             volumeControlSlider.adjustValue(MusicPlayerConstants.MAX_VOLUME);
             manager.setVolumeLevel(MusicPlayerConstants.MAX_VOLUME);
             config.saveVolumeState(MusicPlayerConstants.MAX_VOLUME);
         });
-
 
         HBox.setMargin(volumeControlSlider, new Insets(0));
 
@@ -443,17 +447,21 @@ public class MusicPlayerUI extends VBox {
      * @param currentSongPlaying Current song playing in the player
      */
     private void manageRatingBar(MusicPlayerManager manager, Song currentSongPlaying) {
-        final int currentSongRating = currentSongPlaying.getM_rating();
-        for (int i = 0; i < m_ratingIcons.size(); i++) {
-            int rating = i + 1;
-            int index = i;
+        final int currentSongRating = currentSongPlaying.getM_rating() + 1;
+        final int ratingsListSize = m_ratingIcons.size();
+        for (int i = 0; i < ratingsListSize; i++) {
+            int rating = i;
             final Button starIcon = m_ratingIcons.get(i);
             starIcon.setOpacity(NOT_FADED);
-            initializeRating(currentSongRating, i, starIcon);
+            if (0 < rating) {
+                initializeRating(currentSongRating, i, starIcon);
+            }
             Node defaultGraphic = starIcon.getGraphic();
-            starIcon.setOnMouseEntered(event -> {
-                String tooltipMessage = RATING_SONG_ONE_STAR_TOOL_TIP_MESSAGE;
-                if (rating == 2) {
+            starIcon.setOnMouseEntered((event) -> {
+                String tooltipMessage = CLEAR_RATING_TOOL_TIP_MESSAGE;
+                if (rating == 1) {
+                    tooltipMessage = RATING_SONG_ONE_STAR_TOOL_TIP_MESSAGE;
+                } else if (rating == 2) {
                     tooltipMessage = RATING_SONG_TWO_STAR_TOOL_TIP_MESSAGE;
                 } else if (rating == 3) {
                     tooltipMessage = RATING_SONG_THREE_STARS_TOOL_TIP_MESSAGE;
@@ -463,20 +471,27 @@ public class MusicPlayerUI extends VBox {
                     tooltipMessage = RATING_SONG_FIVE_STARS_TOOL_TIP_MESSAGE;
                 }
                 starIcon.setTooltip(new Tooltip(tooltipMessage));
-                starIcon.setGraphic(UserInterfaceUtils.createImageViewForImage(MOUSE_OVER_STAR_ICON_PATH));
-                for (int idx = 0; idx < rating - 1; idx++) {
-                    final Button beforeMouseEnter = m_ratingIcons.get(idx);
-                    beforeMouseEnter.setGraphic(UserInterfaceUtils.createImageViewForImage(MOUSE_OVER_STAR_ICON_PATH));
+                if (rating == 0) {
+                    for (int idx = 1; idx < ratingsListSize; idx++) {
+                        final Button beforeMouseEnter = m_ratingIcons.get(idx);
+                        beforeMouseEnter.setGraphic(UserInterfaceUtils.createImageViewForImage(UNRATED_STAR_ICON_PATH));
+                    }
+                } else {
+                    starIcon.setGraphic(UserInterfaceUtils.createImageViewForImage(MOUSE_OVER_STAR_ICON_PATH));
+                    for (int idx = 1; idx < rating + 1; idx++) {
+                        final Button beforeMouseEnter = m_ratingIcons.get(idx);
+                        beforeMouseEnter.setGraphic(UserInterfaceUtils.createImageViewForImage(MOUSE_OVER_STAR_ICON_PATH));
+                    }
                 }
             });
-            starIcon.setOnMouseExited(event -> {
+            starIcon.setOnMouseExited((event) -> {
                 starIcon.setGraphic(defaultGraphic);
-                for (int idx = 0; idx < index; idx++) {
+                for (int idx = 1; idx < ratingsListSize; idx++) {
                     final Button beforeMouseExit = m_ratingIcons.get(idx);
                     initializeRating(currentSongRating, idx, beforeMouseExit);
                 }
             });
-            starIcon.setOnMouseClicked(event -> manager.setRating(rating));
+            starIcon.setOnMouseClicked((event) -> manager.setRating(rating));
         }
     }
 
@@ -520,7 +535,7 @@ public class MusicPlayerUI extends VBox {
 
                 deleteSongIcon.setTooltip(new Tooltip(DELETE_SONG_TOOL_TIP_MESSAGE));
 
-                deleteSongIcon.setOnMouseClicked(event -> {
+                deleteSongIcon.setOnMouseClicked((event) -> {
                     if (currentSongPlaying != null) {
                         List<File> files = new ArrayList<>();
                         files.add(currentSongPlaying.getFile());
@@ -537,10 +552,16 @@ public class MusicPlayerUI extends VBox {
      * Function to create the rating buttons in the player, displayed by stars
      *
      * @param manager The music manager to use register the observer.
+     * @param isClearIcon Is the current button icon used to clear ratings
      * @return The button that will contain the user action for deleting song in the music palyer
      */
-    private Button createStarButton(final MusicPlayerManager manager) {
-        Button starIcon = UserInterfaceUtils.createIconButton(DISABLED_STAR_ICON_PATH);
+    private Button createStarButton(final MusicPlayerManager manager, boolean isClearIcon) {
+        Button starIcon;
+        if (isClearIcon) {
+            starIcon = UserInterfaceUtils.createIconButton(CLEAR_RATING_ICON_PATH);
+        } else {
+            starIcon = UserInterfaceUtils.createIconButton(DISABLED_STAR_ICON_PATH);
+        }
         final int buttonSpace = 2;
         starIcon.setPadding(new Insets(buttonSpace, buttonSpace, buttonSpace, buttonSpace));
         starIcon.setAlignment(Pos.BASELINE_RIGHT);
@@ -586,7 +607,7 @@ public class MusicPlayerUI extends VBox {
 
         playbackSlider.setBlockIncrement(0.01);
         HBox.setHgrow(playbackSlider, Priority.ALWAYS);
-        playbackSlider.setOnMouseClicked(event -> {
+        playbackSlider.setOnMouseClicked((event) -> {
             double sliderVal = playbackSlider.getValue();
             manager.seekSongTo(sliderVal);
 
@@ -708,11 +729,11 @@ public class MusicPlayerUI extends VBox {
                 MusicPlayerConstants.MAX_VOLUME,
                 config.getVolumeConfig());
 
-        volumeSlider.setOnDragDone(event -> {
+        volumeSlider.setOnDragDone((event) -> {
             manager.setVolumeLevel(volumeSlider.getValue());
             config.saveVolumeState(volumeSlider.getValue());
         });
-        volumeSlider.setOnMouseReleased(event -> {
+        volumeSlider.setOnMouseReleased((event) -> {
             manager.setVolumeLevel(volumeSlider.getValue());
             config.saveVolumeState(volumeSlider.getValue());
         });
