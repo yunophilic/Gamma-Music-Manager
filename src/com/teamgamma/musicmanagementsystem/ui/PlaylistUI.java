@@ -30,13 +30,6 @@ import java.util.Map;
  * UI class for list of songs in center of application
  */
 public class PlaylistUI extends VBox {
-    private SongManager m_model;
-    private MusicPlayerManager m_musicPlayerManager;
-    private DatabaseManager m_databaseManager;
-    private ContextMenu m_contextMenu;
-    private TableView<Song> m_table;
-    private ComboBox<Playlist> m_dropDownMenu;
-
     //constants
     private static final String FILE_PATH_COLUMN_ID = "file_path";
     private static final String FILE_NAME_COLUMN_ID = "file_name";
@@ -89,6 +82,13 @@ public class PlaylistUI extends VBox {
     private static final String PLAY_PLAYLIST_TOOL_TIP_MESSAGE = "Play Playlist";
     private static final String REPEAT_PLAYLIST_TOOL_TIP_BUTTON = "Repeat Playlist Mode";
     private static final String EMPTY_PLAYLIST_MESSAGE = "Playlist empty";
+
+    private SongManager m_model;
+    private MusicPlayerManager m_musicPlayerManager;
+    private DatabaseManager m_databaseManager;
+    private ContextMenu m_contextMenu;
+    private TableView<Song> m_table;
+    private ComboBox<Playlist> m_dropDownMenu;
 
     public PlaylistUI(SongManager model,
                       MusicPlayerManager musicPlayerManager,

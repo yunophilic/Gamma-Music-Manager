@@ -1,11 +1,14 @@
 package com.teamgamma.musicmanagementsystem.ui;
 
+import com.teamgamma.musicmanagementsystem.ApplicationController;
 import com.teamgamma.musicmanagementsystem.model.Playlist;
 import com.teamgamma.musicmanagementsystem.model.Song;
 
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerConstants;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 
@@ -22,9 +25,11 @@ import java.util.regex.Pattern;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import javafx.util.Pair;
 
@@ -82,6 +87,13 @@ public class PromptUI {
     private static final String UNKNOWN_ARTIST = "Unknown Artist";
     private static final String UNKNOWN_ALBUM = "Unknown Album";
     private static final int CONVERT_TO_NEXT_SIZE_TYPE = 1000;
+
+    private static final int CLOSING_WINDOW_WIDTH = 400;
+    private static final int CLOSING_WINDOW_HEIGHT = 100;
+    private static final int LOADING_SIZE = 60;
+    private static final double MESSAGE_OPACITY = .8;
+    private static final int FONT_SIZE = 14;
+    private static final String LOADING_BACKGROUND_IMAGE = "res\\loading-bg.png";
 
     // ---------------------- Custom Prompts
 
@@ -1305,5 +1317,49 @@ public class PromptUI {
             failedToCreate(parentFolder);
         }
         return null;
+    }
+
+    /**
+     * Function to create a loading screen that will show until the background task is done.
+     *
+     * @param stage             The stage to use.
+     * @param message           The message to display.
+     * @param backgroundTask    The task to do in the background.
+     */
+    public static void createLoadingScreen(Stage stage, String message, Task backgroundTask) {
+        ProgressIndicator progress = new ProgressIndicator();
+
+        BorderPane closingWindow = new BorderPane();
+        closingWindow.setBottom(progress);
+        closingWindow.setPrefSize(LOADING_SIZE, LOADING_SIZE);
+
+        Image backgroundImage = new Image(LOADING_BACKGROUND_IMAGE);
+        closingWindow.setBackground(new Background(new BackgroundImage(backgroundImage, BackgroundRepeat.REPEAT,
+                BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
+
+        Label text = new Label(message);
+        text.setFont(new Font(FONT_SIZE));
+        text.setOpacity(MESSAGE_OPACITY);
+        closingWindow.setCenter(text);
+
+        stage.setTitle(ApplicationController.APP_TITLE);
+        stage.getIcons().add(
+                getLogoIcon()
+        );
+        stage.setScene(new Scene(closingWindow, CLOSING_WINDOW_WIDTH, CLOSING_WINDOW_HEIGHT));
+        stage.initStyle(StageStyle.TRANSPARENT);
+        stage.show();
+        progress.progressProperty().bind(backgroundTask.progressProperty());
+
+        new Thread(backgroundTask).start();
+    }
+
+    /**
+     * Function to get the icon for the application.
+     *
+     * @return  The logo for the application.
+     */
+    private static Image getLogoIcon() {
+        return new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"));
     }
 }

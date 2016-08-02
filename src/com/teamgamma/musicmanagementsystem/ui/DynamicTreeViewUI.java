@@ -13,11 +13,13 @@ import java.io.IOException;
 import java.util.List;
 
 public class DynamicTreeViewUI extends StackPane {
+    // Constants
+    private final static String LABEL_DEFAULT = "Choose a folder to view";
+
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private TreeView<Item> m_tree;
-    private final static String LABEL_DEFAULT = "Choose a folder to view";
 
     public DynamicTreeViewUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager,
                              List<String> dynamicTreeViewExpandedPaths) {
