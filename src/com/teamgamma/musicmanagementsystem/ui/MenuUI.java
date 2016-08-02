@@ -42,7 +42,7 @@ public class MenuUI extends MenuBar{
     private static final String EXPORT_PLAYLIST = "Export Playlist";
     private static final String SEARCH_HEADER = "Search";
     private static final String SHOW_FILES_IN_FOLDER_HITS_HEADER = "Show Files In Folder Hits";
-    public static final String LOADING_LIBRARY_MESSAGE = "Loading Library";
+    private static final String LOADING_LIBRARY_MESSAGE = "Loading Library";
 
     private SongManager m_model;
     private DatabaseManager m_databaseManager;

@@ -88,6 +88,13 @@ public class PromptUI {
     private static final String UNKNOWN_ALBUM = "Unknown Album";
     private static final int CONVERT_TO_NEXT_SIZE_TYPE = 1000;
 
+    private static final int CLOSING_WINDOW_WIDTH = 400;
+    private static final int CLOSING_WINDOW_HEIGHT = 100;
+    private static final int LOADING_SIZE = 60;
+    private static final double MESSAGE_OPACITY = .8;
+    private static final int FONT_SIZE = 14;
+    private static final String LOADING_BACKGROUND_IMAGE = "res\\loading-bg.png";
+
     // ---------------------- Custom Prompts
 
     /**
@@ -1320,12 +1327,6 @@ public class PromptUI {
      * @param backgroundTask    The task to do in the background.
      */
     public static void createLoadingScreen(Stage stage, String message, Task backgroundTask) {
-        final int CLOSING_WINDOW_WIDTH = 400;
-        final int CLOSING_WINDOW_HEIGHT = 100;
-        final int LOADING_SIZE = 60;
-        final double MESSAGE_OPACITY = .8;
-        final int FONT_SIZE = 14;
-        final String LOADING_BACKGROUND_IMAGE = "res\\loading-bg.png";
         ProgressIndicator progress = new ProgressIndicator();
 
         BorderPane closingWindow = new BorderPane();

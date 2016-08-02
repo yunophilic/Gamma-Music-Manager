@@ -28,17 +28,18 @@ import java.util.List;
  * UI class for list of songs in center of application
  */
 public class ContentListUI extends StackPane {
-    private SongManager m_model;
-    private MusicPlayerManager m_musicPlayerManager;
-    private DatabaseManager m_databaseManager;
-    private ContextMenu m_contextMenu;
-    private TableView<Song> m_table;
-
     //constants
     private static final int FILE_COLUMN_MIN_WIDTH = 80;
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
     private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
+
+
+    private SongManager m_model;
+    private MusicPlayerManager m_musicPlayerManager;
+    private DatabaseManager m_databaseManager;
+    private ContextMenu m_contextMenu;
+    private TableView<Song> m_table;
 
     /**
      * Constructor

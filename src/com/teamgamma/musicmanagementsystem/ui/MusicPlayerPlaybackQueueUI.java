@@ -28,10 +28,10 @@ import java.io.File;
 public class MusicPlayerPlaybackQueueUI extends Accordion{
 
     // Constants
-    public static final String QUEUING_HEADER = "Playing Next";
-    public static final String REMOVE_SONG_FROM_QUEUE_MENU_MESSAGE = "Remove Song From Queue";
-    public static final String BRIGHT_BACKGROUND_COLOR = "-fx-background-color: #65EFFF";
-    public static final Color BRIGHT_BACKGROUND_COLOR_OBJ = Color.rgb(101, 239, 255);
+    private static final String QUEUING_HEADER = "Playing Next";
+    private static final String REMOVE_SONG_FROM_QUEUE_MENU_MESSAGE = "Remove Song From Queue";
+    private static final String BRIGHT_BACKGROUND_COLOR = "-fx-background-color: #65EFFF";
+    private static final Color BRIGHT_BACKGROUND_COLOR_OBJ = Color.rgb(101, 239, 255);
 
     private MusicPlayerManager m_manager;
 
