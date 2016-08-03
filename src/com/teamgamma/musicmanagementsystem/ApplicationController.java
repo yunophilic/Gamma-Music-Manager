@@ -39,7 +39,8 @@ public class ApplicationController extends Application {
     private static final double MIN_WINDOW_HEIGHT = 100;
     private static final double UNDO_SET_MAX_WIDTH = 9000;
     private static final String GAMMA_LOGO_IMAGE_URL = "res" + File.separator + "gamma-logo.png";
-    private static final String START_SOUND_PATH = System.getProperty("user.dir") + File.separator + "src" + File.separator + "res" + File.separator +"start-sound.mp3";
+    private static final String START_SOUND_PATH = System.getProperty("user.dir") + File.separator + "src" + File.separator
+            + "res" + File.separator + "start-sound.mp3";
     public static final String SAVING_MESSAGE = "Saving current session...";
     public static final String APP_TITLE = "Gamma Music Manager";
 
@@ -182,6 +183,13 @@ public class ApplicationController extends Application {
         primaryStage.getIcons().add(new Image(GAMMA_LOGO_IMAGE_URL));
         primaryStage.show();
 
+        playStartUpSound();
+    }
+
+    /**
+     * Play the start up sound when the application is launched or when user switches out of minimode
+     */
+    public void playStartUpSound() {
         Media sound = new Media(new File(START_SOUND_PATH).toURI().toString());
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         mediaPlayer.play();
