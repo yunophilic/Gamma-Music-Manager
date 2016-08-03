@@ -54,24 +54,21 @@ public class Searcher {
                     } else {
                         listOfNodesHit.add(childrenSearchResult);
                     }
-                    // Skip to next child the parent node has.
-                    continue;
-
                 } else {
                     listOfNodesHit.add(createExpandedNode(currentChildren.getValue()));
                 }
-            }
-
-            // Must be a directory if there are children so we have to search it to make sure we do not miss anything.
-            if (hasChildren) {
-                TreeItem<Item> results = findAllInstancesInTree(currentChildren, searchMethod, isDecedentOfHit);
-                results.setExpanded(true);
-                if (!(results.getValue() instanceof DummyItem) ) {
-                    // Results where found in this case so add it to the current node
-                    listOfNodesHit.add(results);
+            } else {
+                // Must be a directory if there are children so we have to search it to make sure we do not miss anything.
+                if (hasChildren) {
+                    TreeItem<Item> results = findAllInstancesInTree(currentChildren, searchMethod, isDecedentOfHit);
+                    results.setExpanded(true);
+                    if (!(results.getValue() instanceof DummyItem)) {
+                        // Results where found in this case so add it to the current node
+                        listOfNodesHit.add(results);
+                    }
+                } else if (m_showFilesInFolderHits && isDecedentOfHit) {
+                    listOfNodesHit.add(createExpandedNode(currentChildren.getValue()));
                 }
-            } else if (m_showFilesInFolderHits && isDecedentOfHit){
-                listOfNodesHit.add(createExpandedNode(currentChildren.getValue()));
             }
         }
 
