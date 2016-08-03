@@ -45,6 +45,11 @@ ___
 
 > Note: JDK 8u40 or newer is required to use the JavaFX Dialogs in this application.
 
+## Jar Building
+* Go to Intellij and build a artifact.
+* Go to out prj\out\artifacts\MusicManagementSystem_jar and there should be a jar there. 
+* Double click to run the JAR.
+
 ### Dependencies 
 * [Java SE Development Kit 8u92](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * [jaudiotagger-2.2.3](http://www.jthink.net/jaudiotagger/)
