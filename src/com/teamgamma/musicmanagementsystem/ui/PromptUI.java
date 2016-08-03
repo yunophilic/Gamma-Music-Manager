@@ -243,7 +243,7 @@ public class PromptUI {
      */
     private static void failedToRename(File file) {
         final String BODY_MESSAGE = "The file \"" + file + "\" could not be renamed.";
-        makeAlertPrompt(AlertType.ERROR, RENAME_ERROR_TITLE, null, BODY_MESSAGE);
+        makeAlertPrompt(AlertType.ERROR, RENAME_ERROR_TITLE, null, BODY_MESSAGE).show();
     }
 
     /**
@@ -253,7 +253,7 @@ public class PromptUI {
      */
     private static void failedToCreate(File folder) {
         final String BODY_MESSAGE = "The file \"" + folder + "\" could not be created.";
-        makeAlertPrompt(AlertType.ERROR, CREATE_FOLDER_ERROR_TITLE, null, BODY_MESSAGE);
+        makeAlertPrompt(AlertType.ERROR, CREATE_FOLDER_ERROR_TITLE, null, BODY_MESSAGE).show();
     }
 
     /**
@@ -1295,9 +1295,9 @@ public class PromptUI {
      * @return null if failed to create
      */
     private static Path createFolder(File parentFolder, Optional<String> result) {
+        File newName = new File(parentFolder + File.separator + result.get());
         try {
             if (result.isPresent()) {
-                File newName = new File(parentFolder + File.separator + result.get());
                 // If user leaves name empty, automatically create new folders with name "New Folder" + index (n) if exists
                 if (result.get().isEmpty()) {
                     newName = new File(parentFolder + File.separator + "New Folder");
@@ -1314,7 +1314,7 @@ public class PromptUI {
                 return Files.createDirectory(Paths.get(newName.getAbsolutePath()));
             }
         } catch (IOException e) {
-            failedToCreate(parentFolder);
+            failedToCreate(newName);
         }
         return null;
     }
