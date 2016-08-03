@@ -71,8 +71,7 @@ public class PromptUI {
     private static final String NEW_PLAYLIST_LABEL = "New playlist:";
     private static final String RENAME_PLAYLIST_LABEL = "Rename playlist:";
     private static final String SELECT_PLAYLIST_LABEL = "Select a playlist:";
-    private static final String WELCOME_MESSAGE = "\nWelcome to the Gamma Music Manager. Before " +
-            "beginning, please select a media library.";
+    private static final String WELCOME_MESSAGE = "\nWelcome to the Gamma Music Manager. Before beginning, please select a media library.";
     private static final String UNEXPECTED_CRASH_MESSAGE = "Something has caused the program to crash unexpectedly.";
     private static final String RECYCLE_FOLDER_CONFIRM = "Are you sure you want to move this folder and its contents to the Recycle Bin?";
     private static final String RECYCLE_SONG_CONFIRM_MESSAGE = "Are you sure you want to move this song to the Recycle Bin?";
@@ -81,8 +80,7 @@ public class PromptUI {
     private static final String CORRUPTED_FILE_WARNING = "The program has detected that this file is either corrupted or an invalid MP3 file.";
     private static final String REMOVE_PLAYLIST_CONFIRMATION = "Are you sure you want to remove this playlist?";
     private static final String REMOVE_SONG_PLAYLIST_CONFIRMATION = "Are you sure you want to remove this song from the playlist?";
-    private static final Image PROMPT_ICON = new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-            "gamma-logo.png"));
+    private static final Image PROMPT_ICON = new Image(ClassLoader.getSystemResourceAsStream("gamma-logo.png"));
     private static final int CONVERT_SIZE_DIVISOR = 1024;
     private static final String UNKNOWN_ARTIST = "Unknown Artist";
     private static final String UNKNOWN_ALBUM = "Unknown Album";
@@ -93,7 +91,7 @@ public class PromptUI {
     private static final int LOADING_SIZE = 60;
     private static final double MESSAGE_OPACITY = .8;
     private static final int FONT_SIZE = 14;
-    private static final String LOADING_BACKGROUND_IMAGE = "res\\loading-bg.png";
+    private static final String LOADING_BACKGROUND_IMAGE = "loading-bg.png";
 
     // ---------------------- Custom Prompts
 
@@ -1120,8 +1118,9 @@ public class PromptUI {
      * @param dialog object passed in to set logo
      */
     private static void setLogoDialog(Dialog dialog) {
-        dialog.setGraphic(new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                "gamma-logo-welcome.png"), 100, 100, false, false)));
+        dialog.setGraphic(
+                new ImageView(new Image(ClassLoader.getSystemResourceAsStream("gamma-logo-welcome.png"), 100, 100, false, false))
+        );
     }
 
     /**
@@ -1131,8 +1130,7 @@ public class PromptUI {
      * @param iconName name of the icon file
      */
     private static void setDialogIcon(Dialog dialog, String iconName) {
-        ImageView graphic = new ImageView(new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator +
-                iconName)));
+        ImageView graphic = new ImageView(new Image(ClassLoader.getSystemResourceAsStream(iconName)));
         dialog.setGraphic(graphic);
     }
 
@@ -1360,6 +1358,6 @@ public class PromptUI {
      * @return  The logo for the application.
      */
     private static Image getLogoIcon() {
-        return new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"));
+        return new Image(ClassLoader.getSystemResourceAsStream("gamma-logo.png"));
     }
 }

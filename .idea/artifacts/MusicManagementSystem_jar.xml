@@ -1,0 +1,15 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="MusicManagementSystem:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MusicManagementSystem_jar</output-path>
+    <root id="archive" name="MusicManagementSystem.jar">
+      <element id="module-output" name="MusicManagementSystem" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/ThirdParty/JNA/jna-4.2.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/ThirdParty/JNA/jna-platform-4.2.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/ThirdParty/JDBC/sqlite-jdbc-3.8.11.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/ThirdParty/JLayer1.0.1/jl1.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/ThirdParty/JSON-Simple/json-simple-1.1.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/ThirdParty/JAudiotagger/jaudiotagger-2.2.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/ThirdParty/jpathwatch-0-95.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

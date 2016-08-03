@@ -21,9 +21,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,9 +28,9 @@ import java.util.List;
  * Event handling class used in LibraryUI and DynamicTreeViewUI
  */
 public class CustomTreeCell extends TextFieldTreeCell<Item> {
-    private static final String OPEN_FOLDER_ICON_URL = "res" + File.separator + "Status-folder-open-icon.png";
-    private static final String FOLDER_ICON_URL = "res" + File.separator + "folder-icon.png";
-    private static final String SONG_ICON_URL = "res" + File.separator + "music-file-icon.png";
+    private static final String OPEN_FOLDER_ICON_URL = "Status-folder-open-icon.png";
+    private static final String FOLDER_ICON_URL = "folder-icon.png";
+    private static final String SONG_ICON_URL = "music-file-icon.png";
 
     //attributes
     private SongManager m_model;
@@ -44,7 +41,6 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
     private Item m_selectedItem;
     private boolean m_isLeftPane;
     private CellType m_cellType;
-    private List<Song> m_selectedSongs;
 
     public CustomTreeCell(SongManager model,
                           MusicPlayerManager musicPlayerManager,

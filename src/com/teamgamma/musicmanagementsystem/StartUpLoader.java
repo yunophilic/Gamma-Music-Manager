@@ -39,7 +39,7 @@ public class StartUpLoader extends Preloader {
         final int TEXT_FONT_SIZE = 10;
         final int VBOX_SPACING = 10;
         final int VBOX_HEIGHT_ALIGNMENT = 65;
-        final String SPLASH_BACKGROUND_IMAGE = "res\\splash.png";
+        final String SPLASH_BACKGROUND_IMAGE = "splash.png";
 
         BorderPane loadingPane = new BorderPane();
 
@@ -89,6 +89,6 @@ public class StartUpLoader extends Preloader {
      * @return logo image
      */
     private Image getLogoIcon() {
-        return new Image(ClassLoader.getSystemResourceAsStream("res" + File.separator + "gamma-logo.png"));
+        return new Image("gamma-logo.png");
     }
 }

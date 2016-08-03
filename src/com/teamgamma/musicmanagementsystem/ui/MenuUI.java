@@ -48,8 +48,7 @@ public class MenuUI extends MenuBar{
     private static final String SEARCH_HEADER = "Search";
     private static final String SHOW_FILES_IN_FOLDER_HITS_HEADER = "Show Files In Folder Hits";
     private static final String LOADING_LIBRARY_MESSAGE = "Loading Library";
-    private static final String MINIMODE_SOUND_PATH = System.getProperty("user.dir") + File.separator + "src" +
-            File.separator + "res" + File.separator + "activate-mini-mode.mp3";
+    private static final String MINIMODE_SOUND_PATH = "activate-mini-mode.mp3";
 
     private static List<GeneralObserver> m_miniModeObservers = new ArrayList<>();
 
@@ -345,7 +344,7 @@ public class MenuUI extends MenuBar{
      * Play a sound when the user switches into minimode
      */
     private void playMiniModeSound() {
-        Media sound = new Media(new File(MINIMODE_SOUND_PATH).toURI().toString());
+        Media sound = new Media(ClassLoader.getSystemResource(MINIMODE_SOUND_PATH).toString());
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         mediaPlayer.play();
     }
