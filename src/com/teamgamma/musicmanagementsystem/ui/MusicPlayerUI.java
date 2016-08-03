@@ -91,11 +91,12 @@ public class MusicPlayerUI extends VBox {
     /**
      * Constructor
      *
-     * @param manager The MusicPlayerManager to setup the actions for the UI panel.
-     * @param config  The FilePersistentStorage to save the states for the UI panel.
+     * @param model             The model to use to setup the actions for the UI panel.
+     * @param databaseManager   The database manager class to get data from DB
+     * @param config            The FilePersistentStorage to save the states for the UI panel.
+     * @param menuUI            The menu UI to setup minimode.
      */
     public MusicPlayerUI(SongManager model,
-                         MusicPlayerManager manager,
                          DatabaseManager databaseManager,
                          FilePersistentStorage config,
                          MenuUI menuUI) {
@@ -107,18 +108,18 @@ public class MusicPlayerUI extends VBox {
         registerObservers();
         VBox topWrapper = new VBox();
         topWrapper.setSpacing(0);
-        topWrapper.getChildren().add(makeSongTitleHeader(manager));
+        topWrapper.getChildren().add(makeSongTitleHeader(m_model.getMusicPlayerManager()));
 
-        topWrapper.getChildren().addAll(createProgressBarBox(manager));
+        topWrapper.getChildren().addAll(createProgressBarBox(m_model.getMusicPlayerManager()));
         this.getChildren().add(topWrapper);
-        HBox playbackControls = createPlayBackControlBox(manager);
+        HBox playbackControls = createPlayBackControlBox(m_model.getMusicPlayerManager());
         this.getChildren().add(playbackControls);
 
-        HBox otherControlBox = createOtherOptionsBox(manager, config);
+        HBox otherControlBox = createOtherOptionsBox(m_model.getMusicPlayerManager(), config);
         this.getChildren().add(otherControlBox);
 
-        manager.registerErrorObservers(() -> Platform.runLater(() -> {
-            Exception e = manager.getError();
+        m_model.getMusicPlayerManager().registerErrorObservers(() -> Platform.runLater(() -> {
+            Exception e = m_model.getMusicPlayerManager().getError();
             if (e == null) {
                 PromptUI.unexpectedCrash();
             } else {

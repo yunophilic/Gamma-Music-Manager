@@ -54,9 +54,9 @@ public class ApplicationController extends Application {
     @Override
     public void init() throws Exception {
         Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
-        m_songManager = new SongManager();
         m_databaseManager = new DatabaseManager();
         m_musicPlayerManager = new MusicPlayerManager(m_databaseManager);
+        m_songManager = new SongManager(m_musicPlayerManager);
         m_filePersistentStorage = new FilePersistentStorage();
         if (m_databaseManager.isDatabaseFileExist()) {
             m_databaseManager.setupDatabase();
@@ -164,7 +164,7 @@ public class ApplicationController extends Application {
 
         primaryStage.setTitle(APP_TITLE);
 
-        createRootUI(m_songManager, m_musicPlayerManager);
+        createRootUI(m_songManager);
 
         Watcher watcher = new Watcher(m_songManager);
         watcher.startWatcher();
@@ -262,9 +262,8 @@ public class ApplicationController extends Application {
      * Create root UI
      *
      * @param songManager
-     * @param musicPlayerManager
      */
-    private void createRootUI(SongManager songManager, MusicPlayerManager musicPlayerManager) {
+    private void createRootUI(SongManager songManager) {
         // Get previous expanded states
         List<String> libraryUIExpandedPaths = m_databaseManager.getExpandedLeftTreeViewItems();
         List<String> rightPanelExpandedPaths = m_databaseManager.getExpandedRightTreeViewItems();
@@ -273,7 +272,6 @@ public class ApplicationController extends Application {
 
         // Create main UI
         m_rootUI = new MainUI(songManager,
-                              musicPlayerManager,
                               m_databaseManager,
                               m_filePersistentStorage,
                               libraryUIExpandedPaths,

@@ -16,7 +16,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +34,6 @@ public class MainUI extends BorderPane {
     private static final double RIGHT_PANEL_PREF_WIDTH = 350;
 
     private SongManager m_model;
-    private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private FilePersistentStorage m_filePersistentStorage;
     private LibraryUI m_libraryUI;
@@ -50,7 +48,6 @@ public class MainUI extends BorderPane {
     private BorderPane m_rightPane;
 
     public MainUI(SongManager model,
-                  MusicPlayerManager musicPlayerManager,
                   DatabaseManager databaseManager,
                   FilePersistentStorage filePersistentStorage,
                   List<String> libraryExpandedPaths,
@@ -61,7 +58,6 @@ public class MainUI extends BorderPane {
         super();
 
         m_model = model;
-        m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         m_filePersistentStorage = filePersistentStorage;
         m_menuUI = new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, this, applicationController);
@@ -80,7 +76,7 @@ public class MainUI extends BorderPane {
      * @return                          All the UI components that are to be shown on the left side of the application.
      */
     private Node leftPane(List<String> libraryExpandedPaths) {
-        m_libraryUI = new LibraryUI(m_model, m_musicPlayerManager, m_databaseManager, libraryExpandedPaths);
+        m_libraryUI = new LibraryUI(m_model, m_databaseManager, libraryExpandedPaths);
 
         m_leftPane = new BorderPane();
         m_leftPane.setCenter(m_libraryUI);
@@ -95,14 +91,14 @@ public class MainUI extends BorderPane {
      * @return  The UI elements that are to be shown in the right side of the application.
      */
     private Node rightPane(Map<String, Boolean> playlistTableColumnVisibilityMap) {
-        m_playlistUI = new PlaylistUI(m_model, m_musicPlayerManager, m_databaseManager, playlistTableColumnVisibilityMap);
+        m_playlistUI = new PlaylistUI(m_model, m_databaseManager, playlistTableColumnVisibilityMap);
 
         VBox musicPlayerWrapper = new VBox();
-        musicPlayerWrapper.getChildren().add(new MusicPlayerHistoryUI(m_model, m_musicPlayerManager));
+        musicPlayerWrapper.getChildren().add(new MusicPlayerHistoryUI(m_model));
         musicPlayerWrapper.getChildren().add(
-                new MusicPlayerUI(m_model, m_musicPlayerManager, m_databaseManager, m_filePersistentStorage, m_menuUI)
+                new MusicPlayerUI(m_model, m_databaseManager, m_filePersistentStorage, m_menuUI)
         );
-        musicPlayerWrapper.getChildren().add(new MusicPlayerPlaybackQueueUI(m_musicPlayerManager, m_model));
+        musicPlayerWrapper.getChildren().add(new MusicPlayerPlaybackQueueUI(m_model));
 
         m_rightPane = new BorderPane();
         m_rightPane.setCenter(m_playlistUI);
@@ -201,9 +197,9 @@ public class MainUI extends BorderPane {
     private Node createFileExplorer(List<String> dynamicTreeViewExpandedPaths, Map<String, Boolean> centerTableColumnVisibilityMap) {
         HBox pane = new HBox();
 
-        m_contentListUI = new ContentListUI(m_model, m_musicPlayerManager, m_databaseManager, centerTableColumnVisibilityMap);
+        m_contentListUI = new ContentListUI(m_model, m_databaseManager, centerTableColumnVisibilityMap);
 
-        m_dynamicTreeViewUI = new DynamicTreeViewUI(m_model, m_musicPlayerManager, m_databaseManager, dynamicTreeViewExpandedPaths);
+        m_dynamicTreeViewUI = new DynamicTreeViewUI(m_model, m_databaseManager, dynamicTreeViewExpandedPaths);
 
         TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
@@ -212,7 +208,7 @@ public class MainUI extends BorderPane {
         tabPane.setMinWidth(TAB_PANE_MIN_WIDTH);
         tabPane.setMaxWidth(TAB_PANE_MAX_WIDTH);
 
-        Tab searchResults = new Tab(SEARCH_TAB_HEADER, new SearchResultUI(m_model, m_musicPlayerManager, m_databaseManager));
+        Tab searchResults = new Tab(SEARCH_TAB_HEADER, new SearchResultUI(m_model, m_databaseManager));
         tabPane.getTabs().addAll(fileTree, searchResults);
 
         pane.getChildren().addAll(m_contentListUI, tabPane);

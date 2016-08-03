@@ -57,6 +57,7 @@ public class DatabaseManager {
     private PreparedStatement m_getResumeTime;
     private PreparedStatement m_clearResumeTime;
     private PreparedStatement m_countResumeTimeEntry;
+    private PreparedStatement m_updateHistory;
 
     public DatabaseManager() {
     }
@@ -195,6 +196,8 @@ public class DatabaseManager {
             m_countResumeTimeEntry = m_connection.prepareStatement("SELECT COUNT(*) AS row " +
                                                                    "FROM ResumeTime " +
                                                                    "WHERE playlistName = ?");
+
+            m_updateHistory = m_connection.prepareStatement("UPDATE History SET songPath = ?, time = time WHERE songPath = ?");
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -976,5 +979,21 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Function to update the the history when a file has moved in the file system.
+     *
+     * @param oldPath       The old path of the song.
+     * @param newPath       The new path location.
+     */
+    public void updateHistory(String oldPath, String newPath) {
+        try {
+            m_updateHistory.setString(1, newPath);
+            m_updateHistory.setString(2, oldPath);
+            m_updateHistory.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 }

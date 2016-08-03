@@ -2,7 +2,6 @@ package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Item;
-import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.model.SongManager;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
@@ -43,12 +42,11 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
     private CellType m_cellType;
 
     public CustomTreeCell(SongManager model,
-                          MusicPlayerManager musicPlayerManager,
                           DatabaseManager databaseManager,
                           TreeView<Item> tree,
                           CellType cellType) {
         m_model = model;
-        m_musicPlayerManager = musicPlayerManager;
+        m_musicPlayerManager = m_model.getMusicPlayerManager();
         m_databaseManager = databaseManager;
         m_tree = tree;
         m_cellType = cellType;
@@ -146,7 +144,6 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         EventDispatcher originalDispatcher = getEventDispatcher();
         setEventDispatcher(new CustomEventDispatcher(originalDispatcher,
                                                         m_model,
-                                                        m_musicPlayerManager,
                                                         m_tree,
                                                         m_selectedItem,
                                                         m_isLeftPane,

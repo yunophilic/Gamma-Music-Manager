@@ -1,5 +1,6 @@
 package com.teamgamma.musicmanagementsystem.model;
 
+import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import com.teamgamma.musicmanagementsystem.util.Action;
 import com.teamgamma.musicmanagementsystem.util.FileManager;
 
@@ -63,8 +64,9 @@ public class SongManager {
     private TreeItem<Item> m_fileTreeRoot;
 
     private Searcher m_searchResults;
+    private MusicPlayerManager m_musicPlayerManager;
 
-    public SongManager() {
+    public SongManager(MusicPlayerManager musicPlayerManager) {
         m_libraryObservers = new ArrayList<>();
         m_centerFolderObservers = new ArrayList<>();
         m_rightFolderObservers = new ArrayList<>();
@@ -95,6 +97,7 @@ public class SongManager {
         m_menuOptions = null;
 
         m_fileTreeRoot = new TreeItem<>(new DummyItem());
+        m_musicPlayerManager = musicPlayerManager;
     }
 
     /**
@@ -299,9 +302,11 @@ public class SongManager {
         updateFilesInFileTree(moveFileAction);
 
         for (Pair<Song, File> entry : songFilePairs) {
+            Song newSongLocation = getSong(entry.getValue());
             for (Playlist playlist : m_playlists) {
-                playlist.changeSongs(entry.getKey(), getSong(entry.getValue()));
+                playlist.changeSongs(entry.getKey(), newSongLocation);
             }
+            m_musicPlayerManager.updateSongLocation(entry.getKey(), newSongLocation);
         }
 
         notifyFileObservers(moveFileAction);
@@ -726,6 +731,8 @@ public class SongManager {
     public Searcher getSearchResults() {
         return m_searchResults;
     }
+
+    public MusicPlayerManager getMusicPlayerManager() { return m_musicPlayerManager;}
 
     /**********
      * Functions for observer pattern

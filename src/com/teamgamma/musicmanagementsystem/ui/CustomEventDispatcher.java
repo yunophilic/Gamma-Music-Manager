@@ -31,14 +31,13 @@ public class CustomEventDispatcher implements EventDispatcher {
 
     public CustomEventDispatcher(EventDispatcher originalDispatcher,
                                  SongManager model,
-                                 MusicPlayerManager musicPlayerManager,
                                  TreeView<Item> tree,
                                  Item selectedItem,
                                  boolean isLeftPane,
                                  DatabaseManager databaseManager) {
         m_originalDispatcher = originalDispatcher;
         m_model = model;
-        m_musicPlayerManager = musicPlayerManager;
+        m_musicPlayerManager = m_model.getMusicPlayerManager();
         m_tree = tree;
         m_selectedItem = selectedItem;
         m_isLeftPane = isLeftPane;
