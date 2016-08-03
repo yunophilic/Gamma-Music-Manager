@@ -15,6 +15,8 @@ import java.util.List;
  */
 public class FileTreeUtils {
 
+    public static final String ELLIPSES_BREAK = "...";
+
     private static String loadingFilePath;
 
     private static List<LoadingObserver> filePathObservers = new ArrayList<>();
@@ -75,7 +77,6 @@ public class FileTreeUtils {
             loadingFilePath = filePath;
         } else {
             final int HALF_WAY_POINT = MAX_FILE_ROW_LENGTH / 2;
-            final String ELLIPSES_BREAK = "...";
             String firstHalf = filePath.substring(0, HALF_WAY_POINT);
             String secondHalf = filePath.substring(filePath.length() - HALF_WAY_POINT);
 

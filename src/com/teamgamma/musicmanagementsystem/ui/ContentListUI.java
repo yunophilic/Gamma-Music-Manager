@@ -5,6 +5,7 @@ import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -250,7 +251,7 @@ public class ContentListUI extends StackPane {
             Path centerFolderPath = m_model.getM_selectedCenterFolder().toPath();
             Path relativePath = centerFolderPath.relativize(absoluteFilePath);
             String pathToShow = (relativePath.toFile().getParent() == null) ? "" : relativePath.toFile().getParent();
-            return new ReadOnlyObjectWrapper<>(File.separator + pathToShow);
+            return new ReadOnlyObjectWrapper<>(FileTreeUtils.ELLIPSES_BREAK + File.separator + pathToShow);
         });
 
         fileNameCol.setCellValueFactory((param) -> new ReadOnlyObjectWrapper<>(param.getValue().getFileName()));
