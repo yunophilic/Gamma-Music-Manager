@@ -29,13 +29,13 @@ public class MenuUI extends MenuBar{
    	private static final String FILE_TITLE = "File";
     private static final String ADD_LIBRARY_OPTION = "Add Library";
     private static final String OPTIONS_TITLE = "Options";
-    private static final String LEFT_PANEL_OPTION = "Left Panel";
+    private static final String LEFT_PANEL_OPTION = "Library panel";
     private static final String SHOW_FOLDERS_ONLY = "Show folders only";
-    private static final String RIGHT_PANEL_OPTION = "Right Panel";
+    private static final String RIGHT_PANEL_OPTION = "Tabs panel";
     private static final String HIDE_RIGHT_PANEL = "Hide";
     private static final String DISPLAY_FOLDERS_ONLY = "Display folders only";
     private static final String DONT_DISPLAY_FOLDERS_ONLY = "Don't display folders only";
-    private static final String CENTER_PANEL_OPTION = "Center Panel";
+    private static final String CENTER_PANEL_OPTION = "Folder contents";
     private static final String SHOW_FILES_IN_SUBFOLDERS = "Show files in subfolders";
     private static final String DISPLAY_SUBFOLDER_FILES = "Display subfolder files";
     private static final String DONT_DISPLAY_SUBFOLDER_FILES = "Don't display subfolder files";
