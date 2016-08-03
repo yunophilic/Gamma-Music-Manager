@@ -243,7 +243,7 @@ public class PromptUI {
      */
     private static void failedToRename(File file) {
         final String BODY_MESSAGE = "The file \"" + file + "\" could not be renamed.";
-        makeAlertPrompt(AlertType.ERROR, RENAME_ERROR_TITLE, null, BODY_MESSAGE);
+        makeAlertPrompt(AlertType.ERROR, RENAME_ERROR_TITLE, null, BODY_MESSAGE).show();
     }
 
     /**
@@ -253,7 +253,7 @@ public class PromptUI {
      */
     private static void failedToCreate(File folder) {
         final String BODY_MESSAGE = "The file \"" + folder + "\" could not be created.";
-        makeAlertPrompt(AlertType.ERROR, CREATE_FOLDER_ERROR_TITLE, null, BODY_MESSAGE);
+        makeAlertPrompt(AlertType.ERROR, CREATE_FOLDER_ERROR_TITLE, null, BODY_MESSAGE).show();
     }
 
     /**
