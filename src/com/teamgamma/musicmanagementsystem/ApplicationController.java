@@ -23,6 +23,7 @@ import javafx.stage.StageStyle;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -209,7 +210,9 @@ public class ApplicationController extends Application {
                         m_songManager.getM_rightFolderSelected(),
                         m_songManager.getM_selectedCenterFolder(),
                         m_songManager.getM_selectedPlaylist(),
-                        m_songManager.getM_menuOptions()
+                        m_songManager.getM_menuOptions(),
+                        m_rootUI.getCenterTableColumnsVisibility(),
+                        m_rootUI.getPlaylistTableColumnsVisibility()
                 );
                 m_databaseManager.closeConnection();
 
@@ -263,6 +266,8 @@ public class ApplicationController extends Application {
         // Get previous expanded states
         List<String> libraryUIExpandedPaths = m_databaseManager.getExpandedLeftTreeViewItems();
         List<String> rightPanelExpandedPaths = m_databaseManager.getExpandedRightTreeViewItems();
+        Map<String, Boolean> centerTableColumnVisibilityMap = m_filePersistentStorage.getCenterTableColumnsVisibility();
+        Map<String, Boolean> playlistTableColumnVisibilityMap = m_filePersistentStorage.getPlaylistTableColumnsVisibility();
 
         // Create main UI
         m_rootUI = new MainUI(songManager,
@@ -271,6 +276,8 @@ public class ApplicationController extends Application {
                               m_filePersistentStorage,
                               libraryUIExpandedPaths,
                               rightPanelExpandedPaths,
+                              centerTableColumnVisibilityMap,
+                              playlistTableColumnVisibilityMap,
                               this);
     }
 

@@ -8,6 +8,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class to save state for the application.
@@ -25,6 +27,8 @@ public class FilePersistentStorage {
     private static final String CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER_OPTION = "center_panel_option";
     private static final String SEARCH_SHOW_FILES_IN_FOLDER_OPTION = "show_files_in_folder_hit";
     private static final String HIDE_RIGHT_FILE_PANE_OPTION = "hide_right_panel";
+    private static final String CENTER_TABLE_COLUMNS_VISIBILITY = "center_table";
+    private static final String PLAYLIST_TABLE_COLUMNS_VISIBILITY = "playlist_table";
 
     private JSONObject m_jsonObject;
 
@@ -90,30 +94,45 @@ public class FilePersistentStorage {
         m_jsonObject.put(CENTER_PANEL_SHOW_ALL_FILES_IN_FOLDER_OPTION, false);
         m_jsonObject.put(SEARCH_SHOW_FILES_IN_FOLDER_OPTION, false);
         m_jsonObject.put(HIDE_RIGHT_FILE_PANE_OPTION, false);
+        m_jsonObject.put(CENTER_TABLE_COLUMNS_VISIBILITY, new HashMap<>());
+        m_jsonObject.put(PLAYLIST_TABLE_COLUMNS_VISIBILITY, new HashMap<>());
     }
 
     /**
      * Save the config file settings.
+     *
+     * @param rightPanelFile selected right panel folder
+     * @param centerPanelFile selected center panel folder
+     * @param  selectedPlaylist selected playlist
+     * @param menuOptions menu options
+     * @param centerTableColumnVisibilityMap center table columns visibility state
+     * @param playlistTableColumnVisibilityMap playlist table columns visibility state
      */
     public void saveConfigFile(File rightPanelFile,
                                File centerPanelFile,
                                Playlist selectedPlaylist,
-                               MenuOptions menuOptions) {
+                               MenuOptions menuOptions,
+                               Map<String, Boolean> centerTableColumnVisibilityMap,
+                               Map<String, Boolean> playlistTableColumnVisibilityMap) {
         System.out.println("RIGHT FOLDER: " + rightPanelFile);
         System.out.println("CENTER FOLDER: " + centerPanelFile);
         System.out.println("SELECTED PLAYLIST: " + selectedPlaylist);
+        System.out.println("CENTER TABLE COLUMNS: " + centerTableColumnVisibilityMap);
+        System.out.println("PLAYLIST TABLE COLUMNS: " + playlistTableColumnVisibilityMap);
 
-        if(rightPanelFile != null) {
+        if (rightPanelFile != null) {
             saveRightPanelFolder(rightPanelFile.getAbsolutePath());
         } else {
             saveRightPanelFolder("");
         }
-        if(centerPanelFile != null) {
+
+        if (centerPanelFile != null) {
             saveCenterPanelFolder(centerPanelFile.getAbsolutePath());
         } else {
             saveCenterPanelFolder("");
         }
-        if(selectedPlaylist != null) {
+
+        if (selectedPlaylist != null) {
             saveSelectedPlaylist(selectedPlaylist.getM_playlistName());
         } else {
             saveSelectedPlaylist("");
@@ -123,6 +142,9 @@ public class FilePersistentStorage {
         saveLeftPanelShowOnlyFoldersOption(menuOptions.getM_leftPanelShowFoldersOnly());
         saveShowFilesInFolderHit(menuOptions.getShowFilesInFolderSerachHit());
         saveHideRightFilePane(menuOptions.getHideRightPanel());
+
+        saveCenterTableColumnsVisibility(centerTableColumnVisibilityMap);
+        savePlaylistTableColumnsVisibility(playlistTableColumnVisibilityMap);
 
         writeConfigFile();
     }
@@ -283,15 +305,6 @@ public class FilePersistentStorage {
     }
 
     /**
-     * Returns if we need to hide the right file pane option from config file.
-     *
-     * @return True if we want to hide the right file pane. False otherwise.
-     */
-    public boolean getHideRightFilePane() {
-        return (boolean) getValueFromJson(HIDE_RIGHT_FILE_PANE_OPTION, false);
-    }
-
-    /**
      * Save if we want to show all the files in folder for the search results to the config file.
      *
      * @param option boolean value to save.
@@ -309,6 +322,55 @@ public class FilePersistentStorage {
     @SuppressWarnings("unchecked")
     private void saveHideRightFilePane(boolean option) {
         m_jsonObject.replace(HIDE_RIGHT_FILE_PANE_OPTION, option);
+    }
+
+    /**
+     * Returns if we need to hide the right file pane option from config file.
+     *
+     * @return True if we want to hide the right file pane. False otherwise.
+     */
+    public boolean getHideRightFilePane() {
+        return (boolean) getValueFromJson(HIDE_RIGHT_FILE_PANE_OPTION, false);
+    }
+
+    /**
+     * Save center table columns visibility state.
+     *
+     * @param map <column id, visibility state> map.
+     */
+    @SuppressWarnings("unchecked")
+    private void saveCenterTableColumnsVisibility(Map<String, Boolean> map) {
+        m_jsonObject.put(CENTER_TABLE_COLUMNS_VISIBILITY, map);
+    }
+
+    /**
+     * Returns center table visibility state from config file.
+     *
+     * @return <column id, visibility state> map
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Boolean> getCenterTableColumnsVisibility() {
+        return (Map<String, Boolean>) getValueFromJson(CENTER_TABLE_COLUMNS_VISIBILITY, new HashMap<>());
+    }
+
+    /**
+     * Save playlist table columns visibility state.
+     *
+     * @param map <column id, visibility state> map.
+     */
+    @SuppressWarnings("unchecked")
+    private void savePlaylistTableColumnsVisibility(Map<String, Boolean> map) {
+        m_jsonObject.put(PLAYLIST_TABLE_COLUMNS_VISIBILITY, map);
+    }
+
+    /**
+     * Returns playlist table visibility state from config file.
+     *
+     * @return <column id, visibility state> map
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Boolean> getPlaylistTableColumnsVisibility() {
+        return (Map<String, Boolean>) getValueFromJson(PLAYLIST_TABLE_COLUMNS_VISIBILITY, new HashMap<>());
     }
 
     /**
