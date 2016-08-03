@@ -1,0 +1,56 @@
+﻿Brian's Feedback to Gamma: Last updated July 13
+
+
+Priority Features:
+DONE - drag & drop multiple files / folders into a playlist to add.
+DONE - Right file manager pane: Want same options on files as in the centre pane: right click options, double click to play...,
+DONE - Search
+DONE - Mini-mode
+DONE - Moving a file makes UI lag for 10+ seconds
+
+
+
+
+
+
+Very Desired Features/Issues
+DONE - Right-click on a folder: add option to "Create new folder".
+DONE - Unable to rename a file.
+DONE - Dragging a file into the right-file pane does not (always) show file in the pane after move complete. Plus, it then shows it in the left-pane when that pane even if that pane is set to not show files.
+DONE - Drag and drop song/folder into "Playing Next" pane should add to end of the override queue        
+DONE - Add Right-click in "Playing Next" songs for Remove from queue
+DONE - Deleting the currently playing song takes a long time in a big libary (~20 seconds)
+DONE - When loading a new playlist, clear the "Play Next" queue.
+
+
+DONE - When playing off the "Playing next" queue, automatically expand it to make it visible. Perhaps also change its background colour to something bright - On right-click file: Make the "play song" bold (default double-click option)
+DONE - Right-click on file/folder to have "Show in File Explorer" and launch the file explorer window.
+DONE - Right-click on file in playlist, history, or playing next: add "Show in library" which changes centre pane to show the file, left pane to show the folder.
+DONE - Able to hide right file manager panel
+- Song lengths are reported at twice their actual length for some songs (see "- Nina Simone - Sinnerman.mp3").
+        Bit rate issue being reported in the JAudioTagger...... Reports as 72 when it should be 145
+
+
+Done- Center needs to have a Length column option.
+to indicate it's "active"?
+- Single left-click on a folder in left-pane should display its contents in the centre pane.
+DONE - History/Playing next: don't make the first one bold. Perhaps make the one currently playing bold (if any)
+DONE - Reorder History above the player, so we have: History over Player over Playing Next
+DONE - Deleting the currently playing song does not update the song text on the player.
+DONE - Deleting a song (currently playing or otherwise) does not remove it from current playlist.
+
+
+
+
+Desired Features
+- Installer to run stand-alone without IntelliJ
+DONE (through OS) - Surround sound
+- Takes a very long time to read/process 40gb library on initial load (~3 minutes)
+  (Displays many MP3 procesing warnings)
+DONE  Need progress bar, or at least spash screen.
+DONE?- Have the File Path column's text show the last part of the path, not the first part.
+DONE - Dragging-dropping a file into its current folder does nothing (vs pop-up error)
+
+
+Possible features
+DONE (merge pending) - If showing files recursively in the centre pane, have the file path show relative to the base folder being shown.
