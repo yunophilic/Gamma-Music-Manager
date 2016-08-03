@@ -21,7 +21,6 @@ import javafx.scene.control.*;
 import javafx.util.Callback;
 import javafx.util.Duration;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,16 +63,16 @@ public class PlaylistUI extends VBox {
 
     private static final Insets TABLE_VIEW_MARGIN = new Insets(30, 0, 0, 0);
 
-    private static final String ADD_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "add-playlist-button.png";
-    private static final String ADD_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "add-playlist-button-highlight.png";
-    private static final String REMOVE_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "remove-playlist-button.png";
-    private static final String REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON_PATH = "res" + File.separator + "remove-playlist-button-highlight.png";
-    private static final String EDIT_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "edit-playlist-button.png";
-    private static final String EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "edit-playlist-button-highlight.png";
-    private static final String SHUFFLE_PLAYLIST_BUTTON_ICON_PATH = "res" + File.separator + "shuffle-playlist-button.png";
-    private static final String SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH = "res" + File.separator + "shuffle-playlist-button-highlight.png";
-    private static final String PLAY_PLAYLIST_ICON = "res" + File.separator + "ic_play_circle_filled_black_48dp_1x.png";
-    private static final String REPEAT_PLAYLIST_ICON = "res" + File.separator + "ic_repeat_black_48dp_1x.png";
+    private static final String ADD_PLAYLIST_BUTTON_ICON = "add-playlist-button.png";
+    private static final String ADD_PLAYLIST_BUTTON_HIGHLIGHT_ICON = "add-playlist-button-highlight.png";
+    private static final String REMOVE_PLAYLIST_BUTTON_ICON = "remove-playlist-button.png";
+    private static final String REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON = "remove-playlist-button-highlight.png";
+    private static final String EDIT_PLAYLIST_BUTTON_ICON = "edit-playlist-button.png";
+    private static final String EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON = "edit-playlist-button-highlight.png";
+    private static final String SHUFFLE_PLAYLIST_BUTTON_ICON = "shuffle-playlist-button.png";
+    private static final String SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON = "shuffle-playlist-button-highlight.png";
+    private static final String PLAY_PLAYLIST_ICON = "ic_play_circle_filled_black_48dp_1x.png";
+    private static final String REPEAT_PLAYLIST_ICON = "ic_repeat_black_48dp_1x.png";
 
     private static final String SELECT_PLAYLIST_HEADER = "   Select Playlist:";
     private static final String ADD_PLAYLIST_TOOL_TIP_MESSAGE = "Add Playlist";
@@ -188,11 +187,11 @@ public class PlaylistUI extends VBox {
      * @return The create playlist button.
      */
     private Button createCreateNewPlaylistButton() {
-        Button createNewPlaylistButton = buildButton(ADD_PLAYLIST_TOOL_TIP_MESSAGE, ADD_PLAYLIST_BUTTON_ICON_PATH);
+        Button createNewPlaylistButton = buildButton(ADD_PLAYLIST_TOOL_TIP_MESSAGE, ADD_PLAYLIST_BUTTON_ICON);
         UserInterfaceUtils.setMouseOverImageChange(
                 createNewPlaylistButton,
-                ADD_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH,
-                ADD_PLAYLIST_BUTTON_ICON_PATH);
+                ADD_PLAYLIST_BUTTON_HIGHLIGHT_ICON,
+                ADD_PLAYLIST_BUTTON_ICON);
 
 
         createNewPlaylistButton.setOnMouseClicked((event) -> {
@@ -218,11 +217,11 @@ public class PlaylistUI extends VBox {
      * @return  The remove playlist button
      */
     private Button createRemovePlaylistButton() {
-        Button removePlaylistButton = buildButton(REMOVE_PLAYLIST_TOOLTIP_MESSAGE, REMOVE_PLAYLIST_BUTTON_ICON_PATH);
+        Button removePlaylistButton = buildButton(REMOVE_PLAYLIST_TOOLTIP_MESSAGE, REMOVE_PLAYLIST_BUTTON_ICON);
         UserInterfaceUtils.setMouseOverImageChange(
                 removePlaylistButton,
-                REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON_PATH,
-                REMOVE_PLAYLIST_BUTTON_ICON_PATH);
+                REMOVE_PLAYLIST_BUTTON__HIGHLIGHT_ICON,
+                REMOVE_PLAYLIST_BUTTON_ICON);
 
         removePlaylistButton.setOnMouseClicked((event) -> {
             if (m_dropDownMenu.getItems().isEmpty()) {
@@ -252,11 +251,11 @@ public class PlaylistUI extends VBox {
      * @return The edit playlist button
      */
     private Button createRenamePlaylistButton() {
-        Button editPlaylistButton = buildButton(RENAME_PLAYLIST_TOOL_TIP_MESSAGE, EDIT_PLAYLIST_BUTTON_ICON_PATH);
+        Button editPlaylistButton = buildButton(RENAME_PLAYLIST_TOOL_TIP_MESSAGE, EDIT_PLAYLIST_BUTTON_ICON);
         UserInterfaceUtils.setMouseOverImageChange(
                 editPlaylistButton,
-                EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH,
-                EDIT_PLAYLIST_BUTTON_ICON_PATH);
+                EDIT_PLAYLIST_BUTTON_HIGHLIGHT_ICON,
+                EDIT_PLAYLIST_BUTTON_ICON);
 
         editPlaylistButton.setOnMouseClicked((event) -> {
             if (m_dropDownMenu.getItems().isEmpty()) {
@@ -288,11 +287,11 @@ public class PlaylistUI extends VBox {
      * @return The button that will control the shuffle playlist.
      */
     private Button createShufflePlaylistButton() {
-        Button shufflePlaylistButton = buildButton(SHUFFLE_PLAYLIST_TOOL_TIP_MESSAGE, SHUFFLE_PLAYLIST_BUTTON_ICON_PATH);
+        Button shufflePlaylistButton = buildButton(SHUFFLE_PLAYLIST_TOOL_TIP_MESSAGE, SHUFFLE_PLAYLIST_BUTTON_ICON);
         UserInterfaceUtils.setMouseOverImageChange(
                 shufflePlaylistButton,
-                SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON_PATH,
-                SHUFFLE_PLAYLIST_BUTTON_ICON_PATH);
+                SHUFFLE_PLAYLIST_BUTTON_HIGHLIGHT_ICON,
+                SHUFFLE_PLAYLIST_BUTTON_ICON);
 
         shufflePlaylistButton.setOnMouseClicked((event) -> {
             Playlist selectedPlaylist = m_model.getM_selectedPlaylist();

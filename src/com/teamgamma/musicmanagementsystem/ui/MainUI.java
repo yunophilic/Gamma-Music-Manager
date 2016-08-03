@@ -24,16 +24,15 @@ import java.util.Map;
  * MainUI Class.
  */
 public class MainUI extends BorderPane {
-    private static final String SEARCH_ICON_PATH = "res"  + File.separator + "search.png";
+    private static final String SEARCH_ICON_PATH = "search.png";
     private static final String SEARCH_PROMPT_TEXT = "Search";
     private static final String SEARCH_TOOL_TIP = "Find songs or libraries";
     private static final String SEARCH_TAB_HEADER = "Search Results";
     private static final String FILE_TREE_TAB_HEADER = "File Tree";
     private static final int TAB_PANE_MIN_WIDTH = 250;
     private static final int TAB_PANE_MAX_WIDTH = 400;
-
-    private final double LEFT_PANEL_PREF_WIDTH = 250;
-    private final double RIGHT_PANEL_PREF_WIDTH = 350;
+    private static final double LEFT_PANEL_PREF_WIDTH = 250;
+    private static final double RIGHT_PANEL_PREF_WIDTH = 350;
 
     private SongManager m_model;
     private MusicPlayerManager m_musicPlayerManager;
