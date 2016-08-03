@@ -5,6 +5,7 @@ import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
+import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -16,6 +17,8 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +52,7 @@ public class ContentListUI extends StackPane {
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
     private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
     private static final int DEFAULT_COLUMNS_PREF_WIDTH = 175;
+    public static final int COLUMN_PREF_WIDTH = 150;
 
 
     private SongManager m_model;
@@ -122,6 +126,7 @@ public class ContentListUI extends StackPane {
         TableColumn<Song, String> filePathCol = new TableColumn<>(FILE_PATH_COLUMN_HEADING);
         filePathCol.setId(FILE_PATH_COLUMN_ID);
         filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
+        filePathCol.setPrefWidth(COLUMN_PREF_WIDTH);
 
         TableColumn<Song, String> fileNameCol = new TableColumn<>(FILE_NAME_COLUMN_HEADING);
         fileNameCol.setId(FILE_NAME_COLUMN_ID);
@@ -241,7 +246,13 @@ public class ContentListUI extends StackPane {
                                           TableColumn<Song, String> genreCol,
                                           TableColumn<Song, String> lengthCol,
                                           TableColumn<Song, Integer> ratingCol) {
-        filePathCol.setCellValueFactory((param) -> new ReadOnlyObjectWrapper<>(param.getValue().getFile().getParentFile().getName()));
+        filePathCol.setCellValueFactory((param) -> {
+            Path absoluteFilePath = param.getValue().getFile().toPath();
+            Path centerFolderPath = m_model.getM_selectedCenterFolder().toPath();
+            Path relativePath = centerFolderPath.relativize(absoluteFilePath);
+            String pathToShow = (relativePath.toFile().getParent() == null) ? "" : relativePath.toFile().getParent();
+            return new ReadOnlyObjectWrapper<>(FileTreeUtils.ELLIPSES_BREAK + File.separator + pathToShow);
+        });
 
         fileNameCol.setCellValueFactory((param) -> new ReadOnlyObjectWrapper<>(param.getValue().getFileName()));
 
