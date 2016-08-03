@@ -101,9 +101,16 @@ public class CustomTreeCell extends TextFieldTreeCell<Item> {
         setOnDragOver((dragEvent) -> {
             System.out.println("Drag over on " + m_selectedItem);
             if (dragEvent.getDragboard().hasString()) {
-                String draggedItemPath = dragEvent.getDragboard().getString();
-                String destination = m_selectedItem.getFile().getAbsolutePath();
-                if (!draggedItemPath.equals(destination)) {
+                List<Item> itemsToMove = m_model.getM_itemsToMove();
+
+                boolean itemsToMoveContainsRoot = false;
+                for (Item item : itemsToMove) {
+                    if (item.isRootItem()) {
+                        itemsToMoveContainsRoot = true;
+                    }
+                }
+
+                if (!itemsToMove.contains(m_selectedItem) && !itemsToMoveContainsRoot) {
                     dragEvent.acceptTransferModes(TransferMode.MOVE);
                 }
             }

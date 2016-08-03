@@ -177,6 +177,13 @@ public class ApplicationController extends Application {
         primaryStage.getIcons().add(new Image(GAMMA_LOGO_IMAGE));
         primaryStage.show();
 
+        playStartUpSound();
+    }
+
+    /**
+     * Play the start up sound when the application is launched or when user switches out of minimode
+     */
+    public void playStartUpSound() {
         Media sound = new Media(ClassLoader.getSystemResource(START_SOUND).toString());
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         mediaPlayer.play();

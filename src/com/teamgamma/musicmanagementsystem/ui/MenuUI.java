@@ -13,6 +13,8 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
@@ -46,6 +48,7 @@ public class MenuUI extends MenuBar{
     private static final String SEARCH_HEADER = "Search";
     private static final String SHOW_FILES_IN_FOLDER_HITS_HEADER = "Show Files In Folder Hits";
     private static final String LOADING_LIBRARY_MESSAGE = "Loading Library";
+    private static final String MINIMODE_SOUND_PATH = "activate-mini-mode.mp3";
 
     private static List<GeneralObserver> m_miniModeObservers = new ArrayList<>();
 
@@ -321,6 +324,7 @@ public class MenuUI extends MenuBar{
      */
     public void fireMiniMode() {
         if (!m_miniCheck) {
+            playMiniModeSound();
             m_model.notifyMinimodeObservers();
             m_miniCheck = true;
             m_applicationController.minimodeTurnOn();
@@ -328,11 +332,21 @@ public class MenuUI extends MenuBar{
         }
         else {
             m_miniCheck = false;
+            m_applicationController.playStartUpSound();
             m_applicationController.minimodeTurnOff();
             m_main.minimodeTurnOff();
         }
         notifyObservers();
         m_minimodeMenuItem.setSelected(m_miniCheck);
+    }
+
+    /**
+     * Play a sound when the user switches into minimode
+     */
+    private void playMiniModeSound() {
+        Media sound = new Media(ClassLoader.getSystemResource(MINIMODE_SOUND_PATH).toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(sound);
+        mediaPlayer.play();
     }
 
     /**
