@@ -43,6 +43,7 @@ public class MainUI extends BorderPane {
     private BorderPane m_centerPane;
     private BorderPane m_rightPane;
     private MenuUI m_menuUI;
+    private TextField m_searchText;
 
     public MainUI(SongManager model,
                   MusicPlayerManager musicPlayerManager,
@@ -59,6 +60,7 @@ public class MainUI extends BorderPane {
         m_filePersistentStorage = filePersistentStorage;
         m_applicationController = applicationController;
         m_menuUI = new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, this, m_applicationController);
+        m_searchText = new TextField();
 
         this.setLeft(leftPane(libraryExpandedPaths));
         this.setRight(rightPane());
@@ -113,18 +115,17 @@ public class MainUI extends BorderPane {
         wrapper.setCenter(m_menuUI);
 
         HBox searchWrapper = new HBox();
-        TextField searchText = new TextField();
-        searchText.setTooltip(new Tooltip(SEARCH_TOOL_TIP));
-        searchText.setPromptText(SEARCH_PROMPT_TEXT);
-        searchText.setOnKeyPressed(event -> {
+        m_searchText.setTooltip(new Tooltip(SEARCH_TOOL_TIP));
+        m_searchText.setPromptText(SEARCH_PROMPT_TEXT);
+        m_searchText.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER){
-                searchForFiles(searchText);
+                searchForFiles(m_searchText);
             }
         });
 
         this.setOnKeyPressed(event -> {
             if (event.isControlDown() && event.getCode() == KeyCode.F){
-                searchText.requestFocus();
+                m_searchText.requestFocus();
             }
         });
 
@@ -134,13 +135,25 @@ public class MainUI extends BorderPane {
         UserInterfaceUtils.createMouseOverUIChange(search, search.getStyle());
 
         search.setOnMouseClicked(event -> {
-            System.out.println("Searching for " + searchText.getText());
-            searchForFiles(searchText);
+            System.out.println("Searching for " + m_searchText.getText());
+            searchForFiles(m_searchText);
         });
 
-        searchWrapper.getChildren().addAll(searchText, search);
+        searchWrapper.getChildren().addAll(m_searchText, search);
 
         wrapper.setRight(searchWrapper);
+        return wrapper;
+    }
+
+
+    /**
+     * Function to create the top UI component for the application when mini mode is enabled.
+     *
+     * @return  All the UI components that will be shown in the top area of the application during minimode session.
+     */
+    private Node topPaneMiniMode() {
+        BorderPane wrapper = new BorderPane();
+        wrapper.setCenter(m_menuUI);
         return wrapper;
     }
 
@@ -242,6 +255,7 @@ public class MainUI extends BorderPane {
         this.setRight(null);
         this.setCenter(null);
         this.setLeft(m_rightPane);
+        this.setTop(topPaneMiniMode());
     }
 
     /**
@@ -252,5 +266,6 @@ public class MainUI extends BorderPane {
         this.setLeft(m_leftPane);
         this.setRight(m_rightPane);
         this.setCenter(m_centerPane);
+        this.setTop(topPane());
     }
 }
