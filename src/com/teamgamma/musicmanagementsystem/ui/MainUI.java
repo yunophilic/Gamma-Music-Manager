@@ -18,6 +18,7 @@ import javafx.scene.layout.VBox;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * MainUI Class.
@@ -37,13 +38,15 @@ public class MainUI extends BorderPane {
     private DatabaseManager m_databaseManager;
     private FilePersistentStorage m_filePersistentStorage;
     private LibraryUI m_libraryUI;
-    private DynamicTreeViewUI m_rightFilePane;
-    private ApplicationController m_applicationController;
+    private DynamicTreeViewUI m_dynamicTreeViewUI;
+    private ContentListUI m_contentListUI;
+    private PlaylistUI m_playlistUI;
+    private MenuUI m_menuUI;
+    private TextField m_searchText;
+
     private BorderPane m_leftPane;
     private BorderPane m_centerPane;
     private BorderPane m_rightPane;
-    private MenuUI m_menuUI;
-    private TextField m_searchText;
 
     public MainUI(SongManager model,
                   MusicPlayerManager musicPlayerManager,
@@ -51,6 +54,8 @@ public class MainUI extends BorderPane {
                   FilePersistentStorage filePersistentStorage,
                   List<String> libraryExpandedPaths,
                   List<String> dynamicTreeViewExpandedPaths,
+                  Map<String, Boolean> centerTableColumnVisibilityMap,
+                  Map<String, Boolean> playlistTableColumnVisibilityMap,
                   ApplicationController applicationController) {
         super();
 
@@ -58,13 +63,12 @@ public class MainUI extends BorderPane {
         m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         m_filePersistentStorage = filePersistentStorage;
-        m_applicationController = applicationController;
-        m_menuUI = new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, this, m_applicationController);
+        m_menuUI = new MenuUI(m_model, m_databaseManager, m_filePersistentStorage, this, applicationController);
         m_searchText = new TextField();
 
         this.setLeft(leftPane(libraryExpandedPaths));
-        this.setRight(rightPane());
-        this.setCenter(centerPane(dynamicTreeViewExpandedPaths));
+        this.setRight(rightPane(playlistTableColumnVisibilityMap));
+        this.setCenter(centerPane(dynamicTreeViewExpandedPaths, centerTableColumnVisibilityMap));
         this.setTop(topPane());
     }
 
@@ -86,19 +90,21 @@ public class MainUI extends BorderPane {
     /**
      * Function to create the UI element that will be shown on the right side of the application
      *
+     * @param   playlistTableColumnVisibilityMap <column id, visibility state> map.
      * @return  The UI elements that are to be shown in the right side of the application.
      */
-    private Node rightPane() {
-        PlaylistUI playlistUI = new PlaylistUI(m_model, m_musicPlayerManager, m_databaseManager);
+    private Node rightPane(Map<String, Boolean> playlistTableColumnVisibilityMap) {
+        m_playlistUI = new PlaylistUI(m_model, m_musicPlayerManager, m_databaseManager, playlistTableColumnVisibilityMap);
 
         VBox musicPlayerWrapper = new VBox();
         musicPlayerWrapper.getChildren().add(new MusicPlayerHistoryUI(m_model, m_musicPlayerManager));
-        musicPlayerWrapper.getChildren().add(new MusicPlayerUI(m_model, m_musicPlayerManager, m_databaseManager,
-                m_filePersistentStorage, m_menuUI));
+        musicPlayerWrapper.getChildren().add(
+                new MusicPlayerUI(m_model, m_musicPlayerManager, m_databaseManager, m_filePersistentStorage, m_menuUI)
+        );
         musicPlayerWrapper.getChildren().add(new MusicPlayerPlaybackQueueUI(m_musicPlayerManager, m_model));
 
         m_rightPane = new BorderPane();
-        m_rightPane.setCenter(playlistUI);
+        m_rightPane.setCenter(m_playlistUI);
         m_rightPane.setBottom(musicPlayerWrapper);
         m_rightPane.setPrefWidth(RIGHT_PANEL_PREF_WIDTH);
 
@@ -176,11 +182,12 @@ public class MainUI extends BorderPane {
      * Function to create the center pane for the application.
      *
      * @param dynamicTreeViewExpandedPaths      The list of expanded folders for the alternative (right) file pane.
+     * @param centerTableColumnVisibilityMap    <column id, visibility state> map.
      * @return                                  The UI components that will be shown in the center.
      */
-    private Node centerPane(List<String> dynamicTreeViewExpandedPaths) {
+    private Node centerPane(List<String> dynamicTreeViewExpandedPaths, Map<String, Boolean> centerTableColumnVisibilityMap) {
         m_centerPane = new BorderPane();
-        m_centerPane.setCenter(createFileExplorer(dynamicTreeViewExpandedPaths));
+        m_centerPane.setCenter(createFileExplorer(dynamicTreeViewExpandedPaths, centerTableColumnVisibilityMap));
         return m_centerPane;
     }
 
@@ -190,22 +197,22 @@ public class MainUI extends BorderPane {
      * @param dynamicTreeViewExpandedPaths      The list of expanded folders for the right file pane.
      * @return                                  The UI component for the file explorer.
      */
-    private Node createFileExplorer(List<String> dynamicTreeViewExpandedPaths) {
+    private Node createFileExplorer(List<String> dynamicTreeViewExpandedPaths, Map<String, Boolean> centerTableColumnVisibilityMap) {
         HBox pane = new HBox();
 
-        ContentListUI contentListUI = new ContentListUI(m_model, m_musicPlayerManager, m_databaseManager);
+        m_contentListUI = new ContentListUI(m_model, m_musicPlayerManager, m_databaseManager, centerTableColumnVisibilityMap);
 
-        m_rightFilePane = new DynamicTreeViewUI(m_model, m_musicPlayerManager, m_databaseManager, dynamicTreeViewExpandedPaths);
+        m_dynamicTreeViewUI = new DynamicTreeViewUI(m_model, m_musicPlayerManager, m_databaseManager, dynamicTreeViewExpandedPaths);
 
         TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        Tab fileTree = new Tab(FILE_TREE_TAB_HEADER, m_rightFilePane);
+        Tab fileTree = new Tab(FILE_TREE_TAB_HEADER, m_dynamicTreeViewUI);
 
         Tab searchResults = new Tab(SEARCH_TAB_HEADER, new SearchResultUI(m_model, m_musicPlayerManager, m_databaseManager));
         tabPane.getTabs().addAll(fileTree, searchResults);
 
-        pane.getChildren().addAll(contentListUI, tabPane);
-        HBox.setHgrow(contentListUI, Priority.ALWAYS);
+        pane.getChildren().addAll(m_contentListUI, tabPane);
+        HBox.setHgrow(m_contentListUI, Priority.ALWAYS);
         HBox.setHgrow(tabPane, Priority.ALWAYS);
         
         m_model.registerSearchObserver(() -> tabPane.getSelectionModel().select(searchResults));
@@ -244,7 +251,25 @@ public class MainUI extends BorderPane {
      * @return  A list of expanded folders
      */
     public List<String> getDynamicTreeViewUIExpandedPaths() {
-        return m_rightFilePane.getExpandedPaths();
+        return m_dynamicTreeViewUI.getExpandedPaths();
+    }
+
+    /**
+     * Function to get center table columns visibility state
+     *
+     * @return <column id, boolean> map
+     */
+    public Map<String, Boolean> getCenterTableColumnsVisibility() {
+        return m_contentListUI.getColumnsVisibility();
+    }
+
+    /**
+     * Function to get playlist table columns visibility state
+     *
+     * @return <column id, visibility state> map
+     */
+    public Map<String, Boolean> getPlaylistTableColumnsVisibility() {
+        return m_playlistUI.getTableColumnsVisibility();
     }
 
     /**
