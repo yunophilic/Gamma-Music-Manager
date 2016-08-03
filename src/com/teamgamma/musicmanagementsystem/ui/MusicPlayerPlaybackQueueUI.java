@@ -34,11 +34,10 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
 
     /**
      * Constructor
-     * @param manager       The music player manager
      * @param songManager   The song manager
      */
-    public MusicPlayerPlaybackQueueUI(MusicPlayerManager manager, SongManager songManager) {
-        m_manager = manager;
+    public MusicPlayerPlaybackQueueUI(SongManager songManager) {
+        m_manager = songManager.getMusicPlayerManager();
 
         TitledPane queuingList = UserInterfaceUtils.createTitlePane(QUEUING_HEADER, m_manager.getPlayingQueue(),
                 createPlaybackQueueAction(songManager), BRIGHT_BACKGROUND_COLOR);
@@ -49,18 +48,18 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
         queuingList.setBackground(background);
         this.setBackground(background);
 
-        setQueuingDragActions(manager, songManager, queuingList);
+        setQueuingDragActions(m_manager, songManager, queuingList);
 
         this.getPanes().add(queuingList);
 
-        manager.registerQueingObserver(
+        m_manager.registerQueingObserver(
             () -> Platform.runLater(
-                () -> queuingList.setContent(UserInterfaceUtils.createUIList(manager.getPlayingQueue(),
+                () -> queuingList.setContent(UserInterfaceUtils.createUIList(m_manager.getPlayingQueue(),
                         createPlaybackQueueAction(songManager), BRIGHT_BACKGROUND_COLOR))
             )
         );
 
-        manager.registerNewSongObserver(
+        m_manager.registerNewSongObserver(
             () -> Platform.runLater(
                 () -> {
                     if (!m_manager.isPlayingSongOnFromHistoryList() && !m_manager.getPlayingQueue().isEmpty()){
@@ -78,7 +77,7 @@ public class MusicPlayerPlaybackQueueUI extends Accordion{
             }
             Platform.runLater(
                 () -> queuingList.setContent(UserInterfaceUtils.createUIList(
-                            manager.getPlayingQueue(),
+                        m_manager.getPlayingQueue(),
                             createPlaybackQueueAction(songManager),
                             BRIGHT_BACKGROUND_COLOR))
             );

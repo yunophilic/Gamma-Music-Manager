@@ -17,15 +17,14 @@ public class DynamicTreeViewUI extends StackPane {
     private final static String LABEL_DEFAULT = "Choose a folder to view";
 
     private SongManager m_model;
-    private MusicPlayerManager m_musicPlayerManager;
+
     private DatabaseManager m_databaseManager;
     private TreeView<Item> m_tree;
 
-    public DynamicTreeViewUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager databaseManager,
+    public DynamicTreeViewUI(SongManager model, DatabaseManager databaseManager,
                              List<String> dynamicTreeViewExpandedPaths) {
         super();
         m_model = model;
-        m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         setPaneStyle();
         registerAsObserver();
@@ -66,7 +65,7 @@ public class DynamicTreeViewUI extends StackPane {
      */
     private void setTreeCellFactory() {
         System.out.println("setting cell factory...");
-        m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree,
+        m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_databaseManager, m_tree,
                 CellType.RIGHT_FILE_PANE));
     }
 

@@ -2,12 +2,10 @@ package com.teamgamma.musicmanagementsystem.ui;
 
 import com.teamgamma.musicmanagementsystem.model.DatabaseManager;
 import com.teamgamma.musicmanagementsystem.model.Item;
-
 import com.teamgamma.musicmanagementsystem.model.SongManager;
-import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
-
 import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
+
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeView;
@@ -27,10 +25,9 @@ public class SearchResultUI extends BorderPane{
      * Constructor
      *
      * @param model                 The model to interact with
-     * @param musicPlayerManager    The music player manager to interact with.
      * @param dbManager             The database manager to interact with.
      */
-    public SearchResultUI(SongManager model, MusicPlayerManager musicPlayerManager, DatabaseManager dbManager) {
+    public SearchResultUI(SongManager model, DatabaseManager dbManager) {
         model.registerSearchObserver(() ->
             Platform.runLater(
                 () -> {
@@ -47,7 +44,7 @@ public class SearchResultUI extends BorderPane{
                         FileTreeUtils.setTreeExpandedState(model.getSearchResults().getTree(), allExpanedPaths);
 
                         searchResults.setCellFactory(
-                                param -> new CustomTreeCell(model, musicPlayerManager, dbManager, searchResults,
+                                param -> new CustomTreeCell(model, dbManager, searchResults,
                                         CellType.SEARCH_RESULTS));
 
                         this.setCenter(searchResults);

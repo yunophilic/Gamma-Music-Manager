@@ -30,19 +30,18 @@ public class MusicPlayerHistoryUI extends Accordion{
      * Constructor
      *
      * @param model         The Songmanager model
-     * @param manager       The music player manager
      */
-    public MusicPlayerHistoryUI(SongManager model, MusicPlayerManager manager) {
-        m_manager = manager;
+    public MusicPlayerHistoryUI(SongManager model) {
+        m_manager = model.getMusicPlayerManager();
 
         TitledPane playbackHistory = UserInterfaceUtils.createTitlePane(PLAYBACK_HISTORY_HEADER, m_manager.getHistory(),
                 createHistoryAction(model));
 
         this.getPanes().add(playbackHistory);
 
-        manager.registerNewSongObserver(
+        m_manager.registerNewSongObserver(
                 () -> Platform.runLater(
-                    () -> playbackHistory.setContent(UserInterfaceUtils.createUIList(manager.getHistory(),
+                    () -> playbackHistory.setContent(UserInterfaceUtils.createUIList(m_manager.getHistory(),
                             createHistoryAction(model)))
                 )
         );
@@ -50,11 +49,11 @@ public class MusicPlayerHistoryUI extends Accordion{
         model.addFileObserver(fileActions -> {
             for (Pair<Action, File> action : fileActions) {
                 if (action.getKey() == Action.DELETE) {
-                    manager.removeAllInstancesOfSongFromHistory(action.getValue().getAbsolutePath());
+                    m_manager.removeAllInstancesOfSongFromHistory(action.getValue().getAbsolutePath());
                 }
             }
             Platform.runLater(
-                    () -> playbackHistory.setContent(UserInterfaceUtils.createUIList(manager.getHistory(),
+                    () -> playbackHistory.setContent(UserInterfaceUtils.createUIList(m_manager.getHistory(),
                             createHistoryAction(model)))
             );
 

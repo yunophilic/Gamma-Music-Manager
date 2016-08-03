@@ -4,7 +4,6 @@ import com.teamgamma.musicmanagementsystem.util.*;
 import com.teamgamma.musicmanagementsystem.util.FileTreeUtils;
 import com.teamgamma.musicmanagementsystem.model.*;
 
-import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.util.Pair;
@@ -18,17 +17,14 @@ import java.util.List;
  */
 public class LibraryUI extends StackPane {
     private SongManager m_model;
-    private MusicPlayerManager m_musicPlayerManager;
     private DatabaseManager m_databaseManager;
     private TreeView<Item> m_tree;
 
     public LibraryUI(SongManager model,
-                     MusicPlayerManager musicPlayerManager,
                      DatabaseManager databaseManager,
                      List<String> expandedPaths) {
         super();
         m_model = model;
-        m_musicPlayerManager = musicPlayerManager;
         m_databaseManager = databaseManager;
         initTreeView();
         if (m_tree != null) {
@@ -97,7 +93,7 @@ public class LibraryUI extends StackPane {
      */
     private void setTreeCellFactory() {
         System.out.println("setting cell factory...");
-        m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_musicPlayerManager, m_databaseManager, m_tree,
+        m_tree.setCellFactory(arg -> new CustomTreeCell(m_model, m_databaseManager, m_tree,
                 CellType.LEFT_FILE_PANE));
     }
 

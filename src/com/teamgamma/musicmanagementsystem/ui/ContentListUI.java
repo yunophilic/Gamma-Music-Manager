@@ -65,16 +65,14 @@ public class ContentListUI extends StackPane {
      * Constructor
      *
      * @param model
-     * @param musicPlayerManager
      * @param databaseManager
      */
     public ContentListUI(SongManager model,
-                         MusicPlayerManager musicPlayerManager,
                          DatabaseManager databaseManager,
                          Map<String, Boolean> tableColumnVisibilityMap) {
         super();
         m_model = model;
-        m_musicPlayerManager = musicPlayerManager;
+        m_musicPlayerManager = m_model.getMusicPlayerManager();
         m_databaseManager = databaseManager;
         m_contextMenu = new ContextMenu();
         initTableView(tableColumnVisibilityMap);

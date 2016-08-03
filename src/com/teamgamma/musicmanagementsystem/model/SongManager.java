@@ -732,6 +732,8 @@ public class SongManager {
         return m_searchResults;
     }
 
+    public MusicPlayerManager getMusicPlayerManager() { return m_musicPlayerManager;}
+
     /**********
      * Functions for observer pattern
      *************/

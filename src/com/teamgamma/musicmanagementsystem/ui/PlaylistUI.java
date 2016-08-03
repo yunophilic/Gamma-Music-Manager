@@ -91,12 +91,11 @@ public class PlaylistUI extends VBox {
     private ComboBox<Playlist> m_dropDownMenu;
 
     public PlaylistUI(SongManager model,
-                      MusicPlayerManager musicPlayerManager,
                       DatabaseManager databaseManager,
                       Map<String, Boolean> tableColumnVisibilityMap) {
         super();
         m_model = model;
-        m_musicPlayerManager = musicPlayerManager;
+        m_musicPlayerManager = m_model.getMusicPlayerManager();
         m_databaseManager = databaseManager;
         m_contextMenu = new ContextMenu();
         m_dropDownMenu = new ComboBox<>();

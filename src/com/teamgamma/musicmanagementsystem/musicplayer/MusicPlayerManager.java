@@ -879,6 +879,7 @@ public class MusicPlayerManager {
      */
     public void updateSongLocation(Song songToUpdate, Song newSong) {
         updateSongInList(m_songHistory, songToUpdate, newSong);
+        m_databaseManager.updateHistory(songToUpdate.getFile().getAbsolutePath(), newSong.getFile().getAbsolutePath());
         updateSongInList(m_playingQueue, songToUpdate, newSong);
     }
 
