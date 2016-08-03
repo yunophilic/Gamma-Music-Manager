@@ -6,8 +6,10 @@ import com.teamgamma.musicmanagementsystem.model.Song;
 import com.teamgamma.musicmanagementsystem.util.GeneralObserver;
 
 import javafx.util.Duration;
+import javafx.util.Pair;
 
 import javax.sound.sampled.*;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
@@ -866,5 +868,32 @@ public class MusicPlayerManager {
     private void clearPlaybackQueue() {
         m_playingQueue = new ArrayList<>();
         notifyQueingObserver();
+    }
+
+    /**
+     * Function to update the song passed in the first paramter to point to the new location indicated by the second
+     * parameter.
+     *
+     * @param songToUpdate      The song to find to update
+     * @param newSong           The song with updated location.
+     */
+    public void updateSongLocation(Song songToUpdate, Song newSong) {
+        updateSongInList(m_songHistory, songToUpdate, newSong);
+        updateSongInList(m_playingQueue, songToUpdate, newSong);
+    }
+
+    /**
+     * Function to update the the list with the new song.
+     *
+     * @param listToUpdate      List to update
+     * @param songToUpdate      The song to find to update
+     * @param newSong           The song with updated location.
+     */
+    private void updateSongInList(List<Song> listToUpdate, Song songToUpdate, Song newSong) {
+        for (int i = 0; i < listToUpdate.size(); ++i) {
+            if (listToUpdate.get(i).equals(songToUpdate)) {
+                listToUpdate.set(i, newSong);
+            }
+        }
     }
 }

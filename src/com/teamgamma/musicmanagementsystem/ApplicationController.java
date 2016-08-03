@@ -54,9 +54,9 @@ public class ApplicationController extends Application {
     @Override
     public void init() throws Exception {
         Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
-        m_songManager = new SongManager();
         m_databaseManager = new DatabaseManager();
         m_musicPlayerManager = new MusicPlayerManager(m_databaseManager);
+        m_songManager = new SongManager(m_musicPlayerManager);
         m_filePersistentStorage = new FilePersistentStorage();
         if (m_databaseManager.isDatabaseFileExist()) {
             m_databaseManager.setupDatabase();
