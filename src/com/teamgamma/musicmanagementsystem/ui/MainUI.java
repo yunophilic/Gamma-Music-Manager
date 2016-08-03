@@ -28,6 +28,7 @@ public class MainUI extends BorderPane {
     private static final String SEARCH_TOOL_TIP = "Find songs or libraries";
     private static final String SEARCH_TAB_HEADER = "Search Results";
     private static final String FILE_TREE_TAB_HEADER = "File Tree";
+    public static final int TAB_PANE_MIN_WIDTH = 250;
 
     private final double LEFT_PANEL_PREF_WIDTH = 250;
     private final double RIGHT_PANEL_PREF_WIDTH = 350;
@@ -187,6 +188,8 @@ public class MainUI extends BorderPane {
         TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         Tab fileTree = new Tab(FILE_TREE_TAB_HEADER, m_rightFilePane);
+
+        tabPane.setMinWidth(TAB_PANE_MIN_WIDTH);
 
         Tab searchResults = new Tab(SEARCH_TAB_HEADER, new SearchResultUI(m_model, m_musicPlayerManager, m_databaseManager));
         tabPane.getTabs().addAll(fileTree, searchResults);

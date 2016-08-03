@@ -5,7 +5,6 @@ import com.teamgamma.musicmanagementsystem.util.ContextMenuBuilder;
 import com.teamgamma.musicmanagementsystem.model.*;
 import com.teamgamma.musicmanagementsystem.musicplayer.MusicPlayerManager;
 
-import com.teamgamma.musicmanagementsystem.util.FileActions;
 import com.teamgamma.musicmanagementsystem.util.UserInterfaceUtils;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -17,10 +16,6 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +28,7 @@ public class ContentListUI extends StackPane {
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
     private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
+    private static final int DEFAULT_COLUMNS_PREF_WIDTH = 175;
 
 
     private SongManager m_model;
@@ -56,13 +52,13 @@ public class ContentListUI extends StackPane {
         m_contextMenu = new ContextMenu();
         initTableView();
         UserInterfaceUtils.applyBlackBoarder(this);
-        registerAsCenterFolderObserver();
+        registerAsObservers();
     }
 
     /**
      * Register as a observer to changes for the folder selected to be displayed here
      */
-    private void registerAsCenterFolderObserver() {
+    private void registerAsObservers() {
         m_model.addLibraryObserver((fileActions) -> {
             clearTable();
             updateTable();
@@ -99,10 +95,12 @@ public class ContentListUI extends StackPane {
         filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
         TableColumn<Song, String> fileNameCol = new TableColumn<>("File Name");
         fileNameCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
+        fileNameCol.setPrefWidth(DEFAULT_COLUMNS_PREF_WIDTH);
         TableColumn<Song, String> titleCol = new TableColumn<>("Title");
         titleCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, String> artistCol = new TableColumn<>("Artist");
         artistCol.setMinWidth(COLUMN_MIN_WIDTH);
+        artistCol.setPrefWidth(DEFAULT_COLUMNS_PREF_WIDTH);
         TableColumn<Song, String> albumCol = new TableColumn<>("Album");
         albumCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, String> genreCol = new TableColumn<>("Genre");
@@ -238,7 +236,7 @@ public class ContentListUI extends StackPane {
         m_table.getColumns().add(genreCol);
         m_table.getColumns().add(lengthCol);
         m_table.getColumns().add(ratingCol);
-        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        m_table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
     }
 
     /**

@@ -39,6 +39,7 @@ public class PlaylistUI extends VBox {
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
     private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
+    private static final int DEFAULT_COLUMNS_PREF_WIDTH = 115;
     private static final double PLAYLIST_PLAYBACK_BUTTON_SCALE = 0.75;
 
     private static final Insets TABLE_VIEW_MARGIN = new Insets(30, 0, 0, 0);
@@ -423,10 +424,12 @@ public class PlaylistUI extends VBox {
         filePathCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
         TableColumn<Song, String> fileNameCol = new TableColumn<>("File Name");
         fileNameCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
+        fileNameCol.setPrefWidth(DEFAULT_COLUMNS_PREF_WIDTH);
         TableColumn<Song, String> titleCol = new TableColumn<>("Title");
         titleCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, String> artistCol = new TableColumn<>("Artist");
         artistCol.setMinWidth(COLUMN_MIN_WIDTH);
+        artistCol.setPrefWidth(DEFAULT_COLUMNS_PREF_WIDTH);
         TableColumn<Song, String> albumCol = new TableColumn<>("Album");
         albumCol.setMinWidth(COLUMN_MIN_WIDTH);
         TableColumn<Song, String> genreCol = new TableColumn<>("Genre");
@@ -435,6 +438,7 @@ public class PlaylistUI extends VBox {
         ratingCol.setMinWidth(RATING_COLUMN_MIN_WIDTH);
         TableColumn<Song, String> lengthCol = new TableColumn<>("Length");
         lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
+        lengthCol.setPrefWidth(DEFAULT_COLUMNS_PREF_WIDTH);
 
         setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
         setDefaultVisibleColumnsInTable(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
@@ -447,7 +451,7 @@ public class PlaylistUI extends VBox {
         m_table.getColumns().add(genreCol);
         m_table.getColumns().add(ratingCol);
         m_table.getColumns().add(lengthCol);
-        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        m_table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
     }
 
     /**
