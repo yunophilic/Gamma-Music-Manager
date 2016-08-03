@@ -521,6 +521,11 @@ public class PlaylistUI extends VBox {
         m_table.refresh();
     }
 
+    /**
+     * Set columns visibility based on the map given
+     *
+     * @param map <column id, visibility state> map
+     */
     private void setVisibleColumnsInTable(Map<String, Boolean> map) {
         for (TableColumn column : m_table.getColumns()) {
             column.setVisible( map.get(column.getId()) );

@@ -89,6 +89,7 @@ public class MainUI extends BorderPane {
     /**
      * Function to create the UI element that will be shown on the right side of the application
      *
+     * @param   playlistTableColumnVisibilityMap <column id, visibility state> map.
      * @return  The UI elements that are to be shown in the right side of the application.
      */
     private Node rightPane(Map<String, Boolean> playlistTableColumnVisibilityMap) {
@@ -96,8 +97,9 @@ public class MainUI extends BorderPane {
 
         VBox musicPlayerWrapper = new VBox();
         musicPlayerWrapper.getChildren().add(new MusicPlayerHistoryUI(m_model, m_musicPlayerManager));
-        musicPlayerWrapper.getChildren().add(new MusicPlayerUI(m_model, m_musicPlayerManager, m_databaseManager,
-                                                            m_filePersistentStorage, m_menuUI));
+        musicPlayerWrapper.getChildren().add(
+                new MusicPlayerUI(m_model, m_musicPlayerManager, m_databaseManager, m_filePersistentStorage, m_menuUI)
+        );
         musicPlayerWrapper.getChildren().add(new MusicPlayerPlaybackQueueUI(m_musicPlayerManager, m_model));
 
         m_rightPane = new BorderPane();
@@ -168,6 +170,7 @@ public class MainUI extends BorderPane {
      * Function to create the center pane for the application.
      *
      * @param dynamicTreeViewExpandedPaths      The list of expanded folders for the alternative (right) file pane.
+     * @param centerTableColumnVisibilityMap    <column id, visibility state> map.
      * @return                                  The UI components that will be shown in the center.
      */
     private Node centerPane(List<String> dynamicTreeViewExpandedPaths, Map<String, Boolean> centerTableColumnVisibilityMap) {

@@ -100,6 +100,13 @@ public class FilePersistentStorage {
 
     /**
      * Save the config file settings.
+     *
+     * @param rightPanelFile selected right panel folder
+     * @param centerPanelFile selected center panel folder
+     * @param  selectedPlaylist selected playlist
+     * @param menuOptions menu options
+     * @param centerTableColumnVisibilityMap center table columns visibility state
+     * @param playlistTableColumnVisibilityMap playlist table columns visibility state
      */
     public void saveConfigFile(File rightPanelFile,
                                File centerPanelFile,
@@ -332,7 +339,7 @@ public class FilePersistentStorage {
      * @param map <column id, visibility state> map.
      */
     @SuppressWarnings("unchecked")
-    public void saveCenterTableColumnsVisibility(Map<String, Boolean> map) {
+    private void saveCenterTableColumnsVisibility(Map<String, Boolean> map) {
         m_jsonObject.put(CENTER_TABLE_COLUMNS_VISIBILITY, map);
     }
 
@@ -352,7 +359,7 @@ public class FilePersistentStorage {
      * @param map <column id, visibility state> map.
      */
     @SuppressWarnings("unchecked")
-    public void savePlaylistTableColumnsVisibility(Map<String, Boolean> map) {
+    private void savePlaylistTableColumnsVisibility(Map<String, Boolean> map) {
         m_jsonObject.put(PLAYLIST_TABLE_COLUMNS_VISIBILITY, map);
     }
 

@@ -99,6 +99,8 @@ public class ContentListUI extends StackPane {
 
     /**
      * Initialize table view
+     *
+     * @param tableColumnVisibilityMap <column id, visibility state> map
      */
     private void initTableView(Map<String, Boolean> tableColumnVisibilityMap) {
         m_table = new TableView<>();
@@ -111,7 +113,9 @@ public class ContentListUI extends StackPane {
     }
 
     /**
-     * Set the various table column labels
+     * Setup the various table columns
+     *
+     * @param tableColumnVisibilityMap <column id, visibility state> map
      */
     private void setTableColumns(Map<String, Boolean> tableColumnVisibilityMap) {
         TableColumn<Song, String> filePathCol = new TableColumn<>(FILE_PATH_COLUMN_HEADING);
@@ -190,6 +194,11 @@ public class ContentListUI extends StackPane {
         }
     }
 
+    /**
+     * Set columns visibility based on the map given
+     *
+     * @param map <column id, visibility state> map
+     */
     private void setVisibleColumns(Map<String, Boolean> map) {
         for (TableColumn column : m_table.getColumns()) {
             column.setVisible( map.get(column.getId()) );
