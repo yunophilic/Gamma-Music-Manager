@@ -48,6 +48,7 @@ public class ContentListUI extends StackPane {
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
     private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
+    private static final int DEFAULT_COLUMNS_PREF_WIDTH = 175;
 
 
     private SongManager m_model;
@@ -74,13 +75,13 @@ public class ContentListUI extends StackPane {
         m_contextMenu = new ContextMenu();
         initTableView(tableColumnVisibilityMap);
         UserInterfaceUtils.applyBlackBoarder(this);
-        registerAsCenterFolderObserver();
+        registerAsObservers();
     }
 
     /**
      * Register as a observer to changes for the folder selected to be displayed here
      */
-    private void registerAsCenterFolderObserver() {
+    private void registerAsObservers() {
         m_model.addLibraryObserver((fileActions) -> {
             clearTable();
             updateTable();
@@ -125,6 +126,7 @@ public class ContentListUI extends StackPane {
         TableColumn<Song, String> fileNameCol = new TableColumn<>(FILE_NAME_COLUMN_HEADING);
         fileNameCol.setId(FILE_NAME_COLUMN_ID);
         fileNameCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
+        fileNameCol.setPrefWidth(DEFAULT_COLUMNS_PREF_WIDTH);
 
         TableColumn<Song, String> titleCol = new TableColumn<>(TITLE_COLUMN_HEADING);
         titleCol.setId(TITLE_COLUMN_ID);
@@ -133,6 +135,7 @@ public class ContentListUI extends StackPane {
         TableColumn<Song, String> artistCol = new TableColumn<>(ARTIST_COLUMN_HEADING);
         artistCol.setId(ARTIST_COLUMN_ID);
         artistCol.setMinWidth(COLUMN_MIN_WIDTH);
+        artistCol.setPrefWidth(DEFAULT_COLUMNS_PREF_WIDTH);
 
         TableColumn<Song, String> albumCol = new TableColumn<>(ALBUM_COLUMN_HEADING);
         albumCol.setId(ALBUM_COLUMN_ID);
@@ -160,7 +163,7 @@ public class ContentListUI extends StackPane {
         m_table.getColumns().add(genreCol);
         m_table.getColumns().add(ratingCol);
         m_table.getColumns().add(lengthCol);
-        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        m_table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
         if (tableColumnVisibilityMap != null && !tableColumnVisibilityMap.isEmpty()) {
             setVisibleColumns(tableColumnVisibilityMap);

@@ -59,6 +59,7 @@ public class PlaylistUI extends VBox {
     private static final int COLUMN_MIN_WIDTH = 60;
     private static final int RATING_COLUMN_MIN_WIDTH = 20;
     private static final int LENGTH_COLUMN_MIN_WIDTH = 50;
+    private static final int DEFAULT_COLUMNS_PREF_WIDTH = 115;
     private static final double PLAYLIST_PLAYBACK_BUTTON_SCALE = 0.75;
 
     private static final Insets TABLE_VIEW_MARGIN = new Insets(30, 0, 0, 0);
@@ -450,6 +451,7 @@ public class PlaylistUI extends VBox {
         TableColumn<Song, String> fileNameCol = new TableColumn<>(FILE_NAME_COLUMN_HEADING);
         fileNameCol.setId(FILE_NAME_COLUMN_ID);
         fileNameCol.setMinWidth(FILE_COLUMN_MIN_WIDTH);
+        fileNameCol.setPrefWidth(DEFAULT_COLUMNS_PREF_WIDTH);
 
         TableColumn<Song, String> titleCol = new TableColumn<>(TITLE_COLUMN_HEADING);
         titleCol.setId(TITLE_COLUMN_ID);
@@ -458,6 +460,7 @@ public class PlaylistUI extends VBox {
         TableColumn<Song, String> artistCol = new TableColumn<>(ARTIST_COLUMN_HEADING);
         artistCol.setId(ARTIST_COLUMN_ID);
         artistCol.setMinWidth(COLUMN_MIN_WIDTH);
+        artistCol.setPrefWidth(DEFAULT_COLUMNS_PREF_WIDTH);
 
         TableColumn<Song, String> albumCol = new TableColumn<>(ALBUM_COLUMN_HEADING);
         albumCol.setId(ALBUM_COLUMN_ID);
@@ -474,6 +477,7 @@ public class PlaylistUI extends VBox {
         TableColumn<Song, String> lengthCol = new TableColumn<>(LENGTH_COLUMN_HEADING);
         lengthCol.setId(LENGTH_COLUMN_ID);
         lengthCol.setMinWidth(LENGTH_COLUMN_MIN_WIDTH);
+        lengthCol.setPrefWidth(DEFAULT_COLUMNS_PREF_WIDTH);
 
         setTableColumnAttributes(filePathCol, fileNameCol, titleCol, artistCol, albumCol, genreCol, ratingCol, lengthCol);
 
@@ -485,7 +489,7 @@ public class PlaylistUI extends VBox {
         m_table.getColumns().add(genreCol);
         m_table.getColumns().add(ratingCol);
         m_table.getColumns().add(lengthCol);
-        m_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        m_table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
         if (tableColumnVisibilityMap != null && !tableColumnVisibilityMap.isEmpty()) {
             setVisibleColumnsInTable(tableColumnVisibilityMap);
