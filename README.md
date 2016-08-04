@@ -18,7 +18,7 @@ ___
         * **watchservice:** Watcher class that watches for file changes made through the file system
         * **Main.java:** Contains our main() function
         * **StartUpLoader.java:** UI for the start up loader
-    * **res:** Images used in the application
+* **res:** Images used in the application
 * **Docs:** Contains documentation for this project 
     * Includes archives of our backlog and other planning documentation
     * **citations.txt:** 
